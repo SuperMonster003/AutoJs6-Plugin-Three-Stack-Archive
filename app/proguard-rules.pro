@@ -1,0 +1,5 @@
+-keep class io.github.supermonster003.autojs6.plugin.archivebrowser.ExplorerActionService { *; }
+-keep class io.github.supermonster003.autojs6.plugin.archivebrowser.ArchiveBrowserActivity { *; }
+-keep class io.github.supermonster003.autojs6.plugin.archivebrowser.WakeActivity { *; }
+-keep class org.autojs.plugin.common.api.PluginInfo { *; }
+-keep class org.autojs.plugin.explorer.api.** { *; }
