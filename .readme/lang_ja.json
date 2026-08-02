@@ -39,7 +39,7 @@
   "text_release_build": "Release ビルド",
   "p_build_params": "ビルドパラメーターは `version.properties` から取得します. 現在の最小 SDK は 24, ターゲット SDK は 36 です",
   "h3_resource_layout": "リソース構成",
-  "p_resource_layout": "`strings.xml` はプラグインメタデータとブラウザー UI をローカライズし, `plugin_instruction.md` はホストに表示する使用説明を提供します. README と CHANGELOG は `.python/generate_markdown.py` が JSON ソースから生成します",
+  "p_resource_layout": "`strings.xml` はプラグインメタデータとブラウザーの固定テキストをローカライズし, `plurals.xml` は数量に応じたブラウザーテキストをローカライズします. `plugin_instruction.md` はホストに表示する使用説明を提供します. README と CHANGELOG は `.python/generate_markdown.py` が JSON ソースから生成します",
   "h3_links": "リンク",
   "text_link_autojs6_docs": "AutoJs6 ドキュメント",
   "text_link_android_saf": "Android Storage Access Framework"

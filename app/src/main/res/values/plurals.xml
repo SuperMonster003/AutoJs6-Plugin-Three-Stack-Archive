@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="text_archive_summary">
+        <item quantity="one">%1$d entry, %2$s unpacked</item>
+        <item quantity="other">%1$d entries, %2$s unpacked</item>
+    </plurals>
+    <plurals name="text_extraction_complete">
+        <item quantity="one">Extracted %1$d file to %2$s</item>
+        <item quantity="other">Extracted %1$d files to %2$s</item>
+    </plurals>
+    <plurals name="text_folder_details">
+        <item quantity="one">%1$d file, %2$s unpacked</item>
+        <item quantity="other">%1$d files, %2$s unpacked</item>
+    </plurals>
+</resources>

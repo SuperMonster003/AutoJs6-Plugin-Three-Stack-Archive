@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.archivebrowser
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.net.Uri
 import kotlinx.coroutines.currentCoroutineContext
@@ -38,7 +39,7 @@ internal object ArchiveCacheStager {
         }
         cleanupStaleInputs(cacheDirectory)
 
-        val available = cacheDirectory.usableSpace
+        val available = cacheDirectory.compatibleUsableSpace()
             .takeIf { it > 0L }
             ?.minus(MINIMUM_FREE_CACHE_BYTES)
             ?.coerceAtLeast(0L)
@@ -92,6 +93,10 @@ internal object ArchiveCacheStager {
     }
 
     const val MAX_ARCHIVE_BYTES = 4L * 1024L * 1024L * 1024L
+
+    @SuppressLint("UsableSpace")
+    private fun File.compatibleUsableSpace(): Long = usableSpace
+
     private fun cleanupStaleInputs(cacheDirectory: File) {
         val cutoff = System.currentTimeMillis() - STALE_INPUT_AGE_MILLIS
         cacheDirectory.listFiles()?.asSequence()

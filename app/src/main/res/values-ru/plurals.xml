@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="text_archive_summary">
+        <item quantity="one">%1$d запись, распаковано: %2$s</item>
+        <item quantity="few">%1$d записи, распаковано: %2$s</item>
+        <item quantity="many">%1$d записей, распаковано: %2$s</item>
+        <item quantity="other">%1$d записи, распаковано: %2$s</item>
+    </plurals>
+    <plurals name="text_extraction_complete">
+        <item quantity="one">Извлечен %1$d файл, каталог: %2$s</item>
+        <item quantity="few">Извлечено %1$d файла, каталог: %2$s</item>
+        <item quantity="many">Извлечено %1$d файлов, каталог: %2$s</item>
+        <item quantity="other">Извлечено %1$d файла, каталог: %2$s</item>
+    </plurals>
+    <plurals name="text_folder_details">
+        <item quantity="one">%1$d файл, распаковано: %2$s</item>
+        <item quantity="few">%1$d файла, распаковано: %2$s</item>
+        <item quantity="many">%1$d файлов, распаковано: %2$s</item>
+        <item quantity="other">%1$d файла, распаковано: %2$s</item>
+    </plurals>
+</resources>

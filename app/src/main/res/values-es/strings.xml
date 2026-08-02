@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">Explorar archivo</string>
     <string name="app_name">Plugin de AutoJs6 - Explorador de archivos</string>
     <string name="dialog_button_cancel">Cancelar</string>
-    <string name="dialog_button_extract">Extraer</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
     <string name="error_archive_limit">El archivo supera un límite de seguridad</string>
@@ -14,20 +13,14 @@
     <string name="error_no_selection">Selecciona al menos una entrada</string>
     <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
     <string name="plugin_description">Explora y extrae archivos ZIP de forma segura</string>
-    <string name="text_archive_summary">%1$d entradas, %2$s sin comprimir</string>
-    <string name="text_blocked_entry">Entrada no segura bloqueada</string>
     <string name="text_cancelled">Cancelado</string>
-    <string name="text_cleaning_up">Limpiando la salida parcial...</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
     <string name="text_extract_selected">Extraer selección</string>
     <string name="text_extracting">Extrayendo %1$d de %2$d</string>
-    <string name="text_extraction_complete">Se extrajeron %1$d archivos en %2$s</string>
-    <string name="text_folder">Carpeta</string>
-    <string name="text_folder_details">%1$d archivos, %2$s sin comprimir</string>
-    <string name="text_loading_archive">Cargando archivo...</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Cargando archivo...</string>
     <string name="text_loading_progress">%1$s de %2$s</string>
     <string name="text_modified">Modificado: %1$s</string>
     <string name="text_no_entries">No hay entradas coincidentes</string>
-    <string name="text_open_archive">Abrir archivo</string>
     <string name="text_parent_directory">Directorio superior</string>
     <string name="text_search_hint">Buscar en el archivo</string>
     <string name="text_select_entry">Seleccionar entrada</string>

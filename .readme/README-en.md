@@ -158,10 +158,11 @@ Build parameters come from `version.properties`. The current minimum SDK is 24 a
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-`strings.xml` localizes plugin metadata and browser UI, while `plugin_instruction.md` provides host-visible usage instructions. README and changelog files are generated from JSON sources by `.python/generate_markdown.py`.
+`strings.xml` localizes plugin metadata and fixed browser text, while `plurals.xml` localizes quantity-aware browser text. `plugin_instruction.md` provides host-visible usage instructions. README and changelog files are generated from JSON sources by `.python/generate_markdown.py`.
 
 ******
 

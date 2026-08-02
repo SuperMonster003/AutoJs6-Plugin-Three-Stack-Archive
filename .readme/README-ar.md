@@ -158,10 +158,11 @@ variant: default
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-يوفر `strings.xml` ترجمة بيانات الملحق وواجهة المتصفح, بينما يوفر `plugin_instruction.md` تعليمات الاستخدام الظاهرة للمضيف. يولد `.python/generate_markdown.py` ملفات README وسجل التغييرات من مصادر JSON.
+يوفر `strings.xml` ترجمة بيانات الملحق ونصوص المتصفح الثابتة, بينما يوفر `plurals.xml` ترجمة نصوص المتصفح المرتبطة بالكميات. يوفر `plugin_instruction.md` تعليمات الاستخدام الظاهرة للمضيف. يولد `.python/generate_markdown.py` ملفات README وسجل التغييرات من مصادر JSON.
 
 ******
 

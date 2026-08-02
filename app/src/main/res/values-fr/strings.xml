@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">Parcourir l\'archive</string>
     <string name="app_name">Plugin AutoJs6 - Explorateur d\'archives</string>
     <string name="dialog_button_cancel">Annuler</string>
-    <string name="dialog_button_extract">Extraire</string>
     <string name="dialog_button_select_all">Tout sélectionner</string>
     <string name="error_archive_invalid">L\'archive est non valide ou non prise en charge</string>
     <string name="error_archive_limit">L\'archive dépasse une limite de sécurité</string>
@@ -14,20 +13,14 @@
     <string name="error_no_selection">Sélectionnez au moins une entrée</string>
     <string name="error_permission_missing">L\'accès en lecture à l\'archive est manquant</string>
     <string name="plugin_description">Parcourir et extraire des archives ZIP en toute sécurité</string>
-    <string name="text_archive_summary">%1$d entrées, %2$s décompressés</string>
-    <string name="text_blocked_entry">Entrée non sûre bloquée</string>
     <string name="text_cancelled">Annulé</string>
-    <string name="text_cleaning_up">Nettoyage de la sortie partielle...</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Nettoyage de la sortie partielle...</string>
     <string name="text_extract_selected">Extraire la sélection</string>
     <string name="text_extracting">Extraction de %1$d sur %2$d</string>
-    <string name="text_extraction_complete">%1$d fichiers extraits vers %2$s</string>
-    <string name="text_folder">Dossier</string>
-    <string name="text_folder_details">%1$d fichiers, %2$s décompressés</string>
-    <string name="text_loading_archive">Chargement de l\'archive...</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Chargement de l\'archive...</string>
     <string name="text_loading_progress">%1$s sur %2$s</string>
     <string name="text_modified">Modification: %1$s</string>
     <string name="text_no_entries">Aucune entrée correspondante</string>
-    <string name="text_open_archive">Ouvrir l\'archive</string>
     <string name="text_parent_directory">Dossier parent</string>
     <string name="text_search_hint">Rechercher dans l\'archive</string>
     <string name="text_select_entry">Sélectionner l\'entrée</string>

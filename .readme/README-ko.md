@@ -158,10 +158,11 @@ Release 빌드:
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-`strings.xml`은 플러그인 메타데이터와 탐색기 UI를 현지화하고 `plugin_instruction.md`는 호스트에 표시할 사용 설명을 제공합니다. `.python/generate_markdown.py`가 JSON 소스에서 README와 변경 내역을 생성합니다.
+`strings.xml`은 플러그인 메타데이터와 탐색기의 고정 텍스트를 현지화하고 `plurals.xml`은 수량에 따라 달라지는 탐색기 텍스트를 현지화합니다. `plugin_instruction.md`는 호스트에 표시할 사용 설명을 제공합니다. `.python/generate_markdown.py`가 JSON 소스에서 README와 변경 내역을 생성합니다.
 
 ******
 

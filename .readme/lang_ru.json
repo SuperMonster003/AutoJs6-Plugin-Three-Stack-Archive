@@ -39,7 +39,7 @@
   "text_release_build": "Сборка Release",
   "p_build_params": "Параметры сборки берутся из `version.properties`. Текущий минимальный SDK равен 24, целевой SDK равен 36",
   "h3_resource_layout": "Структура ресурсов",
-  "p_resource_layout": "`strings.xml` локализует метаданные плагина и интерфейс просмотра, а `plugin_instruction.md` содержит отображаемые хостом инструкции. `.python/generate_markdown.py` создает README и журналы изменений из исходных файлов JSON",
+  "p_resource_layout": "`strings.xml` локализует метаданные плагина и постоянные тексты интерфейса, а `plurals.xml` локализует тексты, зависящие от количества. `plugin_instruction.md` содержит отображаемые хостом инструкции. `.python/generate_markdown.py` создает README и журналы изменений из исходных файлов JSON",
   "h3_links": "Ссылки",
   "text_link_autojs6_docs": "Документация AutoJs6",
   "text_link_android_saf": "Android Storage Access Framework"

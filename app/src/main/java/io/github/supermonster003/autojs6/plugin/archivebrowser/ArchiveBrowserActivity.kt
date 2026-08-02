@@ -179,8 +179,9 @@ class ArchiveBrowserActivity : AppCompatActivity() {
                     currentDirectory = ArchivePathPolicy.ROOT_PATH
                 }
                 selectedPaths.retainAll { scannedIndex.node(it) != null }
-                binding.archiveSummary.text = getString(
-                    R.string.text_archive_summary,
+                binding.archiveSummary.text = resources.getQuantityString(
+                    R.plurals.text_archive_summary,
+                    scanned.entries.size,
                     scanned.entries.size,
                     formatBytes(scanned.totalUncompressedBytes),
                 )
@@ -253,8 +254,9 @@ class ArchiveBrowserActivity : AppCompatActivity() {
     ): ArchiveEntryRow {
         val archiveEntry = entry
         val details = if (isDirectory) {
-            getString(
-                R.string.text_folder_details,
+            resources.getQuantityString(
+                R.plurals.text_folder_details,
+                descendantFileCount,
                 descendantFileCount,
                 formatBytes(uncompressedSize),
             )
@@ -347,8 +349,9 @@ class ArchiveBrowserActivity : AppCompatActivity() {
                         },
                     )
                 }
-                val completedMessage = getString(
-                    R.string.text_extraction_complete,
+                val completedMessage = resources.getQuantityString(
+                    R.plurals.text_extraction_complete,
+                    result.filesExtracted,
                     result.filesExtracted,
                     result.root.displayName,
                 )

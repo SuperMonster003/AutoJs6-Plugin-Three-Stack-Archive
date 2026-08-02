@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">تصفح الأرشيف</string>
     <string name="app_name">ملحق AutoJs6 - متصفح الأرشيف</string>
     <string name="dialog_button_cancel">إلغاء</string>
-    <string name="dialog_button_extract">استخراج</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
     <string name="error_archive_limit">يتجاوز الأرشيف حد أمان</string>
@@ -14,20 +13,14 @@
     <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
     <string name="plugin_description">تصفح أرشيفات ZIP واستخراجها بأمان</string>
-    <string name="text_archive_summary">%1$d عنصر, %2$s بعد فك الضغط</string>
-    <string name="text_blocked_entry">عنصر غير آمن محظور</string>
     <string name="text_cancelled">تم الإلغاء</string>
-    <string name="text_cleaning_up">جار تنظيف المخرجات الجزئية...</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
     <string name="text_extract_selected">استخراج المحدد</string>
     <string name="text_extracting">جار استخراج %1$d من %2$d</string>
-    <string name="text_extraction_complete">تم استخراج %1$d ملف إلى %2$s</string>
-    <string name="text_folder">مجلد</string>
-    <string name="text_folder_details">%1$d ملف, %2$s بعد فك الضغط</string>
-    <string name="text_loading_archive">جار تحميل الأرشيف...</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">جار تحميل الأرشيف...</string>
     <string name="text_loading_progress">%1$s من %2$s</string>
     <string name="text_modified">التعديل: %1$s</string>
     <string name="text_no_entries">لا توجد عناصر مطابقة</string>
-    <string name="text_open_archive">فتح الأرشيف</string>
     <string name="text_parent_directory">الدليل الأصل</string>
     <string name="text_search_hint">البحث في الأرشيف</string>
     <string name="text_select_entry">تحديد العنصر</string>

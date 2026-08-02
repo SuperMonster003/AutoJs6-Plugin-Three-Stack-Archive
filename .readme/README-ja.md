@@ -158,10 +158,11 @@ Release ビルド:
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-`strings.xml` はプラグインメタデータとブラウザー UI をローカライズし, `plugin_instruction.md` はホストに表示する使用説明を提供します. README と CHANGELOG は `.python/generate_markdown.py` が JSON ソースから生成します.
+`strings.xml` はプラグインメタデータとブラウザーの固定テキストをローカライズし, `plurals.xml` は数量に応じたブラウザーテキストをローカライズします. `plugin_instruction.md` はホストに表示する使用説明を提供します. README と CHANGELOG は `.python/generate_markdown.py` が JSON ソースから生成します.
 
 ******
 

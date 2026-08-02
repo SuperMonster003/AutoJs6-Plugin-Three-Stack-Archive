@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="text_archive_summary">
+        <item quantity="zero">%1$d عنصر, %2$s بعد فك الضغط</item>
+        <item quantity="one">%1$d عنصر, %2$s بعد فك الضغط</item>
+        <item quantity="two">%1$d عنصران, %2$s بعد فك الضغط</item>
+        <item quantity="few">%1$d عناصر, %2$s بعد فك الضغط</item>
+        <item quantity="many">%1$d عنصرا, %2$s بعد فك الضغط</item>
+        <item quantity="other">%1$d عنصر, %2$s بعد فك الضغط</item>
+    </plurals>
+    <plurals name="text_extraction_complete">
+        <item quantity="zero">تم استخراج %1$d ملف إلى %2$s</item>
+        <item quantity="one">تم استخراج %1$d ملف إلى %2$s</item>
+        <item quantity="two">تم استخراج %1$d ملفين إلى %2$s</item>
+        <item quantity="few">تم استخراج %1$d ملفات إلى %2$s</item>
+        <item quantity="many">تم استخراج %1$d ملفا إلى %2$s</item>
+        <item quantity="other">تم استخراج %1$d ملف إلى %2$s</item>
+    </plurals>
+    <plurals name="text_folder_details">
+        <item quantity="zero">%1$d ملف, %2$s بعد فك الضغط</item>
+        <item quantity="one">%1$d ملف, %2$s بعد فك الضغط</item>
+        <item quantity="two">%1$d ملفان, %2$s بعد فك الضغط</item>
+        <item quantity="few">%1$d ملفات, %2$s بعد فك الضغط</item>
+        <item quantity="many">%1$d ملفا, %2$s بعد فك الضغط</item>
+        <item quantity="other">%1$d ملف, %2$s بعد فك الضغط</item>
+    </plurals>
+</resources>

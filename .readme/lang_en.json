@@ -39,7 +39,7 @@
   "text_release_build": "Release build",
   "p_build_params": "Build parameters come from `version.properties`. The current minimum SDK is 24 and the target SDK is 36",
   "h3_resource_layout": "Resource Layout",
-  "p_resource_layout": "`strings.xml` localizes plugin metadata and browser UI, while `plugin_instruction.md` provides host-visible usage instructions. README and changelog files are generated from JSON sources by `.python/generate_markdown.py`",
+  "p_resource_layout": "`strings.xml` localizes plugin metadata and fixed browser text, while `plurals.xml` localizes quantity-aware browser text. `plugin_instruction.md` provides host-visible usage instructions. README and changelog files are generated from JSON sources by `.python/generate_markdown.py`",
   "h3_links": "Links",
   "text_link_autojs6_docs": "AutoJs6 documentation",
   "text_link_android_saf": "Android Storage Access Framework"

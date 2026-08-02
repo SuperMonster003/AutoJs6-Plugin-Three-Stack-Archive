@@ -158,10 +158,11 @@ variant: default
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-`strings.xml` локализует метаданные плагина и интерфейс просмотра, а `plugin_instruction.md` содержит отображаемые хостом инструкции. `.python/generate_markdown.py` создает README и журналы изменений из исходных файлов JSON.
+`strings.xml` локализует метаданные плагина и постоянные тексты интерфейса, а `plurals.xml` локализует тексты, зависящие от количества. `plugin_instruction.md` содержит отображаемые хостом инструкции. `.python/generate_markdown.py` создает README и журналы изменений из исходных файлов JSON.
 
 ******
 

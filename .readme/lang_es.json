@@ -39,7 +39,7 @@
   "text_release_build": "Compilación Release",
   "p_build_params": "Los parámetros de compilación proceden de `version.properties`. El SDK mínimo actual es 24 y el SDK de destino es 36",
   "h3_resource_layout": "Estructura de recursos",
-  "p_resource_layout": "`strings.xml` localiza los metadatos del plugin y la interfaz del explorador, mientras que `plugin_instruction.md` proporciona instrucciones visibles desde el host. `.python/generate_markdown.py` genera los archivos README y de cambios a partir de fuentes JSON",
+  "p_resource_layout": "`strings.xml` localiza los metadatos del plugin y los textos fijos del explorador, mientras que `plurals.xml` localiza los textos que dependen de cantidades. `plugin_instruction.md` proporciona instrucciones visibles desde el host. `.python/generate_markdown.py` genera los archivos README y de cambios a partir de fuentes JSON",
   "h3_links": "Enlaces",
   "text_link_autojs6_docs": "Documentación de AutoJs6",
   "text_link_android_saf": "Android Storage Access Framework"

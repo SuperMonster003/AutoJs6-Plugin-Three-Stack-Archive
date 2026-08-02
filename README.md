@@ -158,10 +158,11 @@ Release 构建:
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-`strings.xml` 提供插件元数据和浏览器界面的本地化, `plugin_instruction.md` 提供宿主侧展示的使用说明. README 与 CHANGELOG 由 `.python/generate_markdown.py` 根据 JSON 源文件生成.
+`strings.xml` 提供插件元数据和浏览器固定文本的本地化, `plurals.xml` 提供浏览器数量文本的本地化. `plugin_instruction.md` 提供宿主侧展示的使用说明. README 与 CHANGELOG 由 `.python/generate_markdown.py` 根据 JSON 源文件生成.
 
 ******
 

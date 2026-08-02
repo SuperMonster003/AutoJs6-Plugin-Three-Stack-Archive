@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">압축 파일 탐색</string>
     <string name="app_name">AutoJs6 플러그인 - 압축 파일 탐색기</string>
     <string name="dialog_button_cancel">취소</string>
-    <string name="dialog_button_extract">압축 풀기</string>
     <string name="dialog_button_select_all">모두 선택</string>
     <string name="error_archive_invalid">압축 파일이 잘못되었거나 지원되지 않습니다</string>
     <string name="error_archive_limit">압축 파일이 안전 제한을 초과합니다</string>
@@ -14,20 +13,14 @@
     <string name="error_no_selection">항목을 하나 이상 선택하세요</string>
     <string name="error_permission_missing">압축 파일 읽기 권한이 없습니다</string>
     <string name="plugin_description">ZIP 압축 파일을 탐색하고 안전하게 압축 풀기</string>
-    <string name="text_archive_summary">항목 %1$d개, 압축 해제 크기 %2$s</string>
-    <string name="text_blocked_entry">안전하지 않은 항목 차단됨</string>
     <string name="text_cancelled">취소됨</string>
-    <string name="text_cleaning_up">일부 출력을 정리하는 중...</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">일부 출력을 정리하는 중...</string>
     <string name="text_extract_selected">선택 항목 압축 풀기</string>
     <string name="text_extracting">%2$d개 중 %1$d개 압축 푸는 중</string>
-    <string name="text_extraction_complete">파일 %1$d개를 %2$s에 압축 해제했습니다</string>
-    <string name="text_folder">폴더</string>
-    <string name="text_folder_details">파일 %1$d개, 압축 해제 크기 %2$s</string>
-    <string name="text_loading_archive">압축 파일을 불러오는 중...</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">압축 파일을 불러오는 중...</string>
     <string name="text_loading_progress">%2$s 중 %1$s</string>
     <string name="text_modified">수정: %1$s</string>
     <string name="text_no_entries">일치하는 항목이 없습니다</string>
-    <string name="text_open_archive">압축 파일 열기</string>
     <string name="text_parent_directory">상위 디렉터리</string>
     <string name="text_search_hint">압축 파일 검색</string>
     <string name="text_select_entry">항목 선택</string>

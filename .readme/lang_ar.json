@@ -39,7 +39,7 @@
   "text_release_build": "بناء Release",
   "p_build_params": "تأتي معلمات البناء من `version.properties`. الحد الأدنى الحالي لإصدار SDK هو 24 وإصدار SDK المستهدف هو 36",
   "h3_resource_layout": "بنية الموارد",
-  "p_resource_layout": "يوفر `strings.xml` ترجمة بيانات الملحق وواجهة المتصفح, بينما يوفر `plugin_instruction.md` تعليمات الاستخدام الظاهرة للمضيف. يولد `.python/generate_markdown.py` ملفات README وسجل التغييرات من مصادر JSON",
+  "p_resource_layout": "يوفر `strings.xml` ترجمة بيانات الملحق ونصوص المتصفح الثابتة, بينما يوفر `plurals.xml` ترجمة نصوص المتصفح المرتبطة بالكميات. يوفر `plugin_instruction.md` تعليمات الاستخدام الظاهرة للمضيف. يولد `.python/generate_markdown.py` ملفات README وسجل التغييرات من مصادر JSON",
   "h3_links": "الروابط",
   "text_link_autojs6_docs": "وثائق AutoJs6",
   "text_link_android_saf": "Android Storage Access Framework"

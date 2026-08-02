@@ -39,7 +39,7 @@
   "text_release_build": "Release 建置",
   "p_build_params": "建置參數來自 `version.properties`, 目前最低 SDK 為 24, 目標 SDK 為 36",
   "h3_resource_layout": "資源結構",
-  "p_resource_layout": "`strings.xml` 提供外掛程式中繼資料和瀏覽器介面的本地化, `plugin_instruction.md` 提供主程式端顯示的使用說明. README 與 CHANGELOG 由 `.python/generate_markdown.py` 根據 JSON 來源檔案產生",
+  "p_resource_layout": "`strings.xml` 提供外掛程式中繼資料和瀏覽器固定文字的本地化, `plurals.xml` 提供瀏覽器數量文字的本地化. `plugin_instruction.md` 提供主程式端顯示的使用說明. README 與 CHANGELOG 由 `.python/generate_markdown.py` 根據 JSON 來源檔案產生",
   "h3_links": "相關連結",
   "text_link_autojs6_docs": "AutoJs6 文件",
   "text_link_android_saf": "Android Storage Access Framework"

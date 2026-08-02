@@ -63,6 +63,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(*proguardFiles)
             niceSigningConfig?.let { signingConfig = it }
         }
@@ -147,15 +148,15 @@ tasks {
 
     register<Copy>("appendDigestToReleasedFiles") {
         description = "Appends CRC32 digest to released APK files"
+        dependsOn("assembleRelease")
 
         val ext = utils.FILE_EXTENSION_APK
-        val src = fileTree(projectDir) {
-            include("$buildTypeRelease/*.$ext")
-        }
-        val dst = file("${buildTypeRelease}s")
+        val src = layout.buildDirectory.dir("outputs/apk/$buildTypeRelease")
+        val dst = file("$rootDir/${buildTypeRelease}s")
 
         from(src)
         into(dst)
+        include("*.$ext")
         includeEmptyDirs = false
         duplicatesStrategy = DuplicatesStrategy.FAIL
 

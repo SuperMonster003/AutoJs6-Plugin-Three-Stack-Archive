@@ -158,10 +158,11 @@ Les paramètres de compilation proviennent de `version.properties`. Le SDK minim
 .python/generate_markdown.py
 app/src/main/assets/doc/CHANGELOG-*.md
 app/src/main/res/values-*/strings.xml
+app/src/main/res/values-*/plurals.xml
 app/src/main/res/raw-*/plugin_instruction.md
 ```
 
-`strings.xml` localise les métadonnées du plugin et l'interface du navigateur, tandis que `plugin_instruction.md` fournit les instructions visibles depuis l'hôte. `.python/generate_markdown.py` génère les fichiers README et les historiques depuis les sources JSON.
+`strings.xml` localise les métadonnées du plugin et les textes fixes du navigateur, tandis que `plurals.xml` localise les textes liés aux quantités. `plugin_instruction.md` fournit les instructions visibles depuis l'hôte. `.python/generate_markdown.py` génère les fichiers README et les historiques depuis les sources JSON.
 
 ******
 

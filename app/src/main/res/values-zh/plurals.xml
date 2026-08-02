@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="text_archive_summary">
+        <item quantity="other">%1$d 个条目, 解压后 %2$s</item>
+    </plurals>
+    <plurals name="text_extraction_complete">
+        <item quantity="other">已解压 %1$d 个文件到 %2$s</item>
+    </plurals>
+    <plurals name="text_folder_details">
+        <item quantity="other">%1$d 个文件, 解压后 %2$s</item>
+    </plurals>
+</resources>

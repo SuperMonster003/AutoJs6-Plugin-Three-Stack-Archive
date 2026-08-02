@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="text_archive_summary">
+        <item quantity="one">%1$d entrée, %2$s décompressé</item>
+        <item quantity="many">%1$d entrées, %2$s décompressés</item>
+        <item quantity="other">%1$d entrées, %2$s décompressés</item>
+    </plurals>
+    <plurals name="text_extraction_complete">
+        <item quantity="one">%1$d fichier extrait vers %2$s</item>
+        <item quantity="many">%1$d fichiers extraits vers %2$s</item>
+        <item quantity="other">%1$d fichiers extraits vers %2$s</item>
+    </plurals>
+    <plurals name="text_folder_details">
+        <item quantity="one">%1$d fichier, %2$s décompressé</item>
+        <item quantity="many">%1$d fichiers, %2$s décompressés</item>
+        <item quantity="other">%1$d fichiers, %2$s décompressés</item>
+    </plurals>
+</resources>
