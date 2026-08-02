@@ -1,0 +1,20 @@
+{
+  "changelog_label_hint": "ヒント",
+  "changelog_label_feature": "機能",
+  "changelog_label_fix": "修正",
+  "changelog_label_improvement": "改善",
+  "changelog_label_dependency": "依存関係",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/08/02",
+      "feature": [
+        "プラグイン ID `archive-browser`, エンジン `explorer-action`, バリアント `default` の Archive Browser プラグイン",
+        "ZIP, JAR, AAR, WAR コンテナー向けの単一ファイル読み取り専用エクスプローラーアクション, 階層参照, パス検索, エントリー選択",
+        "ユーザー指定の SAF ツリーへの選択的な展開, 進捗とキャンセル, 一時的な読み取り専用入力アクセス, ストレージ権限とネットワーク権限なし",
+        "入力 4 GiB, 暗黙のディレクトリを含む 20,000 パスノード, ZIP 中央ディレクトリ 64 MiB, 展開後の単一エントリー 512 MiB, 展開後の合計 2 GiB, 圧縮率 1000:1 の安全制限",
+        "安全でないパス, 重複または競合するエントリー, 未対応の圧縮方式, 入力元の変更, サイズ不一致, CRC 不一致の検証",
+        "スペイン語/フランス語/ロシア語/アラビア語/日本語/韓国語/英語/簡体字中国語/香港繁体字中国語/台湾繁体字中国語のメタデータ, UI, 使用説明, README, CHANGELOG"
+      ]
+    }
+  }
+}

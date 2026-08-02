@@ -1,0 +1,19 @@
+{
+  "repo_url": "https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser",
+  "repo_slug": "SuperMonster003/AutoJs6-Plugin-Archive-Browser",
+  "docs_autojs6_url": "https://docs.autojs6.com",
+  "plugin_action": "org.autojs.plugin.EXPLORER_ACTION",
+  "plugin_execute_action": "org.autojs.plugin.EXPLORER_ACTION_EXECUTE",
+  "plugin_id": "archive-browser",
+  "plugin_engine": "explorer-action",
+  "plugin_variant": "default",
+  "supported_formats": "zip, jar, aar, war",
+  "max_input_size": "4 GiB",
+  "max_entries": "20,000",
+  "max_central_directory_size": "64 MiB",
+  "max_path_length": "1,024",
+  "max_path_depth": "64",
+  "max_single_size": "512 MiB",
+  "max_total_size": "2 GiB",
+  "max_compression_ratio": "1000:1"
+}

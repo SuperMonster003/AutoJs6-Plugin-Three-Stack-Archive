@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_archive_browser">瀏覽壓縮檔</string>
+    <string name="app_name">AutoJs6 外掛程式 - 壓縮檔瀏覽器</string>
+    <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_extract">解壓縮</string>
+    <string name="dialog_button_select_all">全部選取</string>
+    <string name="error_archive_invalid">壓縮檔無效或不受支援</string>
+    <string name="error_archive_limit">壓縮檔超出安全限制</string>
+    <string name="error_cannot_create_output">無法建立輸出目錄</string>
+    <string name="error_cannot_open_archive">無法開啟壓縮檔</string>
+    <string name="error_cleanup_failed">清理失敗; 可能仍有部分輸出</string>
+    <string name="error_extraction_failed">解壓縮失敗</string>
+    <string name="error_no_selection">請至少選取一個項目</string>
+    <string name="error_permission_missing">缺少壓縮檔讀取權限</string>
+    <string name="plugin_description">瀏覽並安全解壓縮 ZIP 壓縮檔</string>
+    <string name="text_archive_summary">%1$d 個項目, 解壓縮後 %2$s</string>
+    <string name="text_blocked_entry">已封鎖不安全項目</string>
+    <string name="text_cancelled">已取消</string>
+    <string name="text_cleaning_up">正在清理部分輸出...</string>
+    <string name="text_extract_selected">解壓縮所選項目</string>
+    <string name="text_extracting">正在解壓縮第 %1$d 項, 共 %2$d 項</string>
+    <string name="text_extraction_complete">已解壓縮 %1$d 個檔案至 %2$s</string>
+    <string name="text_folder">資料夾</string>
+    <string name="text_folder_details">%1$d 個檔案, 解壓縮後 %2$s</string>
+    <string name="text_loading_archive">正在載入壓縮檔...</string>
+    <string name="text_loading_progress">%1$s / %2$s</string>
+    <string name="text_modified">修改時間: %1$s</string>
+    <string name="text_no_entries">沒有相符的項目</string>
+    <string name="text_open_archive">開啟壓縮檔</string>
+    <string name="text_parent_directory">上層目錄</string>
+    <string name="text_search_hint">搜尋壓縮檔</string>
+    <string name="text_select_entry">選取項目</string>
+    <string name="text_selected_count">已選取: %1$d</string>
+    <string name="text_size_details">%1$s, 壓縮後 %2$s, CRC %3$s</string>
+    <string name="text_unknown">未知</string>
+</resources>

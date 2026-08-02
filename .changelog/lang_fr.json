@@ -1,0 +1,20 @@
+{
+  "changelog_label_hint": "Indice",
+  "changelog_label_feature": "Fonctionnalité",
+  "changelog_label_fix": "Correction",
+  "changelog_label_improvement": "Amélioration",
+  "changelog_label_dependency": "Dépendance",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/08/02",
+      "feature": [
+        "Plugin Archive Browser avec l'ID `archive-browser`, le moteur `explorer-action` et la variante `default`",
+        "Action de l'explorateur en lecture seule pour un seul conteneur ZIP, JAR, AAR ou WAR avec navigation hiérarchique, recherche de chemins et sélection d'entrées",
+        "Extraction sélective vers une arborescence SAF choisie par l'utilisateur avec progression et annulation, accès temporaire en lecture seule à l'entrée et aucune autorisation de stockage ou de réseau",
+        "Limites de sécurité de 4 GiB en entrée, 20,000 noeuds de chemin avec les dossiers implicites, 64 MiB pour le répertoire central ZIP, 512 MiB par entrée décompressée, 2 GiB de données décompressées au total et un taux de compression de 1000:1",
+        "Validation des chemins non sûrs, des entrées en double ou en conflit, des méthodes de compression non prises en charge, des changements de source, des différences de taille et des différences de CRC",
+        "Métadonnées, interface, instructions, README et CHANGELOG localisés en espagnol, français, russe, arabe, japonais, coréen, anglais, chinois simplifié, chinois traditionnel de Hong Kong et chinois traditionnel de Taïwan"
+      ]
+    }
+  }
+}

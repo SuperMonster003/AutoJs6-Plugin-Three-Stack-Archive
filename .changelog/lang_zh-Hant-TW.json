@@ -1,0 +1,20 @@
+{
+  "changelog_label_hint": "提示",
+  "changelog_label_feature": "功能",
+  "changelog_label_fix": "修正",
+  "changelog_label_improvement": "改善",
+  "changelog_label_dependency": "相依性",
+  "$data": {
+    "v1.0.0": {
+      "released_date": "2026/08/02",
+      "feature": [
+        "壓縮檔瀏覽器外掛程式, 外掛程式 ID 為 `archive-browser`, 引擎為 `explorer-action`, 變體為 `default`",
+        "適用於 ZIP, JAR, AAR 和 WAR 容器的單一檔案唯讀檔案瀏覽器動作, 包含階層瀏覽, 路徑搜尋和項目選取",
+        "將所選項目解壓縮到使用者選取的 SAF 目錄樹, 支援進度與取消, 僅暫時讀取輸入, 不會要求儲存空間或網路權限",
+        "安全限制為輸入 4 GiB, 20,000 個路徑節點並包含隱含目錄, ZIP 中央目錄 64 MiB, 單一項目解壓縮後 512 MiB, 解壓縮後總資料 2 GiB, 壓縮比率 1000:1",
+        "針對不安全路徑, 重複和衝突項目, 不支援的壓縮方法, 輸入來源變更, 大小不符和 CRC 不符的驗證",
+        "外掛程式中繼資料, 介面文字, 使用說明, README 和 CHANGELOG 的多語言資源: 西班牙文/法文/俄文/阿拉伯文/日文/韓文/英文/簡體中文/香港繁體/台灣繁體"
+      ]
+    }
+  }
+}

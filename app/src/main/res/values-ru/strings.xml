@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_archive_browser">Просмотреть архив</string>
+    <string name="app_name">Плагин AutoJs6 - Просмотр архивов</string>
+    <string name="dialog_button_cancel">Отмена</string>
+    <string name="dialog_button_extract">Извлечь</string>
+    <string name="dialog_button_select_all">Выбрать все</string>
+    <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
+    <string name="error_archive_limit">Архив превышает безопасный предел</string>
+    <string name="error_cannot_create_output">Не удалось создать выходной каталог</string>
+    <string name="error_cannot_open_archive">Не удалось открыть архив</string>
+    <string name="error_cleanup_failed">Не удалось очистить данные; часть выходных файлов могла сохраниться</string>
+    <string name="error_extraction_failed">Не удалось извлечь файлы</string>
+    <string name="error_no_selection">Выберите хотя бы одну запись</string>
+    <string name="error_permission_missing">Нет доступа на чтение архива</string>
+    <string name="plugin_description">Просмотр и безопасное извлечение ZIP-архивов</string>
+    <string name="text_archive_summary">Записей: %1$d, распаковано: %2$s</string>
+    <string name="text_blocked_entry">Небезопасная запись заблокирована</string>
+    <string name="text_cancelled">Отменено</string>
+    <string name="text_cleaning_up">Очистка частично созданных файлов...</string>
+    <string name="text_extract_selected">Извлечь выбранное</string>
+    <string name="text_extracting">Извлечение %1$d из %2$d</string>
+    <string name="text_extraction_complete">Извлечено файлов: %1$d, каталог: %2$s</string>
+    <string name="text_folder">Папка</string>
+    <string name="text_folder_details">Файлов: %1$d, распаковано: %2$s</string>
+    <string name="text_loading_archive">Загрузка архива...</string>
+    <string name="text_loading_progress">%1$s из %2$s</string>
+    <string name="text_modified">Изменено: %1$s</string>
+    <string name="text_no_entries">Нет совпадающих записей</string>
+    <string name="text_open_archive">Открыть архив</string>
+    <string name="text_parent_directory">Родительский каталог</string>
+    <string name="text_search_hint">Поиск в архиве</string>
+    <string name="text_select_entry">Выбрать запись</string>
+    <string name="text_selected_count">Выбрано: %1$d</string>
+    <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
+    <string name="text_unknown">Неизвестно</string>
+</resources>

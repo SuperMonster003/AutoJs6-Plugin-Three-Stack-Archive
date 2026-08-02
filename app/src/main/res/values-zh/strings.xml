@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_archive_browser">浏览压缩包</string>
+    <string name="app_name">AutoJs6 插件 - 压缩包浏览器</string>
+    <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_extract">解压</string>
+    <string name="dialog_button_select_all">全选</string>
+    <string name="error_archive_invalid">压缩包无效或不受支持</string>
+    <string name="error_archive_limit">压缩包超出安全限制</string>
+    <string name="error_cannot_create_output">无法创建输出目录</string>
+    <string name="error_cannot_open_archive">无法打开压缩包</string>
+    <string name="error_cleanup_failed">清理失败; 可能残留部分输出</string>
+    <string name="error_extraction_failed">解压失败</string>
+    <string name="error_no_selection">请至少选择一个条目</string>
+    <string name="error_permission_missing">缺少压缩包读取权限</string>
+    <string name="plugin_description">浏览并安全解压 ZIP 压缩包</string>
+    <string name="text_archive_summary">%1$d 个条目, 解压后 %2$s</string>
+    <string name="text_blocked_entry">已阻止不安全条目</string>
+    <string name="text_cancelled">已取消</string>
+    <string name="text_cleaning_up">正在清理部分输出...</string>
+    <string name="text_extract_selected">解压所选项</string>
+    <string name="text_extracting">正在解压第 %1$d 项, 共 %2$d 项</string>
+    <string name="text_extraction_complete">已解压 %1$d 个文件到 %2$s</string>
+    <string name="text_folder">文件夹</string>
+    <string name="text_folder_details">%1$d 个文件, 解压后 %2$s</string>
+    <string name="text_loading_archive">正在加载压缩包...</string>
+    <string name="text_loading_progress">%1$s / %2$s</string>
+    <string name="text_modified">修改时间: %1$s</string>
+    <string name="text_no_entries">没有匹配的条目</string>
+    <string name="text_open_archive">打开压缩包</string>
+    <string name="text_parent_directory">上级目录</string>
+    <string name="text_search_hint">搜索压缩包</string>
+    <string name="text_select_entry">选择条目</string>
+    <string name="text_selected_count">已选择: %1$d</string>
+    <string name="text_size_details">%1$s, 压缩后 %2$s, CRC %3$s</string>
+    <string name="text_unknown">未知</string>
+</resources>
