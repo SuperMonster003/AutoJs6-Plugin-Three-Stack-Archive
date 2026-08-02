@@ -9,6 +9,7 @@
     <string name="error_archive_limit">The archive exceeds a safety limit</string>
     <string name="error_cannot_create_output">Cannot create the output directory</string>
     <string name="error_cannot_open_archive">Cannot open the archive</string>
+    <string name="error_cleanup_failed">Cleanup failed; partial output may remain</string>
     <string name="error_extraction_failed">Extraction failed</string>
     <string name="error_no_selection">Select at least one entry</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
@@ -16,11 +17,14 @@
     <string name="text_archive_summary">%1$d entries, %2$s unpacked</string>
     <string name="text_blocked_entry">Blocked unsafe entry</string>
     <string name="text_cancelled">Cancelled</string>
+    <string name="text_cleaning_up">Cleaning up partial output...</string>
     <string name="text_extract_selected">Extract selected</string>
     <string name="text_extracting">Extracting %1$d of %2$d</string>
     <string name="text_extraction_complete">Extracted %1$d files to %2$s</string>
     <string name="text_folder">Folder</string>
+    <string name="text_folder_details">%1$d files, %2$s unpacked</string>
     <string name="text_loading_archive">Loading archive...</string>
+    <string name="text_loading_progress">%1$s of %2$s</string>
     <string name="text_modified">Modified: %1$s</string>
     <string name="text_no_entries">No matching entries</string>
     <string name="text_open_archive">Open archive</string>

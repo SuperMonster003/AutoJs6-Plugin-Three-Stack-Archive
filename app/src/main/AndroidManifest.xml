@@ -36,6 +36,7 @@
 
         <activity
             android:name=".ArchiveBrowserActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN"
             android:theme="@style/AppTheme">
