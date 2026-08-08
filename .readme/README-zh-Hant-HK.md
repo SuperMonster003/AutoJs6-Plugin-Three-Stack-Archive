@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>為 AutoJs6 檔案瀏覽器提供 ZIP 系列壓縮檔唯讀瀏覽與選擇性 SAF 解壓縮</p>
+  <p>檔案管理器外掛程式. 瀏覽並安全解壓縮 ZIP 壓縮檔</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-AutoJs6 壓縮檔瀏覽器外掛程式為 AutoJs6 檔案瀏覽器提供唯讀壓縮檔瀏覽功能. 外掛程式會在專用的階層檢視器中開啟以 ZIP 為基礎的容器, 並且只會將使用者選取的項目解壓縮到透過 Android Storage Access Framework 選定的輸出資料夾.
+壓縮檔瀏覽器為檔案管理器提供唯讀壓縮檔瀏覽功能. 外掛程式會在專用的階層檢視器中開啟以 ZIP 為基礎的容器, 並且只會將使用者選取的項目解壓縮到透過 Android Storage Access Framework 選定的輸出資料夾.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 透過以下身分發現並執行外掛程式:
+主程式透過以下身分發現並執行外掛程式:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-版本 1 只在 AutoJs6 主檔案瀏覽器中提供單一檔案唯讀更多選單動作.
+版本 1 在主檔案管理器中提供單一檔案唯讀更多選單動作.
 
 ******
 
@@ -112,6 +112,13 @@ variant: default
 ### 發行歷史
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `修復` 外掛程式中心啟用時出現空服務綁定的問題
+* `優化` 外掛程式名稱, 描述和使用者文件更簡潔自然
 
 # v1.0.0
 

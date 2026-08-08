@@ -1,4 +1,4 @@
-Utilisez l'explorateur d'archives depuis l'explorateur AutoJs6 principal:
+Utilisez l'explorateur d'archives depuis le gestionnaire de fichiers principal:
 
 1. Installez et activez le plugin `Archive Browser`.
 2. Ouvrez le menu supplémentaire d'un fichier ZIP, JAR, AAR ou WAR.

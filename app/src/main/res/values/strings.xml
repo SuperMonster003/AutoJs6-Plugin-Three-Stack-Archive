@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">Browse archive</string>
-    <string name="app_name">AutoJs6 Plugin - Archive Browser</string>
+    <string name="app_name">Archive Browser</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_select_all">Select all</string>
     <string name="error_archive_invalid">The archive is invalid or unsupported</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">Extraction failed</string>
     <string name="error_no_selection">Select at least one entry</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
-    <string name="plugin_description">Browse and safely extract ZIP archives</string>
+    <string name="plugin_description">File manager plugin. Browse and safely extract ZIP archives</string>
     <string name="text_cancelled">Cancelled</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Cleaning up partial output...</string>
     <string name="text_extract_selected">Extract selected</string>

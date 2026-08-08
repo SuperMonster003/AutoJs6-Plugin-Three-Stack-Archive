@@ -1,10 +1,19 @@
 {
-  "changelog_label_hint": "Indice",
+  "changelog_label_hint": "Note",
   "changelog_label_feature": "Fonctionnalité",
-  "changelog_label_fix": "Correction",
+  "changelog_label_fix": "Correctif",
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v1.0.1": {
+      "released_date": "2026/08/08",
+      "fix": [
+        "Liaison de service nulle lors de l'activation du plugin dans le centre des plugins"
+      ],
+      "improvement": [
+        "Nom, description et documentation utilisateur plus clairs et concis"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [

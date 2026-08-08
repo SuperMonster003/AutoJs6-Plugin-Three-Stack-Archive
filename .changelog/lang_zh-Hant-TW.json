@@ -1,10 +1,19 @@
 {
   "changelog_label_hint": "提示",
-  "changelog_label_feature": "功能",
-  "changelog_label_fix": "修正",
-  "changelog_label_improvement": "改善",
+  "changelog_label_feature": "新增",
+  "changelog_label_fix": "修復",
+  "changelog_label_improvement": "優化",
   "changelog_label_dependency": "相依性",
   "$data": {
+    "v1.0.1": {
+      "released_date": "2026/08/08",
+      "fix": [
+        "外掛程式中心啟用時出現空服務綁定的問題"
+      ],
+      "improvement": [
+        "外掛程式名稱, 描述和使用者文件更簡潔自然"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [

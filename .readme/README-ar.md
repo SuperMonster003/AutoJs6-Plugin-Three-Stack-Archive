@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>تصفح أرشيفات عائلة ZIP للقراءة فقط واستخراج SAF انتقائي لمستكشف AutoJs6</p>
+  <p>ملحق مدير الملفات. يتصفح أرشيفات ZIP ويستخرجها بأمان</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-يضيف ملحق AutoJs6 Archive Browser تصفح الأرشيف للقراءة فقط إلى مستكشف AutoJs6. يفتح الحاويات المبنية على ZIP في عارض هرمي مخصص, ويستخرج فقط العناصر التي يحددها المستخدم إلى مجلد إخراج يختاره عبر Android Storage Access Framework.
+يضيف Archive Browser تصفح الارشيف للقراءة فقط الى مدير الملفات. يفتح الحاويات المبنية على ZIP في عارض هرمي مخصص, ويستخرج فقط العناصر التي يحددها المستخدم الى مجلد اخراج يختاره عبر Android Storage Access Framework.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-يكتشف AutoJs6 الملحق وينفذه باستخدام الهويات التالية:
+يكتشف المضيف الملحق وينفذه باستخدام الهويات التالية:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-يقتصر الإصدار 1 على إجراء قائمة إضافية لملف واحد للقراءة فقط في مستكشف AutoJs6 الرئيسي.
+يوفر الاصدار 1 اجراء قائمة اضافية لملف واحد للقراءة فقط في مدير الملفات الرئيسي.
 
 ******
 
@@ -112,6 +112,13 @@ variant: default
 ### سجل الإصدارات
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `إصلاح` ربط خدمة فارغ عند تفعيل الملحق في مركز الملحقات
+* `تحسين` اسم ووصف ووثائق مستخدم اوضح واكثر ايجازا
 
 # v1.0.0
 

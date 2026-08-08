@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">瀏覽壓縮檔</string>
-    <string name="app_name">AutoJs6 外掛程式 - 壓縮檔瀏覽器</string>
+    <string name="app_name">壓縮檔瀏覽器</string>
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_select_all">全選</string>
     <string name="error_archive_invalid">壓縮檔無效或不支援</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">解壓縮失敗</string>
     <string name="error_no_selection">請至少選取一個項目</string>
     <string name="error_permission_missing">缺少壓縮檔讀取權限</string>
-    <string name="plugin_description">瀏覽並安全解壓縮 ZIP 壓縮檔</string>
+    <string name="plugin_description">檔案管理器外掛程式. 瀏覽並安全解壓縮 ZIP 壓縮檔</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分輸出...</string>
     <string name="text_extract_selected">解壓縮選取項目</string>

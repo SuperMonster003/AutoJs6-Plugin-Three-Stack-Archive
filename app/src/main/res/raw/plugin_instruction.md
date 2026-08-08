@@ -1,4 +1,4 @@
-Use Archive Browser from the main AutoJs6 Explorer:
+Use Archive Browser from the main file manager:
 
 1. Install and enable the `Archive Browser` plugin.
 2. Open the overflow menu for one ZIP, JAR, AAR, or WAR file.

@@ -4,6 +4,13 @@
 
 ******
 
+# v1.0.1
+
+###### 2026/08/08
+
+* `Correctif` Liaison de service nulle lors de l'activation du plugin dans le centre des plugins
+* `Amélioration` Nom, description et documentation utilisateur plus clairs et concis
+
 # v1.0.0
 
 ###### 2026/08/02

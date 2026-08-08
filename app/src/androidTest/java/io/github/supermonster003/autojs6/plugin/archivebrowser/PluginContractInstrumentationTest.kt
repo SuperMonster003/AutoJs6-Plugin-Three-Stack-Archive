@@ -71,6 +71,14 @@ class PluginContractInstrumentationTest {
     }
 
     @Test
+    fun serviceBindsAnExplicitComponentWithoutAnAction() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent = Intent().setComponent(ComponentName(context, ExplorerActionService::class.java))
+
+        assertNotNull(ExplorerActionService().onBind(intent))
+    }
+
+    @Test
     fun manifestProtectsAndExportsDiscoveryExecutionAndWakeComponents() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val packageManager = context.packageManager

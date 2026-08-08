@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>AutoJs6 탐색기를 위한 ZIP 계열 압축 파일 읽기 전용 탐색 및 선택적 SAF 압축 해제</p>
+  <p>파일 관리자 플러그인. ZIP 압축 파일을 탐색하고 안전하게 압축 풀기</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-AutoJs6 Archive Browser 플러그인은 AutoJs6 탐색기에 읽기 전용 압축 파일 탐색 기능을 추가합니다. ZIP 기반 컨테이너를 전용 계층 탐색기로 열고 사용자가 선택한 항목만 Android Storage Access Framework로 지정한 출력 폴더에 압축 해제합니다.
+압축 파일 탐색기는 파일 관리자에 읽기 전용 압축 파일 탐색 기능을 추가합니다. ZIP 기반 컨테이너를 전용 계층 탐색기로 열고 사용자가 선택한 항목만 Android Storage Access Framework로 지정한 출력 폴더에 압축 해제합니다.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6는 다음 식별 정보로 플러그인을 검색하고 실행합니다:
+호스트는 다음 식별 정보로 플러그인을 검색하고 실행합니다:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-버전 1은 AutoJs6 기본 탐색기의 단일 파일용 읽기 전용 더보기 작업으로 제한됩니다.
+버전 1은 기본 파일 관리자에서 단일 파일용 읽기 전용 더보기 작업을 제공합니다.
 
 ******
 
@@ -112,6 +112,13 @@ variant: default
 ### 릴리스 내역
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `수정` 플러그인 센터에서 활성화할 때 서비스 바인딩이 null이 되는 문제
+* `개선` 더 명확하고 간결한 플러그인 이름, 설명 및 사용자 문서
 
 # v1.0.0
 

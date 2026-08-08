@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Improvement",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v1.0.1": {
+      "released_date": "2026/08/08",
+      "fix": [
+        "Null service binding when enabling the plugin in Plugin Center"
+      ],
+      "improvement": [
+        "Clearer and more concise plugin name, description, and user documentation"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [

@@ -4,6 +4,13 @@
 
 ******
 
+# v1.0.1
+
+###### 2026/08/08
+
+* `Fix` Null service binding when enabling the plugin in Plugin Center
+* `Improvement` Clearer and more concise plugin name, description, and user documentation
+
 # v1.0.0
 
 ###### 2026/08/02

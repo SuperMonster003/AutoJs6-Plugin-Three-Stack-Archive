@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>为 AutoJs6 文件浏览器提供 ZIP 系列压缩包只读浏览与选择性 SAF 解压</p>
+  <p>文件管理器插件. 浏览并安全解压 ZIP 压缩包</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-AutoJs6 压缩包浏览器插件为 AutoJs6 文件浏览器提供只读压缩包浏览功能. 插件在专用的层级查看器中打开基于 ZIP 的容器, 并且只将用户选择的条目解压到通过 Android Storage Access Framework 选定的输出文件夹.
+压缩包浏览器为文件管理器提供只读压缩包浏览功能. 插件会在专用的层级查看器中打开基于 ZIP 的容器, 并且只将用户选择的条目解压到通过 Android Storage Access Framework 选定的输出文件夹.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 通过以下身份发现并执行插件:
+宿主通过以下标识发现并执行插件:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-版本 1 仅在 AutoJs6 主文件浏览器中提供单文件只读溢出菜单动作.
+版本 1 在主文件管理器中提供单文件只读溢出菜单动作.
 
 ******
 
@@ -112,6 +112,13 @@ variant: default
 ### 发行历史
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `修复` 插件中心启用时出现空服务绑定的问题
+* `优化` 插件名称, 描述和用户文档更加简洁自然
 
 # v1.0.0
 

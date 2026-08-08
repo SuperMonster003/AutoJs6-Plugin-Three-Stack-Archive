@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">アーカイブを参照</string>
-    <string name="app_name">AutoJs6 プラグイン - アーカイブブラウザー</string>
+    <string name="app_name">アーカイブブラウザー</string>
     <string name="dialog_button_cancel">キャンセル</string>
     <string name="dialog_button_select_all">すべて選択</string>
     <string name="error_archive_invalid">アーカイブが無効か未対応です</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">展開に失敗しました</string>
     <string name="error_no_selection">1 件以上のエントリを選択してください</string>
     <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
-    <string name="plugin_description">ZIP アーカイブを参照して安全に展開</string>
+    <string name="plugin_description">ファイルマネージャープラグイン. ZIP アーカイブを参照して安全に展開</string>
     <string name="text_cancelled">キャンセルしました</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
     <string name="text_extract_selected">選択項目を展開</string>

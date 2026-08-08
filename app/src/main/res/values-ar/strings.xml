@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">تصفح الأرشيف</string>
-    <string name="app_name">ملحق AutoJs6 - متصفح الأرشيف</string>
+    <string name="app_name">متصفح الأرشيف</string>
     <string name="dialog_button_cancel">إلغاء</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">فشل الاستخراج</string>
     <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
-    <string name="plugin_description">تصفح أرشيفات ZIP واستخراجها بأمان</string>
+    <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP ويستخرجها بأمان</string>
     <string name="text_cancelled">تم الإلغاء</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
     <string name="text_extract_selected">استخراج المحدد</string>

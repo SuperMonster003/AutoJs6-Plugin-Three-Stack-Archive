@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>AutoJs6 エクスプローラー向けの ZIP 系アーカイブ読み取り専用参照と選択的 SAF 展開</p>
+  <p>ファイルマネージャープラグイン. ZIP アーカイブを参照して安全に展開</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-AutoJs6 Archive Browser プラグインは AutoJs6 エクスプローラーに読み取り専用のアーカイブ参照機能を追加します. ZIP ベースのコンテナーを専用の階層ビューアーで開き, ユーザーが選択したエントリーだけを Android Storage Access Framework で指定した出力フォルダーに展開します.
+アーカイブブラウザーはファイルマネージャーに読み取り専用のアーカイブ参照機能を追加します. ZIP ベースのコンテナーを専用の階層ビューアーで開き, ユーザーが選択したエントリーだけを Android Storage Access Framework で指定した出力フォルダーに展開します.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 は次の識別情報でプラグインを検出して実行します:
+ホストは次の識別情報でプラグインを検出して実行します:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-バージョン 1 は AutoJs6 のメインエクスプローラーにおける単一ファイル向け読み取り専用オーバーフローアクションに限定されます.
+バージョン 1 ではメインのファイルマネージャーで単一ファイル向け読み取り専用オーバーフローアクションを利用できます.
 
 ******
 
@@ -112,6 +112,13 @@ variant: default
 ### リリース履歴
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `修正` プラグインセンターで有効化するとサービスバインディングがnullになる問題
+* `改善` より明確で簡潔なプラグイン名, 説明, ユーザードキュメント
 
 # v1.0.0
 

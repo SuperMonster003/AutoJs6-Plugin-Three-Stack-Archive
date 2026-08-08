@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">Explorar archivo</string>
-    <string name="app_name">Plugin de AutoJs6 - Explorador de archivos</string>
+    <string name="app_name">Explorador de archivos ZIP</string>
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">Error de extracción</string>
     <string name="error_no_selection">Selecciona al menos una entrada</string>
     <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
-    <string name="plugin_description">Explora y extrae archivos ZIP de forma segura</string>
+    <string name="plugin_description">Complemento del gestor de archivos. Explora y extrae archivos ZIP de forma segura</string>
     <string name="text_cancelled">Cancelado</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
     <string name="text_extract_selected">Extraer selección</string>

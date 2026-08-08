@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">浏览压缩包</string>
-    <string name="app_name">AutoJs6 插件 - 压缩包浏览器</string>
+    <string name="app_name">压缩包浏览器</string>
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_select_all">全选</string>
     <string name="error_archive_invalid">压缩包无效或不受支持</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">解压失败</string>
     <string name="error_no_selection">请至少选择一个条目</string>
     <string name="error_permission_missing">缺少压缩包读取权限</string>
-    <string name="plugin_description">浏览并安全解压 ZIP 压缩包</string>
+    <string name="plugin_description">文件管理器插件. 浏览并安全解压 ZIP 压缩包</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分输出...</string>
     <string name="text_extract_selected">解压所选项</string>

@@ -5,6 +5,15 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v1.0.1": {
+      "released_date": "2026/08/08",
+      "fix": [
+        "플러그인 센터에서 활성화할 때 서비스 바인딩이 null이 되는 문제"
+      ],
+      "improvement": [
+        "더 명확하고 간결한 플러그인 이름, 설명 및 사용자 문서"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [

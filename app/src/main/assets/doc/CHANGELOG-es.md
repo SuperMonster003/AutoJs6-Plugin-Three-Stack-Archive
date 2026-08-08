@@ -4,6 +4,13 @@
 
 ******
 
+# v1.0.1
+
+###### 2026/08/08
+
+* `Corrección` Enlace de servicio nulo al activar el complemento en el centro de complementos
+* `Mejora` Nombre, descripción y documentación de usuario más claros y concisos
+
 # v1.0.0
 
 ###### 2026/08/02

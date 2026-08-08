@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>Просмотр архивов семейства ZIP только для чтения и выборочное извлечение через SAF для Проводника AutoJs6</p>
+  <p>Плагин файлового менеджера. Просматривает и безопасно извлекает ZIP-архивы</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-Плагин AutoJs6 Archive Browser добавляет в Проводник AutoJs6 просмотр архивов только для чтения. Он открывает контейнеры на основе ZIP в отдельном иерархическом окне и извлекает только выбранные пользователем записи в выходную папку, указанную через Android Storage Access Framework.
+Archive Browser добавляет в файловый менеджер просмотр архивов только для чтения. Он открывает контейнеры на основе ZIP в отдельном иерархическом окне и извлекает только выбранные пользователем записи в выходную папку, указанную через Android Storage Access Framework.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 обнаруживает и запускает плагин со следующими идентификаторами:
+Хост обнаруживает и запускает плагин со следующими идентификаторами:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-Версия 1 ограничена дополнительным действием только для чтения над одним файлом в главном Проводнике AutoJs6.
+Версия 1 предоставляет дополнительное действие только для чтения над одним файлом в основном файловом менеджере.
 
 ******
 
@@ -112,6 +112,13 @@ variant: default
 ### История выпусков
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `Исправление` Пустая привязка службы при включении плагина в центре плагинов
+* `Улучшение` Более ясные и краткие название, описание и пользовательская документация
 
 # v1.0.0
 

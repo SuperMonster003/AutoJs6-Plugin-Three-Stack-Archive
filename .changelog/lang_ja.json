@@ -5,6 +5,15 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v1.0.1": {
+      "released_date": "2026/08/08",
+      "fix": [
+        "プラグインセンターで有効化するとサービスバインディングがnullになる問題"
+      ],
+      "improvement": [
+        "より明確で簡潔なプラグイン名, 説明, ユーザードキュメント"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [

@@ -3,8 +3,17 @@
   "changelog_label_feature": "ميزة",
   "changelog_label_fix": "إصلاح",
   "changelog_label_improvement": "تحسين",
-  "changelog_label_dependency": "اعتماد",
+  "changelog_label_dependency": "تبعية",
   "$data": {
+    "v1.0.1": {
+      "released_date": "2026/08/08",
+      "fix": [
+        "ربط خدمة فارغ عند تفعيل الملحق في مركز الملحقات"
+      ],
+      "improvement": [
+        "اسم ووصف ووثائق مستخدم اوضح واكثر ايجازا"
+      ]
+    },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [

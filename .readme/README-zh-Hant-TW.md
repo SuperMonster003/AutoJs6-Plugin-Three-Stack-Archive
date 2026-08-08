@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>為 AutoJs6 檔案瀏覽器提供 ZIP 系列壓縮檔唯讀瀏覽與選擇性 SAF 解壓縮</p>
+  <p>檔案管理器外掛程式. 瀏覽並安全解壓縮 ZIP 壓縮檔</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@
 
 ******
 
-AutoJs6 壓縮檔瀏覽器外掛程式為 AutoJs6 檔案瀏覽器提供唯讀壓縮檔瀏覽功能. 外掛程式會在專用的階層檢視器中開啟以 ZIP 為基礎的容器, 並且只會將使用者選取的項目解壓縮到透過 Android Storage Access Framework 選定的輸出資料夾.
+壓縮檔瀏覽器為檔案管理器提供唯讀壓縮檔瀏覽功能. 外掛程式會在專用的階層檢視器中開啟以 ZIP 為基礎的容器, 並且只會將使用者選取的項目解壓縮到透過 Android Storage Access Framework 選定的輸出資料夾.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 透過以下識別資訊發現並執行外掛程式:
+主程式透過以下識別資訊發現並執行外掛程式:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-版本 1 只在 AutoJs6 主檔案瀏覽器中提供單一檔案唯讀更多選單動作.
+版本 1 在主檔案管理器中提供單一檔案唯讀更多選單動作.
 
 ******
 
@@ -113,16 +113,23 @@ variant: default
 
 ******
 
+# v1.0.1
+
+###### 2026/08/08
+
+* `修復` 外掛程式中心啟用時出現空服務綁定的問題
+* `優化` 外掛程式名稱, 描述和使用者文件更簡潔自然
+
 # v1.0.0
 
 ###### 2026/08/02
 
-* `功能` 壓縮檔瀏覽器外掛程式, 外掛程式 ID 為 `archive-browser`, 引擎為 `explorer-action`, 變體為 `default`
-* `功能` 適用於 ZIP, JAR, AAR 和 WAR 容器的單一檔案唯讀檔案瀏覽器動作, 包含階層瀏覽, 路徑搜尋和項目選取
-* `功能` 將所選項目解壓縮到使用者選取的 SAF 目錄樹, 支援進度與取消, 僅暫時讀取輸入, 不會要求儲存空間或網路權限
-* `功能` 安全限制為輸入 4 GiB, 20,000 個路徑節點並包含隱含目錄, ZIP 中央目錄 64 MiB, 單一項目解壓縮後 512 MiB, 解壓縮後總資料 2 GiB, 壓縮比率 1000:1
-* `功能` 針對不安全路徑, 重複和衝突項目, 不支援的壓縮方法, 輸入來源變更, 大小不符和 CRC 不符的驗證
-* `功能` 外掛程式中繼資料, 介面文字, 使用說明, README 和 CHANGELOG 的多語言資源: 西班牙文/法文/俄文/阿拉伯文/日文/韓文/英文/簡體中文/香港繁體/台灣繁體
+* `新增` 壓縮檔瀏覽器外掛程式, 外掛程式 ID 為 `archive-browser`, 引擎為 `explorer-action`, 變體為 `default`
+* `新增` 適用於 ZIP, JAR, AAR 和 WAR 容器的單一檔案唯讀檔案瀏覽器動作, 包含階層瀏覽, 路徑搜尋和項目選取
+* `新增` 將所選項目解壓縮到使用者選取的 SAF 目錄樹, 支援進度與取消, 僅暫時讀取輸入, 不會要求儲存空間或網路權限
+* `新增` 安全限制為輸入 4 GiB, 20,000 個路徑節點並包含隱含目錄, ZIP 中央目錄 64 MiB, 單一項目解壓縮後 512 MiB, 解壓縮後總資料 2 GiB, 壓縮比率 1000:1
+* `新增` 針對不安全路徑, 重複和衝突項目, 不支援的壓縮方法, 輸入來源變更, 大小不符和 CRC 不符的驗證
+* `新增` 外掛程式中繼資料, 介面文字, 使用說明, README 和 CHANGELOG 的多語言資源: 西班牙文/法文/俄文/阿拉伯文/日文/韓文/英文/簡體中文/香港繁體/台灣繁體
 
 ##### 更多發行記錄請參閱
 

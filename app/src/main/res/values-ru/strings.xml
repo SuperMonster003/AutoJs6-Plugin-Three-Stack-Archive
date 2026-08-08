@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_archive_browser">Просмотреть архив</string>
-    <string name="app_name">Плагин AutoJs6 - Просмотр архивов</string>
+    <string name="app_name">Просмотр архивов</string>
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_button_select_all">Выбрать все</string>
     <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
@@ -12,7 +12,7 @@
     <string name="error_extraction_failed">Не удалось извлечь файлы</string>
     <string name="error_no_selection">Выберите хотя бы одну запись</string>
     <string name="error_permission_missing">Нет доступа на чтение архива</string>
-    <string name="plugin_description">Просмотр и безопасное извлечение ZIP-архивов</string>
+    <string name="plugin_description">Плагин файлового менеджера. Просматривает и безопасно извлекает ZIP-архивы</string>
     <string name="text_cancelled">Отменено</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
     <string name="text_extract_selected">Извлечь выбранное</string>

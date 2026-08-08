@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>Navigation en lecture seule dans les archives de la famille ZIP et extraction SAF sélective pour l'explorateur AutoJs6</p>
+  <p>Plugin de gestionnaire de fichiers. Parcourt et extrait des archives ZIP en toute sécurité</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@ Le fichier README.md actuel prend en charge les langues suivantes:
 
 ******
 
-Le plugin AutoJs6 Archive Browser ajoute la navigation en lecture seule dans les archives à l'explorateur AutoJs6. Il ouvre les conteneurs basés sur ZIP dans une vue hiérarchique dédiée et extrait uniquement les entrées sélectionnées par l'utilisateur vers un dossier de sortie choisi avec Android Storage Access Framework.
+Archive Browser ajoute la navigation en lecture seule dans les archives au gestionnaire de fichiers. Il ouvre les conteneurs basés sur ZIP dans une vue hiérarchique dédiée et extrait uniquement les entrées sélectionnées par l'utilisateur vers un dossier de sortie choisi avec Android Storage Access Framework.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 découvre et exécute le plugin avec les identités suivantes:
+L'hôte découvre et exécute le plugin avec les identités suivantes:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-La version 1 se limite à une action supplémentaire en lecture seule pour un seul fichier dans l'explorateur AutoJs6 principal.
+La version 1 fournit une action supplémentaire en lecture seule pour un seul fichier dans le gestionnaire de fichiers principal.
 
 ******
 
@@ -112,6 +112,13 @@ Le plugin ne demande aucune autorisation de stockage ou de réseau. L'hôte acco
 ### Historique des versions
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `Correctif` Liaison de service nulle lors de l'activation du plugin dans le centre des plugins
+* `Amélioration` Nom, description et documentation utilisateur plus clairs et concis
 
 # v1.0.0
 

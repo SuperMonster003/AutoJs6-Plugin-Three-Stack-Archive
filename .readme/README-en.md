@@ -2,10 +2,10 @@
 
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="autojs6-plugin-archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
   </p>
 
-  <p>Read-only ZIP-family archive browsing and selective SAF extraction for AutoJs6 Explorer</p>
+  <p>File manager plugin. Browse and safely extract ZIP archives</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
@@ -39,7 +39,7 @@ The current README.md supports the following languages:
 
 ******
 
-The AutoJs6 Archive Browser Plugin adds read-only archive browsing to AutoJs6 Explorer. It opens ZIP-based containers in a dedicated hierarchy viewer and extracts only the entries selected by the user to an output folder selected through Android Storage Access Framework.
+Archive Browser adds read-only archive browsing to the file manager. It opens ZIP-based containers in a dedicated hierarchy viewer and extracts only the entries selected by the user to an output folder selected through Android Storage Access Framework.
 
 ******
 
@@ -72,7 +72,7 @@ zip, jar, aar, war
 
 ******
 
-AutoJs6 discovers and executes the plugin with the following identities:
+The host discovers and executes the plugin with the following identities:
 
 ```text
 service action: org.autojs.plugin.EXPLORER_ACTION
@@ -82,7 +82,7 @@ engine: explorer-action
 variant: default
 ```
 
-Version 1 is limited to a single-file read-only overflow action in the main AutoJs6 Explorer surface.
+Version 1 provides a single-file read-only overflow action in the main file manager.
 
 ******
 
@@ -112,6 +112,13 @@ The plugin requests neither storage nor network permissions. The host grants tem
 ### Release History
 
 ******
+
+# v1.0.1
+
+###### 2026/08/08
+
+* `Fix` Null service binding when enabling the plugin in Plugin Center
+* `Improvement` Clearer and more concise plugin name, description, and user documentation
 
 # v1.0.0
 
