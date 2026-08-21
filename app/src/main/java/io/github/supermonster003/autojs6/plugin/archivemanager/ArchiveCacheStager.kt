@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import java.io.BufferedInputStream
@@ -25,6 +26,60 @@ internal data class StagedArchive(
 }
 
 internal object ArchiveCacheStager {
+
+    fun stage(
+        source: ParcelFileDescriptor,
+        cacheDirectory: File,
+        reportedSize: Long,
+    ): StagedArchive {
+        if (!ArchiveIntentPolicy.isReportedSizeAccepted(reportedSize)) {
+            source.close()
+            throw IllegalArgumentException("Archive size is invalid")
+        }
+        cleanupStaleInputs(cacheDirectory)
+        val copyLimit = cacheDirectory.compatibleUsableSpace()
+            .takeIf { it > 0L }
+            ?.minus(MINIMUM_FREE_CACHE_BYTES)
+            ?.coerceAtLeast(0L)
+            ?: Long.MAX_VALUE
+        if (reportedSize >= 0L && reportedSize > copyLimit) {
+            source.close()
+            throw ArchiveInputLimitException("Insufficient cache storage for the archive")
+        }
+
+        val directory = File(cacheDirectory, "$INPUT_DIRECTORY_PREFIX${UUID.randomUUID()}")
+        if (!directory.mkdirs()) {
+            source.close()
+            throw IOException("Cannot create the archive cache directory")
+        }
+        val target = File(directory, "source.archive")
+        try {
+            var copied = 0L
+            ParcelFileDescriptor.AutoCloseInputStream(source).buffered().use { sourceStream ->
+                BufferedOutputStream(FileOutputStream(target)).use { output ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        val read = sourceStream.read(buffer)
+                        if (read < 0) break
+                        copied = Math.addExact(copied, read.toLong())
+                        if (copied > copyLimit) {
+                            throw ArchiveInputLimitException("Insufficient cache storage for the archive")
+                        }
+                        output.write(buffer, 0, read)
+                    }
+                }
+            }
+            if (reportedSize >= 0L && copied != reportedSize) {
+                throw IOException("Archive changed while it was being staged")
+            }
+            return StagedArchive(target, copied)
+        } catch (error: Throwable) {
+            runCatching { source.close() }
+            runCatching { target.delete() }
+            runCatching { directory.delete() }
+            throw error
+        }
+    }
 
     suspend fun stage(
         contentResolver: ContentResolver,

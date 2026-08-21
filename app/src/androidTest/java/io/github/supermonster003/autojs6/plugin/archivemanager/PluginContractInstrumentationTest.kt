@@ -78,8 +78,16 @@ class PluginContractInstrumentationTest {
             extractToAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
         )
 
-        assertCommonReadOnlyFileAction(requireNotNull(openAction))
-        assertCommonReadOnlyFileAction(requireNotNull(extractToAction))
+        assertCommonReadOnlyFileAction(
+            requireNotNull(openAction),
+            ExplorerActionValues.PLACEMENT_PRIMARY,
+            ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+        )
+        assertCommonReadOnlyFileAction(
+            requireNotNull(extractToAction),
+            ExplorerActionValues.PLACEMENT_OVERFLOW,
+            ExplorerActionValues.PRESENTATION_ACTIVITY,
+        )
         assertCompressionAction(
             requireNotNull(compressSingleAction),
             ExplorerActionValues.CARDINALITY_SINGLE,
@@ -104,11 +112,15 @@ class PluginContractInstrumentationTest {
             action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE),
         )
         assertEquals(placement, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
+        assertEquals(
+            ExplorerActionValues.PRESENTATION_ACTIVITY,
+            action.getInt(ExplorerActionCatalogKeys.PRESENTATION),
+        )
         assertEquals(listOf("*/*"), action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES))
         assertTrue(action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS).orEmpty().isEmpty())
     }
 
-    private fun assertCommonReadOnlyFileAction(action: Bundle) {
+    private fun assertCommonReadOnlyFileAction(action: Bundle, placement: Int, presentation: Int) {
         assertEquals(
             ArchiveManagerPlugin.ACTIVITY_CLASS_NAME,
             action.getString(ExplorerActionCatalogKeys.ACTIVITY_CLASS_NAME),
@@ -119,7 +131,8 @@ class PluginContractInstrumentationTest {
             action.getInt(ExplorerActionCatalogKeys.CARDINALITY),
         )
         assertEquals(ExplorerActionValues.ACCESS_READ_ONLY, action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE))
-        assertEquals(ExplorerActionValues.PLACEMENT_OVERFLOW, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
+        assertEquals(placement, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
+        assertEquals(presentation, action.getInt(ExplorerActionCatalogKeys.PRESENTATION))
         assertEquals(
             ArchiveManagerPlugin.MIME_TYPES.toList(),
             action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES),

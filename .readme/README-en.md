@@ -31,17 +31,16 @@ The README is available in these languages:
 
 ### About
 
-Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 file manager. The current build can compress one item or a same-parent selection and writes the result back through a controlled host file session. More formats, a host-native archive page, and in-archive editing remain staged in the Roadmap.
+Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, and can compress one item or a same-parent selection. More formats, entry preview, and in-archive editing remain staged in the Roadmap.
 
 ### Available now
 
-- Open ZIP-family archives from the AutoJs6 file menu.
+- Open ZIP-family archives directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
+- Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
-- Browse directories, search paths, and select files or folders.
+- Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
-- Keep the archive browsable when an individual entry cannot be extracted by the current backend.
-- Extract selected content to a directory chosen through the Android system picker, with progress and cancellation.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
 - Create ZIP files with a configurable name and compression level; default to the target name for one item and the parent-folder name for multiple items.
 - Write to a same-directory temporary file and commit atomically; automatically number conflicts without overwriting existing files.
@@ -60,23 +59,23 @@ The current release can create these formats:
 zip
 ```
 
-> Explorer Action v4 integration requires AutoJs6 version code 5276 or newer. 7z, tar variants, passwords, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> Explorer Action v5 native browsing and v4 compression require AutoJs6 version code 5276 or newer. In-archive file preview, per-entry extraction, 7z, tar variants, passwords, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
 1. Install the plugin and enable it in the AutoJs6 Plugin Center.
 2. Open the file menu for a ZIP, JAR, AAR, or WAR file.
-3. Choose “Open archive”, then browse or search and select the content you need.
-4. Choose “Extract selected” and select an output directory; for the whole archive, choose “Extract to...” directly from its file menu.
+3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
+4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
 5. To create a ZIP, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar.
 
 ### Permissions and data
 
-The plugin requests neither storage nor network permission. Browsing and extraction use only the input URI temporarily granted by the host. ZIP creation uses a short-lived host session pinned to the plugin UID, reads targets page by page, and can create a transactional output only in the current parent directory. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, integrity checks, and failure cleanup remain.
+The plugin requests neither storage nor network permission. Native browsing uses a short-lived read-only archive session pinned to the host UID and removes staged input when the page closes or unbinds; extraction uses only the input URI temporarily granted by the host. ZIP creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, integrity checks, and failure cleanup remain.
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for more formats, passwords and volumes, archive editing, a host-native archive page, internal path-bar integration, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for more formats, passwords and volumes, in-archive preview and per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -87,6 +86,7 @@ The implementation tasks and acceptance criteria for more formats, passwords and
 _Unreleased_
 
 - `Added` Renamed the product to Archive Manager and the file action to Open archive
+- `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering

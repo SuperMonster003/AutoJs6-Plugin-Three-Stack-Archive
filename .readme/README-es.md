@@ -31,17 +31,16 @@ El README está disponible en los siguientes idiomas:
 
 ### Acerca del proyecto
 
-Archive Manager integra la exploración, extracción y creación de ZIP en el gestor de archivos de AutoJs6. La versión actual puede comprimir un elemento o una selección con el mismo directorio padre y escribe el resultado mediante una sesión de archivos controlada por el host. Más formatos, una página de archivo nativa del host y la edición interna siguen en el Roadmap.
+Archive Manager integra la exploración, extracción y creación de ZIP en el gestor de archivos de AutoJs6. La versión actual explora los archivos en la lista nativa del host con rutas externas e internas, y puede comprimir un elemento o una selección con el mismo directorio padre. Más formatos, la vista previa de entradas y la edición interna siguen en el Roadmap.
 
 ### Disponible ahora
 
-- Abrir archivos de la familia ZIP desde el menú de AutoJs6.
+- Abrir archivos de la familia ZIP directamente en la lista nativa de AutoJs6, con el tema, el modo oscuro y los colores dinámicos del host.
+- Mostrar el directorio externo, el nombre del archivo y el directorio interno en la barra de ruta; tocar un nivel para ir a él y usar Atrás para subir antes de salir del archivo.
 - Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.
-- Explorar carpetas, buscar rutas y seleccionar archivos o carpetas.
+- Explorar carpetas, buscar y ordenar el contenido del archivo.
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
 - Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.
-- Mantener el archivo navegable si una entrada no puede extraerse.
-- Extraer la selección a una carpeta elegida con el selector de Android, con progreso y cancelación.
 - Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.
 - Crear ZIP con nombre y nivel de compresión configurables; usar por defecto el nombre del objetivo para un elemento y el de la carpeta padre para varios.
 - Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; numerar conflictos sin sobrescribir archivos existentes.
@@ -60,23 +59,23 @@ La versión actual puede crear estos formatos:
 zip
 ```
 
-> La integración Explorer Action v4 requiere AutoJs6 con código de versión 5276 o posterior. 7z, variantes tar, contraseñas, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
+> La exploración nativa Explorer Action v5 y la compresión v4 requieren AutoJs6 con código de versión 5276 o posterior. La vista previa interna, la extracción por entrada, 7z, variantes tar, contraseñas, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
 1. Instala el complemento y actívalo en el centro de complementos de AutoJs6.
 2. Abre el menú de un archivo ZIP, JAR, AAR o WAR.
-3. Elige «Abrir archivo comprimido», explora o busca y selecciona el contenido.
-4. Elige «Extraer selección» y la carpeta de salida; para todo el archivo, elige directamente «Extraer en...» en su menú.
+3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
+4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
 5. Para crear un ZIP, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior.
 
 ### Permisos y datos
 
-El complemento no solicita permisos de almacenamiento ni de red. La exploración y la extracción solo usan el URI temporal del host. La creación de ZIP usa una sesión breve vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de integridad y la limpieza de fallos.
+El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa usa una sesión breve de archivo de solo lectura vinculada al UID del host y elimina la entrada temporal al cerrar o desvincular; la extracción solo usa el URI temporal del host. La creación de ZIP usa una sesión de archivos vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de integridad y la limpieza de fallos.
 
 ### Roadmap
 
-Las tareas y criterios para más formatos, contraseñas y volúmenes, edición, una página de archivo nativa del host, la barra de ruta interna y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
+Las tareas y criterios para más formatos, contraseñas y volúmenes, vista previa interna y extracción por entrada, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -87,6 +86,7 @@ Las tareas y criterios para más formatos, contraseñas y volúmenes, edición, 
 _Sin publicar_
 
 - `Añadido` El producto pasa a llamarse Archive Manager y la acción, Abrir archivo comprimido
+- `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos

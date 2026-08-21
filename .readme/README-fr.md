@@ -31,17 +31,16 @@ Le README est disponible dans les langues suivantes:
 
 ### Présentation
 
-Archive Manager intègre la navigation, l'extraction et la création de ZIP au gestionnaire de fichiers AutoJs6. La version actuelle compresse un élément ou une sélection de même dossier parent et écrit le résultat via une session de fichiers contrôlée par l'hôte. Davantage de formats, une page d'archive native de l'hôte et l'édition interne restent planifiés dans le Roadmap.
+Archive Manager intègre la navigation, l'extraction et la création de ZIP au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, et compresse un élément ou une sélection de même dossier parent. Davantage de formats, l'aperçu des entrées et l'édition interne restent planifiés dans le Roadmap.
 
 ### Disponible actuellement
 
-- Ouvrir les archives de la famille ZIP depuis le menu de fichiers AutoJs6.
+- Ouvrir les archives de la famille ZIP directement dans la liste native d'AutoJs6, avec le thème, le mode sombre et les couleurs dynamiques de l'hôte.
+- Afficher le dossier externe, le nom de l'archive et le dossier interne dans la barre de chemin ; toucher un niveau pour y accéder et utiliser Retour pour remonter avant de quitter l'archive.
 - Utiliser le raccourci « Extraire vers... » pour extraire toute l'archive sans ouvrir d'abord la vue de navigation.
-- Parcourir les dossiers, rechercher des chemins et sélectionner des fichiers ou dossiers.
+- Parcourir les dossiers, rechercher et trier le contenu de l'archive.
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
 - Prendre en charge Zip64, les préambules auto-extractibles, les anciens encodages de noms et les séparateurs Windows.
-- Laisser l'archive consultable lorsqu'une entrée ne peut pas être extraite.
-- Extraire la sélection vers un dossier choisi par le sélecteur Android, avec progression et annulation.
 - Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.
 - Créer des ZIP avec un nom et un niveau de compression configurables ; utiliser par défaut le nom de la cible pour un élément et celui du dossier parent pour plusieurs.
 - Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; numéroter les conflits sans écraser les fichiers existants.
@@ -60,23 +59,23 @@ La version actuelle peut créer les formats suivants:
 zip
 ```
 
-> L'intégration Explorer Action v4 exige AutoJs6 avec le code de version 5276 ou plus récent. 7z, les variantes tar, les mots de passe, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
+> La navigation native Explorer Action v5 et la compression v4 exigent AutoJs6 avec le code de version 5276 ou plus récent. L'aperçu interne, l'extraction par entrée, 7z, les variantes tar, les mots de passe, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
 
 ### Utilisation
 
 1. Installez le plugin et activez-le dans le centre de plugins AutoJs6.
 2. Ouvrez le menu d'un fichier ZIP, JAR, AAR ou WAR.
-3. Choisissez « Ouvrir l'archive », puis parcourez ou recherchez et sélectionnez le contenu.
-4. Choisissez « Extraire la sélection » et indiquez le dossier de sortie ; pour toute l'archive, choisissez directement « Extraire vers... » dans son menu.
+3. Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.
+4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu puis sélectionnez un dossier avec le sélecteur système Android.
 5. Pour créer un ZIP, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure.
 
 ### Autorisations et données
 
-Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigation et l'extraction utilisent uniquement l'URI temporaire de l'hôte. La création de ZIP passe par une session courte liée à l'UID du plugin, lit les cibles par pages et ne peut créer une sortie transactionnelle que dans le dossier parent actuel. La limite fixe de 4 Gio et les seuils de consultation ont été retirés ; l'isolation des chemins, les contrôles d'intégrité et le nettoyage restent actifs.
+Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigation native utilise une courte session d'archive en lecture seule liée à l'UID de l'hôte et supprime l'entrée temporaire à la fermeture ou à la déconnexion ; l'extraction utilise uniquement l'URI temporaire de l'hôte. La création de ZIP passe par une session de fichiers liée à l'UID du plugin, lit les cibles par pages et ne peut créer une sortie transactionnelle que dans le dossier parent actuel. La limite fixe de 4 Gio et les seuils de consultation ont été retirés ; l'isolation des chemins, les contrôles d'intégrité et le nettoyage restent actifs.
 
 ### Roadmap
 
-Les tâches et critères pour davantage de formats, les mots de passe et volumes, l'édition, une page d'archive native de l'hôte, la barre de chemin interne et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
+Les tâches et critères pour davantage de formats, les mots de passe et volumes, l'aperçu interne et l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -87,6 +86,7 @@ Les tâches et critères pour davantage de formats, les mots de passe et volumes
 _Non publié_
 
 - `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
+- `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits

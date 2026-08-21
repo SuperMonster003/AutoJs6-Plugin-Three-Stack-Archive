@@ -75,6 +75,8 @@ internal fun archiveManagerActionCatalog(): Bundle {
             labelResourceName = ArchiveManagerPlugin.OPEN_LABEL_RESOURCE_NAME,
             labelFallback = ArchiveManagerPlugin.OPEN_LABEL_FALLBACK,
             priority = ArchiveManagerPlugin.OPEN_ACTION_PRIORITY,
+            placement = ExplorerActionValues.PLACEMENT_PRIMARY,
+            presentation = ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID,
@@ -125,6 +127,7 @@ private fun archiveManagerAction(
     cardinality: Int = ExplorerActionValues.CARDINALITY_SINGLE,
     accessMode: Int = ExplorerActionValues.ACCESS_READ_ONLY,
     placement: Int = ExplorerActionValues.PLACEMENT_OVERFLOW,
+    presentation: Int = ExplorerActionValues.PRESENTATION_ACTIVITY,
     mimeTypes: Array<String> = ArchiveManagerPlugin.MIME_TYPES,
     extensions: Array<String> = ArchiveManagerPlugin.EXTENSIONS,
 ) = Bundle().apply {
@@ -137,6 +140,7 @@ private fun archiveManagerAction(
     putInt(ExplorerActionCatalogKeys.CARDINALITY, cardinality)
     putInt(ExplorerActionCatalogKeys.ACCESS_MODE, accessMode)
     putInt(ExplorerActionCatalogKeys.PLACEMENT, placement)
+    putInt(ExplorerActionCatalogKeys.PRESENTATION, presentation)
     putStringArrayList(
         ExplorerActionCatalogKeys.MIME_TYPES,
         ArrayList(mimeTypes.asList()),

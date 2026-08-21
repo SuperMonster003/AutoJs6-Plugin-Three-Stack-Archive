@@ -5,6 +5,7 @@
 _Unreleased_
 
 - `Added` Renamed the product to Archive Manager and the file action to Open archive
+- `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering

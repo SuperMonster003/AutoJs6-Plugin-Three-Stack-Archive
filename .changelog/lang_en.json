@@ -9,6 +9,7 @@
       "released_date": "Unreleased",
       "feature": [
         "Renamed the product to Archive Manager and the file action to Open archive",
+        "Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation",
         "Extract to... shortcut for choosing a destination and extracting the entire archive",
         "Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar",
         "ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering"

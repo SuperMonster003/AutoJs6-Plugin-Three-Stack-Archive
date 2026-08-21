@@ -29,7 +29,7 @@ internal enum class ArchiveRequestedAction {
     EXTRACT_TO,
 }
 
-/** Validates the Explorer Action v4 contract before opening archive content. */
+/** Validates the Explorer Action v5 activity envelope used by explicit extraction. */
 internal object ArchiveIntentPolicy {
 
     const val MAX_DISPLAY_NAME_LENGTH = ExplorerActionProtocol.MAX_TARGET_DISPLAY_NAME_LENGTH

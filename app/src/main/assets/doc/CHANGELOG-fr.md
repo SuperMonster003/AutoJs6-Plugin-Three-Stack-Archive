@@ -5,6 +5,7 @@
 _Non publié_
 
 - `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
+- `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
