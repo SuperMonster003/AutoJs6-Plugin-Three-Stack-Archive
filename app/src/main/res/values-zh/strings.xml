@@ -1,30 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">浏览压缩包</string>
-    <string name="app_name">压缩包浏览器</string>
+    <string name="action_open_archive">打开压缩档案</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">解压到...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">压缩...</string>
+    <string name="app_name">压缩档案管理器</string>
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_select_all">全选</string>
     <string name="error_archive_invalid">压缩包无效或不受支持</string>
     <string name="error_archive_limit">压缩包超出安全限制</string>
+    <string name="error_archive_file_name_invalid">请输入有效的压缩档案文件名</string>
     <string name="error_cannot_create_output">无法创建输出目录</string>
     <string name="error_cannot_open_archive">无法打开压缩包</string>
     <string name="error_cleanup_failed">清理失败; 可能残留部分输出</string>
+    <string name="error_compression_failed">压缩失败</string>
+    <string name="error_compression_request_invalid">压缩请求或宿主会话无效</string>
     <string name="error_extraction_failed">解压失败</string>
     <string name="error_no_selection">请至少选择一个条目</string>
     <string name="error_permission_missing">缺少压缩包读取权限</string>
-    <string name="plugin_description">文件管理器插件. 浏览并安全解压 ZIP 压缩包</string>
+    <string name="error_with_reason">%1$s\n原因: %2$s</string>
+    <string name="plugin_description">文件管理器插件. 打开、解压和创建 ZIP 压缩档案</string>
     <string name="text_cancelled">已取消</string>
+    <string name="text_advanced_compression_pending">密码、分卷、文件名加密、单独压缩及删除源文件将在相应的事务后端可用后开放.</string>
+    <string name="text_archive_file_name">文件名</string>
+    <string name="text_archive_format">格式</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分输出...</string>
+    <string name="text_compress_separately">单独压缩每个文件和文件夹</string>
+    <string name="text_compression_level">压缩级别</string>
+    <string name="text_compression_level_fast">快速</string>
+    <string name="text_compression_level_maximum">最高</string>
+    <string name="text_compression_level_none">不压缩</string>
+    <string name="text_compression_level_normal">普通</string>
+    <string name="text_create_archive">创建压缩档案</string>
+    <string name="text_default_archive_name">压缩档案</string>
+    <string name="text_delete_sources_after_compression">压缩后删除源文件</string>
+    <string name="text_encrypt_file_names">同时加密文件名</string>
     <string name="text_extract_selected">解压所选项</string>
     <string name="text_extracting">正在解压第 %1$d 项, 共 %2$d 项</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_encrypted_entry">条目已加密; 当前版本暂不支持输入密码</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">正在加载压缩包...</string>
     <string name="text_loading_progress">%1$s / %2$s</string>
     <string name="text_modified">修改时间: %1$s</string>
     <string name="text_no_entries">没有匹配的条目</string>
+    <string name="text_name_conflict_auto_rename">名称已存在时自动添加序号.</string>
+    <string name="text_none">无</string>
+    <string name="text_output_path">路径</string>
+    <string name="text_password">密码</string>
     <string name="text_parent_directory">上级目录</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在准备压缩...</string>
     <string name="text_search_hint">搜索压缩包</string>
     <string name="text_select_entry">选择条目</string>
     <string name="text_selected_count">已选择: %1$d</string>
     <string name="text_size_details">%1$s, 压缩后 %2$s, CRC %3$s</string>
+    <string name="text_split_unavailable">当前后端尚不支持 ZIP 分卷输出.</string>
+    <string name="text_split_volume">分卷大小 (MiB)</string>
     <string name="text_unknown">未知</string>
+    <string name="text_unsupported_zip_method">无法解压 ZIP 方法 %1$d</string>
+    <string name="text_zip_encryption_unavailable">当前 ZIP 后端尚不支持密码和文件名加密.</string>
 </resources>

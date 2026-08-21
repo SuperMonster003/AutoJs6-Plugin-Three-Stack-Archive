@@ -1,28 +1,44 @@
 {
-  "changelog_label_hint": "Hint",
-  "changelog_label_feature": "Feature",
-  "changelog_label_fix": "Fix",
-  "changelog_label_improvement": "Improvement",
+  "changelog_label_hint": "Note",
+  "changelog_label_feature": "Added",
+  "changelog_label_fix": "Fixed",
+  "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "Unreleased": {
+      "released_date": "Unreleased",
+      "feature": [
+        "Renamed the product to Archive Manager and the file action to Open archive",
+        "Extract to... shortcut for choosing a destination and extracting the entire archive",
+        "Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar",
+        "ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering"
+      ],
+      "fix": [
+        "ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods",
+        "Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing",
+        "ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems"
+      ],
+      "improvement": [
+        "Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup",
+        "Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work",
+        "The transitional standalone screen now follows system day/night mode and Material dynamic colors",
+        "ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files"
+      ]
+    },
     "v1.0.1": {
       "released_date": "2026/08/08",
       "fix": [
-        "Null service binding when enabling the plugin in Plugin Center"
+        "Empty service binding when enabling the plugin in Plugin Center"
       ],
       "improvement": [
-        "Clearer and more concise plugin name, description, and user documentation"
+        "Simplified the plugin name, description, and usage text"
       ]
     },
     "v1.0.0": {
       "released_date": "2026/08/02",
       "feature": [
-        "Archive Browser plugin with plugin ID `archive-browser`, engine `explorer-action`, and variant `default`",
-        "Single-file read-only Explorer action for ZIP, JAR, AAR, and WAR containers with hierarchical browsing, path search, and entry selection",
-        "Selective extraction to a user-selected SAF tree with progress and cancellation, temporary read-only input access, and no storage or network permission",
-        "Safety limits of 4 GiB input, 20,000 archive path nodes including implicit directories, 64 MiB ZIP central directory, 512 MiB per unpacked entry, 2 GiB total unpacked data, and a compression ratio of 1000:1",
-        "Validation for unsafe paths, duplicate and conflicting entries, unsupported compression methods, changed sources, size mismatches, and CRC mismatches",
-        "Localized metadata, interface text, usage instructions, README files, and changelogs in Spanish, French, Russian, Arabic, Japanese, Korean, English, Simplified Chinese, Hong Kong Traditional Chinese, and Taiwan Traditional Chinese"
+        "Initial release for browsing ZIP, JAR, AAR, and WAR files and extracting selected files or folders",
+        "Added search, selection, progress, cancellation, temporary-input cleanup, and localized UI"
       ]
     }
   }

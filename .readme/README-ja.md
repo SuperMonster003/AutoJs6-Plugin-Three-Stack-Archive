@@ -1,145 +1,122 @@
-<!--suppress HtmlDeprecatedAttribute, HttpUrlsUsage -->
-
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
   </p>
 
-  <p>ファイルマネージャープラグイン. ZIP アーカイブを参照して安全に展開</p>
+  <h1>Archive Manager</h1>
+
+  <p>ZIP アーカイブを開く・展開する・作成するための AutoJs6 ファイルマネージャープラグイン</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=534BAE&label=License"/></a>
   </p>
 </div>
 
-******
-
 ### 言語 (Languages)
 
-******
+README は次の言語で提供しています:
 
-現在の README.md は次の言語に対応しています:
-
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hans.md)
-- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-HK.md)
-- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-es.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hans.md)
+- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-HK.md)
+- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-es.md)
 - 日本語 [ja] # 現在
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ar.md)
-
-******
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ar.md)
 
 ### 概要
 
-******
+Archive Manager は ZIP の参照、展開、作成を AutoJs6 ファイルマネージャーに統合します。現行版は単一項目または同じ親フォルダー内の複数選択を圧縮し、ホスト管理のファイルセッション経由で現在のフォルダーへ安全に書き戻します。追加形式、ホストネイティブのアーカイブ画面、内部編集は Roadmap に沿って進めます。
 
-アーカイブブラウザーはファイルマネージャーに読み取り専用のアーカイブ参照機能を追加します. ZIP ベースのコンテナーを専用の階層ビューアーで開き, ユーザーが選択したエントリーだけを Android Storage Access Framework で指定した出力フォルダーに展開します.
+### 現在利用できる機能
 
-******
+- AutoJs6 のファイルメニューから ZIP 系アーカイブを開く。
+- 「展開先...」ショートカットから、参照画面を開かずにアーカイブ全体を展開。
+- フォルダーの参照、パス検索、ファイルまたはフォルダーの選択。
+- 全項目を事前展開せず、ディレクトリメタデータから一覧を作成。
+- Zip64、自己展開形式の前置データ、旧式の名前エンコーディング、Windows 区切り文字に対応。
+- 展開できない項目があっても他の内容を参照可能。
+- Android の選択画面で指定したフォルダーへ、進捗表示とキャンセル付きで展開。
+- 通常のファイル、フォルダー、同じ親フォルダー内の複数選択に「圧縮...」を表示。
+- ファイル名と圧縮レベルを指定して ZIP を作成。単一項目は対象名、複数項目は親フォルダー名を既定値として使用。
+- 同じフォルダーの一時ファイルへ書き込んでからアトミックに確定し、既存ファイルを上書きせず競合名へ番号を追加。
 
-### 機能
+### 現在の形式
 
-******
-
-- 共有 `org.autojs.plugin.EXPLORER_ACTION` プロトコルを通して単一ファイル向けの読み取り専用オーバーフローアクションを登録します.
-- アーカイブのフォルダーを参照し, 展開後サイズ, 圧縮サイズ, CRC, 更新日時のメタデータを表示します.
-- 正規化したエントリーパスを検索し, 個別のファイル, フォルダー, 表示中の全エントリーを選択できます.
-- 選択したエントリーをユーザー指定の SAF ツリーへ展開し, 進捗表示とキャンセルに対応します.
-- 対応する ZIP 圧縮方式を使った ZIP, JAR, AAR, WAR コンテナーを受け付けます.
-- 読み取り専用入力をプライベートキャッシュに一時保存し, ビューアー終了時に一時データを削除します.
-
-******
-
-### 対応形式
-
-******
-
-バージョン 1 は次の ZIP 系ファイル拡張子を認識します:
+現行版は次の ZIP 系拡張子を認識します:
 
 ```text
 zip, jar, aar, war
 ```
 
-******
-
-### プラグインインターフェース
-
-******
-
-ホストは次の識別情報でプラグインを検出して実行します:
+現行版は次の形式を作成できます:
 
 ```text
-service action: org.autojs.plugin.EXPLORER_ACTION
-execute action: org.autojs.plugin.EXPLORER_ACTION_EXECUTE
-plugin id: archive-browser
-engine: explorer-action
-variant: default
+zip
 ```
 
-バージョン 1 ではメインのファイルマネージャーで単一ファイル向け読み取り専用オーバーフローアクションを利用できます.
+> Explorer Action v4 統合には AutoJs6 バージョンコード 5276 以降が必要です。7z、tar 系、パスワード、分割、ファイル名暗号化、個別アーカイブ、元項目の削除、アーカイブ内の追加/削除はまだ公開済み機能ではありません。Roadmap のチェック状態を基準にしてください。
 
-******
+### 使い方
 
-### セキュリティ
+1. プラグインをインストールし、AutoJs6 プラグインセンターで有効にします。
+2. ZIP、JAR、AAR、WAR ファイルのメニューを開きます。
+3. 「アーカイブを開く」を選び、参照または検索して内容を選択します。
+4. 「選択項目を展開」で出力先を指定します。全体を展開する場合は、ファイルメニューから直接「展開先...」を選べます。
+5. ZIP を作成するには通常のファイルまたはフォルダーのメニューで「圧縮...」を選ぶか、同じフォルダーの複数項目を選択して下部バーの「圧縮...」を使用します。
 
-******
+### 権限とデータ
 
-プラグインはストレージ権限もネットワーク権限も要求しません. ホストは入力 content URI への一時的な読み取り専用アクセスだけを付与し, 出力アクセスはユーザーが明示的に選択した SAF ディレクトリに限定されます. 絶対パス, 親ディレクトリ移動, ドライブ接頭辞, バックスラッシュ, 安全でない Unicode, 重複パス, ファイルとディレクトリの競合, 未対応の圧縮方式, サイズ不一致, CRC 不一致は拒否されます.
+ストレージ権限やネットワーク権限は要求しません。参照と展開はホストが一時付与した入力 URI だけを使います。ZIP 作成はプラグイン UID に固定された短期ホストセッションで対象をページ単位に読み、現在の親フォルダーにのみトランザクション出力を作成できます。固定 4 GiB 入力上限と参照時のサイズ/圧縮率制限は削除しましたが、パス隔離、整合性検証、失敗時の清掃は維持します。
 
-******
+### Roadmap
 
-### 安全制限
+追加形式、パスワードと分割、内部編集、ホストネイティブのアーカイブ画面、内部パスバー、完全な端末マトリックスのタスクと受け入れ条件は Roadmap にあります。未チェック項目は現行機能ではありません。
 
-******
+- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
-- 一時保存する入力の最大サイズ: `4 GiB`.
-- 暗黙のディレクトリを含むアーカイブパスノードの最大数: `20,000`.
-- ZIP 中央ディレクトリの最大サイズ: `64 MiB`.
-- 正規化パスの最大長: `1,024` 文字.
-- パスの最大深さ: `64` セグメント.
-- 単一エントリーの展開後最大サイズ: `512 MiB`.
-- 展開後データの合計最大サイズ: `2 GiB`.
-- 最大圧縮率: `1000:1`.
+### リリースノート
 
-******
+#### Unreleased
 
-### リリース履歴
+_未公開_
 
-******
+- `追加` 製品名を Archive Manager、ファイル操作を「アーカイブを開く」に統一
+- `追加` 出力先を選んで全体を展開する「展開先...」ショートカット
+- `追加` Explorer Action v4 により通常のファイル/フォルダーメニューと同じ親フォルダー内の五項目複数選択バーへ「圧縮...」を追加
+- `追加` 既定名、圧縮レベル、進捗、キャンセル、競合名の自動番号付けに対応した ZIP 作成
+- `修正` ZIP 一覧をメタデータ方式に変更し、自己展開形式の前置データ、旧式の名前エンコーディング、Windows 区切り文字、追加の読取可能メソッドに対応
+- `修正` 不明なサイズ、有効な DocumentsProvider URI、ホストの追加書込権限で有効なアーカイブが拒否される問題を修正
+- `修正` 新しいシステム専用 API の呼び出しにより Android 7.x で ZIP を参照・展開できない問題を修正
+- `改善` 固定 4 GiB 上限と参照時のサイズ/圧縮率制限を削除し、パス隔離と整合性検証は維持
+- `改善` チェック可能な Roadmap を追加し README と CHANGELOG を全面更新
+- `改善` 独立画面がシステムの昼夜モードと Material 動的色に追従
+- `改善` ZIP 出力をプラグイン UID に固定したホストセッションで同じフォルダーの一時ファイルへ書き込み、ストレージ権限や上書きなしでアトミックに確定
 
-# v1.0.1
+#### v1.0.1
 
-###### 2026/08/08
+_2026/08/08_
 
-* `修正` プラグインセンターで有効化するとサービスバインディングがnullになる問題
-* `改善` より明確で簡潔なプラグイン名, 説明, ユーザードキュメント
+- `修正` プラグイン有効化時にサービスバインドが空になる問題
+- `改善` 名前、説明、使用手順を簡潔化
 
-# v1.0.0
+#### v1.0.0
 
-###### 2026/08/02
+_2026/08/02_
 
-* `機能` プラグイン ID `archive-browser`, エンジン `explorer-action`, バリアント `default` の Archive Browser プラグイン
-* `機能` ZIP, JAR, AAR, WAR コンテナー向けの単一ファイル読み取り専用エクスプローラーアクション, 階層参照, パス検索, エントリー選択
-* `機能` ユーザー指定の SAF ツリーへの選択的な展開, 進捗とキャンセル, 一時的な読み取り専用入力アクセス, ストレージ権限とネットワーク権限なし
-* `機能` 入力 4 GiB, 暗黙のディレクトリを含む 20,000 パスノード, ZIP 中央ディレクトリ 64 MiB, 展開後の単一エントリー 512 MiB, 展開後の合計 2 GiB, 圧縮率 1000:1 の安全制限
-* `機能` 安全でないパス, 重複または競合するエントリー, 未対応の圧縮方式, 入力元の変更, サイズ不一致, CRC 不一致の検証
-* `機能` スペイン語/フランス語/ロシア語/アラビア語/日本語/韓国語/英語/簡体字中国語/香港繁体字中国語/台湾繁体字中国語のメタデータ, UI, 使用説明, README, CHANGELOG
+- `追加` ZIP、JAR、AAR、WAR の参照と選択内容の展開に対応した初回版
+- `追加` 検索、選択、進捗、キャンセル、一時データ清掃、多言語 UI を追加
 
-##### その他のリリース履歴
+##### 全履歴
 
-* [CHANGELOG-ja.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/assets/doc/CHANGELOG-ja.md)
-
-******
+* [CHANGELOG-ja.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/assets/doc/CHANGELOG-ja.md)
 
 ### ビルド
-
-******
 
 ```powershell
 .\gradlew.bat :app:assembleDebug
@@ -151,31 +128,9 @@ Release ビルド:
 .\gradlew.bat :app:assembleRelease
 ```
 
-ビルドパラメーターは `version.properties` から取得します. 現在の最小 SDK は 24, ターゲット SDK は 36 です.
-
-******
-
-### リソース構成
-
-******
-
-```text
-.readme/lang_*.json
-.changelog/lang_*.json
-.python/generate_markdown.py
-app/src/main/assets/doc/CHANGELOG-*.md
-app/src/main/res/values-*/strings.xml
-app/src/main/res/values-*/plurals.xml
-app/src/main/res/raw-*/plugin_instruction.md
-```
-
-`strings.xml` はプラグインメタデータとブラウザーの固定テキストをローカライズし, `plurals.xml` は数量に応じたブラウザーテキストをローカライズします. `plugin_instruction.md` はホストに表示する使用説明を提供します. README と CHANGELOG は `.python/generate_markdown.py` が JSON ソースから生成します.
-
-******
+リポジトリ直下の Gradle Wrapper を使い、SDK/JDK 要件は `version.properties` を参照してください.
 
 ### リンク
-
-******
 
 - AutoJs6 ドキュメント: https://docs.autojs6.com
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

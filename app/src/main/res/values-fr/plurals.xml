@@ -5,6 +5,21 @@
         <item quantity="many">%1$d entrées, %2$s décompressés</item>
         <item quantity="other">%1$d entrées, %2$s décompressés</item>
     </plurals>
+    <plurals name="text_archive_created">
+        <item quantity="one">%1$s créé avec %2$d fichier</item>
+        <item quantity="many">%1$s créé avec %2$d fichiers</item>
+        <item quantity="other">%1$s créé avec %2$d fichiers</item>
+    </plurals>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="one">%1$d élément sélectionné</item>
+        <item quantity="many">%1$d éléments sélectionnés</item>
+        <item quantity="other">%1$d éléments sélectionnés</item>
+    </plurals>
+    <plurals name="text_compressing_progress">
+        <item quantity="one">Compression de %1$s\n%2$d fichier, %3$s lu</item>
+        <item quantity="many">Compression de %1$s\n%2$d fichiers, %3$s lus</item>
+        <item quantity="other">Compression de %1$s\n%2$d fichiers, %3$s lus</item>
+    </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">%1$d fichier extrait vers %2$s</item>
         <item quantity="many">%1$d fichiers extraits vers %2$s</item>

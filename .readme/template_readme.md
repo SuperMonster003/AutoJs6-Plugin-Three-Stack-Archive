@@ -1,9 +1,9 @@
-<!--suppress HtmlDeprecatedAttribute, HttpUrlsUsage -->
-
 <div align="center">
   <p>
-    <img src="{{ repo_url }}/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
+    <img src="{{ repo_url }}/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
   </p>
+
+  <h1>Archive Manager</h1>
 
   <p>{{ text_plugin_synopsis }}</p>
 
@@ -14,37 +14,21 @@
   </p>
 </div>
 
-******
-
 ### {{ h3_languages_with_ascii }}
-
-******
 
 {{ p_languages_all_supported_for_readme }}:
 
 {{ placeholder_ul_languages_all_supported }}
 
-******
-
 ### {{ h3_introduction }}
-
-******
 
 {{ p_introduction }}
 
-******
-
 ### {{ h3_functions }}
-
-******
 
 {{ placeholder_features }}
 
-******
-
 ### {{ h3_supported_formats }}
-
-******
 
 {{ p_supported_formats }}:
 
@@ -52,45 +36,29 @@
 {{ supported_formats }}
 ```
 
-******
-
-### {{ h3_plugin_interface }}
-
-******
-
-{{ p_plugin_interface }}:
+{{ p_creatable_formats }}:
 
 ```text
-service action: {{ plugin_action }}
-execute action: {{ plugin_execute_action }}
-plugin id: {{ plugin_id }}
-engine: {{ plugin_engine }}
-variant: {{ plugin_variant }}
+{{ creatable_formats }}
 ```
 
-{{ p_plugin_scope }}
+> {{ p_plugin_scope }}
 
-******
+### {{ h3_usage }}
+
+{{ placeholder_usage_steps }}
 
 ### {{ h3_security }}
 
-******
-
 {{ p_security }}
 
-******
+### Roadmap
 
-### {{ h3_security_limits }}
+{{ p_roadmap }}
 
-******
-
-{{ placeholder_security_limits }}
-
-******
+- [ROADMAP.md]({{ repo_url }}/blob/master/ROADMAP.md)
 
 ### {{ h3_release_history }}
-
-******
 
 {{ placeholder_latest_release_history }}
 
@@ -98,11 +66,7 @@ variant: {{ plugin_variant }}
 
 * {{ placeholder_read_more_in_changelog_md }}
 
-******
-
 ### {{ h3_build }}
-
-******
 
 ```powershell
 .\gradlew.bat :app:assembleDebug
@@ -116,29 +80,7 @@ variant: {{ plugin_variant }}
 
 {{ p_build_params }}.
 
-******
-
-### {{ h3_resource_layout }}
-
-******
-
-```text
-.readme/lang_*.json
-.changelog/lang_*.json
-.python/generate_markdown.py
-app/src/main/assets/doc/CHANGELOG-*.md
-app/src/main/res/values-*/strings.xml
-app/src/main/res/values-*/plurals.xml
-app/src/main/res/raw-*/plugin_instruction.md
-```
-
-{{ p_resource_layout }}.
-
-******
-
 ### {{ h3_links }}
-
-******
 
 - {{ text_link_autojs6_docs }}: {{ docs_autojs6_url }}
 - {{ text_link_android_saf }}: https://developer.android.com/guide/topics/providers/document-provider

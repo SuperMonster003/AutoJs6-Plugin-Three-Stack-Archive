@@ -1,145 +1,122 @@
-<!--suppress HtmlDeprecatedAttribute, HttpUrlsUsage -->
-
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
   </p>
 
-  <p>File manager plugin. Browse and safely extract ZIP archives</p>
+  <h1>Archive Manager</h1>
+
+  <p>An AutoJs6 file-manager plugin for opening, extracting, and creating ZIP archives</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=534BAE&label=License"/></a>
   </p>
 </div>
 
-******
-
 ### Languages
 
-******
+The README is available in these languages:
 
-The current README.md supports the following languages:
-
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hans.md)
-- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-HK.md)
-- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-TW.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hans.md)
+- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-HK.md)
+- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-TW.md)
 - English [en] # current
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ja.md)
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ar.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ar.md)
 
-******
+### About
 
-### Introduction
+Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 file manager. The current build can compress one item or a same-parent selection and writes the result back through a controlled host file session. More formats, a host-native archive page, and in-archive editing remain staged in the Roadmap.
 
-******
+### Available now
 
-Archive Browser adds read-only archive browsing to the file manager. It opens ZIP-based containers in a dedicated hierarchy viewer and extracts only the entries selected by the user to an output folder selected through Android Storage Access Framework.
+- Open ZIP-family archives from the AutoJs6 file menu.
+- Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
+- Browse directories, search paths, and select files or folders.
+- Build the listing from directory metadata without decompressing every entry first.
+- Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
+- Keep the archive browsable when an individual entry cannot be extracted by the current backend.
+- Extract selected content to a directory chosen through the Android system picker, with progress and cancellation.
+- Offer Compress... for ordinary files, folders, and same-parent multi-selections.
+- Create ZIP files with a configurable name and compression level; default to the target name for one item and the parent-folder name for multiple items.
+- Write to a same-directory temporary file and commit atomically; automatically number conflicts without overwriting existing files.
 
-******
+### Current formats
 
-### Features
-
-******
-
-- Registers a single-file read-only Explorer overflow action through the shared `org.autojs.plugin.EXPLORER_ACTION` protocol.
-- Browses archive folders and displays unpacked size, compressed size, CRC, and modification metadata.
-- Searches normalized entry paths and supports selecting individual files, folders, or all visible entries.
-- Extracts selected entries to a user-selected SAF tree with progress reporting and cancellation.
-- Accepts ZIP, JAR, AAR, and WAR containers that use supported ZIP compression methods.
-- Stages the read-only input in private cache and removes temporary data when the viewer closes.
-
-******
-
-### Supported Formats
-
-******
-
-Version 1 recognizes these ZIP-family filename extensions:
+The current release recognizes these ZIP-family extensions:
 
 ```text
 zip, jar, aar, war
 ```
 
-******
-
-### Plugin Interface
-
-******
-
-The host discovers and executes the plugin with the following identities:
+The current release can create these formats:
 
 ```text
-service action: org.autojs.plugin.EXPLORER_ACTION
-execute action: org.autojs.plugin.EXPLORER_ACTION_EXECUTE
-plugin id: archive-browser
-engine: explorer-action
-variant: default
+zip
 ```
 
-Version 1 provides a single-file read-only overflow action in the main file manager.
+> Explorer Action v4 integration requires AutoJs6 version code 5276 or newer. 7z, tar variants, passwords, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
-******
+### Usage
 
-### Security
+1. Install the plugin and enable it in the AutoJs6 Plugin Center.
+2. Open the file menu for a ZIP, JAR, AAR, or WAR file.
+3. Choose “Open archive”, then browse or search and select the content you need.
+4. Choose “Extract selected” and select an output directory; for the whole archive, choose “Extract to...” directly from its file menu.
+5. To create a ZIP, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar.
 
-******
+### Permissions and data
 
-The plugin requests neither storage nor network permissions. The host grants temporary read-only access to the input content URI, while output access is limited to the SAF directory explicitly selected by the user. Absolute paths, parent traversal, drive prefixes, backslashes, unsafe Unicode, duplicate paths, file-directory conflicts, unsupported compression methods, size mismatches, and CRC mismatches are rejected.
+The plugin requests neither storage nor network permission. Browsing and extraction use only the input URI temporarily granted by the host. ZIP creation uses a short-lived host session pinned to the plugin UID, reads targets page by page, and can create a transactional output only in the current parent directory. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, integrity checks, and failure cleanup remain.
 
-******
+### Roadmap
 
-### Safety Limits
+The implementation tasks and acceptance criteria for more formats, passwords and volumes, archive editing, a host-native archive page, internal path-bar integration, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
-******
+- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
-- Maximum staged input size: `4 GiB`.
-- Maximum archive path nodes, including implicit directories: `20,000`.
-- Maximum ZIP central directory size: `64 MiB`.
-- Maximum normalized path length: `1,024` characters.
-- Maximum path depth: `64` segments.
-- Maximum unpacked size for one entry: `512 MiB`.
-- Maximum total unpacked size: `2 GiB`.
-- Maximum compression ratio: `1000:1`.
+### Release notes
 
-******
+#### Unreleased
 
-### Release History
+_Unreleased_
 
-******
+- `Added` Renamed the product to Archive Manager and the file action to Open archive
+- `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
+- `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
+- `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
+- `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
+- `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
+- `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
+- `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
+- `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
+- `Improved` ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
 
-# v1.0.1
+#### v1.0.1
 
-###### 2026/08/08
+_2026/08/08_
 
-* `Fix` Null service binding when enabling the plugin in Plugin Center
-* `Improvement` Clearer and more concise plugin name, description, and user documentation
+- `Fixed` Empty service binding when enabling the plugin in Plugin Center
+- `Improved` Simplified the plugin name, description, and usage text
 
-# v1.0.0
+#### v1.0.0
 
-###### 2026/08/02
+_2026/08/02_
 
-* `Feature` Archive Browser plugin with plugin ID `archive-browser`, engine `explorer-action`, and variant `default`
-* `Feature` Single-file read-only Explorer action for ZIP, JAR, AAR, and WAR containers with hierarchical browsing, path search, and entry selection
-* `Feature` Selective extraction to a user-selected SAF tree with progress and cancellation, temporary read-only input access, and no storage or network permission
-* `Feature` Safety limits of 4 GiB input, 20,000 archive path nodes including implicit directories, 64 MiB ZIP central directory, 512 MiB per unpacked entry, 2 GiB total unpacked data, and a compression ratio of 1000:1
-* `Feature` Validation for unsafe paths, duplicate and conflicting entries, unsupported compression methods, changed sources, size mismatches, and CRC mismatches
-* `Feature` Localized metadata, interface text, usage instructions, README files, and changelogs in Spanish, French, Russian, Arabic, Japanese, Korean, English, Simplified Chinese, Hong Kong Traditional Chinese, and Taiwan Traditional Chinese
+- `Added` Initial release for browsing ZIP, JAR, AAR, and WAR files and extracting selected files or folders
+- `Added` Added search, selection, progress, cancellation, temporary-input cleanup, and localized UI
 
-##### For more release history
+##### Full history
 
-* [CHANGELOG-en.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/assets/doc/CHANGELOG-en.md)
-
-******
+* [CHANGELOG-en.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/assets/doc/CHANGELOG-en.md)
 
 ### Build
-
-******
 
 ```powershell
 .\gradlew.bat :app:assembleDebug
@@ -151,31 +128,9 @@ Release build:
 .\gradlew.bat :app:assembleRelease
 ```
 
-Build parameters come from `version.properties`. The current minimum SDK is 24 and the target SDK is 36.
-
-******
-
-### Resource Layout
-
-******
-
-```text
-.readme/lang_*.json
-.changelog/lang_*.json
-.python/generate_markdown.py
-app/src/main/assets/doc/CHANGELOG-*.md
-app/src/main/res/values-*/strings.xml
-app/src/main/res/values-*/plurals.xml
-app/src/main/res/raw-*/plugin_instruction.md
-```
-
-`strings.xml` localizes plugin metadata and fixed browser text, while `plurals.xml` localizes quantity-aware browser text. `plugin_instruction.md` provides host-visible usage instructions. README and changelog files are generated from JSON sources by `.python/generate_markdown.py`.
-
-******
+Run the Gradle Wrapper from the repository root; use `version.properties` as the source of truth for SDK and JDK requirements.
 
 ### Links
-
-******
 
 - AutoJs6 documentation: https://docs.autojs6.com
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

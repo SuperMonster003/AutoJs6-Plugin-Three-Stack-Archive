@@ -1,145 +1,122 @@
-<!--suppress HtmlDeprecatedAttribute, HttpUrlsUsage -->
-
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
   </p>
 
-  <p>檔案管理器外掛程式. 瀏覽並安全解壓縮 ZIP 壓縮檔</p>
+  <h1>Archive Manager</h1>
+
+  <p>用於開啟、解壓縮及建立 ZIP 壓縮檔的 AutoJs6 檔案管理器外掛程式</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=534BAE&label=License"/></a>
   </p>
 </div>
 
-******
-
 ### 語言 (Languages)
 
-******
+README 提供以下語言版本:
 
-目前 README.md 支援以下語言:
-
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hans.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hans.md)
 - 香港繁體 [zh-Hant-HK] # 目前
-- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ja.md)
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ar.md)
+- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ar.md)
 
-******
+### 項目簡介
 
-### 簡介
+壓縮檔管理器把 ZIP 瀏覽、解壓縮及建立功能帶入 AutoJs6 檔案管理器。目前版本支援單一項目及同一上層目錄多選壓縮，並透過主程式受控檔案工作階段安全寫回目前目錄；更多格式、主程式原生壓縮檔頁面及檔案內修改會按 Roadmap 推進。
 
-******
+### 目前能力
 
-壓縮檔瀏覽器為檔案管理器提供唯讀壓縮檔瀏覽功能. 外掛程式會在專用的階層檢視器中開啟以 ZIP 為基礎的容器, 並且只會將使用者選取的項目解壓縮到透過 Android Storage Access Framework 選定的輸出資料夾.
+- 從 AutoJs6 檔案選單開啟 ZIP 系列壓縮檔。
+- 透過「解壓縮到...」捷徑直接解壓縮整個壓縮檔，無需先進入瀏覽頁面。
+- 按目錄瀏覽、搜尋及選取檔案或資料夾。
+- 只讀取目錄中繼資料便顯示清單，不會預先解壓縮全部內容。
+- 相容 Zip64、自解壓縮式前置資料、傳統檔名編碼及 Windows 路徑分隔符。
+- 個別無法解壓縮的項目會被停用，其餘內容仍可瀏覽。
+- 透過 Android 系統選擇器指定輸出目錄，並支援進度及取消。
+- 為一般檔案、資料夾及同一上層目錄的多選項目提供「壓縮...」動作。
+- 建立 ZIP 時可設定檔案名稱及壓縮等級；單一項目預設使用目標名稱，多選預設使用上層資料夾名稱。
+- 先寫入同一目錄的暫存檔，再以原子方式提交；名稱衝突時自動加入序號，不會覆寫現有檔案。
 
-******
+### 目前支援
 
-### 功能
-
-******
-
-- 透過共用的 `org.autojs.plugin.EXPLORER_ACTION` 協議註冊單一檔案唯讀檔案瀏覽器更多選單動作.
-- 瀏覽壓縮檔目錄, 並顯示解壓縮後大小, 壓縮後大小, CRC 和修改時間中繼資料.
-- 搜尋標準化項目路徑, 支援選取個別檔案, 資料夾或全部可見項目.
-- 將所選項目解壓縮到使用者選定的 SAF 目錄樹, 並提供進度報告與取消操作.
-- 接受使用受支援 ZIP 壓縮方法的 ZIP, JAR, AAR 和 WAR 容器.
-- 將唯讀輸入暫存到應用程式私人快取, 並在檢視器關閉時移除臨時資料.
-
-******
-
-### 支援格式
-
-******
-
-版本 1 識別以下 ZIP 系列檔案副檔名:
+目前版本識別以下 ZIP 系列副檔名:
 
 ```text
 zip, jar, aar, war
 ```
 
-******
-
-### 外掛程式介面
-
-******
-
-主程式透過以下身分發現並執行外掛程式:
+目前版本可建立以下格式:
 
 ```text
-service action: org.autojs.plugin.EXPLORER_ACTION
-execute action: org.autojs.plugin.EXPLORER_ACTION_EXECUTE
-plugin id: archive-browser
-engine: explorer-action
-variant: default
+zip
 ```
 
-版本 1 在主檔案管理器中提供單一檔案唯讀更多選單動作.
+> Explorer Action v4 整合需要 AutoJs6 版本代碼 5276 或以上。7z、tar 系列、密碼、分卷、檔案名稱加密、個別壓縮、壓縮後刪除來源項目及檔案內新增/刪除尚未發布；請以 Roadmap 的核取狀態為準。
 
-******
+### 使用方法
 
-### 安全性
+1. 安裝外掛程式，並在 AutoJs6 外掛程式中心啟用。
+2. 在檔案管理器開啟 ZIP、JAR、AAR 或 WAR 的選單。
+3. 選擇「開啟壓縮檔」，然後瀏覽、搜尋及選取內容。
+4. 選擇「解壓縮所選項目」，再指定輸出目錄；如要解壓縮整個壓縮檔，可直接從檔案選單選擇「解壓縮到...」。
+5. 如要建立 ZIP，請從一般檔案或資料夾選單選擇「壓縮...」；亦可先在同一目錄多選項目，再使用底部的「壓縮...」動作。
 
-******
+### 權限與資料
 
-外掛程式不會要求儲存空間或網絡權限. 宿主只會臨時授予輸入 content URI 的唯讀權限, 輸出權限則限制在使用者明確選取的 SAF 目錄. 外掛程式會拒絕絕對路徑, 上層目錄穿越, 磁碟機前綴, 反斜線, 不安全 Unicode, 重複路徑, 檔案與目錄衝突, 不受支援的壓縮方法, 大小不符和 CRC 不符.
+外掛程式不要求儲存空間或網絡權限。瀏覽及解壓縮只使用主程式臨時授予的輸入 URI；建立 ZIP 透過綁定外掛程式 UID 的短期主程式工作階段分頁讀取目標，並且只能在目前上層目錄建立交易式輸出。固定 4 GiB 輸入上限及瀏覽階段大小/壓縮比門檻已移除；路徑隔離、完整性驗證及失敗清理仍然保留。
 
-******
+### Roadmap
 
-### 安全限制
+更多格式、密碼與分卷、壓縮檔編輯、主程式原生壓縮檔頁面、內部路徑列及完整裝置矩陣的任務與驗收條件均記錄在 Roadmap。未勾選項目不是目前功能。
 
-******
+- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
-- 暫存輸入上限: `4 GiB`.
-- 壓縮檔路徑節點數量上限, 包含隱含目錄: `20,000`.
-- ZIP 中央目錄大小上限: `64 MiB`.
-- 標準化路徑長度上限: `1,024` 個字元.
-- 路徑深度上限: `64` 層.
-- 單一項目解壓縮後上限: `512 MiB`.
-- 解壓縮後總資料上限: `2 GiB`.
-- 壓縮比率上限: `1000:1`.
+### 版本記錄
 
-******
+#### Unreleased
 
-### 發行歷史
+_未發布_
 
-******
+- `新增` 產品名稱統一為「壓縮檔管理器」，開啟動作調整為「開啟壓縮檔」
+- `新增` 「解壓縮到...」捷徑，可直接選取目錄並解壓縮整個壓縮檔
+- `新增` 接入 Explorer Action v4，在一般檔案、資料夾及同一上層目錄多選的五項操作列提供「壓縮...」
+- `新增` 新增 ZIP 建立表單，支援預設命名、壓縮等級、進度、取消及同名自動編號
+- `修正` 改用目錄中繼資料快速開啟 ZIP，並相容自解壓縮式前置資料、傳統檔名編碼、Windows 分隔符及更多可讀取的 ZIP 方法
+- `修正` 未知或不精確大小、有效 DocumentsProvider URI 及主程式額外寫入授權不再令有效壓縮檔在解析前被拒絕
+- `修正` 修正 Android 7.x 因呼叫新版系統專有 API 而無法瀏覽或解壓縮 ZIP 的問題
+- `改善` 移除固定 4 GiB 輸入上限及瀏覽階段大小/壓縮比門檻，同時保留路徑隔離、完整性驗證及失敗清理
+- `改善` 新增可逐項追蹤的 Roadmap，並重寫 README 與 CHANGELOG
+- `改善` 獨立頁面改為跟隨系統日夜模式及 Material 動態色
+- `改善` ZIP 輸出透過綁定外掛程式 UID 的主程式工作階段寫入同目錄暫存檔後原子提交，無需儲存權限且不會覆寫現有檔案
 
-# v1.0.1
+#### v1.0.1
 
-###### 2026/08/08
+_2026/08/08_
 
-* `修復` 外掛程式中心啟用時出現空服務綁定的問題
-* `優化` 外掛程式名稱, 描述和使用者文件更簡潔自然
+- `修正` 在外掛程式中心啟用時服務綁定為空的問題
+- `改善` 簡化名稱、描述及使用說明
 
-# v1.0.0
+#### v1.0.0
 
-###### 2026/08/02
+_2026/08/02_
 
-* `新增` 壓縮檔瀏覽器外掛程式, 外掛程式 ID 為 `archive-browser`, 引擎為 `explorer-action`, 變體為 `default`
-* `新增` 適用於 ZIP, JAR, AAR 和 WAR 容器的單一檔案唯讀檔案瀏覽器動作, 包含階層瀏覽, 路徑搜尋和項目選取
-* `新增` 將所選項目解壓縮到使用者選取的 SAF 目錄樹, 支援進度與取消, 只臨時讀取輸入, 不會要求儲存空間或網絡權限
-* `新增` 安全限制為輸入 4 GiB, 20,000 個路徑節點並包含隱含目錄, ZIP 中央目錄 64 MiB, 單一項目解壓縮後 512 MiB, 解壓縮後總資料 2 GiB, 壓縮比率 1000:1
-* `新增` 針對不安全路徑, 重複和衝突項目, 不受支援的壓縮方法, 輸入來源變更, 大小不符和 CRC 不符的驗證
-* `新增` 外掛程式中繼資料, 介面文字, 使用說明, README 和 CHANGELOG 的多語言資源: 西班牙文/法文/俄文/阿拉伯文/日文/韓文/英文/簡體中文/香港繁體/台灣繁體
+- `新增` 首個可用版本，支援瀏覽 ZIP、JAR、AAR 及 WAR 並解壓縮所選內容
+- `新增` 提供搜尋、選取、進度、取消、暫存清理及多語言介面
 
-##### 更多發行歷史可參閱
+##### 完整記錄
 
-* [CHANGELOG-zh-Hant-HK.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/assets/doc/CHANGELOG-zh-Hant-HK.md)
-
-******
+* [CHANGELOG-zh-Hant-HK.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/assets/doc/CHANGELOG-zh-Hant-HK.md)
 
 ### 建置
-
-******
 
 ```powershell
 .\gradlew.bat :app:assembleDebug
@@ -151,31 +128,9 @@ Release 建置:
 .\gradlew.bat :app:assembleRelease
 ```
 
-建置參數來自 `version.properties`, 目前最低 SDK 為 24, 目標 SDK 為 36.
-
-******
-
-### 資源結構
-
-******
-
-```text
-.readme/lang_*.json
-.changelog/lang_*.json
-.python/generate_markdown.py
-app/src/main/assets/doc/CHANGELOG-*.md
-app/src/main/res/values-*/strings.xml
-app/src/main/res/values-*/plurals.xml
-app/src/main/res/raw-*/plugin_instruction.md
-```
-
-`strings.xml` 提供外掛程式中繼資料和瀏覽器固定文字的本地化, `plurals.xml` 提供瀏覽器數量文字的本地化. `plugin_instruction.md` 提供宿主側顯示的使用說明. README 與 CHANGELOG 由 `.python/generate_markdown.py` 根據 JSON 來源檔案產生.
-
-******
+在項目根目錄使用 Gradle Wrapper；SDK 及 JDK 要求以 `version.properties` 為準.
 
 ### 相關連結
-
-******
 
 - AutoJs6 文件: https://docs.autojs6.com
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

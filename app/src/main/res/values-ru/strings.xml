@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">Просмотреть архив</string>
-    <string name="app_name">Просмотр архивов</string>
+    <string name="action_open_archive">Открыть архив</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
+    <string name="app_name">Менеджер архивов</string>
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_button_select_all">Выбрать все</string>
     <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
@@ -12,11 +14,13 @@
     <string name="error_extraction_failed">Не удалось извлечь файлы</string>
     <string name="error_no_selection">Выберите хотя бы одну запись</string>
     <string name="error_permission_missing">Нет доступа на чтение архива</string>
-    <string name="plugin_description">Плагин файлового менеджера. Просматривает и безопасно извлекает ZIP-архивы</string>
+    <string name="error_with_reason">%1$s\nПричина: %2$s</string>
+    <string name="plugin_description">Плагин файлового менеджера. Открывает, извлекает и создаёт ZIP-архивы</string>
     <string name="text_cancelled">Отменено</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
     <string name="text_extract_selected">Извлечь выбранное</string>
     <string name="text_extracting">Извлечение %1$d из %2$d</string>
+    <string name="text_encrypted_entry">Запись зашифрована; поддержка паролей пока недоступна</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Загрузка архива...</string>
     <string name="text_loading_progress">%1$s из %2$s</string>
     <string name="text_modified">Изменено: %1$s</string>
@@ -27,4 +31,30 @@
     <string name="text_selected_count">Выбрано: %1$d</string>
     <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
     <string name="text_unknown">Неизвестно</string>
+    <string name="text_unsupported_zip_method">Метод ZIP %1$d не поддерживает извлечение</string>
+    <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>
+    <string name="error_compression_failed">Не удалось создать архив</string>
+    <string name="error_compression_request_invalid">Недопустимый запрос на сжатие или сеанс хоста</string>
+    <string name="text_advanced_compression_pending">Пароль, многотомные архивы, шифрование имён, отдельные архивы и удаление исходников отключены до появления безопасной транзакционной реализации.</string>
+    <string name="text_archive_file_name">Имя файла</string>
+    <string name="text_archive_format">Формат</string>
+    <string name="text_compress_separately">Сжимать каждый элемент отдельно</string>
+    <string name="text_compression_level">Уровень сжатия</string>
+    <string name="text_compression_level_fast">Быстро</string>
+    <string name="text_compression_level_maximum">Максимально</string>
+    <string name="text_compression_level_none">Без сжатия</string>
+    <string name="text_compression_level_normal">Обычный</string>
+    <string name="text_create_archive">Создать архив</string>
+    <string name="text_default_archive_name">Архив</string>
+    <string name="text_delete_sources_after_compression">Удалить исходные элементы после сжатия</string>
+    <string name="text_encrypt_file_names">Шифровать имена файлов</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_name_conflict_auto_rename">Если имя уже существует, номер добавляется автоматически.</string>
+    <string name="text_none">Нет</string>
+    <string name="text_output_path">Путь</string>
+    <string name="text_password">Пароль</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
+    <string name="text_split_unavailable">Текущий модуль не поддерживает многотомный ZIP.</string>
+    <string name="text_split_volume">Размер тома (MiB)</string>
+    <string name="text_zip_encryption_unavailable">Текущий модуль ZIP не поддерживает пароль и шифрование имён файлов.</string>
 </resources>

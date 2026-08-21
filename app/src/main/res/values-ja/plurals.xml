@@ -3,6 +3,15 @@
     <plurals name="text_archive_summary">
         <item quantity="other">%1$d 件, 展開後 %2$s</item>
     </plurals>
+    <plurals name="text_archive_created">
+        <item quantity="other">%1$s を作成しました (%2$d ファイル)</item>
+    </plurals>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="other">%1$d 項目を選択</item>
+    </plurals>
+    <plurals name="text_compressing_progress">
+        <item quantity="other">%1$s を圧縮中\n%2$d ファイル、%3$s 読み取り済み</item>
+    </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">%1$d ファイルを %2$s に展開しました</item>
     </plurals>

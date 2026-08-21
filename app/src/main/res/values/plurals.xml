@@ -4,6 +4,18 @@
         <item quantity="one">%1$d entry, %2$s unpacked</item>
         <item quantity="other">%1$d entries, %2$s unpacked</item>
     </plurals>
+    <plurals name="text_archive_created">
+        <item quantity="one">Created %1$s with %2$d file</item>
+        <item quantity="other">Created %1$s with %2$d files</item>
+    </plurals>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="one">%1$d selected item</item>
+        <item quantity="other">%1$d selected items</item>
+    </plurals>
+    <plurals name="text_compressing_progress">
+        <item quantity="one">Compressing %1$s\n%2$d file, %3$s read</item>
+        <item quantity="other">Compressing %1$s\n%2$d files, %3$s read</item>
+    </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Extracted %1$d file to %2$s</item>
         <item quantity="other">Extracted %1$d files to %2$s</item>

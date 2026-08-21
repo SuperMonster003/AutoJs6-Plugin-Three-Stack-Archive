@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">تصفح الأرشيف</string>
-    <string name="app_name">متصفح الأرشيف</string>
+    <string name="action_open_archive">فتح الأرشيف</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">استخراج إلى...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">ضغط...</string>
+    <string name="app_name">مدير الأرشيف</string>
     <string name="dialog_button_cancel">إلغاء</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
@@ -12,11 +14,13 @@
     <string name="error_extraction_failed">فشل الاستخراج</string>
     <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
-    <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP ويستخرجها بأمان</string>
+    <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
+    <string name="plugin_description">ملحق مدير الملفات. يفتح أرشيفات ZIP ويستخرجها وينشئها</string>
     <string name="text_cancelled">تم الإلغاء</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
     <string name="text_extract_selected">استخراج المحدد</string>
     <string name="text_extracting">جار استخراج %1$d من %2$d</string>
+    <string name="text_encrypted_entry">عنصر مشفر؛ دعم كلمة المرور غير متوفر بعد</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">جار تحميل الأرشيف...</string>
     <string name="text_loading_progress">%1$s من %2$s</string>
     <string name="text_modified">التعديل: %1$s</string>
@@ -27,4 +31,30 @@
     <string name="text_selected_count">المحدد: %1$d</string>
     <string name="text_size_details">%1$s, مضغوط %2$s, CRC %3$s</string>
     <string name="text_unknown">غير معروف</string>
+    <string name="text_unsupported_zip_method">يتعذر استخراج طريقة ZIP رقم %1$d</string>
+    <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
+    <string name="error_compression_failed">فشل الضغط</string>
+    <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>
+    <string name="text_advanced_compression_pending">تظل كلمة المرور والأجزاء وتشفير أسماء الملفات والأرشيفات المنفصلة وحذف المصدر معطلة حتى تتوفر الواجهات الخلفية الآمنة الخاصة بها.</string>
+    <string name="text_archive_file_name">اسم الملف</string>
+    <string name="text_archive_format">التنسيق</string>
+    <string name="text_compress_separately">ضغط كل عنصر في أرشيف منفصل</string>
+    <string name="text_compression_level">مستوى الضغط</string>
+    <string name="text_compression_level_fast">سريع</string>
+    <string name="text_compression_level_maximum">أقصى</string>
+    <string name="text_compression_level_none">بلا ضغط</string>
+    <string name="text_compression_level_normal">عادي</string>
+    <string name="text_create_archive">إنشاء أرشيف</string>
+    <string name="text_default_archive_name">أرشيف</string>
+    <string name="text_delete_sources_after_compression">حذف العناصر المصدر بعد الضغط</string>
+    <string name="text_encrypt_file_names">تشفير أسماء الملفات</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_name_conflict_auto_rename">إذا كان الاسم موجودا، تتم إضافة رقم تلقائيا.</string>
+    <string name="text_none">بلا</string>
+    <string name="text_output_path">المسار</string>
+    <string name="text_password">كلمة المرور</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">جار التحضير للضغط...</string>
+    <string name="text_split_unavailable">إخراج ZIP المجزأ غير متوفر في الواجهة الخلفية الحالية.</string>
+    <string name="text_split_volume">حجم الجزء (MiB)</string>
+    <string name="text_zip_encryption_unavailable">كلمة المرور وتشفير أسماء الملفات غير متاحين في واجهة ZIP الخلفية الحالية.</string>
 </resources>

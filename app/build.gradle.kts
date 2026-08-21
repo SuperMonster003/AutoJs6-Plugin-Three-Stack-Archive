@@ -11,17 +11,17 @@ plugins {
     id("com.android.application")
 }
 
-val globalApplicationId = "io.github.supermonster003.autojs6.plugin.archivebrowser"
+val codeNamespace = "io.github.supermonster003.autojs6.plugin.archivemanager"
 
 val buildTypeDebug = "debug"
 val buildTypeRelease = "release"
 
 android {
-    namespace = globalApplicationId
+    namespace = codeNamespace
     compileSdk = versions.sdkVersionCompile
 
     defaultConfig {
-        applicationId = globalApplicationId
+        applicationId = codeNamespace
         minSdk = versions.sdkVersionMin
         targetSdk = versions.sdkVersionTarget
         versionCode = versions.appVersionCode
@@ -75,6 +75,10 @@ android {
         viewBinding = true
     }
 
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+    }
+
     sourceSets.named("main") {
         kotlin.directories += "src/main/java"
     }
@@ -122,6 +126,8 @@ androidComponents {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar)
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
     implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:2.2.21")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
@@ -135,6 +141,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.recyclerview)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+    implementation(libs.apache.commons.compress)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.test.ext.junit)

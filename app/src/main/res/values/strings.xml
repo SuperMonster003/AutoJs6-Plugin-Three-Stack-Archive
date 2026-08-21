@@ -1,30 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">Browse archive</string>
-    <string name="app_name">Archive Browser</string>
+    <string name="action_open_archive">Open archive</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>
+    <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_select_all">Select all</string>
     <string name="error_archive_invalid">The archive is invalid or unsupported</string>
     <string name="error_archive_limit">The archive exceeds a safety limit</string>
+    <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_cannot_create_output">Cannot create the output directory</string>
     <string name="error_cannot_open_archive">Cannot open the archive</string>
     <string name="error_cleanup_failed">Cleanup failed; partial output may remain</string>
+    <string name="error_compression_failed">Compression failed</string>
+    <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
     <string name="error_extraction_failed">Extraction failed</string>
     <string name="error_no_selection">Select at least one entry</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
-    <string name="plugin_description">File manager plugin. Browse and safely extract ZIP archives</string>
+    <string name="error_with_reason">%1$s\nReason: %2$s</string>
+    <string name="plugin_description">File manager plugin. Open, extract, and create ZIP archives</string>
     <string name="text_cancelled">Cancelled</string>
+    <string name="text_advanced_compression_pending">Password, split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
+    <string name="text_archive_file_name">File name</string>
+    <string name="text_archive_format">Format</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Cleaning up partial output...</string>
+    <string name="text_compress_separately">Compress each item separately</string>
+    <string name="text_compression_level">Compression level</string>
+    <string name="text_compression_level_fast">Fast</string>
+    <string name="text_compression_level_maximum">Maximum</string>
+    <string name="text_compression_level_none">No compression</string>
+    <string name="text_compression_level_normal">Normal</string>
+    <string name="text_create_archive">Create archive</string>
+    <string name="text_default_archive_name">Archive</string>
+    <string name="text_delete_sources_after_compression">Delete source items after compression</string>
+    <string name="text_encrypt_file_names">Encrypt file names</string>
     <string name="text_extract_selected">Extract selected</string>
     <string name="text_extracting">Extracting %1$d of %2$d</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_encrypted_entry">Encrypted entry; password support is not available yet</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Loading archive...</string>
     <string name="text_loading_progress">%1$s of %2$s</string>
     <string name="text_modified">Modified: %1$s</string>
     <string name="text_no_entries">No matching entries</string>
+    <string name="text_name_conflict_auto_rename">If the name exists, a number is added automatically.</string>
+    <string name="text_none">None</string>
+    <string name="text_output_path">Path</string>
+    <string name="text_password">Password</string>
     <string name="text_parent_directory">Parent directory</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparing compression...</string>
     <string name="text_search_hint">Search archive</string>
     <string name="text_select_entry">Select entry</string>
     <string name="text_selected_count">Selected: %1$d</string>
     <string name="text_size_details">%1$s, compressed %2$s, CRC %3$s</string>
+    <string name="text_split_unavailable">Split ZIP output is not available in the current backend.</string>
+    <string name="text_split_volume">Split volume (MiB)</string>
     <string name="text_unknown">Unknown</string>
+    <string name="text_unsupported_zip_method" tools:ignore="PluralsCandidate">ZIP method %1$d cannot be extracted</string>
+    <string name="text_zip_encryption_unavailable">Password and filename encryption are not available in the current ZIP backend.</string>
 </resources>

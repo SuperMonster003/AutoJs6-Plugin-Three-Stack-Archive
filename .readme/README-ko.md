@@ -1,145 +1,122 @@
-<!--suppress HtmlDeprecatedAttribute, HttpUrlsUsage -->
-
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="archive-browser-ic-launcher" border="0" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
   </p>
 
-  <p>파일 관리자 플러그인. ZIP 압축 파일을 탐색하고 안전하게 압축 풀기</p>
+  <h1>Archive Manager</h1>
+
+  <p>ZIP 압축 파일을 열고 풀고 만들기 위한 AutoJs6 파일 관리자 플러그인</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Browser?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Browser?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=534BAE&label=License"/></a>
   </p>
 </div>
 
-******
-
 ### 언어 (Languages)
 
-******
+README는 다음 언어로 제공됩니다:
 
-현재 README.md는 다음 언어를 지원합니다:
-
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hans.md)
-- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-HK.md)
-- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ja.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hans.md)
+- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-HK.md)
+- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ja.md)
 - 한국어 [ko] # 현재
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/.readme/README-ar.md)
-
-******
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ar.md)
 
 ### 소개
 
-******
+Archive Manager는 ZIP 탐색, 압축 풀기 및 만들기를 AutoJs6 파일 관리자에 통합합니다. 현재 버전은 단일 항목이나 같은 상위 폴더의 다중 선택을 압축하고 호스트가 제어하는 파일 세션을 통해 현재 폴더에 안전하게 기록합니다. 추가 형식, 호스트 네이티브 압축 파일 화면 및 내부 편집은 Roadmap에 따라 진행됩니다.
 
-압축 파일 탐색기는 파일 관리자에 읽기 전용 압축 파일 탐색 기능을 추가합니다. ZIP 기반 컨테이너를 전용 계층 탐색기로 열고 사용자가 선택한 항목만 Android Storage Access Framework로 지정한 출력 폴더에 압축 해제합니다.
+### 현재 기능
 
-******
+- AutoJs6 파일 메뉴에서 ZIP 계열 압축 파일 열기.
+- ‘압축 풀기...’ 바로 가기로 탐색 화면을 먼저 열지 않고 전체 압축 파일 풀기.
+- 폴더 탐색, 경로 검색, 파일 또는 폴더 선택.
+- 모든 항목을 미리 풀지 않고 디렉터리 메타데이터로 목록 생성.
+- Zip64, 자동 압축 풀기 형식의 앞부분 데이터, 기존 이름 인코딩, Windows 경로 구분자 지원.
+- 개별 항목을 풀 수 없어도 나머지 내용은 계속 탐색 가능.
+- Android 선택기로 지정한 폴더에 진행률 및 취소와 함께 선택 항목 풀기.
+- 일반 파일, 폴더 및 같은 상위 폴더의 다중 선택에 ‘압축...’ 동작 제공.
+- 파일 이름과 압축 수준을 설정하여 ZIP 만들기. 단일 항목은 대상 이름, 다중 항목은 상위 폴더 이름을 기본값으로 사용.
+- 같은 폴더의 임시 파일에 쓴 뒤 원자적으로 확정하고 기존 파일을 덮어쓰지 않도록 충돌 이름에 번호 추가.
 
-### 기능
+### 현재 형식
 
-******
-
-- 공유 `org.autojs.plugin.EXPLORER_ACTION` 프로토콜을 통해 단일 파일용 읽기 전용 더보기 작업을 등록합니다.
-- 압축 파일의 폴더를 탐색하고 압축 해제 크기, 압축 크기, CRC, 수정 시간 메타데이터를 표시합니다.
-- 정규화된 항목 경로를 검색하고 개별 파일, 폴더 또는 표시된 모든 항목을 선택할 수 있습니다.
-- 선택한 항목을 사용자가 지정한 SAF 트리에 압축 해제하며 진행률 표시와 취소를 지원합니다.
-- 지원되는 ZIP 압축 방식을 사용하는 ZIP, JAR, AAR, WAR 컨테이너를 받습니다.
-- 읽기 전용 입력을 비공개 캐시에 임시 저장하고 탐색기를 닫을 때 임시 데이터를 삭제합니다.
-
-******
-
-### 지원 형식
-
-******
-
-버전 1은 다음 ZIP 계열 파일 확장자를 인식합니다:
+현재 버전은 다음 ZIP 계열 확장자를 인식합니다:
 
 ```text
 zip, jar, aar, war
 ```
 
-******
-
-### 플러그인 인터페이스
-
-******
-
-호스트는 다음 식별 정보로 플러그인을 검색하고 실행합니다:
+현재 버전은 다음 형식을 만들 수 있습니다:
 
 ```text
-service action: org.autojs.plugin.EXPLORER_ACTION
-execute action: org.autojs.plugin.EXPLORER_ACTION_EXECUTE
-plugin id: archive-browser
-engine: explorer-action
-variant: default
+zip
 ```
 
-버전 1은 기본 파일 관리자에서 단일 파일용 읽기 전용 더보기 작업을 제공합니다.
+> Explorer Action v4 통합에는 AutoJs6 버전 코드 5276 이상이 필요합니다. 7z, tar 계열, 비밀번호, 분할 압축, 파일 이름 암호화, 개별 압축, 원본 삭제 및 압축 파일 내부 추가/삭제는 아직 출시된 기능이 아닙니다. Roadmap 체크 상태를 기준으로 확인하세요.
 
-******
+### 사용법
 
-### 보안
+1. 플러그인을 설치하고 AutoJs6 플러그인 센터에서 활성화합니다.
+2. ZIP, JAR, AAR 또는 WAR 파일 메뉴를 엽니다.
+3. ‘압축 파일 열기’를 선택한 뒤 탐색하거나 검색하여 내용을 선택합니다.
+4. ‘선택 항목 압축 풀기’에서 출력 폴더를 지정합니다. 전체 파일은 파일 메뉴의 ‘압축 풀기...’를 바로 선택할 수 있습니다.
+5. ZIP을 만들려면 일반 파일 또는 폴더 메뉴에서 ‘압축...’을 선택하거나 같은 폴더의 여러 항목을 선택한 뒤 하단 표시줄의 ‘압축...’을 사용합니다.
 
-******
+### 권한 및 데이터
 
-플러그인은 저장소 또는 네트워크 권한을 요청하지 않습니다. 호스트는 입력 content URI에 임시 읽기 전용 접근 권한만 부여하고 출력 접근은 사용자가 명시적으로 선택한 SAF 디렉터리로 제한합니다. 절대 경로, 상위 디렉터리 이동, 드라이브 접두사, 역슬래시, 안전하지 않은 Unicode, 중복 경로, 파일과 디렉터리 충돌, 지원되지 않는 압축 방식, 크기 불일치, CRC 불일치는 거부됩니다.
+저장소나 네트워크 권한을 요청하지 않습니다. 탐색과 압축 풀기는 호스트가 임시로 부여한 입력 URI만 사용합니다. ZIP 만들기는 플러그인 UID에 고정된 단기 호스트 세션으로 대상을 페이지 단위로 읽고 현재 상위 폴더에만 트랜잭션 출력을 만들 수 있습니다. 고정 4 GiB 입력 제한과 탐색 시 크기/압축률 제한은 제거했지만 경로 격리, 무결성 검증, 실패 정리는 유지됩니다.
 
-******
+### Roadmap
 
-### 안전 제한
+추가 형식, 비밀번호와 분할, 내부 편집, 호스트 네이티브 압축 파일 화면, 내부 경로 표시줄 및 전체 기기 매트릭스의 작업과 인수 조건은 Roadmap에 있습니다. 체크되지 않은 항목은 현재 기능이 아닙니다.
 
-******
+- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
-- 임시 저장 입력 최대 크기: `4 GiB`.
-- 암시적 디렉터리를 포함한 압축 파일 경로 노드 최대 수: `20,000`.
-- ZIP 중앙 디렉터리 최대 크기: `64 MiB`.
-- 정규화 경로 최대 길이: `1,024`자.
-- 경로 최대 깊이: `64`단계.
-- 단일 항목의 압축 해제 후 최대 크기: `512 MiB`.
-- 압축 해제 후 전체 데이터 최대 크기: `2 GiB`.
-- 최대 압축 비율: `1000:1`.
+### 릴리스 노트
 
-******
+#### Unreleased
 
-### 릴리스 내역
+_미출시_
 
-******
+- `추가` 제품 이름을 Archive Manager로, 파일 동작을 ‘압축 파일 열기’로 통일
+- `추가` 출력 위치를 선택해 전체 파일을 푸는 ‘압축 풀기...’ 바로 가기
+- `추가` Explorer Action v4로 일반 파일/폴더 메뉴와 같은 상위 폴더 다중 선택의 다섯 동작 표시줄에 ‘압축...’ 추가
+- `추가` 기본 이름, 압축 수준, 진행률, 취소 및 충돌 이름 자동 번호 지정을 지원하는 ZIP 만들기
+- `수정` ZIP 목록을 메타데이터 방식으로 변경하고 자동 풀기 형식의 앞부분, 기존 이름 인코딩, Windows 구분자 및 더 많은 읽기 가능한 메서드 지원
+- `수정` 알 수 없는 크기, 유효한 DocumentsProvider URI, 호스트의 추가 쓰기 권한 때문에 정상 파일이 거부되던 문제 수정
+- `수정` 최신 시스템 전용 API 호출로 Android 7.x에서 ZIP을 탐색하거나 풀 수 없던 문제 수정
+- `개선` 고정 4 GiB 제한과 탐색 시 크기/압축률 제한을 제거하면서 경로 격리와 무결성 검증 유지
+- `개선` 체크 가능한 Roadmap을 추가하고 README와 CHANGELOG를 다시 작성
+- `개선` 독립 화면이 시스템 주야간 모드와 Material 동적 색상을 따르도록 개선
+- `개선` ZIP 출력을 플러그인 UID에 고정된 호스트 세션으로 같은 폴더의 임시 파일에 쓰고 저장소 권한이나 덮어쓰기 없이 원자적으로 확정
 
-# v1.0.1
+#### v1.0.1
 
-###### 2026/08/08
+_2026/08/08_
 
-* `수정` 플러그인 센터에서 활성화할 때 서비스 바인딩이 null이 되는 문제
-* `개선` 더 명확하고 간결한 플러그인 이름, 설명 및 사용자 문서
+- `수정` 플러그인 활성화 시 서비스 바인딩이 비어 있던 문제
+- `개선` 이름, 설명 및 사용 안내 간소화
 
-# v1.0.0
+#### v1.0.0
 
-###### 2026/08/02
+_2026/08/02_
 
-* `기능` 플러그인 ID `archive-browser`, 엔진 `explorer-action`, 변형 `default`인 Archive Browser 플러그인
-* `기능` ZIP, JAR, AAR, WAR 단일 컨테이너용 읽기 전용 탐색기 작업과 계층 탐색, 경로 검색, 항목 선택
-* `기능` 사용자가 선택한 SAF 트리로 선택 항목을 압축 해제하며 진행률과 취소를 지원하고 입력은 임시 읽기 전용으로 접근하며 저장소 또는 네트워크 권한을 사용하지 않음
-* `기능` 입력 4 GiB, 암시적 디렉터리를 포함한 경로 노드 20,000개, ZIP 중앙 디렉터리 64 MiB, 압축 해제된 단일 항목 512 MiB, 압축 해제된 전체 데이터 2 GiB, 압축 비율 1000:1의 안전 제한
-* `기능` 안전하지 않은 경로, 중복 또는 충돌 항목, 지원되지 않는 압축 방식, 입력 소스 변경, 크기 불일치, CRC 불일치 검증
-* `기능` 스페인어/프랑스어/러시아어/아랍어/일본어/한국어/영어/중국어 간체/홍콩 중국어 번체/대만 중국어 번체로 현지화한 메타데이터, UI, 사용 설명, README, CHANGELOG
+- `추가` ZIP, JAR, AAR, WAR 탐색과 선택 내용 풀기를 제공한 최초 버전
+- `추가` 검색, 선택, 진행률, 취소, 임시 데이터 정리 및 다국어 UI 추가
 
-##### 더 많은 릴리스 내역
+##### 전체 기록
 
-* [CHANGELOG-ko.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Browser/blob/master/app/src/main/assets/doc/CHANGELOG-ko.md)
-
-******
+* [CHANGELOG-ko.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/assets/doc/CHANGELOG-ko.md)
 
 ### 빌드
-
-******
 
 ```powershell
 .\gradlew.bat :app:assembleDebug
@@ -151,31 +128,9 @@ Release 빌드:
 .\gradlew.bat :app:assembleRelease
 ```
 
-빌드 매개변수는 `version.properties`에서 가져옵니다. 현재 최소 SDK는 24이고 대상 SDK는 36입니다.
-
-******
-
-### 리소스 구조
-
-******
-
-```text
-.readme/lang_*.json
-.changelog/lang_*.json
-.python/generate_markdown.py
-app/src/main/assets/doc/CHANGELOG-*.md
-app/src/main/res/values-*/strings.xml
-app/src/main/res/values-*/plurals.xml
-app/src/main/res/raw-*/plugin_instruction.md
-```
-
-`strings.xml`은 플러그인 메타데이터와 탐색기의 고정 텍스트를 현지화하고 `plurals.xml`은 수량에 따라 달라지는 탐색기 텍스트를 현지화합니다. `plugin_instruction.md`는 호스트에 표시할 사용 설명을 제공합니다. `.python/generate_markdown.py`가 JSON 소스에서 README와 변경 내역을 생성합니다.
-
-******
+저장소 루트의 Gradle Wrapper를 사용하고 SDK/JDK 요구 사항은 `version.properties`를 따릅니다.
 
 ### 링크
-
-******
 
 - AutoJs6 문서: https://docs.autojs6.com
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

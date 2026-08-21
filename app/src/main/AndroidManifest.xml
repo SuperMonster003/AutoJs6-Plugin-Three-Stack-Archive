@@ -5,6 +5,7 @@
     <uses-permission android:name="org.autojs.permission.PLUGIN" />
 
     <application
+        android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
@@ -19,14 +20,14 @@
 
         <meta-data
             android:name="org.autojs.plugin.WAKE_ACTIVITY"
-            android:value=".WakeActivity" />
+            android:value="io.github.supermonster003.autojs6.plugin.archivemanager.WakeActivity" />
 
         <meta-data
             android:name="org.autojs.plugin.info.AUTHOR"
             android:value="@string/plugin_author" />
 
         <activity
-            android:name=".WakeActivity"
+            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.WakeActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:finishOnTaskLaunch="true"
@@ -39,7 +40,19 @@
         </activity>
 
         <activity
-            android:name=".ArchiveBrowserActivity"
+            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize"
+            android:exported="true"
+            android:permission="org.autojs.permission.PLUGIN"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="org.autojs.plugin.EXPLORER_ACTION_EXECUTE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.CreateArchiveActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN"
@@ -51,7 +64,7 @@
         </activity>
 
         <service
-            android:name=".ExplorerActionService"
+            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ExplorerActionService"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN">
             <intent-filter>

@@ -1,23 +1,31 @@
-******
+# Notas de la versión
 
-### Historial de versiones
+## Unreleased
 
-******
+_Sin publicar_
 
-# v1.0.1
+- `Añadido` El producto pasa a llamarse Archive Manager y la acción, Abrir archivo comprimido
+- `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
+- `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
+- `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
+- `Corregido` La lista ZIP usa metadatos y admite preámbulos autoextraíbles, codificaciones antiguas, separadores Windows y más métodos legibles
+- `Corregido` Los tamaños desconocidos, URI DocumentsProvider válidos y permisos de escritura adicionales del host ya no bloquean archivos válidos
+- `Corregido` Corregida la exploración y extracción de ZIP en Android 7.x, que fallaba al llamar a API exclusivas de sistemas más recientes
+- `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
+- `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
+- `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material
+- `Mejorado` La salida ZIP pasa por una sesión del host vinculada al UID, usa un archivo temporal del mismo directorio y se confirma atómicamente sin permiso de almacenamiento ni sobrescrituras
 
-###### 2026/08/08
+## v1.0.1
 
-* `Corrección` Enlace de servicio nulo al activar el complemento en el centro de complementos
-* `Mejora` Nombre, descripción y documentación de usuario más claros y concisos
+_2026/08/08_
 
-# v1.0.0
+- `Corregido` Enlace de servicio vacío al activar el complemento
+- `Mejorado` Nombre, descripción e instrucciones más simples
 
-###### 2026/08/02
+## v1.0.0
 
-* `Función` Plugin Archive Browser con ID `archive-browser`, motor `explorer-action` y variante `default`
-* `Función` Acción de Explorador de solo lectura para un único contenedor ZIP, JAR, AAR o WAR con navegación jerárquica, búsqueda de rutas y selección de entradas
-* `Función` Extracción selectiva a un árbol SAF elegido por el usuario con progreso y cancelación, acceso temporal de solo lectura a la entrada y sin permisos de almacenamiento ni de red
-* `Función` Límites de seguridad de 4 GiB de entrada, 20,000 nodos de ruta incluidos los directorios implícitos, 64 MiB para el directorio central ZIP, 512 MiB por entrada sin comprimir, 2 GiB de datos totales sin comprimir y una relación de compresión de 1000:1
-* `Función` Validación de rutas no seguras, entradas duplicadas o en conflicto, métodos de compresión no compatibles, cambios en el origen, diferencias de tamaño y diferencias de CRC
-* `Función` Metadatos, interfaz, instrucciones de uso, README y CHANGELOG localizados en español, francés, ruso, árabe, japonés, coreano, inglés, chino simplificado, chino tradicional de Hong Kong y chino tradicional de Taiwán
+_2026/08/02_
+
+- `Añadido` Primera versión para explorar ZIP, JAR, AAR y WAR y extraer la selección
+- `Añadido` Búsqueda, selección, progreso, cancelación, limpieza temporal e interfaz localizada

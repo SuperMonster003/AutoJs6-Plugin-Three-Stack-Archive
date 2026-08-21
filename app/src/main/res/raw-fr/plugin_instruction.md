@@ -1,11 +1,15 @@
-Utilisez l'explorateur d'archives depuis le gestionnaire de fichiers principal:
+Utilisez le gestionnaire d'archives depuis le gestionnaire de fichiers principal:
 
-1. Installez et activez le plugin `Archive Browser`.
+1. Installez et activez le plugin `Archive Manager`.
 2. Ouvrez le menu supplémentaire d'un fichier ZIP, JAR, AAR ou WAR.
-3. Sélectionnez `Parcourir l'archive`.
+3. Sélectionnez `Ouvrir l'archive`.
 4. Parcourez les dossiers ou recherchez des chemins d'entrée, puis sélectionnez des fichiers ou des dossiers.
 5. Sélectionnez `Extraire la sélection` et choisissez un dossier de sortie avec le sélecteur système Android.
 
-Le plugin reçoit un accès temporaire en lecture seule au content URI d'entrée. Il ne demande aucune autorisation de stockage ou de réseau, et écrit uniquement dans l'arborescence de sortie sélectionnée via Storage Access Framework.
+Pour extraire immédiatement toute l'archive, sélectionnez `Extraire vers...` dans son menu, puis choisissez le dossier de sortie.
 
-L'entrée est copiée dans le cache privé et limitée à 4 GiB. Chaque archive est limitée à 20,000 entrées, 512 MiB par entrée décompressée, 2 GiB de données décompressées au total et un taux de compression de 1000:1. Les chemins non sûrs et les méthodes de compression non prises en charge sont bloqués.
+Pour créer un ZIP, sélectionnez `Compresser...` dans le menu d'un fichier ou dossier ordinaire. Vous pouvez aussi sélectionner plusieurs éléments du même dossier et utiliser `Compresser...` dans la barre inférieure. Confirmez le nom et le niveau de compression pour créer l'archive dans le dossier actuel.
+
+La version actuelle lit et extrait les archives de la famille ZIP et crée des ZIP. Les mots de passe, les volumes fractionnés, la modification interne et les formats supplémentaires restent dans le Roadmap.
+
+Le plugin ne demande aucun accès général au stockage ni au réseau. La consultation place temporairement l'entrée dans le cache privé. La création de ZIP lit via une session courte de l'hôte liée au plugin et ne peut écrire qu'une sortie transactionnelle dans le dossier parent actuel. Les contrôles contre la traversée de chemin et le dépassement du dossier de sortie restent actifs.

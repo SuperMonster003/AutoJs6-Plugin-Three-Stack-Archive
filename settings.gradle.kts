@@ -1,6 +1,6 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "autojs6-plugin-archive-browser"
+rootProject.name = "autojs6-plugin-archive-manager"
 
 pluginManagement {
     repositories {
@@ -31,5 +31,4 @@ include(
     ":app",
     *libs.map { ":libs:$it" }.toTypedArray(),
 )
-
 

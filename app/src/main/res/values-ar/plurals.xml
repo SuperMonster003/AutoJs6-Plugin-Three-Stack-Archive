@@ -8,6 +8,30 @@
         <item quantity="many">%1$d عنصرا, %2$s بعد فك الضغط</item>
         <item quantity="other">%1$d عنصر, %2$s بعد فك الضغط</item>
     </plurals>
+    <plurals name="text_archive_created">
+        <item quantity="zero">تم إنشاء %1$s ويحتوي على %2$d ملف</item>
+        <item quantity="one">تم إنشاء %1$s ويحتوي على %2$d ملف</item>
+        <item quantity="two">تم إنشاء %1$s ويحتوي على %2$d ملفين</item>
+        <item quantity="few">تم إنشاء %1$s ويحتوي على %2$d ملفات</item>
+        <item quantity="many">تم إنشاء %1$s ويحتوي على %2$d ملفا</item>
+        <item quantity="other">تم إنشاء %1$s ويحتوي على %2$d ملف</item>
+    </plurals>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="zero">تم تحديد %1$d عنصر</item>
+        <item quantity="one">تم تحديد %1$d عنصر</item>
+        <item quantity="two">تم تحديد %1$d عنصرين</item>
+        <item quantity="few">تم تحديد %1$d عناصر</item>
+        <item quantity="many">تم تحديد %1$d عنصرا</item>
+        <item quantity="other">تم تحديد %1$d عنصر</item>
+    </plurals>
+    <plurals name="text_compressing_progress">
+        <item quantity="zero">جار ضغط %1$s\nتمت معالجة %2$d ملفات، تمت قراءة %3$s</item>
+        <item quantity="one">جار ضغط %1$s\nتمت معالجة %2$d ملف، تمت قراءة %3$s</item>
+        <item quantity="two">جار ضغط %1$s\nتمت معالجة %2$d ملفين، تمت قراءة %3$s</item>
+        <item quantity="few">جار ضغط %1$s\nتمت معالجة %2$d ملفات، تمت قراءة %3$s</item>
+        <item quantity="many">جار ضغط %1$s\nتمت معالجة %2$d ملفا، تمت قراءة %3$s</item>
+        <item quantity="other">جار ضغط %1$s\nتمت معالجة %2$d ملف، تمت قراءة %3$s</item>
+    </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="zero">تم استخراج %1$d ملف إلى %2$s</item>
         <item quantity="one">تم استخراج %1$d ملف إلى %2$s</item>

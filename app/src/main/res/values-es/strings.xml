@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">Explorar archivo</string>
-    <string name="app_name">Explorador de archivos ZIP</string>
+    <string name="action_open_archive">Abrir archivo comprimido</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
+    <string name="app_name">Gestor de archivos comprimidos</string>
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
@@ -12,11 +14,13 @@
     <string name="error_extraction_failed">Error de extracción</string>
     <string name="error_no_selection">Selecciona al menos una entrada</string>
     <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
-    <string name="plugin_description">Complemento del gestor de archivos. Explora y extrae archivos ZIP de forma segura</string>
+    <string name="error_with_reason">%1$s\nMotivo: %2$s</string>
+    <string name="plugin_description">Complemento del gestor de archivos. Abre, extrae y crea archivos ZIP</string>
     <string name="text_cancelled">Cancelado</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
     <string name="text_extract_selected">Extraer selección</string>
     <string name="text_extracting">Extrayendo %1$d de %2$d</string>
+    <string name="text_encrypted_entry">Entrada cifrada; la compatibilidad con contraseñas aún no está disponible</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Cargando archivo...</string>
     <string name="text_loading_progress">%1$s de %2$s</string>
     <string name="text_modified">Modificado: %1$s</string>
@@ -27,4 +31,30 @@
     <string name="text_selected_count">Seleccionadas: %1$d</string>
     <string name="text_size_details">%1$s, comprimido %2$s, CRC %3$s</string>
     <string name="text_unknown">Desconocido</string>
+    <string name="text_unsupported_zip_method">No se puede extraer el método ZIP %1$d</string>
+    <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
+    <string name="error_compression_failed">Error de compresión</string>
+    <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>
+    <string name="text_advanced_compression_pending">La contraseña, los volúmenes divididos, el cifrado de nombres, los archivos separados y la eliminación de fuentes permanecen desactivados hasta que estén disponibles sus sistemas transaccionales.</string>
+    <string name="text_archive_file_name">Nombre del archivo</string>
+    <string name="text_archive_format">Formato</string>
+    <string name="text_compress_separately">Comprimir cada elemento por separado</string>
+    <string name="text_compression_level">Nivel de compresión</string>
+    <string name="text_compression_level_fast">Rápido</string>
+    <string name="text_compression_level_maximum">Máximo</string>
+    <string name="text_compression_level_none">Sin compresión</string>
+    <string name="text_compression_level_normal">Normal</string>
+    <string name="text_create_archive">Crear archivo comprimido</string>
+    <string name="text_default_archive_name">Archivo</string>
+    <string name="text_delete_sources_after_compression">Eliminar los elementos de origen después de comprimir</string>
+    <string name="text_encrypt_file_names">Cifrar nombres de archivo</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_name_conflict_auto_rename">Si el nombre ya existe, se añade un número automáticamente.</string>
+    <string name="text_none">Ninguno</string>
+    <string name="text_output_path">Ruta</string>
+    <string name="text_password">Contraseña</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
+    <string name="text_split_unavailable">La salida ZIP dividida no está disponible en el sistema actual.</string>
+    <string name="text_split_volume">Tamaño del volumen (MiB)</string>
+    <string name="text_zip_encryption_unavailable">La contraseña y el cifrado de nombres no están disponibles en el sistema ZIP actual.</string>
 </resources>

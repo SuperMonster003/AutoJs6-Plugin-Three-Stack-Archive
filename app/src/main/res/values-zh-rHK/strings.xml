@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">瀏覽壓縮檔</string>
-    <string name="app_name">壓縮檔瀏覽器</string>
+    <string name="action_open_archive">開啟壓縮檔</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">解壓縮到...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>
+    <string name="app_name">壓縮檔管理器</string>
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_select_all">全部選取</string>
     <string name="error_archive_invalid">壓縮檔無效或不受支援</string>
@@ -12,7 +14,7 @@
     <string name="error_extraction_failed">解壓縮失敗</string>
     <string name="error_no_selection">請至少選取一個項目</string>
     <string name="error_permission_missing">缺少壓縮檔讀取權限</string>
-    <string name="plugin_description">檔案管理器外掛程式. 瀏覽並安全解壓縮 ZIP 壓縮檔</string>
+    <string name="plugin_description">檔案管理器外掛程式. 開啟、解壓縮及建立 ZIP 壓縮檔</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分輸出...</string>
     <string name="text_extract_selected">解壓縮所選項目</string>
@@ -27,4 +29,29 @@
     <string name="text_selected_count">已選取: %1$d</string>
     <string name="text_size_details">%1$s, 壓縮後 %2$s, CRC %3$s</string>
     <string name="text_unknown">未知</string>
+    <string name="error_archive_file_name_invalid">請輸入有效的壓縮檔名稱</string>
+    <string name="error_compression_failed">壓縮失敗</string>
+    <string name="error_compression_request_invalid">壓縮要求或主程式工作階段無效</string>
+    <string name="text_advanced_compression_pending">密碼、分卷、檔案名稱加密、個別壓縮及刪除來源項目會在相應的交易式後端可用後開放.</string>
+    <string name="text_archive_file_name">檔案名稱</string>
+    <string name="text_archive_format">格式</string>
+    <string name="text_compress_separately">個別壓縮每個檔案和資料夾</string>
+    <string name="text_compression_level">壓縮等級</string>
+    <string name="text_compression_level_fast">快速</string>
+    <string name="text_compression_level_maximum">最高</string>
+    <string name="text_compression_level_none">不壓縮</string>
+    <string name="text_compression_level_normal">一般</string>
+    <string name="text_create_archive">建立壓縮檔</string>
+    <string name="text_default_archive_name">壓縮檔</string>
+    <string name="text_delete_sources_after_compression">壓縮後刪除來源項目</string>
+    <string name="text_encrypt_file_names">同時加密檔案名稱</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_name_conflict_auto_rename">名稱已存在時會自動加入序號.</string>
+    <string name="text_none">無</string>
+    <string name="text_output_path">路徑</string>
+    <string name="text_password">密碼</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在準備壓縮...</string>
+    <string name="text_split_unavailable">目前後端尚未支援 ZIP 分卷輸出.</string>
+    <string name="text_split_volume">分卷大小 (MiB)</string>
+    <string name="text_zip_encryption_unavailable">目前 ZIP 後端尚未支援密碼和檔案名稱加密.</string>
 </resources>

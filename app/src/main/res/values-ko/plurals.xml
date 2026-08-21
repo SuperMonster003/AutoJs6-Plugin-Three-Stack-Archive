@@ -3,6 +3,15 @@
     <plurals name="text_archive_summary">
         <item quantity="other">항목 %1$d개, 압축 해제 크기 %2$s</item>
     </plurals>
+    <plurals name="text_archive_created">
+        <item quantity="other">%1$s을(를) 만들었습니다 (파일 %2$d개)</item>
+    </plurals>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="other">항목 %1$d개 선택됨</item>
+    </plurals>
+    <plurals name="text_compressing_progress">
+        <item quantity="other">%1$s 압축 중\n파일 %2$d개, %3$s 읽음</item>
+    </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">파일 %1$d개를 %2$s에 압축 해제했습니다</item>
     </plurals>

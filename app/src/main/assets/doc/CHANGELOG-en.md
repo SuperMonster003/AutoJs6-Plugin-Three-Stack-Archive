@@ -1,23 +1,31 @@
-******
+# Release notes
 
-### Release History
+## Unreleased
 
-******
+_Unreleased_
 
-# v1.0.1
+- `Added` Renamed the product to Archive Manager and the file action to Open archive
+- `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
+- `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
+- `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
+- `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
+- `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
+- `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
+- `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
+- `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
+- `Improved` ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
 
-###### 2026/08/08
+## v1.0.1
 
-* `Fix` Null service binding when enabling the plugin in Plugin Center
-* `Improvement` Clearer and more concise plugin name, description, and user documentation
+_2026/08/08_
 
-# v1.0.0
+- `Fixed` Empty service binding when enabling the plugin in Plugin Center
+- `Improved` Simplified the plugin name, description, and usage text
 
-###### 2026/08/02
+## v1.0.0
 
-* `Feature` Archive Browser plugin with plugin ID `archive-browser`, engine `explorer-action`, and variant `default`
-* `Feature` Single-file read-only Explorer action for ZIP, JAR, AAR, and WAR containers with hierarchical browsing, path search, and entry selection
-* `Feature` Selective extraction to a user-selected SAF tree with progress and cancellation, temporary read-only input access, and no storage or network permission
-* `Feature` Safety limits of 4 GiB input, 20,000 archive path nodes including implicit directories, 64 MiB ZIP central directory, 512 MiB per unpacked entry, 2 GiB total unpacked data, and a compression ratio of 1000:1
-* `Feature` Validation for unsafe paths, duplicate and conflicting entries, unsupported compression methods, changed sources, size mismatches, and CRC mismatches
-* `Feature` Localized metadata, interface text, usage instructions, README files, and changelogs in Spanish, French, Russian, Arabic, Japanese, Korean, English, Simplified Chinese, Hong Kong Traditional Chinese, and Taiwan Traditional Chinese
+_2026/08/02_
+
+- `Added` Initial release for browsing ZIP, JAR, AAR, and WAR files and extracting selected files or folders
+- `Added` Added search, selection, progress, cancellation, temporary-input cleanup, and localized UI

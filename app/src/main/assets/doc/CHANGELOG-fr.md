@@ -1,23 +1,31 @@
-******
+# Notes de version
 
-### Historique des versions
+## Unreleased
 
-******
+_Non publié_
 
-# v1.0.1
+- `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
+- `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
+- `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
+- `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
+- `Correction` La liste ZIP utilise les métadonnées et accepte les préambules auto-extractibles, les anciens encodages, les séparateurs Windows et davantage de méthodes lisibles
+- `Correction` Les tailles inconnues, les URI DocumentsProvider valides et les droits d'écriture supplémentaires de l'hôte ne bloquent plus une archive valide
+- `Correction` Correction de la consultation et de l'extraction ZIP sous Android 7.x, qui appelaient des API réservées aux systèmes récents
+- `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
+- `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
+- `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material
+- `Amélioration` La sortie ZIP passe par une session de l'hôte liée à l'UID, utilise un fichier temporaire du même dossier et est validée atomiquement sans autorisation de stockage ni écrasement
 
-###### 2026/08/08
+## v1.0.1
 
-* `Correctif` Liaison de service nulle lors de l'activation du plugin dans le centre des plugins
-* `Amélioration` Nom, description et documentation utilisateur plus clairs et concis
+_2026/08/08_
 
-# v1.0.0
+- `Correction` Liaison de service vide lors de l'activation dans le centre de plugins
+- `Amélioration` Simplification du nom, de la description et des instructions
 
-###### 2026/08/02
+## v1.0.0
 
-* `Fonctionnalité` Plugin Archive Browser avec l'ID `archive-browser`, le moteur `explorer-action` et la variante `default`
-* `Fonctionnalité` Action de l'explorateur en lecture seule pour un seul conteneur ZIP, JAR, AAR ou WAR avec navigation hiérarchique, recherche de chemins et sélection d'entrées
-* `Fonctionnalité` Extraction sélective vers une arborescence SAF choisie par l'utilisateur avec progression et annulation, accès temporaire en lecture seule à l'entrée et aucune autorisation de stockage ou de réseau
-* `Fonctionnalité` Limites de sécurité de 4 GiB en entrée, 20,000 noeuds de chemin avec les dossiers implicites, 64 MiB pour le répertoire central ZIP, 512 MiB par entrée décompressée, 2 GiB de données décompressées au total et un taux de compression de 1000:1
-* `Fonctionnalité` Validation des chemins non sûrs, des entrées en double ou en conflit, des méthodes de compression non prises en charge, des changements de source, des différences de taille et des différences de CRC
-* `Fonctionnalité` Métadonnées, interface, instructions, README et CHANGELOG localisés en espagnol, français, russe, arabe, japonais, coréen, anglais, chinois simplifié, chinois traditionnel de Hong Kong et chinois traditionnel de Taïwan
+_2026/08/02_
+
+- `Ajout` Première version pour parcourir ZIP, JAR, AAR et WAR et extraire la sélection
+- `Ajout` Recherche, sélection, progression, annulation, nettoyage temporaire et interface localisée

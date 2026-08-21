@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_archive_browser">アーカイブを参照</string>
-    <string name="app_name">アーカイブブラウザー</string>
+    <string name="action_open_archive">アーカイブを開く</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">展開先...</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">圧縮...</string>
+    <string name="app_name">アーカイブマネージャー</string>
     <string name="dialog_button_cancel">キャンセル</string>
     <string name="dialog_button_select_all">すべて選択</string>
     <string name="error_archive_invalid">アーカイブが無効か未対応です</string>
@@ -12,11 +14,13 @@
     <string name="error_extraction_failed">展開に失敗しました</string>
     <string name="error_no_selection">1 件以上のエントリを選択してください</string>
     <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
-    <string name="plugin_description">ファイルマネージャープラグイン. ZIP アーカイブを参照して安全に展開</string>
+    <string name="error_with_reason">%1$s\n理由: %2$s</string>
+    <string name="plugin_description">ファイルマネージャープラグイン. ZIP アーカイブを開く、展開、作成</string>
     <string name="text_cancelled">キャンセルしました</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
     <string name="text_extract_selected">選択項目を展開</string>
     <string name="text_extracting">%2$d 件中 %1$d 件目を展開中</string>
+    <string name="text_encrypted_entry">暗号化されたエントリです。パスワードにはまだ対応していません</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">アーカイブを読み込み中...</string>
     <string name="text_loading_progress">%2$s 中 %1$s</string>
     <string name="text_modified">更新日時: %1$s</string>
@@ -27,4 +31,30 @@
     <string name="text_selected_count">選択済み: %1$d</string>
     <string name="text_size_details">%1$s, 圧縮時 %2$s, CRC %3$s</string>
     <string name="text_unknown">不明</string>
+    <string name="text_unsupported_zip_method">ZIP メソッド %1$d は展開できません</string>
+    <string name="error_archive_file_name_invalid">有効なアーカイブファイル名を入力してください</string>
+    <string name="error_compression_failed">圧縮に失敗しました</string>
+    <string name="error_compression_request_invalid">圧縮要求またはホストセッションが無効です</string>
+    <string name="text_advanced_compression_pending">パスワード、分割、ファイル名暗号化、個別圧縮、元項目の削除は、安全なトランザクション処理が利用可能になるまで無効です.</string>
+    <string name="text_archive_file_name">ファイル名</string>
+    <string name="text_archive_format">形式</string>
+    <string name="text_compress_separately">各項目を個別に圧縮</string>
+    <string name="text_compression_level">圧縮レベル</string>
+    <string name="text_compression_level_fast">高速</string>
+    <string name="text_compression_level_maximum">最大</string>
+    <string name="text_compression_level_none">圧縮なし</string>
+    <string name="text_compression_level_normal">標準</string>
+    <string name="text_create_archive">アーカイブを作成</string>
+    <string name="text_default_archive_name">アーカイブ</string>
+    <string name="text_delete_sources_after_compression">圧縮後に元の項目を削除</string>
+    <string name="text_encrypt_file_names">ファイル名を暗号化</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_name_conflict_auto_rename">同名のファイルがある場合は番号を自動的に追加します.</string>
+    <string name="text_none">なし</string>
+    <string name="text_output_path">パス</string>
+    <string name="text_password">パスワード</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">圧縮を準備中...</string>
+    <string name="text_split_unavailable">現在のバックエンドでは分割 ZIP 出力を利用できません.</string>
+    <string name="text_split_volume">分割サイズ (MiB)</string>
+    <string name="text_zip_encryption_unavailable">現在の ZIP バックエンドではパスワードとファイル名暗号化を利用できません.</string>
 </resources>

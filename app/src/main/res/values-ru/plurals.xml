@@ -6,6 +6,24 @@
         <item quantity="many">%1$d записей, распаковано: %2$s</item>
         <item quantity="other">%1$d записи, распаковано: %2$s</item>
     </plurals>
+    <plurals name="text_archive_created">
+        <item quantity="one">Создан %1$s, %2$d файл</item>
+        <item quantity="few">Создан %1$s, %2$d файла</item>
+        <item quantity="many">Создан %1$s, %2$d файлов</item>
+        <item quantity="other">Создан %1$s, %2$d файла</item>
+    </plurals>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="one">Выбран %1$d элемент</item>
+        <item quantity="few">Выбрано %1$d элемента</item>
+        <item quantity="many">Выбрано %1$d элементов</item>
+        <item quantity="other">Выбрано %1$d элемента</item>
+    </plurals>
+    <plurals name="text_compressing_progress">
+        <item quantity="one">Сжатие %1$s\nФайл: %2$d, прочитано: %3$s</item>
+        <item quantity="few">Сжатие %1$s\nФайла: %2$d, прочитано: %3$s</item>
+        <item quantity="many">Сжатие %1$s\nФайлов: %2$d, прочитано: %3$s</item>
+        <item quantity="other">Сжатие %1$s\nФайла: %2$d, прочитано: %3$s</item>
+    </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Извлечен %1$d файл, каталог: %2$s</item>
         <item quantity="few">Извлечено %1$d файла, каталог: %2$s</item>
