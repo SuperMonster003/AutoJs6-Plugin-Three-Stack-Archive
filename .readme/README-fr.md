@@ -31,12 +31,13 @@ Le README est disponible dans les langues suivantes:
 
 ### Présentation
 
-Archive Manager intègre la navigation, l'extraction et la création de ZIP au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, et compresse un élément ou une sélection de même dossier parent. Davantage de formats, l'aperçu des entrées et l'édition interne restent planifiés dans le Roadmap.
+Archive Manager intègre la navigation, l'extraction et la création de ZIP au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, prévisualise les entrées prises en charge et compresse un élément ou une sélection de même dossier parent. Davantage de formats, l'extraction par entrée et l'édition interne restent planifiés dans le Roadmap.
 
 ### Disponible actuellement
 
 - Ouvrir les archives de la famille ZIP directement dans la liste native d'AutoJs6, avec le thème, le mode sombre et les couleurs dynamiques de l'hôte.
 - Afficher le dossier externe, le nom de l'archive et le dossier interne dans la barre de chemin ; toucher un niveau pour y accéder et utiliser Retour pour remonter avant de quitter l'archive.
+- Ouvrir les documents, images, fichiers audio et vidéos pris en charge avec les visionneuses existantes de l'hôte.
 - Utiliser le raccourci « Extraire vers... » pour extraire toute l'archive sans ouvrir d'abord la vue de navigation.
 - Parcourir les dossiers, rechercher et trier le contenu de l'archive.
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
@@ -59,7 +60,7 @@ La version actuelle peut créer les formats suivants:
 zip
 ```
 
-> La navigation native Explorer Action v5 et la compression v4 exigent AutoJs6 avec le code de version 5276 ou plus récent. L'aperçu interne, l'extraction par entrée, 7z, les variantes tar, les mots de passe, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
+> La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée, 7z, les variantes tar, les mots de passe, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
 
 ### Utilisation
 
@@ -75,7 +76,7 @@ Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigatio
 
 ### Roadmap
 
-Les tâches et critères pour davantage de formats, les mots de passe et volumes, l'aperçu interne et l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
+Les tâches et critères pour davantage de formats, les mots de passe et volumes, l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -87,6 +88,7 @@ _Non publié_
 
 - `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
 - `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
+- `Ajout` Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits

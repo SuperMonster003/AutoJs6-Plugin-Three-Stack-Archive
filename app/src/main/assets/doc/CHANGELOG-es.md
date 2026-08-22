@@ -6,6 +6,7 @@ _Sin publicar_
 
 - `Añadido` El producto pasa a llamarse Archive Manager y la acción, Abrir archivo comprimido
 - `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
+- `Añadido` Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos

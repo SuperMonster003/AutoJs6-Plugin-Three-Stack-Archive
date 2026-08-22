@@ -2,8 +2,8 @@
 
 本文档同时记录两类内容:
 
-- 已经落地并通过端到端验证的 Explorer Action v4 受控文件会话与 v5 只读档案会话;
-- 为档案条目预览、按项解压和档案内修改预留的后续合同.
+- 已经落地并通过端到端验证的 Explorer Action v4 受控文件会话、v5 只读档案列表与 v6 条目读取会话;
+- 为档案内部选择、按项解压和档案内修改预留的后续合同.
 
 完成状态以 [`ROADMAP.md`](../ROADMAP.md) 为准. 文中标记为“当前”的能力可以在现有宿主与插件中使用; 标记为“后续”的内容仍不可当作已发布功能.
 
@@ -22,13 +22,13 @@ AutoJs6 文件管理器现在可以从插件目录动态发现以下动作:
 
 多选操作栏使用五个等宽单元格, 图标在上、文字在下. 当前尺寸为 22 dp 图标与 11 sp 文字, 已在 411 dp 等效窄屏上完成真实点击和截图验证. 320/360/600 dp、大字体、横屏和 RTL 仍属于 Roadmap 中的测试矩阵.
 
-## Explorer Action v4/v5 目录
+## Explorer Action v4/v5/v6 目录
 
-v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再加入呈现方式和只读档案会话:
+v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再加入呈现方式和只读档案列表, v6 为会话增加受控条目读取:
 
 | 字段 | 语义 |
 | --- | --- |
-| `protocolVersion` | 当前为 `5` |
+| `protocolVersion` | 当前为 `6` |
 | `targetKind` | `FILE`、`DIRECTORY` 或 `MIXED` |
 | `cardinality` | `SINGLE` 或 `MULTIPLE` |
 | `accessMode` | `READ_ONLY` 或 `CREATE_IN_PARENT` |
@@ -39,7 +39,7 @@ v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再�
 
 当前压缩动作使用通配 MIME/扩展名和 `FILE`/`DIRECTORY`/`MIXED` 目标, 因此能覆盖普通文件、目录和同父级混合多选. 打开与解压动作仍只匹配 ZIP/JAR/AAR/WAR.
 
-每个目录字段都有数量或长度上限. 宿主会拒绝非法目标类型、基数、位置、授权和呈现方式组合, 而不是静默扩大插件权限. `HOST_EXPLORER` 只允许 v5 的 `FILE + SINGLE + READ_ONLY + PRIMARY` 动作, 不能借此获取目录写入或多选能力.
+每个目录字段都有数量或长度上限. 宿主会拒绝非法目标类型、基数、位置、授权和呈现方式组合, 而不是静默扩大插件权限. `HOST_EXPLORER` 在 v5 及后续版本中只允许 `FILE + SINGLE + READ_ONLY + PRIMARY` 动作, 不能借此获取目录写入或多选能力.
 
 ## v4 执行请求
 
@@ -104,7 +104,7 @@ close()
 - 输出只能创建在请求的共同父目录, 不授予其他目录写权限;
 - 同名目标可选择失败或自动编号, 并由宿主进程全局预留以避免并发覆盖.
 
-## v5 只读档案会话
+## v5/v6 只读档案会话
 
 `open-archive` 不再启动插件文件列表 Activity. 宿主重新验证动作匹配、插件信任与启用状态后, 以只读方式打开规范化的源文件, 再通过专用服务绑定调用:
 
@@ -118,6 +118,7 @@ request
 
 session.getInfo()
     -> sessionId + rootId + displayName + sourceSize + sourceLastModified
+       + canOpenEntries
 
 session.listChildren(parentId, offset, limit)
     -> items[] + nextOffset + complete
@@ -131,10 +132,17 @@ item
 ├─ lastModified
 └─ canExtract
 
+session.openEntry(entryId)      # v6, 仅普通可读取条目
+    -> read-only ParcelFileDescriptor
+
 session.close()
 ```
 
 当前 ZIP 实现把输入描述符暂存到插件私有缓存, 只扫描目录元数据并建立索引. 页大小最大为 128; 宿主会持续取页直到 `complete`, 同时验证条目数、ID、父子关系、名称、类型、大小和分页游标. 插件不会把缓存路径或真实档案内部路径暴露给宿主, 条目使用会话内不透明 ID.
+
+v6 的 `openEntry` 追加在 v5 AIDL 方法之后, 因此 v5 的 `getInfo`、`listChildren` 和 `close` 事务编号保持不变. `canOpenEntries` 缺失或为 `false` 时, 宿主继续提供 v5 浏览但不显示预览入口, 也不会调用新方法.
+
+打开条目时, 插件根据不透明 ID 找回扫描快照中的普通文件, 重新打开 ZIP 并核对源文件身份、目录元数据、压缩方法、加密状态、声明大小和 CRC. 数据经可靠只读管道发送; 关闭会话会中止排队或进行中的管道. 宿主仅把支持现有主动作的文档、图片或媒体条目复制到自己的私有会话缓存, 并在发布缓存文件前核对准确字节数和可用空间. 文档沿用 8 MiB 限制, 图片和媒体目前分别使用 256 MiB 与 512 MiB 预览预算; 这些限制只影响预览, 不影响目录浏览.
 
 会话生命周期与权限边界如下:
 
@@ -142,7 +150,8 @@ session.close()
 - 宿主为档案浏览持有独立服务绑定租约, 不与动作目录发现或 Activity 启动复用;
 - Binder 死亡、页面销毁、离开档案或显式关闭都会关闭会话;
 - 插件关闭会话或服务销毁时删除对应暂存输入, 关闭操作幂等;
-- 宿主只获得列表元数据; v5 当前没有条目流、写入或任意路径访问接口.
+- 宿主的预览副本使用会话 ID 和条目 ID 的散列目录, 不把不可信名称用作目录路径; 离开档案时删除本会话副本, 并在新会话启动时清理过期目录;
+- 条目管道保持只读且不提供真实档案路径; v6 仍没有档案写入、内部选择或任意路径访问接口.
 
 ## 当前 ZIP 输出事务
 
@@ -168,7 +177,7 @@ session.close()
 
 ## 路径栏与宿主原生档案页面
 
-宿主的普通文件路径栏已经实现. v4 压缩请求复用它所在页面的父目录并传递规范显示路径; v5 档案页面直接使用同一个路径栏和文件列表, 不创建插件私有导航界面.
+宿主的普通文件路径栏已经实现. v4 压缩请求复用它所在页面的父目录并传递规范显示路径; v5/v6 档案页面直接使用同一个路径栏和文件列表, 不创建插件私有导航界面.
 
 进入档案时, 宿主保存原 Explorer、根页面、当前页面、历史栈和滚动状态, 再切换到只读档案 provider. 当前逻辑状态为:
 
@@ -189,16 +198,15 @@ ArchivePathState
 
 档案名和内部祖先页面可点击跳转. 点击外部层级会先关闭档案会话, 再回到对应文件系统目录. 普通浏览状态下, 返回键先回到档案内部上一级, 到达根目录后再关闭会话并恢复进入前的文件系统页面与滚动状态.
 
-档案目录当前复用宿主的列表、排序、搜索、下拉刷新、加载、错误、空状态、主题、暗色模式、动态色和系统栏. 目录项可以下钻; 因 v5 尚未提供条目流和任务接口, 文件预览、内部选择、条目菜单和浮动创建按钮会明确不可用. `解压到...` 与压缩表单仍由插件 Activity 呈现.
+档案目录当前复用宿主的列表、排序、搜索、下拉刷新、加载、错误、空状态、主题、暗色模式、动态色和系统栏. 目录项可以下钻; v6 可读取条目会按宿主原有类型规则使用文档、图片或媒体预览器, 不支持预览的类型仍明确不可用. 因协议尚未提供选择写出事务和修改任务接口, 内部选择、条目菜单和浮动创建按钮继续禁用. `解压到...` 与压缩表单仍由插件 Activity 呈现.
 
 ## 后续可写档案 provider
 
-下一阶段在 v5 只读列表基础上增加条目流、选择能力和任务接口:
+下一阶段在 v6 只读列表和条目流基础上增加选择能力与任务接口:
 
 ```text
 probe(target) -> DetectedFormat + FormatCapabilities
 search(sessionId, query, page) -> entries + nextPage
-openEntry(sessionId, entryId) -> read-only descriptor/stream
 capabilities(sessionId, selection) -> SelectionCapabilities
 startExtraction(...)/startMutation(...) -> taskId
 observeTask(taskId) -> progress/events
@@ -240,7 +248,7 @@ FormatCapabilities
 ## 兼容与发布边界
 
 - 项目尚未公开发布, 因此直接使用 `archive-manager`、`io.github.supermonster003.autojs6.plugin.archivemanager` 和 Manager 类/资源名, 不保留 Browser 别名.
-- 当前插件的原生浏览要求 Explorer Action v5, 压缩使用 v4 文件会话; 对应 AutoJs6 版本代码为 5276 或更高版本.
+- 当前插件的原生浏览与条目预览要求 Explorer Action v6, 压缩使用 v4 文件会话; 对应 AutoJs6 版本代码为 5276 或更高版本.
 - 宿主仍可解析 v1-v4 插件目录, 但本插件不会发布旧动作、旧协议目录或旧 applicationId 的兼容入口.
 - 后续协议字段必须保持显式版本与上限; 未知可选字段可以忽略, 未知必需能力必须明确拒绝.
 

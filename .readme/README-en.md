@@ -31,12 +31,13 @@ The README is available in these languages:
 
 ### About
 
-Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, and can compress one item or a same-parent selection. More formats, entry preview, and in-archive editing remain staged in the Roadmap.
+Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, and can compress one item or a same-parent selection. More formats, per-entry extraction, and in-archive editing remain staged in the Roadmap.
 
 ### Available now
 
 - Open ZIP-family archives directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
 - Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
+- Preview supported document, image, audio, and video entries with the host's existing viewers.
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
@@ -59,7 +60,7 @@ The current release can create these formats:
 zip
 ```
 
-> Explorer Action v5 native browsing and v4 compression require AutoJs6 version code 5276 or newer. In-archive file preview, per-entry extraction, 7z, tar variants, passwords, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction, 7z, tar variants, passwords, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
@@ -75,7 +76,7 @@ The plugin requests neither storage nor network permission. Native browsing uses
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for more formats, passwords and volumes, in-archive preview and per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for more formats, passwords and volumes, per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -87,6 +88,7 @@ _Unreleased_
 
 - `Added` Renamed the product to Archive Manager and the file action to Open archive
 - `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
+- `Added` Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering

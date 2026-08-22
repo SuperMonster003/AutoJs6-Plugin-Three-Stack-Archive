@@ -3,6 +3,7 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.os.Process
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
@@ -43,6 +44,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         val info = session.info
         assertEquals("session-test.zip", info.getString(ExplorerArchiveSessionKeys.DISPLAY_NAME))
         assertEquals("root", info.getString(ExplorerArchiveSessionKeys.ROOT_ID))
+        assertTrue(info.getBoolean(ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES))
 
         val firstPage = session.listChildren(
             "root",
@@ -83,11 +85,27 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertEquals(listOf("nested.txt"), nestedItems.map { it.getString(ExplorerArchiveSessionKeys.NAME) })
         assertTrue(nestedPage.getBoolean(ExplorerArchiveSessionKeys.COMPLETE))
 
+        val nestedFile = nestedItems.single()
+        val nestedContent = ParcelFileDescriptor.AutoCloseInputStream(
+            session.openEntry(requireNotNull(nestedFile.getString(ExplorerArchiveSessionKeys.ID))),
+        ).use { input -> input.readBytes().decodeToString() }
+        assertEquals("nested", nestedContent)
+        assertTrue(
+            runCatching {
+                session.openEntry(requireNotNull(folder.getString(ExplorerArchiveSessionKeys.ID)))
+            }.isFailure,
+        )
+
         session.close()
         assertTrue(closed)
         assertFalse(archive.exists())
         assertFalse(directory.exists())
         assertTrue(runCatching { session.info }.isFailure)
+        assertTrue(
+            runCatching {
+                session.openEntry(requireNotNull(nestedFile.getString(ExplorerArchiveSessionKeys.ID)))
+            }.isFailure,
+        )
     }
 
     private fun createArchive(target: File) {

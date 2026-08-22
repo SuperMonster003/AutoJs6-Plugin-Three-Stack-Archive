@@ -2,12 +2,15 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.Binder
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
 import org.autojs.plugin.explorer.api.IExplorerArchiveSession
+import java.io.InterruptedIOException
 import java.security.MessageDigest
 import java.util.UUID
+import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.text.Charsets.UTF_8
 
@@ -15,7 +18,7 @@ internal class ExplorerArchiveSession(
     private val ownerUid: Int,
     private val displayName: String,
     private val stagedArchive: StagedArchive,
-    snapshot: ArchiveSnapshot,
+    private val snapshot: ArchiveSnapshot,
     private val onClosed: (ExplorerArchiveSession) -> Unit,
 ) : IExplorerArchiveSession.Stub() {
 
@@ -28,14 +31,23 @@ internal class ExplorerArchiveSession(
     private val closed = AtomicBoolean(false)
     private val sessionId = UUID.randomUUID().toString()
     private val rootId = ROOT_ID
+    private val nodesById: Map<String, SessionNode>
     private val childrenByParentId: Map<String, List<SessionNode>>
+    private val streamLock = Any()
+    private val activeStreamWriters = LinkedHashSet<ParcelFileDescriptor>()
+    private val streamExecutor = Executors.newSingleThreadExecutor { runnable ->
+        Thread(runnable, "archive-entry-stream").apply { isDaemon = true }
+    }
 
     init {
         val index = ArchiveIndex(snapshot)
         val nodesByPath = LinkedHashMap<String, SessionNode>()
+        val mutableNodesById = LinkedHashMap<String, SessionNode>()
         val mutableChildren = LinkedHashMap<String, MutableList<SessionNode>>()
         val rootNode = requireNotNull(index.node(ArchivePathPolicy.ROOT_PATH))
-        nodesByPath[rootNode.path] = SessionNode(rootId, null, rootNode)
+        val rootSessionNode = SessionNode(rootId, null, rootNode)
+        nodesByPath[rootNode.path] = rootSessionNode
+        mutableNodesById[rootId] = rootSessionNode
 
         val queue = ArrayDeque<ArchiveNode>()
         queue += rootNode
@@ -51,11 +63,15 @@ internal class ExplorerArchiveSession(
                 check(nodesByPath.put(child.path, sessionNode) == null) {
                     "Archive index contains a duplicate path"
                 }
+                check(mutableNodesById.put(sessionNode.id, sessionNode) == null) {
+                    "Archive entry ID collision"
+                }
                 if (child.isDirectory) queue += child
                 sessionNode
             }
             mutableChildren[parentSessionNode.id] = children.toMutableList()
         }
+        nodesById = mutableNodesById.toMap()
         childrenByParentId = mutableChildren.mapValues { (_, value) -> value.toList() }
     }
 
@@ -68,6 +84,7 @@ internal class ExplorerArchiveSession(
             putString(ExplorerArchiveSessionKeys.DISPLAY_NAME, displayName)
             putLong(ExplorerArchiveSessionKeys.SOURCE_SIZE, stagedArchive.bytes)
             putLong(ExplorerArchiveSessionKeys.SOURCE_LAST_MODIFIED, stagedArchive.file.lastModified())
+            putBoolean(ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES, true)
         }
     }
 
@@ -95,6 +112,38 @@ internal class ExplorerArchiveSession(
         }
     }
 
+    override fun openEntry(entryId: String?): ParcelFileDescriptor {
+        checkCaller()
+        checkOpen()
+        require(entryId != null && entryId.length <= ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH) {
+            "Archive entry ID is invalid"
+        }
+        val node = requireNotNull(nodesById[entryId]) { "Archive entry does not exist" }.node
+        val entry = requireNotNull(node.entry?.takeUnless(ArchiveEntry::isDirectory)) {
+            "Archive entry is not a regular file"
+        }
+        require(entry.canExtract) {
+            "Archive entry is encrypted or uses an unsupported compression method"
+        }
+
+        val (readEnd, writeEnd) = ParcelFileDescriptor.createReliablePipe()
+        try {
+            synchronized(streamLock) {
+                checkOpen()
+                activeStreamWriters += writeEnd
+                streamExecutor.execute {
+                    streamEntry(entry, writeEnd)
+                }
+            }
+        } catch (error: Throwable) {
+            synchronized(streamLock) { activeStreamWriters.remove(writeEnd) }
+            runCatching { readEnd.close() }
+            runCatching { writeEnd.closeWithError(STREAM_CLOSED_MESSAGE) }
+            throw error
+        }
+        return readEnd
+    }
+
     override fun close() {
         checkCaller()
         closeInternal()
@@ -106,8 +155,37 @@ internal class ExplorerArchiveSession(
 
     private fun closeInternal() {
         if (!closed.compareAndSet(false, true)) return
+        val streamWriters = synchronized(streamLock) {
+            activeStreamWriters.toList().also { activeStreamWriters.clear() }
+        }
+        streamWriters.forEach { writer ->
+            runCatching { writer.closeWithError(STREAM_CLOSED_MESSAGE) }
+        }
+        streamExecutor.shutdownNow()
         stagedArchive.delete()
         onClosed(this)
+    }
+
+    private fun streamEntry(entry: ArchiveEntry, writeEnd: ParcelFileDescriptor) {
+        val output = ParcelFileDescriptor.AutoCloseOutputStream(writeEnd)
+        try {
+            ArchiveEntryStreamer(stagedArchive.file, snapshot).stream(entry, output) {
+                if (closed.get() || Thread.currentThread().isInterrupted) {
+                    throw InterruptedIOException(STREAM_CLOSED_MESSAGE)
+                }
+            }
+            output.close()
+        } catch (error: Throwable) {
+            runCatching { writeEnd.closeWithError(streamFailureMessage(error)) }
+            runCatching { output.close() }
+        } finally {
+            synchronized(streamLock) { activeStreamWriters.remove(writeEnd) }
+        }
+    }
+
+    private fun streamFailureMessage(error: Throwable): String = when (error) {
+        is ArchiveException -> "Archive entry read failed (${error.code.name})"
+        else -> "Archive entry read failed"
     }
 
     private fun checkCaller() {
@@ -148,5 +226,6 @@ internal class ExplorerArchiveSession(
 
     private companion object {
         const val ROOT_ID = "root"
+        const val STREAM_CLOSED_MESSAGE = "Archive session is closed"
     }
 }

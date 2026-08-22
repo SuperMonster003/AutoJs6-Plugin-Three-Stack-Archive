@@ -10,6 +10,7 @@
       "feature": [
         "Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive",
         "Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants",
+        "Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte",
         "Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive",
         "Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent",
         "Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits"
