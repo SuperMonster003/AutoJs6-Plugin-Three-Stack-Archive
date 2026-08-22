@@ -9,6 +9,7 @@ import java.util.zip.CRC32
 internal class ArchiveEntryStreamer(
     private val source: File,
     private val snapshot: ArchiveSnapshot,
+    private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
 ) {
 
     fun stream(
@@ -20,12 +21,16 @@ internal class ArchiveEntryStreamer(
         validateRequestedEntry(entry)
         verifySourceIdentity()
 
-        val measurement = ZipArchiveAccess.open(source, snapshot.zipCharsetName).use { archive ->
+        val measurement = engine.openReader(
+            source = source,
+            format = snapshot.format,
+            options = snapshot.readerOptions,
+        ).use { reader ->
             cancellationCheck()
-            val liveEntry = archive.getEntry(entry.sourceName)
+            val liveEntry = reader.entryAt(entry.ordinal)
                 ?: changed("Archive entry no longer exists")
             validateCentralEntry(liveEntry, entry)
-            archive.getInputStream(liveEntry).use { rawInput ->
+            reader.openEntry(liveEntry).use { rawInput ->
                 val input = BufferedInputStream(rawInput)
                 val crc32 = CRC32()
                 val buffer = ByteArray(BUFFER_SIZE)
@@ -71,7 +76,7 @@ internal class ArchiveEntryStreamer(
         if (entry.isDirectory) {
             failure(ArchiveFailureCode.UNKNOWN_SELECTION, "Archive entry is a directory")
         }
-        if (!entry.canExtract) {
+        if (!entry.canOpen) {
             failure(
                 ArchiveFailureCode.UNSUPPORTED_METHOD,
                 "Archive entry is encrypted or uses an unsupported compression method",
@@ -83,17 +88,18 @@ internal class ArchiveEntryStreamer(
     }
 
     private fun validateCentralEntry(
-        liveEntry: ZipEntryMetadata,
+        liveEntry: ArchiveReaderEntry,
         scannedEntry: ArchiveEntry,
     ) {
         val same = liveEntry.name == scannedEntry.sourceName &&
             liveEntry.isDirectory == scannedEntry.isDirectory &&
-            liveEntry.method == scannedEntry.zipMethod &&
-            liveEntry.canExtract == scannedEntry.canExtract &&
+            liveEntry.compressionMethod == scannedEntry.compressionMethod &&
+            liveEntry.compressionMethodId == scannedEntry.compressionMethodId &&
+            liveEntry.capabilities == scannedEntry.capabilities &&
             liveEntry.isEncrypted == scannedEntry.isEncrypted &&
             liveEntry.size == scannedEntry.uncompressedSize &&
             liveEntry.compressedSize == scannedEntry.compressedSize &&
-            liveEntry.crc.takeIf { it >= 0L } == scannedEntry.crc32
+            liveEntry.crc == scannedEntry.crc32
         if (!same) changed("Archive central-directory metadata changed")
     }
 

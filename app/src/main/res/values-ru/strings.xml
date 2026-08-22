@@ -31,7 +31,7 @@
     <string name="text_selected_count">Выбрано: %1$d</string>
     <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
     <string name="text_unknown">Неизвестно</string>
-    <string name="text_unsupported_zip_method">Метод ZIP %1$d не поддерживает извлечение</string>
+    <string name="text_unsupported_compression_method">Метод сжатия %1$s не поддерживает извлечение</string>
     <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>
     <string name="error_compression_failed">Не удалось создать архив</string>
     <string name="error_compression_request_invalid">Недопустимый запрос на сжатие или сеанс хоста</string>
@@ -54,7 +54,7 @@
     <string name="text_output_path">Путь</string>
     <string name="text_password">Пароль</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
-    <string name="text_split_unavailable">Текущий модуль не поддерживает многотомный ZIP.</string>
+    <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
     <string name="text_split_volume">Размер тома (MiB)</string>
-    <string name="text_zip_encryption_unavailable">Текущий модуль ZIP не поддерживает пароль и шифрование имён файлов.</string>
+    <string name="text_encryption_unavailable_for_format">Пароль и шифрование имён файлов недоступны для %1$s.</string>
 </resources>

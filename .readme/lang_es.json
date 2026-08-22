@@ -14,6 +14,7 @@
     "Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.",
     "Explorar carpetas, buscar y ordenar el contenido del archivo.",
     "Crear la lista desde los metadatos sin descomprimir primero todas las entradas.",
+    "Verificar la estructura ZIP real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.",
     "Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.",
     "Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.",
     "Crear ZIP con nombre y nivel de compresión configurables; usar por defecto el nombre del objetivo para un elemento y el de la carpeta padre para varios.",

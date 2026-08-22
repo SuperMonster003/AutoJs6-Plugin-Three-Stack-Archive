@@ -52,9 +52,9 @@
     <string name="text_select_entry">选择条目</string>
     <string name="text_selected_count">已选择: %1$d</string>
     <string name="text_size_details">%1$s, 压缩后 %2$s, CRC %3$s</string>
-    <string name="text_split_unavailable">当前后端尚不支持 ZIP 分卷输出.</string>
+    <string name="text_split_unavailable_for_format">%1$s 当前不支持分卷输出.</string>
     <string name="text_split_volume">分卷大小 (MiB)</string>
     <string name="text_unknown">未知</string>
-    <string name="text_unsupported_zip_method">无法解压 ZIP 方法 %1$d</string>
-    <string name="text_zip_encryption_unavailable">当前 ZIP 后端尚不支持密码和文件名加密.</string>
+    <string name="text_unsupported_compression_method">无法解压压缩方法 %1$s</string>
+    <string name="text_encryption_unavailable_for_format">%1$s 当前不支持密码和文件名加密.</string>
 </resources>

@@ -111,12 +111,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/passwordLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:enabled="false"
-                android:hint="@string/text_password"
-                app:helperText="@string/text_zip_encryption_unavailable">
+                android:hint="@string/text_password">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password"
@@ -129,12 +129,12 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/splitVolumeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:enabled="false"
-                android:hint="@string/text_split_volume"
-                app:helperText="@string/text_split_unavailable">
+                android:hint="@string/text_split_volume">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/splitVolume"

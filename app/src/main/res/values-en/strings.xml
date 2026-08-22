@@ -31,7 +31,7 @@
     <string name="text_selected_count">Selected: %1$d</string>
     <string name="text_size_details">%1$s, compressed %2$s, CRC %3$s</string>
     <string name="text_unknown">Unknown</string>
-    <string name="text_unsupported_zip_method" tools:ignore="PluralsCandidate">ZIP method %1$d cannot be extracted</string>
+    <string name="text_unsupported_compression_method">Compression method %1$s cannot be extracted</string>
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
@@ -54,7 +54,7 @@
     <string name="text_output_path">Path</string>
     <string name="text_password">Password</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparing compression...</string>
-    <string name="text_split_unavailable">Split ZIP output is not available in the current backend.</string>
+    <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
     <string name="text_split_volume">Split volume (MiB)</string>
-    <string name="text_zip_encryption_unavailable">Password and filename encryption are not available in the current ZIP backend.</string>
+    <string name="text_encryption_unavailable_for_format">Password and filename encryption are not available for %1$s.</string>
 </resources>

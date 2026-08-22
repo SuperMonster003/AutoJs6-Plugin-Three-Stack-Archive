@@ -31,7 +31,7 @@
     <string name="text_selected_count">Sélection: %1$d</string>
     <string name="text_size_details">%1$s, compressé %2$s, CRC %3$s</string>
     <string name="text_unknown">Inconnu</string>
-    <string name="text_unsupported_zip_method">La méthode ZIP %1$d ne peut pas être extraite</string>
+    <string name="text_unsupported_compression_method">La méthode de compression %1$s ne peut pas être extraite</string>
     <string name="error_archive_file_name_invalid">Saisissez un nom de fichier d\'archive valide</string>
     <string name="error_compression_failed">Échec de la compression</string>
     <string name="error_compression_request_invalid">La demande de compression ou la session de l\'hôte est invalide</string>
@@ -54,7 +54,7 @@
     <string name="text_output_path">Chemin</string>
     <string name="text_password">Mot de passe</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Préparation de la compression...</string>
-    <string name="text_split_unavailable">La sortie ZIP fractionnée n\'est pas disponible avec le système actuel.</string>
+    <string name="text_split_unavailable_for_format">La sortie fractionnée n\'est pas disponible pour %1$s.</string>
     <string name="text_split_volume">Taille du volume (MiB)</string>
-    <string name="text_zip_encryption_unavailable">Le mot de passe et le chiffrement des noms ne sont pas disponibles avec le système ZIP actuel.</string>
+    <string name="text_encryption_unavailable_for_format">Le mot de passe et le chiffrement des noms ne sont pas disponibles pour %1$s.</string>
 </resources>

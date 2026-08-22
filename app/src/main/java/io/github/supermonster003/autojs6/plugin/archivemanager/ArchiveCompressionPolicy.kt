@@ -3,17 +3,13 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import java.util.Locale
 
-internal data class ArchiveCompressionOptions(
-    val outputDisplayName: String,
-    val compressionLevel: Int,
-)
-
 internal object ArchiveCompressionPolicy {
 
     fun defaultOutputDisplayName(
         targetDisplayNames: List<String>,
         parentDisplayPath: String,
         fallbackStem: String,
+        format: ArchiveFormat = ArchiveFormat.ZIP,
     ): String {
         val preferredStem = if (targetDisplayNames.size == 1) {
             targetDisplayNames.single()
@@ -41,22 +37,26 @@ internal object ArchiveCompressionPolicy {
             .trimEnd('.')
             .takeIf { it.isNotBlank() }
             ?: fallbackStem
-        return normalizeOutputDisplayName(sanitizedStem)
-            ?: normalizeOutputDisplayName(fallbackStem)
-            ?: FALLBACK_OUTPUT_NAME
+        return normalizeOutputDisplayName(sanitizedStem, format)
+            ?: normalizeOutputDisplayName(fallbackStem, format)
+            ?: "$FALLBACK_OUTPUT_STEM.${format.primaryExtension}"
     }
 
-    fun normalizeOutputDisplayName(value: String?): String? {
+    fun normalizeOutputDisplayName(
+        value: String?,
+        format: ArchiveFormat = ArchiveFormat.ZIP,
+    ): String? {
         val raw = value?.trim()?.takeIf { it.isNotEmpty() } ?: return null
-        val withExtension = if (raw.lowercase(Locale.ROOT).endsWith(ZIP_EXTENSION)) {
+        val extension = ".${format.primaryExtension}"
+        val withExtension = if (raw.lowercase(Locale.ROOT).endsWith(extension)) {
             raw
         } else {
-            raw + ZIP_EXTENSION
+            raw + extension
         }
         if (withExtension.length !in 1..ExplorerActionProtocol.MAX_OUTPUT_DISPLAY_NAME_LENGTH) return null
         if (withExtension == "." || withExtension == "..") return null
         if (withExtension.any(::isUnsafeNameCharacter)) return null
-        val stem = withExtension.dropLast(ZIP_EXTENSION.length)
+        val stem = withExtension.dropLast(extension.length)
         if (stem.all { it == '.' || it.isWhitespace() }) return null
         return withExtension
     }
@@ -97,6 +97,5 @@ internal object ArchiveCompressionPolicy {
     const val DEFAULT_COMPRESSION_LEVEL = 6
     private const val MIN_COMPRESSION_LEVEL = 0
     private const val MAX_COMPRESSION_LEVEL = 9
-    private const val ZIP_EXTENSION = ".zip"
-    private const val FALLBACK_OUTPUT_NAME = "Archive.zip"
+    private const val FALLBACK_OUTPUT_STEM = "Archive"
 }

@@ -29,6 +29,7 @@
     <string name="text_selected_count">已選取: %1$d</string>
     <string name="text_size_details">%1$s, 壓縮後 %2$s, CRC %3$s</string>
     <string name="text_unknown">未知</string>
+    <string name="text_unsupported_compression_method">無法解壓縮方法 %1$s</string>
     <string name="error_archive_file_name_invalid">請輸入有效的壓縮檔名稱</string>
     <string name="error_compression_failed">壓縮失敗</string>
     <string name="error_compression_request_invalid">壓縮請求或主程式工作階段無效</string>
@@ -51,7 +52,7 @@
     <string name="text_output_path">路徑</string>
     <string name="text_password">密碼</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在準備壓縮...</string>
-    <string name="text_split_unavailable">目前後端尚未支援 ZIP 分割檔輸出.</string>
+    <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分割檔輸出.</string>
     <string name="text_split_volume">分割檔大小 (MiB)</string>
-    <string name="text_zip_encryption_unavailable">目前 ZIP 後端尚未支援密碼和檔名加密.</string>
+    <string name="text_encryption_unavailable_for_format">%1$s 目前尚未支援密碼和檔名加密.</string>
 </resources>

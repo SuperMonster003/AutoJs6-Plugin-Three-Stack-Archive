@@ -36,9 +36,13 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
 
             assertEquals("目录/hello.txt", entry.path)
             assertTrue(entry.canExtract)
-            ZipArchiveAccess.open(source, snapshot.zipCharsetName).use { zipFile ->
-                val zipEntry = requireNotNull(zipFile.getEntry(entry.sourceName))
-                assertArrayEquals(expected, zipFile.getInputStream(zipEntry).use { it.readBytes() })
+            ArchiveEngine.DEFAULT.openReader(
+                source = source,
+                format = snapshot.format,
+                options = snapshot.readerOptions,
+            ).use { reader ->
+                val liveEntry = requireNotNull(reader.entryAt(entry.ordinal))
+                assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
             }
         } finally {
             source.delete()

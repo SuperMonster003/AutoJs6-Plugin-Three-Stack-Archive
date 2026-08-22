@@ -33,12 +33,16 @@ internal object ArchiveManagerPlugin {
     const val EXTRACT_TO_ACTION_PRIORITY = 70
     const val COMPRESS_ACTION_PRIORITY = 60
 
-    val MIME_TYPES = arrayOf(
-        "application/zip",
-        "application/x-zip-compressed",
-        "application/java-archive",
-    )
-    val EXTENSIONS = arrayOf("zip", "jar", "aar", "war")
+    val MIME_TYPES = ArchiveEngine.DEFAULT.readableFormats
+        .flatMap(ArchiveFormat::mimeTypes)
+        .distinct()
+        .sorted()
+        .toTypedArray()
+    val EXTENSIONS = ArchiveEngine.DEFAULT.readableFormats
+        .flatMap(ArchiveFormat::extensions)
+        .distinct()
+        .sorted()
+        .toTypedArray()
 }
 
 internal fun Context.archiveManagerPluginInfo(): PluginInfo {

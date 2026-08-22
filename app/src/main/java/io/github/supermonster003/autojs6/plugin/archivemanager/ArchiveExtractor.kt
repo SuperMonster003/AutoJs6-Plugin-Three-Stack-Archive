@@ -15,9 +15,10 @@ import java.io.IOException
 import java.util.zip.CRC32
 import kotlin.math.min
 
-class ArchiveExtractor @JvmOverloads constructor(
+internal class ArchiveExtractor @JvmOverloads constructor(
     private val contentResolver: ContentResolver? = null,
     private val extractionLimits: ArchiveSecurityLimits? = null,
+    private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
 ) {
 
     suspend fun extract(
@@ -102,13 +103,17 @@ class ArchiveExtractor @JvmOverloads constructor(
                 )
             }
 
-            ZipArchiveAccess.open(source, snapshot.zipCharsetName).use { zipFile ->
+            engine.openReader(
+                source = source,
+                format = snapshot.format,
+                options = snapshot.readerOptions,
+            ).use { reader ->
                 selection.files.forEach { entry ->
                     currentCoroutineContext().ensureActive()
-                    val zipEntry = zipFile.getEntry(entry.sourceName)
+                    val liveEntry = reader.entryAt(entry.ordinal)
                         ?: changed("Selected archive entry no longer exists")
                     validateCentralEntry(
-                        zipEntry = zipEntry,
+                        liveEntry = liveEntry,
                         snapshotEntry = entry,
                         requireExtractable = true,
                     )
@@ -116,12 +121,12 @@ class ArchiveExtractor @JvmOverloads constructor(
                         ?: extractionFailure("Extraction file parent is missing")
                     val outputNode = writer.createFile(parent, entry.displayName)
                     val measurement = writer.openFile(outputNode).use { rawOutput ->
-                        zipFile.getInputStream(zipEntry).use { rawInput ->
+                        reader.openEntry(liveEntry).use { rawInput ->
                             copyEntry(
                                 input = BufferedInputStream(rawInput),
                                 output = BufferedOutputStream(rawOutput),
                                 entry = entry,
-                                compressedSize = zipEntry.compressedSize,
+                                compressedSize = liveEntry.compressedSize,
                                 totalBeforeEntry = bytesWritten,
                                 totalExpected = selection.totalUncompressedBytes,
                                 completedEntries = completedEntries,
@@ -134,7 +139,7 @@ class ArchiveExtractor @JvmOverloads constructor(
                     bytesWritten = checkedAdd(bytesWritten, measurement.bytes, limits.maxTotalUncompressedBytes) {
                         ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED
                     }
-                    validateMeasurement(entry, zipEntry, measurement, limits)
+                    validateMeasurement(entry, liveEntry, measurement, limits)
                     completedEntries++
                     progress.onProgress(
                         ExtractionProgress(
@@ -314,13 +319,17 @@ class ArchiveExtractor @JvmOverloads constructor(
         cancellationCheck: () -> Unit,
     ) {
         try {
-            ZipArchiveAccess.open(source, snapshot.zipCharsetName).use { zipFile ->
+            engine.openReader(
+                source = source,
+                format = snapshot.format,
+                options = snapshot.readerOptions,
+            ).use { reader ->
                 var ordinal = 0
-                zipFile.entries.forEach { zipEntry ->
+                reader.entries.forEach { liveEntry ->
                     if (ordinal % PREFLIGHT_CANCELLATION_CHECK_INTERVAL == 0) cancellationCheck()
                     if (ordinal >= snapshot.entries.size) changed("Archive entry count changed")
                     validateCentralEntry(
-                        zipEntry = zipEntry,
+                        liveEntry = liveEntry,
                         snapshotEntry = snapshot.entries[ordinal],
                     )
                     ordinal++
@@ -339,34 +348,35 @@ class ArchiveExtractor @JvmOverloads constructor(
     }
 
     private fun validateCentralEntry(
-        zipEntry: ZipEntryMetadata,
+        liveEntry: ArchiveReaderEntry,
         snapshotEntry: ArchiveEntry,
         requireExtractable: Boolean = false,
     ) {
-        if (requireExtractable && !zipEntry.canExtract) {
+        if (requireExtractable && !liveEntry.capabilities.canExtract) {
             throw ArchiveExtractionException(
                 ArchiveFailureCode.UNSUPPORTED_METHOD,
                 "Archive entry is encrypted or uses an unsupported compression method",
             )
         }
-        val same = zipEntry.name == snapshotEntry.sourceName &&
-            zipEntry.isDirectory == snapshotEntry.isDirectory &&
-            zipEntry.method == snapshotEntry.zipMethod &&
-            zipEntry.canExtract == snapshotEntry.canExtract &&
-            zipEntry.isEncrypted == snapshotEntry.isEncrypted &&
-            zipEntry.size == snapshotEntry.uncompressedSize &&
-            zipEntry.compressedSize == snapshotEntry.compressedSize &&
-            zipEntry.crc.takeIf { it >= 0L } == snapshotEntry.crc32
+        val same = liveEntry.name == snapshotEntry.sourceName &&
+            liveEntry.isDirectory == snapshotEntry.isDirectory &&
+            liveEntry.compressionMethod == snapshotEntry.compressionMethod &&
+            liveEntry.compressionMethodId == snapshotEntry.compressionMethodId &&
+            liveEntry.capabilities == snapshotEntry.capabilities &&
+            liveEntry.isEncrypted == snapshotEntry.isEncrypted &&
+            liveEntry.size == snapshotEntry.uncompressedSize &&
+            liveEntry.compressedSize == snapshotEntry.compressedSize &&
+            liveEntry.crc == snapshotEntry.crc32
         if (!same) changed("Archive central-directory metadata changed")
     }
 
     private fun validateMeasurement(
         entry: ArchiveEntry,
-        zipEntry: ZipEntryMetadata,
+        liveEntry: ArchiveReaderEntry,
         measurement: EntryMeasurement,
         limits: ArchiveSecurityLimits,
     ) {
-        if (measurement.bytes != entry.uncompressedSize || measurement.bytes != zipEntry.size) {
+        if (measurement.bytes != entry.uncompressedSize || measurement.bytes != liveEntry.size) {
             throw ArchiveExtractionException(
                 ArchiveFailureCode.SIZE_MISMATCH,
                 "Extracted entry size does not match the scanned size",
@@ -378,7 +388,7 @@ class ArchiveExtractor @JvmOverloads constructor(
                 "Extracted entry CRC does not match the scanned CRC",
             )
         }
-        validateCompressionRatio(measurement.bytes, zipEntry.compressedSize, limits)
+        validateCompressionRatio(measurement.bytes, liveEntry.compressedSize, limits)
     }
 
     private fun validateCompressionRatio(

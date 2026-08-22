@@ -80,8 +80,8 @@
 
 ## M3: 统一档案引擎与格式能力模型
 
-- [ ] (插件) 定义 `ArchiveFormat`/`ArchiveReader`/`ArchiveWriter`/`ArchiveEntry` 和 `FormatCapabilities`, UI 不直接依赖 ZIP 类.
-- [ ] (插件) 能力按操作声明: 识别/列表/预览/打开/解压/创建/添加/删除/重命名/密码/文件名加密/分卷.
+- [x] (插件) 定义 `ArchiveFormat`/`ArchiveReader`/`ArchiveWriter`/`ArchiveEntry` 和 `FormatCapabilities`; 扫描、预览、解压、创建及格式菜单均通过 `ArchiveEngine`, ZIP 类只保留在后端内部.
+- [x] (插件) 能力按操作声明: 识别/列表/预览/打开/解压/创建/添加/删除/重命名/密码/文件名加密/分卷; 格式与条目能力分别表达且由测试防止误报.
 - [ ] (插件) 使用文件签名和结构探测确认格式; 扩展名错误时允许打开并提示真实格式.
 - [x] (插件) 浏览阶段只读取目录元数据, 不再为生成列表而完整解压所有文件.
 - [x] (插件) 单个不支持的条目显示为不可提取并给出原因, 不再阻止其余条目浏览.
@@ -95,7 +95,7 @@
 - [ ] (插件) 7z 后端支持普通/固实档案/密码/头部加密及常见过滤器; 能力不足时准确降级.
 - [ ] (插件) tar 族支持 `tar`/`tar.gz`/`tgz`/`tar.xz`/`txz`/`tar.bz2`/`tbz2`/`tar.zst`/`tzst`.
 - [ ] (插件) RAR 等无法可靠写入的格式明确标为只读; UI 不展示伪装成可用的添加/删除动作.
-- [ ] (插件) 评审纯 Java (Zip4j + Commons Compress) 与原生 libarchive/7-Zip 后端的 APK 体积/ABI/许可证/加密和分卷能力后记录 ADR.
+- [ ] (插件) 评审纯 Java (Zip4j + Commons Compress) 与原生 libarchive/7-Zip 后端的 APK 体积/ABI/许可证/加密和分卷能力后记录最终选型; 统一架构、候选路线和原型门禁已记录在 `docs/adr/0001-archive-engine-and-backend-strategy.md`, 待一手资料复核和实测数据.
 - [ ] (测试) 每种格式至少覆盖空档案/Unicode/超长名/重复名/损坏尾部/加密/错误密码/大文件/零字节/取消和低磁盘空间.
 
 建议分级 (最终以后端验证结果为准):
@@ -188,6 +188,7 @@
 - [x] (验证) Explorer Action v4 目录菜单/多选菜单/受控文件会话与 ZIP 输出已在 411 dp 等效模拟器上完成端到端验证, 未安装到实体设备.
 - [x] (验证) Explorer Action v5 原生档案列表/内部路径栏/目录下钻/返回栈与文件系统状态恢复已在 `emulator-5554` 完成端到端验证, 未操作实体设备.
 - [x] (验证) Explorer Action v6 条目读取/宿主 Markdown 预览/原始标题/返回档案/内容校验与会话缓存清理已在 `emulator-5554` 完成端到端验证, 未操作实体设备.
+- [x] (验证) M3 统一引擎的结构探测、真实能力表和中立 reader/writer 已纳入自动化验证; ZIP 创建表单能力状态及 Explorer Action v6 Markdown 预览/内容校验/缓存清理已在 `emulator-5554` 复验, 未操作实体设备.
 - [ ] (发布) 为首次公开发布准备插件中心元数据/截图和格式能力说明.
 - [ ] (CI) 每次提交运行单元测试/Android Lint/Debug/Release 构建和格式样本测试.
 - [ ] (CI) 发布前在支持的最低/最高 Android API/至少一台低内存设备和一台大屏设备执行冒烟测试.

@@ -2,10 +2,10 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import java.io.File
 import java.io.IOException
-import java.util.zip.ZipException
 
-class ArchiveScanner(
+internal class ArchiveScanner @JvmOverloads constructor(
     private val limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+    private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
 ) {
 
     @JvmOverloads
@@ -25,14 +25,15 @@ class ArchiveScanner(
         val entries = ArrayList<ArchiveEntry>()
         val pathRegistry = PathRegistry(limits.maxEntries)
         var totalUncompressedBytes = 0L
-        var zipCharsetName: String? = null
+        var detectedFormat: ArchiveFormat? = null
+        var readerOptions: ArchiveReaderOptions? = null
 
         try {
             cancellationCheck()
-            val zipCharset = ZipArchiveAccess.detectCharset(source)
-            zipCharsetName = zipCharset.name()
-            ZipArchiveAccess.open(source, zipCharsetName).use { zipFile ->
-                zipFile.entries.forEach { zipEntry ->
+            engine.openReader(source).use { reader ->
+                detectedFormat = reader.format
+                readerOptions = reader.options
+                reader.entries.forEach { readerEntry ->
                     cancellationCheck()
                     if (entries.size >= limits.maxEntries) {
                         fail(
@@ -43,50 +44,48 @@ class ArchiveScanner(
 
                     val ordinal = entries.size
                     val validatedPath = ArchivePathPolicy.validateEntryPath(
-                        sourceName = zipEntry.name,
-                        isDirectory = zipEntry.isDirectory,
+                        sourceName = readerEntry.name,
+                        isDirectory = readerEntry.isDirectory,
                         limits = limits,
                     )
-                    pathRegistry.register(validatedPath, zipEntry.isDirectory)
+                    pathRegistry.register(validatedPath, readerEntry.isDirectory)
 
-                    val compressionMethod = ArchiveCompressionMethod.fromZipMethod(zipEntry.method)
-                    validateDeclaredMetadata(zipEntry)
-                    if (zipEntry.isDirectory && zipEntry.size != 0L) {
+                    validateDeclaredMetadata(readerEntry)
+                    if (readerEntry.isDirectory && readerEntry.size != 0L) {
                         fail(ArchiveFailureCode.SIZE_MISMATCH, "Directory entry contains file data")
                     }
-                    totalUncompressedBytes = checkedMetadataTotal(totalUncompressedBytes, zipEntry.size)
+                    totalUncompressedBytes = checkedMetadataTotal(totalUncompressedBytes, readerEntry.size)
 
                     entries += ArchiveEntry(
                         path = validatedPath.path,
-                        sourceName = zipEntry.name,
+                        sourceName = readerEntry.name,
                         displayName = validatedPath.displayName,
-                        isDirectory = zipEntry.isDirectory,
-                        compressionMethod = compressionMethod,
-                        zipMethod = zipEntry.method,
-                        isEncrypted = zipEntry.isEncrypted,
-                        canExtract = zipEntry.canExtract,
-                        compressedSize = zipEntry.compressedSize,
-                        uncompressedSize = zipEntry.size,
-                        crc32 = zipEntry.crc.takeIf { it >= 0L },
-                        modifiedTimeMillis = zipEntry.time.takeIf { it >= 0L },
+                        isDirectory = readerEntry.isDirectory,
+                        compressionMethod = readerEntry.compressionMethod,
+                        compressionMethodId = readerEntry.compressionMethodId,
+                        isEncrypted = readerEntry.isEncrypted,
+                        capabilities = readerEntry.capabilities,
+                        compressedSize = readerEntry.compressedSize,
+                        uncompressedSize = readerEntry.size,
+                        crc32 = readerEntry.crc,
+                        modifiedTimeMillis = readerEntry.time,
                         ordinal = ordinal,
                     )
                 }
             }
         } catch (error: ArchiveException) {
             throw error
-        } catch (error: ZipException) {
-            val unsupportedMethod = error.message.orEmpty().contains("compression method", ignoreCase = true)
+        } catch (error: ArchiveBackendException) {
             fail(
-                if (unsupportedMethod) {
+                if (error.failure == ArchiveBackendFailure.UNSUPPORTED_METHOD) {
                     ArchiveFailureCode.UNSUPPORTED_METHOD
                 } else {
                     ArchiveFailureCode.MALFORMED_ARCHIVE
                 },
-                if (unsupportedMethod) {
+                if (error.failure == ArchiveBackendFailure.UNSUPPORTED_METHOD) {
                     "Archive contains an unsupported compression method"
                 } else {
-                    "Archive is malformed or encrypted"
+                    "Archive is malformed or unsupported"
                 },
                 error,
             )
@@ -105,11 +104,12 @@ class ArchiveScanner(
             entries = entries.toList(),
             totalUncompressedBytes = totalUncompressedBytes,
             limits = limits,
-            zipCharsetName = zipCharsetName,
+            format = requireNotNull(detectedFormat),
+            readerOptions = requireNotNull(readerOptions),
         )
     }
 
-    private fun validateDeclaredMetadata(entry: ZipEntryMetadata) {
+    private fun validateDeclaredMetadata(entry: ArchiveReaderEntry) {
         val size = entry.size
         val compressedSize = entry.compressedSize
         if (size < 0L || compressedSize < 0L) {

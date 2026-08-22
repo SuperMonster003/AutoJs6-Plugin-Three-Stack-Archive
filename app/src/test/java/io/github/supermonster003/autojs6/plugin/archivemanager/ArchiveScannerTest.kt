@@ -28,6 +28,7 @@ class ArchiveScannerTest {
 
         val snapshot = ArchiveScanner().scan(source)
 
+        assertEquals(ArchiveFormat.ZIP, snapshot.format)
         assertEquals(3, snapshot.entries.size)
         assertEquals(10L, snapshot.totalUncompressedBytes)
         assertEquals(ArchiveCompressionMethod.STORED, snapshot.entries[1].compressionMethod)
@@ -67,7 +68,7 @@ class ArchiveScannerTest {
 
         val snapshot = ArchiveScanner().scan(source)
 
-        assertEquals(Charset.forName("GB18030").name(), snapshot.zipCharsetName)
+        assertEquals(Charset.forName("GB18030").name(), snapshot.readerOptions.filenameCharsetName)
         assertEquals("目录/文件.txt", snapshot.entries.single().path)
     }
 
@@ -158,8 +159,12 @@ class ArchiveScannerTest {
         patchCompressionMethod(unsupported, 99)
         val unsupportedEntry = ArchiveScanner().scan(unsupported).entries.single()
         assertEquals(ArchiveCompressionMethod.OTHER, unsupportedEntry.compressionMethod)
-        assertEquals(99, unsupportedEntry.zipMethod)
+        assertEquals("99", unsupportedEntry.compressionMethodId)
         assertTrue(!unsupportedEntry.canExtract)
+        assertTrue(
+            ArchiveEntryLimitation.UNSUPPORTED_COMPRESSION_METHOD in
+                unsupportedEntry.capabilities.limitations,
+        )
     }
 
     @Test

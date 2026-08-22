@@ -24,7 +24,8 @@
         "Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité",
         "Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG",
         "L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material",
-        "La sortie ZIP passe par une session de l'hôte liée à l'UID, utilise un fichier temporaire du même dossier et est validée atomiquement sans autorisation de stockage ni écrasement"
+        "La sortie ZIP passe par une session de l'hôte liée à l'UID, utilise un fichier temporaire du même dossier et est validée atomiquement sans autorisation de stockage ni écrasement",
+        "Les capacités du format et de chaque entrée sont vérifiées uniformément pour la prévisualisation, l'extraction et la création afin de laisser les options indisponibles désactivées"
       ]
     },
     "v1.0.1": {

@@ -9,34 +9,18 @@ import java.util.HashSet
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-internal data class ArchiveCreationProgress(
-    val currentEntry: String,
-    val completedFiles: Long,
-    val completedDirectories: Long,
-    val sourceBytesRead: Long,
-)
-
-internal data class ArchiveCreationResult(
-    val outputDisplayName: String,
-    val outputDisplayPath: String,
-    val filesCompressed: Long,
-    val directoriesAdded: Long,
-    val sourceBytesRead: Long,
-)
-
-internal fun interface ArchiveCreationProgressListener {
-    fun onProgress(progress: ArchiveCreationProgress)
-}
-
 internal class ZipArchiveCreator(
     remoteSession: org.autojs.plugin.explorer.api.IExplorerActionHostSession,
-) {
+) : ArchiveWriter {
+
+    override val format = ArchiveFormat.ZIP
+    override val formatCapabilities = ZipArchiveBackend.capabilities
 
     private val session = ExplorerActionHostSessionClient(remoteSession)
 
-    fun create(
+    override fun create(
         request: ArchiveCompressionRequest,
-        options: ArchiveCompressionOptions,
+        options: ArchiveCreationOptions,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): ArchiveCreationResult {

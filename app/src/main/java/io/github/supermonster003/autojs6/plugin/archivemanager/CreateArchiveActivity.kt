@@ -25,6 +25,8 @@ class CreateArchiveActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateArchiveBinding
     private var request: ArchiveCompressionRequest? = null
     private var operationJob: Job? = null
+    private val archiveEngine = ArchiveEngine.DEFAULT
+    private var selectedFormat = ArchiveFormat.ZIP
     private var compressionLevel = ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
     private var sessionClosed = false
 
@@ -64,22 +66,27 @@ class CreateArchiveActivity : AppCompatActivity() {
             request.targets.size,
         )
         outputPath.text = request.parentDisplayPath
+        val creatableFormats = archiveEngine.creatableFormats
+        check(creatableFormats.isNotEmpty()) { "No archive writer is available" }
+        selectedFormat = creatableFormats.first()
         outputName.setText(
             ArchiveCompressionPolicy.defaultOutputDisplayName(
                 targetDisplayNames = request.targets.map(ArchiveCompressionTarget::displayName),
                 parentDisplayPath = request.parentDisplayPath,
                 fallbackStem = getString(R.string.text_default_archive_name),
+                format = selectedFormat,
             ),
         )
 
+        val formatLabels = creatableFormats.map(::formatLabel)
         format.setAdapter(
             ArrayAdapter(
                 this@CreateArchiveActivity,
                 android.R.layout.simple_list_item_1,
-                listOf(getString(R.string.text_format_zip)),
+                formatLabels,
             ),
         )
-        format.setText(getString(R.string.text_format_zip), false)
+        format.setText(formatLabels.first(), false)
 
         val levels = listOf(
             CompressionLevelChoice(R.string.text_compression_level_none, 0),
@@ -87,20 +94,10 @@ class CreateArchiveActivity : AppCompatActivity() {
             CompressionLevelChoice(R.string.text_compression_level_normal, 6),
             CompressionLevelChoice(R.string.text_compression_level_maximum, 9),
         )
-        val levelLabels = levels.map { choice -> getString(choice.labelResource) }
-        compressionLevel.setAdapter(
-            ArrayAdapter(
-                this@CreateArchiveActivity,
-                android.R.layout.simple_list_item_1,
-                levelLabels,
-            ),
-        )
-        val defaultIndex = levels.indexOfFirst {
-            it.level == ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
-        }.coerceAtLeast(0)
-        compressionLevel.setText(levelLabels[defaultIndex], false)
-        compressionLevel.setOnItemClickListener { _, _, position, _ ->
-            this@CreateArchiveActivity.compressionLevel = levels[position].level
+        configureFormat(selectedFormat, levels)
+        format.setOnItemClickListener { _, _, position, _ ->
+            selectedFormat = creatableFormats[position]
+            configureFormat(selectedFormat, levels)
         }
 
         createButton.setOnClickListener { createArchive() }
@@ -137,6 +134,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         if (operationJob?.isActive == true) return
         val outputDisplayName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
             binding.outputName.text?.toString(),
+            selectedFormat,
         )
         if (outputDisplayName == null) {
             binding.outputNameLayout.error = getString(R.string.error_archive_file_name_invalid)
@@ -155,9 +153,9 @@ class CreateArchiveActivity : AppCompatActivity() {
                 val result = withContext(Dispatchers.IO) {
                     val cancellationContext = currentCoroutineContext()
                     var lastUiUpdateNanos = 0L
-                    ZipArchiveCreator(resolvedRequest.hostSession).create(
+                    archiveEngine.createWriter(selectedFormat, resolvedRequest.hostSession).create(
                         request = resolvedRequest,
-                        options = ArchiveCompressionOptions(outputDisplayName, compressionLevel),
+                        options = ArchiveCreationOptions(outputDisplayName, compressionLevel),
                         checkCancelled = { cancellationContext.ensureActive() },
                         progress = ArchiveCreationProgressListener { update ->
                             val now = System.nanoTime()
@@ -217,6 +215,56 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
     }
 
+    private fun configureFormat(
+        format: ArchiveFormat,
+        choices: List<CompressionLevelChoice>,
+    ) = with(binding) {
+        val capabilities = archiveEngine.capabilities(format)
+        val supportedChoices = choices.filter { it.level in capabilities.compressionLevels }
+        check(supportedChoices.isNotEmpty()) { "${format.displayName} has no compression levels" }
+        val levelLabels = supportedChoices.map { getString(it.labelResource) }
+        compressionLevel.setAdapter(
+            ArrayAdapter(
+                this@CreateArchiveActivity,
+                android.R.layout.simple_list_item_1,
+                levelLabels,
+            ),
+        )
+        val selectedIndex = supportedChoices.indexOfFirst {
+            it.level == this@CreateArchiveActivity.compressionLevel
+        }.takeIf { it >= 0 } ?: supportedChoices.indexOfFirst {
+            it.level == ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
+        }.coerceAtLeast(0)
+        this@CreateArchiveActivity.compressionLevel = supportedChoices[selectedIndex].level
+        compressionLevel.setText(levelLabels[selectedIndex], false)
+        compressionLevel.setOnItemClickListener { _, _, position, _ ->
+            this@CreateArchiveActivity.compressionLevel = supportedChoices[position].level
+        }
+
+        val passwordAvailable = capabilities.password != ArchiveOptionMode.UNSUPPORTED
+        passwordLayout.helperText = if (passwordAvailable) {
+            null
+        } else {
+            getString(R.string.text_encryption_unavailable_for_format, formatLabel(format))
+        }
+        passwordLayout.isEnabled = passwordAvailable
+        password.isEnabled = passwordAvailable
+        encryptFileNames.isChecked = capabilities.filenameEncryption == ArchiveOptionMode.REQUIRED
+        encryptFileNames.isEnabled = capabilities.filenameEncryption == ArchiveOptionMode.OPTIONAL
+        val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED
+        splitVolumeLayout.helperText = if (splitVolumesAvailable) {
+            null
+        } else {
+            getString(R.string.text_split_unavailable_for_format, formatLabel(format))
+        }
+        splitVolumeLayout.isEnabled = splitVolumesAvailable
+        splitVolume.isEnabled = splitVolumesAvailable
+    }
+
+    private fun formatLabel(format: ArchiveFormat): String = when (format) {
+        ArchiveFormat.ZIP -> getString(R.string.text_format_zip)
+    }
+
     private fun setBusy(busy: Boolean, message: String) = with(binding) {
         progress.isVisible = busy
         status.isVisible = true
@@ -224,6 +272,15 @@ class CreateArchiveActivity : AppCompatActivity() {
         outputNameLayout.isEnabled = !busy
         format.isEnabled = !busy
         compressionLevel.isEnabled = !busy
+        val capabilities = archiveEngine.capabilities(selectedFormat)
+        val passwordAvailable = capabilities.password != ArchiveOptionMode.UNSUPPORTED
+        passwordLayout.isEnabled = !busy && passwordAvailable
+        password.isEnabled = !busy && passwordAvailable
+        encryptFileNames.isEnabled = !busy &&
+            capabilities.filenameEncryption == ArchiveOptionMode.OPTIONAL
+        val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED
+        splitVolumeLayout.isEnabled = !busy && splitVolumesAvailable
+        splitVolume.isEnabled = !busy && splitVolumesAvailable
         createButton.isEnabled = !busy
         cancelButton.isEnabled = true
         cancelButton.text = getString(R.string.dialog_button_cancel)

@@ -31,7 +31,7 @@
     <string name="text_selected_count">Seleccionadas: %1$d</string>
     <string name="text_size_details">%1$s, comprimido %2$s, CRC %3$s</string>
     <string name="text_unknown">Desconocido</string>
-    <string name="text_unsupported_zip_method">No se puede extraer el método ZIP %1$d</string>
+    <string name="text_unsupported_compression_method">No se puede extraer el método de compresión %1$s</string>
     <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
     <string name="error_compression_failed">Error de compresión</string>
     <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>
@@ -54,7 +54,7 @@
     <string name="text_output_path">Ruta</string>
     <string name="text_password">Contraseña</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
-    <string name="text_split_unavailable">La salida ZIP dividida no está disponible en el sistema actual.</string>
+    <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
     <string name="text_split_volume">Tamaño del volumen (MiB)</string>
-    <string name="text_zip_encryption_unavailable">La contraseña y el cifrado de nombres no están disponibles en el sistema ZIP actual.</string>
+    <string name="text_encryption_unavailable_for_format">La contraseña y el cifrado de nombres no están disponibles para %1$s.</string>
 </resources>

@@ -31,7 +31,7 @@
     <string name="text_selected_count">المحدد: %1$d</string>
     <string name="text_size_details">%1$s, مضغوط %2$s, CRC %3$s</string>
     <string name="text_unknown">غير معروف</string>
-    <string name="text_unsupported_zip_method">يتعذر استخراج طريقة ZIP رقم %1$d</string>
+    <string name="text_unsupported_compression_method">يتعذر استخراج طريقة الضغط %1$s</string>
     <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
     <string name="error_compression_failed">فشل الضغط</string>
     <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>
@@ -54,7 +54,7 @@
     <string name="text_output_path">المسار</string>
     <string name="text_password">كلمة المرور</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">جار التحضير للضغط...</string>
-    <string name="text_split_unavailable">إخراج ZIP المجزأ غير متوفر في الواجهة الخلفية الحالية.</string>
+    <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
     <string name="text_split_volume">حجم الجزء (MiB)</string>
-    <string name="text_zip_encryption_unavailable">كلمة المرور وتشفير أسماء الملفات غير متاحين في واجهة ZIP الخلفية الحالية.</string>
+    <string name="text_encryption_unavailable_for_format">كلمة المرور وتشفير أسماء الملفات غير متاحين لتنسيق %1$s.</string>
 </resources>

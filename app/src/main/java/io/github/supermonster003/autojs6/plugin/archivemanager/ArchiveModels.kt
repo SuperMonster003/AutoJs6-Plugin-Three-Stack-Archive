@@ -25,16 +25,10 @@ data class ArchiveSecurityLimits(
     }
 }
 
-enum class ArchiveCompressionMethod(val zipMethod: Int) {
-    STORED(0),
-    DEFLATED(8),
-    OTHER(-1),
-    ;
-
-    companion object {
-        fun fromZipMethod(method: Int): ArchiveCompressionMethod =
-            entries.firstOrNull { it != OTHER && it.zipMethod == method } ?: OTHER
-    }
+enum class ArchiveCompressionMethod {
+    STORED,
+    DEFLATED,
+    OTHER,
 }
 
 data class ArchiveEntry(
@@ -45,18 +39,27 @@ data class ArchiveEntry(
     val displayName: String,
     val isDirectory: Boolean,
     val compressionMethod: ArchiveCompressionMethod,
-    /** Raw ZIP method retained even when [compressionMethod] is classified as [ArchiveCompressionMethod.OTHER]. */
-    val zipMethod: Int = compressionMethod.zipMethod,
+    /** Backend-defined method identifier interpreted together with [ArchiveSnapshot.format]. */
+    val compressionMethodId: String = compressionMethod.name,
     val isEncrypted: Boolean = false,
-    /** Whether the active reader can currently produce this entry's uncompressed data. */
-    val canExtract: Boolean = true,
+    val capabilities: ArchiveEntryCapabilities = if (isDirectory) {
+        ArchiveEntryCapabilities.DIRECTORY
+    } else {
+        ArchiveEntryCapabilities.READABLE_FILE
+    },
     val compressedSize: Long,
     /** Uncompressed size declared by the archive directory and verified while extracting. */
     val uncompressedSize: Long,
     val crc32: Long?,
     val modifiedTimeMillis: Long?,
     val ordinal: Int,
-)
+) {
+    val canOpen: Boolean
+        get() = capabilities.canOpen
+
+    val canExtract: Boolean
+        get() = capabilities.canExtract
+}
 
 data class ArchiveSnapshot(
     val sourceLength: Long,
@@ -64,8 +67,8 @@ data class ArchiveSnapshot(
     val entries: List<ArchiveEntry>,
     val totalUncompressedBytes: Long,
     val limits: ArchiveSecurityLimits,
-    /** Charset used for legacy ZIP names without an EFS flag or Unicode extra field. */
-    val zipCharsetName: String? = null,
+    val format: ArchiveFormat = ArchiveFormat.ZIP,
+    val readerOptions: ArchiveReaderOptions = ArchiveReaderOptions(),
 )
 
 data class ArchiveNode(
@@ -126,6 +129,30 @@ data class ExtractionResult(
     val directoriesCreated: Int,
     val bytesWritten: Long,
 )
+
+internal data class ArchiveCreationOptions(
+    val outputDisplayName: String,
+    val compressionLevel: Int,
+)
+
+internal data class ArchiveCreationProgress(
+    val currentEntry: String,
+    val completedFiles: Long,
+    val completedDirectories: Long,
+    val sourceBytesRead: Long,
+)
+
+internal data class ArchiveCreationResult(
+    val outputDisplayName: String,
+    val outputDisplayPath: String,
+    val filesCompressed: Long,
+    val directoriesAdded: Long,
+    val sourceBytesRead: Long,
+)
+
+internal fun interface ArchiveCreationProgressListener {
+    fun onProgress(progress: ArchiveCreationProgress)
+}
 
 enum class ArchiveFailureCode {
     SOURCE_NOT_FILE,

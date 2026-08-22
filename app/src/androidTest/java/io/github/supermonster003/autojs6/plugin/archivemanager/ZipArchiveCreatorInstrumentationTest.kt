@@ -37,9 +37,9 @@ class ZipArchiveCreatorInstrumentationTest {
             hostSession = session,
         )
 
-        val result = ZipArchiveCreator(session).create(
+        val result = ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.ZIP, session).create(
             request = request,
-            options = ArchiveCompressionOptions("Documents.zip", 6),
+            options = ArchiveCreationOptions("Documents.zip", 6),
             checkCancelled = {},
             progress = ArchiveCreationProgressListener {},
         )

@@ -41,6 +41,7 @@ Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 f
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
+- Verify the actual ZIP structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
 - Create ZIP files with a configurable name and compression level; default to the target name for one item and the parent-folder name for multiple items.
@@ -99,6 +100,7 @@ _Unreleased_
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
 - `Improved` ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
+- `Improved` Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled
 
 #### v1.0.1
 

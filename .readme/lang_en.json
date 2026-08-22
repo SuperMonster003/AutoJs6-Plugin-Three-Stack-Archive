@@ -14,6 +14,7 @@
     "Use the Extract to... shortcut to extract an entire archive without first opening the archive view.",
     "Browse directories, search, and sort archive content.",
     "Build the listing from directory metadata without decompressing every entry first.",
+    "Verify the actual ZIP structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.",
     "Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.",
     "Offer Compress... for ordinary files, folders, and same-parent multi-selections.",
     "Create ZIP files with a configurable name and compression level; default to the target name for one item and the parent-folder name for multiple items.",

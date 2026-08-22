@@ -217,7 +217,11 @@ cancelTask(taskId)
 
 ## 格式能力模型
 
-压缩和修改表单最终必须由“真实格式 + 当前后端 + 当前选择”共同生成:
+插件已经通过 `ArchiveEngine` 统一扫描、预览、解压和创建链路. `ArchiveFormat` 提供格式标识、扩展名和 MIME 类型; `ArchiveReader`/`ArchiveWriter` 隔离具体库; `FormatCapabilities` 与 `ArchiveEntryCapabilities` 分别表达格式级和条目级真实能力. ZIP 字符集探测和底层目录对象只存在于 ZIP 后端内部.
+
+当前压缩表单的格式列表、压缩级别、密码、文件名加密和分卷控件由已注册 writer 的能力生成. 动作目录的可读扩展名与 MIME 类型也来自同一格式注册表. 尚未实现的后端不会只因 Roadmap 中出现格式名称就进入菜单.
+
+压缩和修改表单必须继续由“真实格式 + 当前后端 + 当前选择”共同生成:
 
 ```text
 FormatCapabilities
@@ -231,6 +235,8 @@ FormatCapabilities
 ```
 
 特别是“同时加密文件名”应按三态显示: 不支持时关闭且禁用; 可选时默认关闭; 格式强制时开启且禁用. 禁用控件旁必须展示原因, 不能仅用灰色暗示.
+
+当前只注册 ZIP 后端. 它支持识别/列表/预览/打开/解压/创建, 但不声明添加/删除/重命名/密码/文件名加密/分卷. `jar`、`aar` 和 `war` 只是 ZIP 的扩展名别名. 新后端的候选路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
 
 ## 不可取消的安全边界
 

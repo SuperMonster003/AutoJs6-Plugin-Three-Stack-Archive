@@ -290,7 +290,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         if (archiveEntry.isEncrypted) {
                             getString(R.string.text_encrypted_entry)
                         } else {
-                            getString(R.string.text_unsupported_zip_method, archiveEntry.zipMethod)
+                            getString(
+                                R.string.text_unsupported_compression_method,
+                                archiveEntry.compressionMethodId,
+                            )
                         },
                     )
                 }

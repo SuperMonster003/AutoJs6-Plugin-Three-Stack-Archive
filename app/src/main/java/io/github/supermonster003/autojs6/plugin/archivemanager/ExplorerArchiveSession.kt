@@ -29,6 +29,7 @@ internal class ExplorerArchiveSession(
     )
 
     private val closed = AtomicBoolean(false)
+    private val formatCapabilities = ArchiveEngine.DEFAULT.capabilities(snapshot.format)
     private val sessionId = UUID.randomUUID().toString()
     private val rootId = ROOT_ID
     private val nodesById: Map<String, SessionNode>
@@ -84,7 +85,10 @@ internal class ExplorerArchiveSession(
             putString(ExplorerArchiveSessionKeys.DISPLAY_NAME, displayName)
             putLong(ExplorerArchiveSessionKeys.SOURCE_SIZE, stagedArchive.bytes)
             putLong(ExplorerArchiveSessionKeys.SOURCE_LAST_MODIFIED, stagedArchive.file.lastModified())
-            putBoolean(ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES, true)
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES,
+                formatCapabilities.canPreview,
+            )
         }
     }
 
@@ -122,7 +126,7 @@ internal class ExplorerArchiveSession(
         val entry = requireNotNull(node.entry?.takeUnless(ArchiveEntry::isDirectory)) {
             "Archive entry is not a regular file"
         }
-        require(entry.canExtract) {
+        require(formatCapabilities.canPreview && entry.canOpen) {
             "Archive entry is encrypted or uses an unsupported compression method"
         }
 
@@ -216,7 +220,10 @@ internal class ExplorerArchiveSession(
             putLong(ExplorerArchiveSessionKeys.SIZE, node.uncompressedSize)
             putLong(ExplorerArchiveSessionKeys.COMPRESSED_SIZE, entry?.compressedSize ?: -1L)
             putLong(ExplorerArchiveSessionKeys.LAST_MODIFIED, entry?.modifiedTimeMillis ?: 0L)
-            putBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT, node.isDirectory || entry?.canExtract == true)
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_EXTRACT,
+                node.isDirectory || formatCapabilities.canPreview && entry?.canOpen == true,
+            )
         }
     }
 
