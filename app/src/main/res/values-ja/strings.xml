@@ -53,6 +53,7 @@
     <string name="text_none">なし</string>
     <string name="text_output_path">パス</string>
     <string name="text_password">パスワード</string>
+    <string name="text_confirm_password">パスワードの確認</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">圧縮を準備中...</string>
     <string name="text_split_unavailable_for_format">%1$s では分割出力を利用できません.</string>
     <string name="text_split_volume">分割サイズ (MiB)</string>
@@ -87,6 +88,7 @@
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">アーカイブを再索引しています...</string>
     <string name="error_password_incorrect">アーカイブのパスワードが正しくありません</string>
     <string name="error_password_required">アーカイブのパスワードを入力してください</string>
+    <string name="error_password_confirmation_mismatch">パスワードが一致しません</string>
     <string name="text_apply_password">適用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">パスワードを適用しています...</string>
     <string name="text_archive_password">アーカイブのパスワード</string>

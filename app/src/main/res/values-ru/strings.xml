@@ -53,6 +53,7 @@
     <string name="text_none">Нет</string>
     <string name="text_output_path">Путь</string>
     <string name="text_password">Пароль</string>
+    <string name="text_confirm_password">Подтвердите пароль</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
     <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
     <string name="text_split_volume">Размер тома (MiB)</string>
@@ -87,6 +88,7 @@
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Повторное индексирование архива...</string>
     <string name="error_password_incorrect">Неверный пароль архива</string>
     <string name="error_password_required">Введите пароль архива</string>
+    <string name="error_password_confirmation_mismatch">Пароли не совпадают</string>
     <string name="text_apply_password">Применить</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Применение пароля...</string>
     <string name="text_archive_password">Пароль архива</string>

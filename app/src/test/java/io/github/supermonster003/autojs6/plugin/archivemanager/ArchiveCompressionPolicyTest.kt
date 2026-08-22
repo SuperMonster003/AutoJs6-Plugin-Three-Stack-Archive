@@ -88,4 +88,33 @@ class ArchiveCompressionPolicyTest {
             ArchiveCompressionPolicy.requireCompressionLevel(10)
         }
     }
+
+    @Test
+    fun passwordConfirmationRequiresAnExactMatchWithoutStrings() {
+        assertEquals(
+            true,
+            ArchiveCompressionPolicy.passwordConfirmationMatches(CharArray(0), CharArray(0)),
+        )
+        assertEquals(
+            true,
+            ArchiveCompressionPolicy.passwordConfirmationMatches(
+                "ArchiveManager-Test-2026".toCharArray(),
+                "ArchiveManager-Test-2026".toCharArray(),
+            ),
+        )
+        assertEquals(
+            false,
+            ArchiveCompressionPolicy.passwordConfirmationMatches(
+                "ArchiveManager-Test-2026".toCharArray(),
+                "ArchiveManager-Test-2027".toCharArray(),
+            ),
+        )
+        assertEquals(
+            false,
+            ArchiveCompressionPolicy.passwordConfirmationMatches(
+                "ArchiveManager-Test-2026".toCharArray(),
+                "ArchiveManager-Test-2026-extra".toCharArray(),
+            ),
+        )
+    }
 }

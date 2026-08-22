@@ -53,6 +53,7 @@
     <string name="text_none">بلا</string>
     <string name="text_output_path">المسار</string>
     <string name="text_password">كلمة المرور</string>
+    <string name="text_confirm_password">تأكيد كلمة المرور</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">جار التحضير للضغط...</string>
     <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
     <string name="text_split_volume">حجم الجزء (MiB)</string>
@@ -87,6 +88,7 @@
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">جار إعادة فهرسة الأرشيف...</string>
     <string name="error_password_incorrect">كلمة مرور الأرشيف غير صحيحة</string>
     <string name="error_password_required">أدخل كلمة مرور الأرشيف</string>
+    <string name="error_password_confirmation_mismatch">كلمتا المرور غير متطابقتين</string>
     <string name="text_apply_password">تطبيق</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">جار تطبيق كلمة المرور...</string>
     <string name="text_archive_password">كلمة مرور الأرشيف</string>

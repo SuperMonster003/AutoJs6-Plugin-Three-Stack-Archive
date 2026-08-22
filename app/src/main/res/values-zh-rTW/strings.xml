@@ -51,6 +51,7 @@
     <string name="text_none">無</string>
     <string name="text_output_path">路徑</string>
     <string name="text_password">密碼</string>
+    <string name="text_confirm_password">確認密碼</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在準備壓縮...</string>
     <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分割檔輸出.</string>
     <string name="text_split_volume">分割檔大小 (MiB)</string>
@@ -85,6 +86,7 @@
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">正在重新索引壓縮檔...</string>
     <string name="error_password_incorrect">壓縮檔密碼不正確</string>
     <string name="error_password_required">請輸入壓縮檔密碼</string>
+    <string name="error_password_confirmation_mismatch">兩次輸入的密碼不一致</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="text_apply_password">套用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在套用密碼...</string>

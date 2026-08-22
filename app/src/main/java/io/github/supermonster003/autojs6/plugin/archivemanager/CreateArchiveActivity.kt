@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityCreateArchiveBinding
 import kotlinx.coroutines.CancellationException
@@ -46,7 +47,10 @@ class CreateArchiveActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        if (::binding.isInitialized) binding.password.text?.clear()
+        if (::binding.isInitialized) {
+            binding.password.text?.clear()
+            binding.passwordConfirmation.text?.clear()
+        }
         if (isFinishing) {
             val activeJob = operationJob
             activeJob?.cancel()
@@ -111,9 +115,15 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         outputName.setOnEditorActionListener { _, _, _ ->
             password.requestFocus()
-            false
+            true
         }
         password.setOnEditorActionListener { _, _, _ ->
+            passwordConfirmation.requestFocus()
+            true
+        }
+        password.doAfterTextChanged { passwordConfirmationLayout.error = null }
+        passwordConfirmation.doAfterTextChanged { passwordConfirmationLayout.error = null }
+        passwordConfirmation.setOnEditorActionListener { _, _, _ ->
             createArchive()
             true
         }
@@ -150,7 +160,22 @@ class CreateArchiveActivity : AppCompatActivity() {
         binding.outputName.setText(outputDisplayName)
         val password = binding.password.text?.let { editable ->
             CharArray(editable.length) { index -> editable[index] }
-        }?.takeIf(CharArray::isNotEmpty)
+        } ?: CharArray(0)
+        val passwordConfirmation = binding.passwordConfirmation.text?.let { editable ->
+            CharArray(editable.length) { index -> editable[index] }
+        } ?: CharArray(0)
+        if (!ArchiveCompressionPolicy.passwordConfirmationMatches(password, passwordConfirmation)) {
+            password.fill('\u0000')
+            passwordConfirmation.fill('\u0000')
+            binding.passwordConfirmationLayout.error = getString(
+                R.string.error_password_confirmation_mismatch,
+            )
+            binding.passwordConfirmation.requestFocus()
+            return
+        }
+        binding.passwordConfirmationLayout.error = null
+        passwordConfirmation.fill('\u0000')
+        val passwordForCreation = password.takeIf(CharArray::isNotEmpty)
         currentFocus?.let { focused ->
             getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
@@ -166,7 +191,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                         options = ArchiveCreationOptions(
                             outputDisplayName = outputDisplayName,
                             compressionLevel = compressionLevel,
-                            password = password,
+                            password = passwordForCreation,
                         ),
                         checkCancelled = { cancellationContext.ensureActive() },
                         progress = ArchiveCreationProgressListener { update ->
@@ -222,7 +247,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                     )
                 }
             } finally {
-                password?.fill('\u0000')
+                password.fill('\u0000')
                 operationJob = null
             }
         }
@@ -262,6 +287,8 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         passwordLayout.isEnabled = passwordAvailable
         password.isEnabled = passwordAvailable
+        passwordConfirmationLayout.isEnabled = passwordAvailable
+        passwordConfirmation.isEnabled = passwordAvailable
         encryptFileNames.isChecked = capabilities.filenameEncryption == ArchiveOptionMode.REQUIRED
         encryptFileNames.isEnabled = capabilities.filenameEncryption == ArchiveOptionMode.OPTIONAL
         val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED
@@ -289,6 +316,8 @@ class CreateArchiveActivity : AppCompatActivity() {
         val passwordAvailable = capabilities.password != ArchiveOptionMode.UNSUPPORTED
         passwordLayout.isEnabled = !busy && passwordAvailable
         password.isEnabled = !busy && passwordAvailable
+        passwordConfirmationLayout.isEnabled = !busy && passwordAvailable
+        passwordConfirmation.isEnabled = !busy && passwordAvailable
         encryptFileNames.isEnabled = !busy &&
             capabilities.filenameEncryption == ArchiveOptionMode.OPTIONAL
         val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED

@@ -68,6 +68,18 @@ internal object ArchiveCompressionPolicy {
         return value
     }
 
+    /** Compares transient password buffers without converting either value to an immutable [String]. */
+    fun passwordConfirmationMatches(password: CharArray, confirmation: CharArray): Boolean {
+        var difference = password.size xor confirmation.size
+        val comparedLength = maxOf(password.size, confirmation.size)
+        for (index in 0 until comparedLength) {
+            val passwordCharacter = password.getOrNull(index)?.code ?: 0
+            val confirmationCharacter = confirmation.getOrNull(index)?.code ?: 0
+            difference = difference or (passwordCharacter xor confirmationCharacter)
+        }
+        return difference == 0
+    }
+
     fun requirePortableEntrySegment(value: String): String {
         require(value.isNotBlank() && value != "." && value != "..") {
             "Source name is not a portable ZIP entry segment"

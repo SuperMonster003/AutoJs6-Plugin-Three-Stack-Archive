@@ -53,6 +53,7 @@
     <string name="text_none">Aucun</string>
     <string name="text_output_path">Chemin</string>
     <string name="text_password">Mot de passe</string>
+    <string name="text_confirm_password">Confirmer le mot de passe</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Préparation de la compression...</string>
     <string name="text_split_unavailable_for_format">La sortie fractionnée n\'est pas disponible pour %1$s.</string>
     <string name="text_split_volume">Taille du volume (MiB)</string>
@@ -87,6 +88,7 @@
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Réindexation de l\'archive...</string>
     <string name="error_password_incorrect">Le mot de passe de l\'archive est incorrect</string>
     <string name="error_password_required">Saisissez le mot de passe de l\'archive</string>
+    <string name="error_password_confirmation_mismatch">Les mots de passe ne correspondent pas</string>
     <string name="text_apply_password">Appliquer</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Application du mot de passe...</string>
     <string name="text_archive_password">Mot de passe de l\'archive</string>

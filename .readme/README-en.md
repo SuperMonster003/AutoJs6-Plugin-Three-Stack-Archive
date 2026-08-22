@@ -43,7 +43,7 @@ Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 f
 - Build the listing from directory metadata without decompressing every entry first.
 - Verify the actual ZIP structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
-- Browse and extract ZIP files protected with ZipCrypto or AES, retry a wrong password in place, and optionally create AES-256 encrypted ZIP files whose names remain visible.
+- Browse and extract ZIP files protected with ZipCrypto or AES, retry a wrong password in place, and optionally create AES-256 encrypted ZIP files whose names remain visible; encrypted creation requires matching password confirmation.
 - Override the ZIP filename encoding when automatic detection is wrong; browsing and extraction reuse the same selection.
 - Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
@@ -96,7 +96,7 @@ _Unreleased_
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
-- `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible
+- `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing

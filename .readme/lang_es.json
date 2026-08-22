@@ -16,7 +16,7 @@
     "Crear la lista desde los metadatos sin descomprimir primero todas las entradas.",
     "Verificar la estructura ZIP real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.",
     "Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.",
-    "Explorar y extraer ZIP protegidos con ZipCrypto o AES, reintentar una contraseña incorrecta en el mismo lugar y crear opcionalmente ZIP con AES-256 cuyos nombres siguen visibles.",
+    "Explorar y extraer ZIP protegidos con ZipCrypto o AES, reintentar una contraseña incorrecta en el mismo lugar y crear opcionalmente ZIP con AES-256 cuyos nombres siguen visibles; la creación cifrada exige confirmar la contraseña con el mismo valor.",
     "Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.",
     "Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.",
     "Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.",

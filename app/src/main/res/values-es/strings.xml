@@ -53,6 +53,7 @@
     <string name="text_none">Ninguno</string>
     <string name="text_output_path">Ruta</string>
     <string name="text_password">Contraseña</string>
+    <string name="text_confirm_password">Confirmar contraseña</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
     <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
     <string name="text_split_volume">Tamaño del volumen (MiB)</string>
@@ -87,6 +88,7 @@
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexando el archivo...</string>
     <string name="error_password_incorrect">La contraseña del archivo es incorrecta</string>
     <string name="error_password_required">Introduce la contraseña del archivo</string>
+    <string name="error_password_confirmation_mismatch">Las contraseñas no coinciden</string>
     <string name="text_apply_password">Aplicar</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Aplicando contraseña...</string>
     <string name="text_archive_password">Contraseña del archivo</string>

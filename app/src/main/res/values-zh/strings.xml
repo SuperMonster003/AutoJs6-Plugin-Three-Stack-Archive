@@ -18,6 +18,7 @@
     <string name="error_no_selection">请至少选择一个条目</string>
     <string name="error_password_incorrect">压缩档案密码不正确</string>
     <string name="error_password_required">请输入压缩档案密码</string>
+    <string name="error_password_confirmation_mismatch">两次输入的密码不一致</string>
     <string name="error_permission_missing">缺少压缩包读取权限</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="plugin_description">文件管理器插件. 打开、解压和创建 ZIP 压缩档案</string>
@@ -55,6 +56,7 @@
     <string name="text_none">无</string>
     <string name="text_output_path">路径</string>
     <string name="text_password">密码</string>
+    <string name="text_confirm_password">确认密码</string>
     <string name="text_password_applied">密码已应用, 可随时更新.</string>
     <string name="text_password_needed_for_encrypted_entries">输入密码后可打开和解压加密条目.</string>
     <string name="text_parent_directory">上级目录</string>
