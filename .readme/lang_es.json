@@ -16,6 +16,7 @@
     "Crear la lista desde los metadatos sin descomprimir primero todas las entradas.",
     "Verificar la estructura ZIP real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.",
     "Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.",
+    "Explorar y extraer ZIP protegidos con ZipCrypto o AES, reintentar una contraseña incorrecta en el mismo lugar y crear opcionalmente ZIP con AES-256 cuyos nombres siguen visibles.",
     "Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.",
     "Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.",
     "Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.",
@@ -25,7 +26,7 @@
   "h3_supported_formats": "Formatos actuales",
   "p_supported_formats": "La versión actual reconoce estas extensiones de la familia ZIP",
   "p_creatable_formats": "La versión actual puede crear estos formatos",
-  "p_plugin_scope": "La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada, 7z, variantes tar, contraseñas, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.",
+  "p_plugin_scope": "La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, 7z, variantes tar, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.",
   "h3_usage": "Uso",
   "usage_steps": [
     "Instala el complemento y actívalo en el centro de complementos de AutoJs6.",
@@ -35,8 +36,8 @@
     "Para crear un ZIP, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior."
   ],
   "h3_security": "Permisos y datos",
-  "p_security": "El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa usa una sesión breve de archivo de solo lectura vinculada al UID del host y elimina la entrada temporal al cerrar o desvincular; la extracción solo usa el URI temporal del host. La creación de ZIP usa una sesión de archivos vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de integridad y la limpieza de fallos.",
-  "p_roadmap": "Las tareas y criterios para más formatos, contraseñas y volúmenes, extracción por entrada, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.",
+  "p_security": "El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa usa una sesión breve de archivo de solo lectura vinculada al UID del host y elimina la entrada temporal al cerrar o desvincular; la extracción solo usa el URI temporal del host. La creación de ZIP usa una sesión de archivos vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Las contraseñas permanecen solo en búferes de memoria que pueden borrarse, nunca se escriben en Bundles, preferencias, registros ni diagnósticos, y se borran al sustituirlas, al terminar una tarea o al destruir la página. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de integridad y la limpieza de fallos.",
+  "p_roadmap": "Las tareas y criterios para más formatos, volúmenes divididos, extracción por entrada, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.",
   "h3_release_history": "Notas de la versión",
   "h5_for_more_release_history": "Historial completo",
   "h3_build": "Compilación",
@@ -44,5 +45,6 @@
   "p_build_params": "Usa Gradle Wrapper desde la raíz; `version.properties` define los requisitos de SDK y JDK",
   "h3_links": "Enlaces",
   "text_link_autojs6_docs": "Documentación de AutoJs6",
+  "text_link_third_party_notices": "Avisos de software de terceros",
   "text_link_android_saf": "Android Storage Access Framework"
 }

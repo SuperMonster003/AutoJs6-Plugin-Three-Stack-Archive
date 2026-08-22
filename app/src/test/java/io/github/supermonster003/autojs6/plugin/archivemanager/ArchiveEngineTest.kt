@@ -29,7 +29,7 @@ class ArchiveEngineTest {
         assertFalse(capabilities.supports(ArchiveOperation.ADD))
         assertFalse(capabilities.supports(ArchiveOperation.DELETE))
         assertFalse(capabilities.supports(ArchiveOperation.RENAME))
-        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.password)
+        assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
         assertEquals((0..9).toList(), capabilities.compressionLevels)
@@ -39,6 +39,42 @@ class ArchiveEngineTest {
         assertEquals(listOf(ArchiveFormat.ZIP), engine.creatableFormats)
         assertEquals(ArchiveFormat.ZIP.extensions, ArchiveManagerPlugin.EXTENSIONS.toSet())
         assertEquals(ArchiveFormat.ZIP.mimeTypes, ArchiveManagerPlugin.MIME_TYPES.toSet())
+        assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
+    }
+
+    @Test
+    fun `reader options never expose a password in diagnostics`() {
+        val password = "do-not-expose-this-password"
+        val options = ArchiveReaderOptions(
+            filenameCharsetName = "UTF-8",
+            password = password.toCharArray(),
+        )
+
+        assertTrue(options.hasPassword)
+        assertFalse(options.toString().contains(password))
+        assertTrue(options.toString().contains("hasPassword=true"))
+        options.clearPassword()
+        assertFalse(options.hasPassword)
+    }
+
+    @Test
+    fun `reader close clears its password copy without mutating caller options`() {
+        val source = writeZip(
+            temporaryFolder.newFile("reader-password-lifecycle.zip"),
+            FixtureEntry("payload.txt", "payload".toByteArray(), ZipEntry.STORED),
+        )
+        val callerOptions = ArchiveReaderOptions(password = "transient-password".toCharArray())
+        val reader = ArchiveEngine.DEFAULT.openReader(source, options = callerOptions)
+        val readerOptions = reader.options
+
+        assertTrue(callerOptions.hasPassword)
+        assertTrue(readerOptions.hasPassword)
+
+        reader.close()
+
+        assertTrue(callerOptions.hasPassword)
+        assertFalse(readerOptions.hasPassword)
+        callerOptions.clearPassword()
     }
 
     @Test

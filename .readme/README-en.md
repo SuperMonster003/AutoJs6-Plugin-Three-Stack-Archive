@@ -43,6 +43,7 @@ Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 f
 - Build the listing from directory metadata without decompressing every entry first.
 - Verify the actual ZIP structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
+- Browse and extract ZIP files protected with ZipCrypto or AES, retry a wrong password in place, and optionally create AES-256 encrypted ZIP files whose names remain visible.
 - Override the ZIP filename encoding when automatic detection is wrong; browsing and extraction reuse the same selection.
 - Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
@@ -63,7 +64,7 @@ The current release can create these formats:
 zip
 ```
 
-> Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction, 7z, tar variants, passwords, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, 7z, tar variants, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
@@ -75,11 +76,11 @@ zip
 
 ### Permissions and data
 
-The plugin requests neither storage nor network permission. Native browsing uses a short-lived read-only archive session pinned to the host UID and removes staged input when the page closes or unbinds; extraction uses only the input URI temporarily granted by the host. ZIP creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, integrity checks, and failure cleanup remain.
+The plugin requests neither storage nor network permission. Native browsing uses a short-lived read-only archive session pinned to the host UID and removes staged input when the page closes or unbinds; extraction uses only the input URI temporarily granted by the host. ZIP creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. Passwords stay only in clearable memory buffers, are never written to Bundles, preferences, logs, or diagnostics, and are cleared when replaced, after a task, or when the page is destroyed. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, integrity checks, and failure cleanup remain.
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for more formats, passwords and volumes, per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for more formats, split volumes, per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -95,16 +96,19 @@ _Unreleased_
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
 - `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
+- `Fixed` Wrong passwords now map consistently to PASSWORD/WRONG_PASSWORD, and AES v2 entries with a zero stored CRC are no longer misreported as damaged
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
 - `Improved` ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
 - `Improved` Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled
 - `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
+- `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path
 
 #### v1.0.1
 
@@ -141,4 +145,5 @@ Run the Gradle Wrapper from the repository root; use `version.properties` as the
 ### Links
 
 - AutoJs6 documentation: https://docs.autojs6.com
+- Third-party notices: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

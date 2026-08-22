@@ -151,10 +151,38 @@ data class ArchiveEntryCapabilities(
     }
 }
 
-data class ArchiveReaderOptions(
+class ArchiveReaderOptions(
     /** Filename charset selected for a legacy archive whose entry names do not declare Unicode. */
     val filenameCharsetName: String? = null,
-)
+    /** Transient password for this open archive. It is deliberately omitted from [toString]. */
+    password: CharArray? = null,
+) {
+    @Volatile
+    private var passwordValue = password?.takeIf(CharArray::isNotEmpty)?.clone()
+
+    val hasPassword: Boolean
+        get() = passwordValue != null
+
+    @Synchronized
+    internal fun passwordChars(): CharArray? = passwordValue?.clone()
+
+    @Synchronized
+    internal fun resolved(filenameCharsetName: String): ArchiveReaderOptions =
+        ArchiveReaderOptions(filenameCharsetName, passwordValue)
+
+    @Synchronized
+    internal fun retainedCopy(): ArchiveReaderOptions =
+        ArchiveReaderOptions(filenameCharsetName, passwordValue)
+
+    @Synchronized
+    internal fun clearPassword() {
+        passwordValue?.fill('\u0000')
+        passwordValue = null
+    }
+
+    override fun toString(): String =
+        "ArchiveReaderOptions(filenameCharsetName=$filenameCharsetName, hasPassword=$hasPassword)"
+}
 
 internal data class ArchiveReaderEntry(
     val ordinal: Int,
@@ -164,6 +192,7 @@ internal data class ArchiveReaderEntry(
     /** Backend-defined stable method identifier. It is interpreted together with the archive format. */
     val compressionMethodId: String,
     val isEncrypted: Boolean,
+    val encryptionMethod: ArchiveEncryptionMethod?,
     val capabilities: ArchiveEntryCapabilities,
     val compressedSize: Long,
     val size: Long,
@@ -200,6 +229,7 @@ internal enum class ArchiveBackendFailure {
     MALFORMED,
     INVALID_OPTIONS,
     UNSUPPORTED_METHOD,
+    WRONG_PASSWORD,
 }
 
 internal class ArchiveBackendException(
@@ -268,6 +298,7 @@ internal class ArchiveEngine private constructor(
                     ArchiveBackendFailure.INVALID_OPTIONS ->
                         ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
                     ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureCode.WRONG_PASSWORD
                     ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE
                 },
                 message = error.message ?: "Archive format probe failed",

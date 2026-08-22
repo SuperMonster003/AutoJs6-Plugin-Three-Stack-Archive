@@ -7,11 +7,13 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.text.format.Formatter
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
@@ -47,6 +49,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var isBusy = false
     private var directActionHandled = false
     private var selectedFilenameCharsetName: String? = null
+    private var selectedPassword: CharArray? = null
     private var filenameCharsetChoices: List<FilenameCharsetChoice> = emptyList()
     private var lastFailureDiagnostic: ArchiveFailureDiagnostic? = null
 
@@ -106,6 +109,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        clearSelectedPassword()
+        if (::binding.isInitialized) binding.archivePassword.text?.clear()
         val activeOperation = operationJob
         if (activeOperation?.isActive == true) {
             activeOperation.invokeOnCompletion { clearStagedArchive() }
@@ -142,8 +147,14 @@ class ArchiveManagerActivity : AppCompatActivity() {
             filenameCharsetChoices.getOrNull(position)?.let(::selectFilenameCharset)
         }
         filenameEncodingInput.setOnClickListener { filenameEncodingInput.showDropDown() }
+        applyPasswordButton.setOnClickListener { applyPassword() }
+        archivePassword.setOnEditorActionListener { _, _, _ ->
+            applyPassword()
+            true
+        }
         diagnosticCopyButton.setOnClickListener { copyLastDiagnostic() }
         filenameEncodingLayout.isVisible = false
+        passwordControls.isVisible = false
         diagnosticCopyButton.isVisible = false
         selectedCount.text = getString(R.string.text_selected_count, 0)
 
@@ -225,15 +236,24 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private suspend fun scanStagedArchive(
         staged: StagedArchive,
     ): Pair<ArchiveSnapshot, ArchiveIndex> = withContext(Dispatchers.IO) {
-        ArchiveScanner().scan(
-            source = staged.file,
-            options = ArchiveReaderOptions(filenameCharsetName = selectedFilenameCharsetName),
-        ) { ensureActive() }.let { scanned ->
-            scanned to ArchiveIndex(scanned)
+        val readerOptions = ArchiveReaderOptions(
+            filenameCharsetName = selectedFilenameCharsetName,
+            password = selectedPassword,
+        )
+        try {
+            ArchiveScanner().scan(
+                source = staged.file,
+                options = readerOptions,
+            ) { ensureActive() }.let { scanned ->
+                scanned to ArchiveIndex(scanned)
+            }
+        } finally {
+            readerOptions.clearPassword()
         }
     }
 
     private fun applyScannedArchive(scanned: ArchiveSnapshot, scannedIndex: ArchiveIndex) {
+        snapshot?.readerOptions?.clearPassword()
         snapshot = scanned
         index = scannedIndex
         val currentNode = scannedIndex.node(currentDirectory)
@@ -250,6 +270,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         lastFailureDiagnostic = null
         binding.diagnosticCopyButton.isVisible = false
         configureFilenameEncoding(scanned)
+        configurePassword(scanned)
         setBusy(false)
         renderEntries()
     }
@@ -320,6 +341,89 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.filenameEncodingInput.setText(selected.label, false)
         binding.filenameEncodingLayout.isVisible = true
         binding.filenameEncodingLayout.isEnabled = !isBusy
+    }
+
+    private fun applyPassword() {
+        if (isBusy) return
+        val staged = stagedArchive ?: return
+        val candidate = binding.archivePassword.text?.let { editable ->
+            CharArray(editable.length) { index -> editable[index] }
+        }?.takeIf(CharArray::isNotEmpty)
+        if (candidate == null) {
+            binding.archivePasswordLayout.error = getString(R.string.error_password_required)
+            focusArchivePassword()
+            return
+        }
+        val previous = selectedPassword
+        selectedPassword = candidate
+        binding.archivePasswordLayout.error = null
+        setBusy(true, getString(R.string.text_applying_password), cancellable = true)
+        operationJob = lifecycleScope.launch {
+            try {
+                val (scanned, scannedIndex) = scanStagedArchive(staged)
+                applyScannedArchive(scanned, scannedIndex)
+                previous?.fill('\u0000')
+                resumeRequestedActionAfterScan()
+            } catch (cancelled: CancellationException) {
+                selectedPassword?.fill('\u0000')
+                selectedPassword = previous
+                configurePassword(snapshot)
+                showMessage(getString(R.string.text_cancelled))
+                setBusy(false)
+                throw cancelled
+            } catch (error: Throwable) {
+                selectedPassword?.fill('\u0000')
+                selectedPassword = previous
+                configurePassword(snapshot)
+                val diagnostic = ArchiveFailureDiagnostic.from(
+                    error = error,
+                    formatHint = snapshot?.format ?: ArchiveFormat.ZIP,
+                    stageHint = ArchiveFailureStage.PASSWORD,
+                )
+                if (diagnostic.code == ArchiveFailureCode.WRONG_PASSWORD) {
+                    binding.archivePasswordLayout.error = getString(R.string.error_password_incorrect)
+                }
+                showFailure(
+                    error = error,
+                    headline = headlineForLoadFailure(error),
+                    stageHint = ArchiveFailureStage.PASSWORD,
+                )
+                setBusy(false)
+                renderEntries()
+                focusArchivePassword()
+            }
+        }
+    }
+
+    private fun configurePassword(snapshot: ArchiveSnapshot?) = with(binding) {
+        val hasEncryptedEntries = snapshot?.entries?.any(ArchiveEntry::isEncrypted) == true
+        passwordControls.isVisible = hasEncryptedEntries
+        if (!hasEncryptedEntries) {
+            clearSelectedPassword()
+            archivePassword.text?.clear()
+            archivePasswordLayout.error = null
+            return@with
+        }
+        archivePasswordLayout.helperText = getString(
+            if (snapshot.readerOptions.hasPassword) {
+                R.string.text_password_applied
+            } else {
+                R.string.text_password_needed_for_encrypted_entries
+            },
+        )
+        archivePasswordLayout.isEnabled = !isBusy
+        archivePassword.isEnabled = !isBusy
+        applyPasswordButton.isEnabled = !isBusy
+    }
+
+    private fun focusArchivePassword() {
+        binding.archivePassword.requestFocus()
+        binding.archivePassword.post {
+            getSystemService<InputMethodManager>()?.showSoftInput(
+                binding.archivePassword,
+                InputMethodManager.SHOW_IMPLICIT,
+            )
+        }
     }
 
     private fun renderEntries() {
@@ -395,17 +499,25 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     append('\n')
                     append(getString(R.string.text_modified, formatDate(modified)))
                 }
-                if (!archiveEntry.canExtract) {
+                if (archiveEntry.isEncrypted) {
                     append('\n')
                     append(
-                        if (archiveEntry.isEncrypted) {
-                            getString(R.string.text_encrypted_entry)
-                        } else {
-                            getString(
-                                R.string.text_unsupported_compression_method,
-                                archiveEntry.compressionMethodId,
-                            )
-                        },
+                        getString(
+                            if (archiveEntry.canExtract) {
+                                R.string.text_encrypted_entry_unlocked
+                            } else {
+                                R.string.text_encrypted_entry
+                            },
+                            encryptionMethodLabel(archiveEntry.encryptionMethod),
+                        ),
+                    )
+                } else if (!archiveEntry.canExtract) {
+                    append('\n')
+                    append(
+                        getString(
+                            R.string.text_unsupported_compression_method,
+                            archiveEntry.compressionMethodId,
+                        ),
                     )
                 }
             }
@@ -430,11 +542,24 @@ class ArchiveManagerActivity : AppCompatActivity() {
     }
 
     private fun chooseExtractionDestination() {
-        if (snapshot == null || selectedPaths.isEmpty()) {
+        val archive = snapshot
+        val archiveIndex = index
+        if (archive == null || archiveIndex == null || selectedPaths.isEmpty()) {
             Toast.makeText(this, R.string.error_no_selection, Toast.LENGTH_SHORT).show()
             return
         }
         pendingExtractionPaths = selectedPaths.toSet()
+        val passwordRequired = runCatching {
+            ArchiveSelection.resolve(archive, pendingExtractionPaths, archiveIndex).files.any {
+                it.isEncrypted && !archive.readerOptions.hasPassword
+            }
+        }.getOrDefault(false)
+        if (passwordRequired) {
+            binding.archivePasswordLayout.error = getString(R.string.error_password_required)
+            showMessage(getString(R.string.error_password_required))
+            focusArchivePassword()
+            return
+        }
         outputTreeLauncher.launch(null)
     }
 
@@ -456,7 +581,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
         pendingOutputTreeUri?.let { treeUri ->
             pendingOutputTreeUri = null
             extractTo(treeUri)
-        } ?: request?.let(::startDirectExtractionIfRequested)
+        } ?: if (pendingExtractionPaths.isNotEmpty()) {
+            chooseExtractionDestination()
+        } else {
+            request?.let(::startDirectExtractionIfRequested)
+        }
     }
 
     private fun extractTo(treeUri: Uri) {
@@ -549,6 +678,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.cancelButton.isEnabled = busy && cancellable
         binding.searchInput.isEnabled = !busy
         binding.filenameEncodingLayout.isEnabled = !busy
+        binding.archivePasswordLayout.isEnabled = !busy
+        binding.archivePassword.isEnabled = !busy
+        binding.applyPasswordButton.isEnabled = !busy
         binding.upButton.isEnabled = !busy && currentDirectory.isNotEmpty()
         binding.selectAllButton.isEnabled = !busy && snapshot != null
         binding.extractButton.isEnabled = !busy && snapshot != null && selectedPaths.isNotEmpty()
@@ -602,9 +734,18 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     @Synchronized
     private fun clearStagedArchive() {
+        snapshot?.readerOptions?.clearPassword()
+        snapshot = null
+        clearSelectedPassword()
         val staged = stagedArchive
         stagedArchive = null
         staged?.delete()
+    }
+
+    @Synchronized
+    private fun clearSelectedPassword() {
+        selectedPassword?.fill('\u0000')
+        selectedPassword = null
     }
 
     private fun restoreInstanceState(savedInstanceState: Bundle?) {
@@ -659,6 +800,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
             ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
             ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
             -> getString(R.string.error_archive_limit)
+            ArchiveFailureCode.PASSWORD_REQUIRED -> getString(R.string.error_password_required)
+            ArchiveFailureCode.WRONG_PASSWORD -> getString(R.string.error_password_incorrect)
             else -> getString(R.string.error_archive_invalid)
         }
         else -> getString(R.string.error_cannot_open_archive)
@@ -671,6 +814,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
             ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
             -> getString(R.string.error_archive_limit)
             ArchiveFailureCode.OUTPUT_FAILURE -> getString(R.string.error_cannot_create_output)
+            ArchiveFailureCode.PASSWORD_REQUIRED -> getString(R.string.error_password_required)
+            ArchiveFailureCode.WRONG_PASSWORD -> getString(R.string.error_password_incorrect)
             else -> getString(R.string.error_extraction_failed)
         }
         else -> getString(R.string.error_extraction_failed)
@@ -745,6 +890,16 @@ class ArchiveManagerActivity : AppCompatActivity() {
         return DateFormat.getMediumDateFormat(this).format(date) + " " +
             DateFormat.getTimeFormat(this).format(date)
     }
+
+    private fun encryptionMethodLabel(method: ArchiveEncryptionMethod?): String = getString(
+        when (method) {
+            ArchiveEncryptionMethod.AES -> R.string.text_encryption_method_aes
+            ArchiveEncryptionMethod.ZIP_CRYPTO -> R.string.text_encryption_method_zip_crypto
+            ArchiveEncryptionMethod.OTHER,
+            null,
+            -> R.string.text_encryption_method_other
+        },
+    )
 
     private companion object {
         const val DEFAULT_EXTRACTION_ROOT = "archive"

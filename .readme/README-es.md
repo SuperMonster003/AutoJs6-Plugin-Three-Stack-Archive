@@ -43,6 +43,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP en el ge
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
 - Verificar la estructura ZIP real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.
 - Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.
+- Explorar y extraer ZIP protegidos con ZipCrypto o AES, reintentar una contraseña incorrecta en el mismo lugar y crear opcionalmente ZIP con AES-256 cuyos nombres siguen visibles.
 - Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.
 - Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.
 - Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.
@@ -63,7 +64,7 @@ La versión actual puede crear estos formatos:
 zip
 ```
 
-> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada, 7z, variantes tar, contraseñas, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
+> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, 7z, variantes tar, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
@@ -75,11 +76,11 @@ zip
 
 ### Permisos y datos
 
-El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa usa una sesión breve de archivo de solo lectura vinculada al UID del host y elimina la entrada temporal al cerrar o desvincular; la extracción solo usa el URI temporal del host. La creación de ZIP usa una sesión de archivos vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de integridad y la limpieza de fallos.
+El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa usa una sesión breve de archivo de solo lectura vinculada al UID del host y elimina la entrada temporal al cerrar o desvincular; la extracción solo usa el URI temporal del host. La creación de ZIP usa una sesión de archivos vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Las contraseñas permanecen solo en búferes de memoria que pueden borrarse, nunca se escriben en Bundles, preferencias, registros ni diagnósticos, y se borran al sustituirlas, al terminar una tarea o al destruir la página. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de integridad y la limpieza de fallos.
 
 ### Roadmap
 
-Las tareas y criterios para más formatos, contraseñas y volúmenes, extracción por entrada, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
+Las tareas y criterios para más formatos, volúmenes divididos, extracción por entrada, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -95,16 +96,19 @@ _Sin publicar_
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
+- `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles
 - `Corregido` La lista ZIP usa metadatos y admite preámbulos autoextraíbles, codificaciones antiguas, separadores Windows y más métodos legibles
 - `Corregido` La codificación de nombres ZIP se puede cambiar cuando la detección automática sea incorrecta y la extracción reutiliza la selección
 - `Corregido` Los tamaños desconocidos, URI DocumentsProvider válidos y permisos de escritura adicionales del host ya no bloquean archivos válidos
 - `Corregido` Corregida la exploración y extracción de ZIP en Android 7.x, que fallaba al llamar a API exclusivas de sistemas más recientes
+- `Corregido` Las contraseñas incorrectas ahora se clasifican de forma estable como PASSWORD/WRONG_PASSWORD y las entradas AES v2 con CRC almacenado igual a cero ya no se marcan erróneamente como dañadas
 - `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
 - `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
 - `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material
 - `Mejorado` La salida ZIP pasa por una sesión del host vinculada al UID, usa un archivo temporal del mismo directorio y se confirma atómicamente sin permiso de almacenamiento ni sobrescrituras
 - `Mejorado` Las capacidades del formato y de cada entrada se comprueban de forma uniforme al previsualizar, extraer y crear, por lo que las opciones no disponibles permanecen desactivadas
 - `Mejorado` Los fallos identifican el formato, la etapa, un código estable y el motivo; las compilaciones de depuración permiten copiar el diagnóstico completo
+- `Dependencia` Se añadió Zip4j 2.11.5 con licencia Apache 2.0 para flujos ZIP cifrados, creación AES-256 y la ruta de compatibilidad con Android 7.x
 
 #### v1.0.1
 
@@ -141,4 +145,5 @@ Usa Gradle Wrapper desde la raíz; `version.properties` define los requisitos de
 ### Enlaces
 
 - Documentación de AutoJs6: https://docs.autojs6.com
+- Avisos de software de terceros: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

@@ -33,7 +33,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
             cancellationCheck()
             engine.openReader(source, options = options).use { reader ->
                 detectedFormat = reader.format
-                readerOptions = reader.options
+                readerOptions = reader.options.retainedCopy()
                 reader.entries.forEach { readerEntry ->
                     cancellationCheck()
                     if (entries.size >= limits.maxEntries) {
@@ -65,6 +65,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
                         compressionMethod = readerEntry.compressionMethod,
                         compressionMethodId = readerEntry.compressionMethodId,
                         isEncrypted = readerEntry.isEncrypted,
+                        encryptionMethod = readerEntry.encryptionMethod,
                         capabilities = readerEntry.capabilities,
                         compressedSize = readerEntry.compressedSize,
                         uncompressedSize = readerEntry.size,
@@ -75,6 +76,8 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 }
             }
         } catch (error: ArchiveException) {
+            readerOptions?.clearPassword()
+            readerOptions = null
             val format = detectedFormat
             if (error.format != null || format == null) throw error
             throw ArchiveValidationException(
@@ -85,12 +88,15 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 stage = error.stage,
             )
         } catch (error: ArchiveBackendException) {
+            readerOptions?.clearPassword()
+            readerOptions = null
             fail(
                 code = when (error.failure) {
                     ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureCode.INVALID_SIGNATURE
                     ArchiveBackendFailure.INVALID_OPTIONS ->
                         ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
                     ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureCode.WRONG_PASSWORD
                     ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE
                 },
                 message = when (error.failure) {
@@ -100,6 +106,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
                         "Archive filename encoding is not supported"
                     ArchiveBackendFailure.UNSUPPORTED_METHOD ->
                         "Archive contains an unsupported compression method"
+                    ArchiveBackendFailure.WRONG_PASSWORD -> "Archive password is incorrect"
                     ArchiveBackendFailure.MALFORMED -> "Archive directory metadata is malformed"
                 },
                 cause = error,
@@ -107,12 +114,18 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 stage = error.stage,
             )
         } catch (error: IOException) {
+            readerOptions?.clearPassword()
+            readerOptions = null
             fail(ArchiveFailureCode.MALFORMED_ARCHIVE, "Archive cannot be read", error)
         } catch (error: IllegalArgumentException) {
+            readerOptions?.clearPassword()
+            readerOptions = null
             fail(ArchiveFailureCode.MALFORMED_ARCHIVE, "Archive metadata is malformed", error)
         }
 
         if (source.length() != sourceLength || source.lastModified() != sourceLastModifiedMillis) {
+            readerOptions?.clearPassword()
+            readerOptions = null
             fail(ArchiveFailureCode.SOURCE_CHANGED, "Archive changed while it was being scanned")
         }
         return ArchiveSnapshot(

@@ -31,6 +31,12 @@ enum class ArchiveCompressionMethod {
     OTHER,
 }
 
+enum class ArchiveEncryptionMethod {
+    ZIP_CRYPTO,
+    AES,
+    OTHER,
+}
+
 data class ArchiveEntry(
     /** Portable separator-normalized path without a trailing slash; Unicode spelling is preserved. */
     val path: String,
@@ -42,6 +48,7 @@ data class ArchiveEntry(
     /** Backend-defined method identifier interpreted together with [ArchiveSnapshot.format]. */
     val compressionMethodId: String = compressionMethod.name,
     val isEncrypted: Boolean = false,
+    val encryptionMethod: ArchiveEncryptionMethod? = null,
     val capabilities: ArchiveEntryCapabilities = if (isDirectory) {
         ArchiveEntryCapabilities.DIRECTORY
     } else {
@@ -133,6 +140,7 @@ data class ExtractionResult(
 internal data class ArchiveCreationOptions(
     val outputDisplayName: String,
     val compressionLevel: Int,
+    val password: CharArray? = null,
 )
 
 internal data class ArchiveCreationProgress(

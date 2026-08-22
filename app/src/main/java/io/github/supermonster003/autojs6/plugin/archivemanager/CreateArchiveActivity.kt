@@ -46,6 +46,7 @@ class CreateArchiveActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        if (::binding.isInitialized) binding.password.text?.clear()
         if (isFinishing) {
             val activeJob = operationJob
             activeJob?.cancel()
@@ -109,6 +110,10 @@ class CreateArchiveActivity : AppCompatActivity() {
             }
         }
         outputName.setOnEditorActionListener { _, _, _ ->
+            password.requestFocus()
+            false
+        }
+        password.setOnEditorActionListener { _, _, _ ->
             createArchive()
             true
         }
@@ -143,6 +148,9 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         binding.outputNameLayout.error = null
         binding.outputName.setText(outputDisplayName)
+        val password = binding.password.text?.let { editable ->
+            CharArray(editable.length) { index -> editable[index] }
+        }?.takeIf(CharArray::isNotEmpty)
         currentFocus?.let { focused ->
             getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
@@ -155,7 +163,11 @@ class CreateArchiveActivity : AppCompatActivity() {
                     var lastUiUpdateNanos = 0L
                     archiveEngine.createWriter(selectedFormat, resolvedRequest.hostSession).create(
                         request = resolvedRequest,
-                        options = ArchiveCreationOptions(outputDisplayName, compressionLevel),
+                        options = ArchiveCreationOptions(
+                            outputDisplayName = outputDisplayName,
+                            compressionLevel = compressionLevel,
+                            password = password,
+                        ),
                         checkCancelled = { cancellationContext.ensureActive() },
                         progress = ArchiveCreationProgressListener { update ->
                             val now = System.nanoTime()
@@ -210,6 +222,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                     )
                 }
             } finally {
+                password?.fill('\u0000')
                 operationJob = null
             }
         }
@@ -243,7 +256,7 @@ class CreateArchiveActivity : AppCompatActivity() {
 
         val passwordAvailable = capabilities.password != ArchiveOptionMode.UNSUPPORTED
         passwordLayout.helperText = if (passwordAvailable) {
-            null
+            getString(R.string.text_zip_password_encryption_note)
         } else {
             getString(R.string.text_encryption_unavailable_for_format, formatLabel(format))
         }

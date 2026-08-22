@@ -43,6 +43,7 @@ Archive Manager intègre la navigation, l'extraction et la création de ZIP au g
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
 - Vérifier la structure ZIP réelle et unifier les capacités de prévisualisation, d'extraction et de création, en laissant désactivées les options non prises en charge.
 - Prendre en charge Zip64, les préambules auto-extractibles, les anciens encodages de noms et les séparateurs Windows.
+- Parcourir et extraire les ZIP protégés par ZipCrypto ou AES, réessayer un mot de passe erroné sur place et créer au choix des ZIP chiffrés en AES-256 dont les noms restent visibles.
 - Remplacer l'encodage des noms ZIP quand la détection automatique est incorrecte ; la navigation et l'extraction réutilisent le même choix.
 - Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.
 - Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.
@@ -63,7 +64,7 @@ La version actuelle peut créer les formats suivants:
 zip
 ```
 
-> La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée, 7z, les variantes tar, les mots de passe, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
+> La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, 7z, les variantes tar, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
 
 ### Utilisation
 
@@ -75,11 +76,11 @@ zip
 
 ### Autorisations et données
 
-Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigation native utilise une courte session d'archive en lecture seule liée à l'UID de l'hôte et supprime l'entrée temporaire à la fermeture ou à la déconnexion ; l'extraction utilise uniquement l'URI temporaire de l'hôte. La création de ZIP passe par une session de fichiers liée à l'UID du plugin, lit les cibles par pages et ne peut créer une sortie transactionnelle que dans le dossier parent actuel. La limite fixe de 4 Gio et les seuils de consultation ont été retirés ; l'isolation des chemins, les contrôles d'intégrité et le nettoyage restent actifs.
+Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigation native utilise une courte session d'archive en lecture seule liée à l'UID de l'hôte et supprime l'entrée temporaire à la fermeture ou à la déconnexion ; l'extraction utilise uniquement l'URI temporaire de l'hôte. La création de ZIP passe par une session de fichiers liée à l'UID du plugin, lit les cibles par pages et ne peut créer une sortie transactionnelle que dans le dossier parent actuel. Les mots de passe restent uniquement dans des tampons mémoire effaçables, ne sont jamais écrits dans les Bundles, préférences, journaux ou diagnostics, puis sont effacés après remplacement, fin de tâche ou destruction de la page. La limite fixe de 4 Gio et les seuils de consultation ont été retirés ; l'isolation des chemins, les contrôles d'intégrité et le nettoyage restent actifs.
 
 ### Roadmap
 
-Les tâches et critères pour davantage de formats, les mots de passe et volumes, l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
+Les tâches et critères pour davantage de formats, les volumes fractionnés, l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -95,16 +96,19 @@ _Non publié_
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
+- `Ajout` Navigation et extraction des ZIP chiffrés avec ZipCrypto/AES, nouvelle saisie sur place d'un mot de passe erroné et création facultative de ZIP AES-256 dont les noms restent visibles
 - `Correction` La liste ZIP utilise les métadonnées et accepte les préambules auto-extractibles, les anciens encodages, les séparateurs Windows et davantage de méthodes lisibles
 - `Correction` L'encodage des noms ZIP peut être remplacé si la détection automatique est incorrecte et l'extraction réutilise ce choix
 - `Correction` Les tailles inconnues, les URI DocumentsProvider valides et les droits d'écriture supplémentaires de l'hôte ne bloquent plus une archive valide
 - `Correction` Correction de la consultation et de l'extraction ZIP sous Android 7.x, qui appelaient des API réservées aux systèmes récents
+- `Correction` Les mots de passe erronés sont désormais classés de façon stable sous PASSWORD/WRONG_PASSWORD et les entrées AES v2 avec un CRC stocké nul ne sont plus signalées à tort comme endommagées
 - `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
 - `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
 - `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material
 - `Amélioration` La sortie ZIP passe par une session de l'hôte liée à l'UID, utilise un fichier temporaire du même dossier et est validée atomiquement sans autorisation de stockage ni écrasement
 - `Amélioration` Les capacités du format et de chaque entrée sont vérifiées uniformément pour la prévisualisation, l'extraction et la création afin de laisser les options indisponibles désactivées
 - `Amélioration` Les échecs indiquent le format, l'étape, un code stable et le motif ; les versions de débogage peuvent copier le diagnostic complet
+- `Dépendance` Ajout de Zip4j 2.11.5 sous licence Apache 2.0 pour les flux ZIP chiffrés, la création AES-256 et le chemin de compatibilité Android 7.x
 
 #### v1.0.1
 
@@ -141,4 +145,5 @@ Utilisez le Gradle Wrapper à la racine ; `version.properties` fait foi pour les
 ### Liens
 
 - Documentation AutoJs6: https://docs.autojs6.com
+- Mentions relatives aux logiciels tiers: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

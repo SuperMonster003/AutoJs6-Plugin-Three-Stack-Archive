@@ -1,13 +1,17 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.ParcelFileDescriptor
+import net.lingala.zip4j.io.outputstream.ZipOutputStream
+import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.model.enums.AesKeyStrength
+import net.lingala.zip4j.model.enums.CompressionLevel
+import net.lingala.zip4j.model.enums.CompressionMethod
+import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.util.ArrayDeque
 import java.util.HashSet
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 
 internal class ZipArchiveCreator(
     remoteSession: org.autojs.plugin.explorer.api.IExplorerActionHostSession,
@@ -27,6 +31,9 @@ internal class ZipArchiveCreator(
         val outputName = ArchiveCompressionPolicy.normalizeOutputDisplayName(options.outputDisplayName)
             ?: throw IllegalArgumentException("ZIP output name is invalid")
         val compressionLevel = ArchiveCompressionPolicy.requireCompressionLevel(options.compressionLevel)
+        val passwordChars = options.password
+            ?.takeIf(CharArray::isNotEmpty)
+            ?.clone()
         val transaction = session.prepareOutput(outputName)
         try {
             val descriptor = session.openOutput(transaction.id)
@@ -34,6 +41,7 @@ internal class ZipArchiveCreator(
                 descriptor = descriptor,
                 targets = request.targets,
                 compressionLevel = compressionLevel,
+                password = passwordChars,
                 checkCancelled = checkCancelled,
                 progress = progress,
             )
@@ -51,6 +59,8 @@ internal class ZipArchiveCreator(
                 .exceptionOrNull()
                 ?.let(error::addSuppressed)
             throw error
+        } finally {
+            passwordChars?.fill('\u0000')
         }
     }
 
@@ -58,6 +68,7 @@ internal class ZipArchiveCreator(
         descriptor: ParcelFileDescriptor,
         targets: List<ArchiveCompressionTarget>,
         compressionLevel: Int,
+        password: CharArray?,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): Counters {
@@ -79,8 +90,7 @@ internal class ZipArchiveCreator(
         val writtenNames = HashSet<String>()
         val counters = Counters()
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
-            ZipOutputStream(BufferedOutputStream(rawOutput, BUFFER_SIZE)).use { zipOutput ->
-                zipOutput.setLevel(compressionLevel)
+            ZipOutputStream(BufferedOutputStream(rawOutput, BUFFER_SIZE), password).use { zipOutput ->
                 while (queue.isNotEmpty()) {
                     checkCancelled()
                     when (val item = queue.removeFirst()) {
@@ -90,6 +100,8 @@ internal class ZipArchiveCreator(
                             zipOutput = zipOutput,
                             writtenNames = writtenNames,
                             counters = counters,
+                            compressionLevel = compressionLevel,
+                            encryptFiles = password != null,
                             checkCancelled = checkCancelled,
                             progress = progress,
                         )
@@ -111,6 +123,8 @@ internal class ZipArchiveCreator(
         zipOutput: ZipOutputStream,
         writtenNames: MutableSet<String>,
         counters: Counters,
+        compressionLevel: Int,
+        encryptFiles: Boolean,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ) {
@@ -120,9 +134,14 @@ internal class ZipArchiveCreator(
             ExplorerActionValues.TARGET_DIRECTORY -> {
                 val directoryEntryName = item.entryPath.trimEnd('/') + '/'
                 require(writtenNames.add(directoryEntryName)) { "Duplicate ZIP entry: $directoryEntryName" }
-                val entry = ZipEntry(directoryEntryName)
-                if (item.lastModified > 0L) entry.time = item.lastModified
-                zipOutput.putNextEntry(entry)
+                zipOutput.putNextEntry(
+                    zipParameters(
+                        entryName = directoryEntryName,
+                        lastModified = item.lastModified,
+                        compressionLevel = compressionLevel,
+                        encryptFiles = false,
+                    ),
+                )
                 zipOutput.closeEntry()
                 counters.directories++
                 progress.report(item.entryPath, counters)
@@ -137,9 +156,14 @@ internal class ZipArchiveCreator(
             }
             ExplorerActionValues.TARGET_FILE -> {
                 require(writtenNames.add(item.entryPath)) { "Duplicate ZIP entry: ${item.entryPath}" }
-                val entry = ZipEntry(item.entryPath)
-                if (item.lastModified > 0L) entry.time = item.lastModified
-                zipOutput.putNextEntry(entry)
+                zipOutput.putNextEntry(
+                    zipParameters(
+                        entryName = item.entryPath,
+                        lastModified = item.lastModified,
+                        compressionLevel = compressionLevel,
+                        encryptFiles = encryptFiles,
+                    ),
+                )
                 val sourceDescriptor = session.openFile(item.target.id, item.relativePath)
                 ParcelFileDescriptor.AutoCloseInputStream(sourceDescriptor).use { rawInput ->
                     BufferedInputStream(rawInput, BUFFER_SIZE).use { input ->
@@ -158,6 +182,23 @@ internal class ZipArchiveCreator(
                 progress.report(item.entryPath, counters)
             }
             else -> error("Host returned an unsupported source kind")
+        }
+    }
+
+    private fun zipParameters(
+        entryName: String,
+        lastModified: Long,
+        compressionLevel: Int,
+        encryptFiles: Boolean,
+    ): ZipParameters = ZipParameters().apply {
+        fileNameInZip = entryName
+        compressionMethod = CompressionMethod.DEFLATE
+        this.compressionLevel = CompressionLevel.values().first { it.level == compressionLevel }
+        if (lastModified > 0L) lastModifiedFileTime = lastModified
+        if (encryptFiles) {
+            isEncryptFiles = true
+            encryptionMethod = EncryptionMethod.AES
+            aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
         }
     }
 

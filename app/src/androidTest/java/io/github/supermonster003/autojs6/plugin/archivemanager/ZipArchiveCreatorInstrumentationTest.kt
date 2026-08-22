@@ -12,6 +12,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,16 +27,7 @@ class ZipArchiveCreatorInstrumentationTest {
     fun mixedTargetsDirectoriesAndEmptyDirectoriesProduceAReadableZip() {
         val cacheDirectory = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
         val session = FakeHostSession(cacheDirectory)
-        val request = ArchiveCompressionRequest(
-            requestId = UUID.randomUUID().toString(),
-            parentUri = Uri.parse("content://host/root"),
-            parentDisplayPath = "/storage/emulated/0/Documents",
-            targets = listOf(
-                target("alpha", "alpha.txt", ExplorerActionValues.TARGET_FILE, 5L),
-                target("folder", "folder", ExplorerActionValues.TARGET_DIRECTORY, -1L),
-            ),
-            hostSession = session,
-        )
+        val request = request(session)
 
         val result = ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.ZIP, session).create(
             request = request,
@@ -64,6 +56,55 @@ class ZipArchiveCreatorInstrumentationTest {
         assertTrue(session.committed)
         session.cleanup()
     }
+
+    @Test
+    fun nonEmptyPasswordCreatesAnAes256ZipThatTheReaderCanUnlock() {
+        val cacheDirectory = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
+        val session = FakeHostSession(cacheDirectory)
+        val request = request(session)
+
+        ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.ZIP, session).create(
+            request = request,
+            options = ArchiveCreationOptions(
+                outputDisplayName = "Documents.zip",
+                compressionLevel = 6,
+                password = TEST_PASSWORD.toCharArray(),
+            ),
+            checkCancelled = {},
+            progress = ArchiveCreationProgressListener {},
+        )
+
+        val locked = ArchiveScanner().scan(session.outputFile)
+        val lockedFiles = locked.entries.filterNot(ArchiveEntry::isDirectory)
+        assertTrue(lockedFiles.all(ArchiveEntry::isEncrypted))
+        assertTrue(lockedFiles.none(ArchiveEntry::canExtract))
+        assertTrue(lockedFiles.all { it.encryptionMethod == ArchiveEncryptionMethod.AES })
+        assertTrue(locked.entries.filter(ArchiveEntry::isDirectory).none(ArchiveEntry::isEncrypted))
+
+        val unlocked = ArchiveScanner().scan(
+            session.outputFile,
+            ArchiveReaderOptions(password = TEST_PASSWORD.toCharArray()),
+        )
+        val alpha = unlocked.entries.single { it.path == "alpha.txt" }
+        assertTrue(alpha.canExtract)
+        val output = java.io.ByteArrayOutputStream()
+        ArchiveEntryStreamer(session.outputFile, unlocked).stream(alpha, output)
+        assertArrayEquals("alpha".toByteArray(), output.toByteArray())
+        assertFalse(unlocked.readerOptions.toString().contains(TEST_PASSWORD))
+
+        session.cleanup()
+    }
+
+    private fun request(session: IExplorerActionHostSession) = ArchiveCompressionRequest(
+        requestId = UUID.randomUUID().toString(),
+        parentUri = Uri.parse("content://host/root"),
+        parentDisplayPath = "/storage/emulated/0/Documents",
+        targets = listOf(
+            target("alpha", "alpha.txt", ExplorerActionValues.TARGET_FILE, 5L),
+            target("folder", "folder", ExplorerActionValues.TARGET_DIRECTORY, -1L),
+        ),
+        hostSession = session,
+    )
 
     private fun target(id: String, name: String, kind: Int, size: Long) = ArchiveCompressionTarget(
         id = id,
@@ -169,5 +210,9 @@ class ZipArchiveCreatorInstrumentationTest {
             putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME, "Documents.zip")
             putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH, outputFile.path)
         }
+    }
+
+    private companion object {
+        const val TEST_PASSWORD = "ArchiveManager-Test-2026"
     }
 }

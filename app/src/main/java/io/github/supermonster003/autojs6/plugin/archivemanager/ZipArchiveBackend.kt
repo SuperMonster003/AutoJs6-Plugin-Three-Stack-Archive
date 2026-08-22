@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import net.lingala.zip4j.exception.ZipException as Zip4jException
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import java.io.File
 import java.io.IOException
@@ -21,14 +22,13 @@ internal object ZipArchiveBackend : ArchiveBackend {
         canAdd = false,
         canDelete = false,
         canRename = false,
-        password = ArchiveOptionMode.UNSUPPORTED,
+        password = ArchiveOptionMode.OPTIONAL,
         filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
         splitVolumes = ArchiveOptionMode.UNSUPPORTED,
         compressionLevels = (0..9).toList(),
         filenameCharsetNames = ZipArchiveAccess.supportedFilenameCharsetNames(),
         limitations = setOf(
             ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT,
-            ArchiveFormatLimitation.PASSWORD_UNAVAILABLE,
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
             ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
             ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
@@ -41,17 +41,22 @@ internal object ZipArchiveBackend : ArchiveBackend {
         } catch (error: Exception) {
             throw mapOpenFailure(source, error)
         }
+        val password = options.passwordChars()
         val archive = try {
-            ZipArchiveAccess.open(source, charsetName)
+            ZipArchiveAccess.open(source, charsetName, password)
         } catch (error: Exception) {
             throw mapOpenFailure(source, error)
+        } finally {
+            password?.fill('\u0000')
         }
+        val resolvedOptions = options.resolved(charsetName)
         return try {
             ZipArchiveReader(
                 archive = archive,
-                options = ArchiveReaderOptions(filenameCharsetName = charsetName),
+                options = resolvedOptions,
             )
         } catch (error: Exception) {
+            resolvedOptions.clearPassword()
             runCatching { archive.close() }.exceptionOrNull()?.let(error::addSuppressed)
             throw mapOpenFailure(source, error)
         }
@@ -63,12 +68,20 @@ internal object ZipArchiveBackend : ArchiveBackend {
     private fun mapOpenFailure(source: File, error: Throwable): ArchiveBackendException {
         if (error is ArchiveBackendException) return error
         val invalidOptions = error is UnsupportedCharsetException || error is IllegalCharsetNameException
-        val unsupportedMethod = error is ZipException &&
+        val zip4jError = generateSequence(error) { it.cause }
+            .filterIsInstance<Zip4jException>()
+            .firstOrNull()
+        val wrongPassword = zip4jError?.type == Zip4jException.Type.WRONG_PASSWORD
+        val unsupportedMethod = zip4jError?.type in setOf(
+            Zip4jException.Type.UNKNOWN_COMPRESSION_METHOD,
+            Zip4jException.Type.UNSUPPORTED_ENCRYPTION,
+        ) || error is ZipException &&
             error.message.orEmpty().contains("compression method", ignoreCase = true)
         val invalidSignature = !invalidOptions && !ZipArchiveAccess.hasZipSignature(source)
         val failure = when {
             invalidOptions -> ArchiveBackendFailure.INVALID_OPTIONS
             invalidSignature -> ArchiveBackendFailure.INVALID_SIGNATURE
+            wrongPassword -> ArchiveBackendFailure.WRONG_PASSWORD
             unsupportedMethod -> ArchiveBackendFailure.UNSUPPORTED_METHOD
             else -> ArchiveBackendFailure.MALFORMED
         }
@@ -77,6 +90,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             failure = failure,
             stage = when (failure) {
                 ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureStage.FORMAT_DETECTION
+                ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureStage.PASSWORD
                 ArchiveBackendFailure.INVALID_OPTIONS,
                 ArchiveBackendFailure.MALFORMED,
                 ArchiveBackendFailure.UNSUPPORTED_METHOD,
@@ -85,6 +99,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             message = when (failure) {
                 ArchiveBackendFailure.INVALID_SIGNATURE -> "ZIP signature is not present"
                 ArchiveBackendFailure.INVALID_OPTIONS -> "ZIP filename encoding is not supported"
+                ArchiveBackendFailure.WRONG_PASSWORD -> "ZIP password is incorrect"
                 ArchiveBackendFailure.UNSUPPORTED_METHOD ->
                     "ZIP contains an unsupported compression method"
                 ArchiveBackendFailure.MALFORMED -> "ZIP directory metadata cannot be read"
@@ -102,11 +117,11 @@ private class ZipArchiveReader(
     override val formatCapabilities = ZipArchiveBackend.capabilities
 
     override val entries: List<ArchiveReaderEntry> = archive.entries.mapIndexed { ordinal, entry ->
-        val canReadData = entry.canExtract && !entry.isEncrypted
+        val canReadData = entry.canExtract && (!entry.isEncrypted || options.hasPassword)
         val limitations = buildSet {
             if (entry.isDirectory) add(ArchiveEntryLimitation.DIRECTORY_HAS_NO_DATA)
             if (entry.isEncrypted) add(ArchiveEntryLimitation.ENCRYPTED)
-            if (!entry.isDirectory && !entry.isEncrypted && !entry.canExtract) {
+            if (!entry.isDirectory && !entry.canExtract) {
                 add(ArchiveEntryLimitation.UNSUPPORTED_COMPRESSION_METHOD)
             }
             add(ArchiveEntryLimitation.MUTATION_UNAVAILABLE)
@@ -122,6 +137,7 @@ private class ZipArchiveReader(
             },
             compressionMethodId = entry.method.toString(),
             isEncrypted = entry.isEncrypted,
+            encryptionMethod = entry.encryptionMethod,
             capabilities = ArchiveEntryCapabilities(
                 canOpen = !entry.isDirectory && canReadData,
                 canExtract = entry.isDirectory || canReadData,
@@ -131,7 +147,7 @@ private class ZipArchiveReader(
             ),
             compressedSize = entry.compressedSize,
             size = entry.size,
-            crc = entry.crc.takeIf { it >= 0L },
+            crc = entry.crc,
             time = entry.time.takeIf { it >= 0L },
             backendToken = entry,
         )
@@ -142,7 +158,22 @@ private class ZipArchiveReader(
             ?: throw IllegalArgumentException("Archive entry belongs to a different backend")
         val expected = entries.getOrNull(entry.ordinal)
         require(expected === entry) { "Archive entry does not belong to this reader" }
-        require(entry.capabilities.canExtract) { "Archive entry data cannot be read" }
+        if (entry.isEncrypted && !options.hasPassword) {
+            throw ArchiveExtractionException(
+                code = ArchiveFailureCode.PASSWORD_REQUIRED,
+                message = "ZIP entry requires a password",
+                format = format,
+                stage = ArchiveFailureStage.PASSWORD,
+            )
+        }
+        if (!entry.capabilities.canExtract) {
+            throw ArchiveExtractionException(
+                code = ArchiveFailureCode.UNSUPPORTED_METHOD,
+                message = "ZIP entry data cannot be read",
+                format = format,
+                stage = ArchiveFailureStage.ENTRY_DATA,
+            )
+        }
         return try {
             archive.getInputStream(zipEntry)
         } catch (error: IOException) {
@@ -152,5 +183,11 @@ private class ZipArchiveReader(
         }
     }
 
-    override fun close() = archive.close()
+    override fun close() {
+        try {
+            archive.close()
+        } finally {
+            options.clearPassword()
+        }
+    }
 }

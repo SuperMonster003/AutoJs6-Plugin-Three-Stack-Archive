@@ -33,7 +33,7 @@
     <string name="error_archive_file_name_invalid">請輸入有效的壓縮檔名稱</string>
     <string name="error_compression_failed">壓縮失敗</string>
     <string name="error_compression_request_invalid">壓縮請求或主程式工作階段無效</string>
-    <string name="text_advanced_compression_pending">密碼、分割檔、檔名加密、個別壓縮及刪除來源項目會在相應的交易式後端可用後開放.</string>
+    <string name="text_advanced_compression_pending">分割檔、檔名加密、個別壓縮及刪除來源項目會在相應的交易式後端可用後開放.</string>
     <string name="text_archive_file_name">檔名</string>
     <string name="text_archive_format">格式</string>
     <string name="text_compress_separately">個別壓縮每個檔案和資料夾</string>
@@ -83,4 +83,18 @@
     <string name="text_filename_encoding_automatic">自動偵測</string>
     <string name="text_filename_encoding_automatic_detected">自動偵測 (傳統名稱備援: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">正在重新索引壓縮檔...</string>
+    <string name="error_password_incorrect">壓縮檔密碼不正確</string>
+    <string name="error_password_required">請輸入壓縮檔密碼</string>
+    <string name="error_with_reason">%1$s\n原因: %2$s</string>
+    <string name="text_apply_password">套用</string>
+    <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在套用密碼...</string>
+    <string name="text_archive_password">壓縮檔密碼</string>
+    <string name="text_encrypted_entry">加密項目 (%1$s); 請輸入壓縮檔密碼以開啟</string>
+    <string name="text_encrypted_entry_unlocked">加密項目 (%1$s); 密碼已套用</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">其他加密方式</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
+    <string name="text_password_applied">密碼已套用, 可隨時更新.</string>
+    <string name="text_password_needed_for_encrypted_entries">輸入密碼後可開啟及解壓縮加密項目.</string>
+    <string name="text_zip_password_encryption_note">非空白 ZIP 密碼使用 AES-256 加密. 檔名仍然可見.</string>
 </resources>

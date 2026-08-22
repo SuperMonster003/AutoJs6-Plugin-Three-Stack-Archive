@@ -16,6 +16,7 @@
     "Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.",
     "Vérifier la structure ZIP réelle et unifier les capacités de prévisualisation, d'extraction et de création, en laissant désactivées les options non prises en charge.",
     "Prendre en charge Zip64, les préambules auto-extractibles, les anciens encodages de noms et les séparateurs Windows.",
+    "Parcourir et extraire les ZIP protégés par ZipCrypto ou AES, réessayer un mot de passe erroné sur place et créer au choix des ZIP chiffrés en AES-256 dont les noms restent visibles.",
     "Remplacer l'encodage des noms ZIP quand la détection automatique est incorrecte ; la navigation et l'extraction réutilisent le même choix.",
     "Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.",
     "Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.",
@@ -25,7 +26,7 @@
   "h3_supported_formats": "Formats actuels",
   "p_supported_formats": "La version actuelle reconnaît les extensions suivantes de la famille ZIP",
   "p_creatable_formats": "La version actuelle peut créer les formats suivants",
-  "p_plugin_scope": "La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée, 7z, les variantes tar, les mots de passe, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.",
+  "p_plugin_scope": "La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, 7z, les variantes tar, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.",
   "h3_usage": "Utilisation",
   "usage_steps": [
     "Installez le plugin et activez-le dans le centre de plugins AutoJs6.",
@@ -35,8 +36,8 @@
     "Pour créer un ZIP, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure."
   ],
   "h3_security": "Autorisations et données",
-  "p_security": "Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigation native utilise une courte session d'archive en lecture seule liée à l'UID de l'hôte et supprime l'entrée temporaire à la fermeture ou à la déconnexion ; l'extraction utilise uniquement l'URI temporaire de l'hôte. La création de ZIP passe par une session de fichiers liée à l'UID du plugin, lit les cibles par pages et ne peut créer une sortie transactionnelle que dans le dossier parent actuel. La limite fixe de 4 Gio et les seuils de consultation ont été retirés ; l'isolation des chemins, les contrôles d'intégrité et le nettoyage restent actifs.",
-  "p_roadmap": "Les tâches et critères pour davantage de formats, les mots de passe et volumes, l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.",
+  "p_security": "Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigation native utilise une courte session d'archive en lecture seule liée à l'UID de l'hôte et supprime l'entrée temporaire à la fermeture ou à la déconnexion ; l'extraction utilise uniquement l'URI temporaire de l'hôte. La création de ZIP passe par une session de fichiers liée à l'UID du plugin, lit les cibles par pages et ne peut créer une sortie transactionnelle que dans le dossier parent actuel. Les mots de passe restent uniquement dans des tampons mémoire effaçables, ne sont jamais écrits dans les Bundles, préférences, journaux ou diagnostics, puis sont effacés après remplacement, fin de tâche ou destruction de la page. La limite fixe de 4 Gio et les seuils de consultation ont été retirés ; l'isolation des chemins, les contrôles d'intégrité et le nettoyage restent actifs.",
+  "p_roadmap": "Les tâches et critères pour davantage de formats, les volumes fractionnés, l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.",
   "h3_release_history": "Notes de version",
   "h5_for_more_release_history": "Historique complet",
   "h3_build": "Compilation",
@@ -44,5 +45,6 @@
   "p_build_params": "Utilisez le Gradle Wrapper à la racine ; `version.properties` fait foi pour les exigences SDK et JDK",
   "h3_links": "Liens",
   "text_link_autojs6_docs": "Documentation AutoJs6",
+  "text_link_third_party_notices": "Mentions relatives aux logiciels tiers",
   "text_link_android_saf": "Android Storage Access Framework"
 }

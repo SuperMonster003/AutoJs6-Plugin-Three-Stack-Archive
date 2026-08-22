@@ -12,4 +12,6 @@ All fixture inputs are synthetic text owned by this project. They contain no use
 
 Run the documented command from the repository root with the matching producer version. Then update the manifest digest and run `:app:testDebugUnitTest`.
 
+Encrypted fixtures use the public test password recorded in `fixtures.json`. It exists only to make the corpus reproducible and must not be reused for personal data.
+
 Generated archives are binary test data and must not be edited manually.

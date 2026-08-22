@@ -83,4 +83,5 @@
 ### {{ h3_links }}
 
 - {{ text_link_autojs6_docs }}: {{ docs_autojs6_url }}
+- {{ text_link_third_party_notices }}: [THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md)
 - {{ text_link_android_saf }}: https://developer.android.com/guide/topics/providers/document-provider

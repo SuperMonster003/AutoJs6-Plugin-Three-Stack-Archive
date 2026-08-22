@@ -13,6 +13,8 @@
     <string name="error_cleanup_failed">Cleanup failed; partial output may remain</string>
     <string name="error_extraction_failed">Extraction failed</string>
     <string name="error_no_selection">Select at least one entry</string>
+    <string name="error_password_incorrect">The archive password is incorrect</string>
+    <string name="error_password_required">Enter the archive password</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
     <string name="plugin_description">File manager plugin. Open, extract, and create ZIP archives</string>
@@ -20,7 +22,11 @@
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Cleaning up partial output...</string>
     <string name="text_extract_selected">Extract selected</string>
     <string name="text_extracting">Extracting %1$d of %2$d</string>
-    <string name="text_encrypted_entry">Encrypted entry; password support is not available yet</string>
+    <string name="text_encrypted_entry">Encrypted entry (%1$s); enter the archive password to open</string>
+    <string name="text_encrypted_entry_unlocked">Encrypted entry (%1$s); password applied</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">Other encryption</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Loading archive...</string>
     <string name="text_loading_progress">%1$s of %2$s</string>
     <string name="text_modified">Modified: %1$s</string>
@@ -35,9 +41,12 @@
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
-    <string name="text_advanced_compression_pending">Password, split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
+    <string name="text_advanced_compression_pending">Split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
+    <string name="text_apply_password">Apply</string>
+    <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>
     <string name="text_archive_file_name">File name</string>
     <string name="text_archive_format">Format</string>
+    <string name="text_archive_password">Archive password</string>
     <string name="text_compress_separately">Compress each item separately</string>
     <string name="text_compression_level">Compression level</string>
     <string name="text_compression_level_fast">Fast</string>
@@ -53,6 +62,8 @@
     <string name="text_none">None</string>
     <string name="text_output_path">Path</string>
     <string name="text_password">Password</string>
+    <string name="text_password_applied">Password applied. You can update it at any time.</string>
+    <string name="text_password_needed_for_encrypted_entries">Enter a password to open and extract encrypted entries.</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparing compression...</string>
     <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
     <string name="text_split_volume">Split volume (MiB)</string>
@@ -85,4 +96,5 @@
     <string name="text_filename_encoding_automatic">Automatic</string>
     <string name="text_filename_encoding_automatic_detected">Automatic (legacy fallback: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexing archive...</string>
+    <string name="text_zip_password_encryption_note">Non-empty ZIP passwords use AES-256. File names remain visible.</string>
 </resources>

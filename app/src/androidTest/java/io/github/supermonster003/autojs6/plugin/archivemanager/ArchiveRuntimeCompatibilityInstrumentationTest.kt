@@ -4,6 +4,10 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
+import net.lingala.zip4j.ZipFile
+import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.model.enums.AesKeyStrength
+import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -83,5 +87,54 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
         } finally {
             source.delete()
         }
+    }
+
+    @Test
+    fun aesAndZipCryptoEntriesAreReadableOnTheDeviceRuntime() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val expected = "encrypted-runtime-check".toByteArray()
+
+        listOf(EncryptionMethod.AES, EncryptionMethod.ZIP_STANDARD).forEach { encryption ->
+            val source = File(context.cacheDir, "encrypted-${encryption.name}-${UUID.randomUUID()}.zip")
+            val payload = File(context.cacheDir, "payload-${UUID.randomUUID()}.txt")
+            try {
+                payload.writeBytes(expected)
+                val parameters = ZipParameters().apply {
+                    fileNameInZip = "payload.txt"
+                    isEncryptFiles = true
+                    encryptionMethod = encryption
+                    aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
+                }
+                ZipFile(source, TEST_PASSWORD.toCharArray()).use { archive ->
+                    archive.addFile(payload, parameters)
+                }
+
+                val locked = ArchiveScanner().scan(source).entries.single()
+                assertTrue(locked.isEncrypted)
+                assertTrue(!locked.canExtract)
+
+                val unlocked = ArchiveScanner().scan(
+                    source,
+                    ArchiveReaderOptions(password = TEST_PASSWORD.toCharArray()),
+                )
+                val entry = unlocked.entries.single()
+                assertTrue(entry.canExtract)
+                ArchiveEngine.DEFAULT.openReader(
+                    source = source,
+                    format = unlocked.format,
+                    options = unlocked.readerOptions,
+                ).use { reader ->
+                    val liveEntry = requireNotNull(reader.entryAt(entry.ordinal))
+                    assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
+                }
+            } finally {
+                payload.delete()
+                source.delete()
+            }
+        }
+    }
+
+    private companion object {
+        const val TEST_PASSWORD = "ArchiveManager-Test-2026"
     }
 }

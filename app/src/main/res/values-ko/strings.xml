@@ -20,7 +20,7 @@
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">일부 출력을 정리하는 중...</string>
     <string name="text_extract_selected">선택 항목 압축 풀기</string>
     <string name="text_extracting">%2$d개 중 %1$d개 압축 푸는 중</string>
-    <string name="text_encrypted_entry">암호화된 항목입니다. 비밀번호는 아직 지원되지 않습니다</string>
+    <string name="text_encrypted_entry">암호화된 항목(%1$s)입니다. 열려면 압축 파일 비밀번호를 입력하세요</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">압축 파일을 불러오는 중...</string>
     <string name="text_loading_progress">%2$s 중 %1$s</string>
     <string name="text_modified">수정: %1$s</string>
@@ -35,7 +35,7 @@
     <string name="error_archive_file_name_invalid">올바른 압축 파일 이름을 입력하세요</string>
     <string name="error_compression_failed">압축에 실패했습니다</string>
     <string name="error_compression_request_invalid">압축 요청 또는 호스트 세션이 올바르지 않습니다</string>
-    <string name="text_advanced_compression_pending">비밀번호, 분할 압축, 파일 이름 암호화, 개별 압축 및 원본 삭제는 안전한 트랜잭션 백엔드가 제공될 때까지 비활성화됩니다.</string>
+    <string name="text_advanced_compression_pending">분할 압축, 파일 이름 암호화, 개별 압축 및 원본 삭제는 안전한 트랜잭션 백엔드가 제공될 때까지 비활성화됩니다.</string>
     <string name="text_archive_file_name">파일 이름</string>
     <string name="text_archive_format">형식</string>
     <string name="text_compress_separately">각 항목을 개별적으로 압축</string>
@@ -85,4 +85,16 @@
     <string name="text_filename_encoding_automatic">자동 감지</string>
     <string name="text_filename_encoding_automatic_detected">자동 감지 (기존 이름 대체: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">압축 파일을 다시 색인하는 중...</string>
+    <string name="error_password_incorrect">압축 파일 비밀번호가 올바르지 않습니다</string>
+    <string name="error_password_required">압축 파일 비밀번호를 입력하세요</string>
+    <string name="text_apply_password">적용</string>
+    <string name="text_applying_password" tools:ignore="TypographyEllipsis">비밀번호 적용 중...</string>
+    <string name="text_archive_password">압축 파일 비밀번호</string>
+    <string name="text_encrypted_entry_unlocked">암호화된 항목(%1$s)입니다. 비밀번호가 적용되었습니다</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">기타 암호화</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
+    <string name="text_password_applied">비밀번호가 적용되었습니다. 언제든지 변경할 수 있습니다.</string>
+    <string name="text_password_needed_for_encrypted_entries">암호화된 항목을 열고 압축 해제하려면 비밀번호를 입력하세요.</string>
+    <string name="text_zip_password_encryption_note">비어 있지 않은 ZIP 비밀번호에는 AES-256을 사용합니다. 파일 이름은 계속 표시됩니다.</string>
 </resources>

@@ -1,8 +1,15 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.Build
+import net.lingala.zip4j.ZipFile as Zip4jFile
+import net.lingala.zip4j.exception.ZipException as Zip4jException
+import net.lingala.zip4j.model.FileHeader
+import net.lingala.zip4j.model.enums.AesVersion
+import net.lingala.zip4j.model.enums.CompressionMethod as Zip4jCompressionMethod
+import net.lingala.zip4j.model.enums.EncryptionMethod as Zip4jEncryptionMethod
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipFile as CommonsZipFile
+import java.io.FilterInputStream
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -12,9 +19,8 @@ import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
+import java.util.Collections
 import java.util.Locale
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile as PlatformZipFile
 
 /** Backend-neutral ZIP metadata used by the scanner and extractor. */
 internal data class ZipEntryMetadata(
@@ -22,10 +28,11 @@ internal data class ZipEntryMetadata(
     val isDirectory: Boolean,
     val method: Int,
     val isEncrypted: Boolean,
+    val encryptionMethod: ArchiveEncryptionMethod?,
     val canExtract: Boolean,
     val compressedSize: Long,
     val size: Long,
-    val crc: Long,
+    val crc: Long?,
     val time: Long,
     internal val backendToken: Any,
     internal val rawName: ByteArray? = null,
@@ -45,20 +52,28 @@ internal interface OpenZipArchive : Closeable {
 internal object ZipArchiveAccess {
 
     fun detectCharset(source: File, locale: Locale = Locale.getDefault()): Charset =
-        if (requiresPlatformBackend()) {
-            detectPlatformCharset(source, locale)
+        if (requiresZip4jBackend()) {
+            detectZip4jCharset(source, locale)
         } else {
             detectCommonsCharset(source, locale)
         }
 
-    fun open(source: File, charsetName: String?): OpenZipArchive {
-        val charset = charsetName
-            ?.let(Charset::forName)
-            ?: detectCharset(source)
-        return if (requiresPlatformBackend()) {
-            openPlatform(source, charset)
-        } else {
-            openCommons(source, charset)
+    fun open(
+        source: File,
+        charsetName: String?,
+        password: CharArray? = null,
+    ): OpenZipArchive {
+        try {
+            val charset = charsetName
+                ?.let(Charset::forName)
+                ?: detectCharset(source)
+            return if (requiresZip4jBackend()) {
+                Zip4jOpenZipArchive(source, charset, password)
+            } else {
+                openCommons(source, charset, password)
+            }
+        } finally {
+            password?.fill('\u0000')
         }
     }
 
@@ -95,7 +110,7 @@ internal object ZipArchiveAccess {
     }
 
     private fun detectCommonsCharset(source: File, locale: Locale): Charset {
-        val rawNames = openCommons(source, CP437).use { archive ->
+        val rawNames = openCommons(source, CP437, null).use { archive ->
             archive.entries.asSequence()
                 .filterNot(ZipEntryMetadata::usesUtf8ForNames)
                 .filter(ZipEntryMetadata::nameFromOriginalBytes)
@@ -115,18 +130,15 @@ internal object ZipArchiveAccess {
     }
 
     /**
-     * Android 7's platform ZIP reader supports a caller-supplied legacy charset. Trying the
-     * candidates also rejects byte sequences that a charset cannot decode.
+     * Android 7 uses Zip4j because Commons Compress calls FileTime methods that are absent on
+     * that platform version. Candidate scoring preserves the same filename-encoding behavior.
      */
-    private fun detectPlatformCharset(source: File, locale: Locale): Charset {
+    private fun detectZip4jCharset(source: File, locale: Locale): Charset {
         return charsetCandidates(locale)
             .mapIndexedNotNull { index, charset ->
                 val names = runCatching {
-                    PlatformZipFile(source, charset).use { zipFile ->
-                        buildList {
-                            val entries = zipFile.entries()
-                            while (entries.hasMoreElements()) add(entries.nextElement().name)
-                        }
+                    Zip4jEntryAccess(source, charset, null).use { access ->
+                        access.headers.map(FileHeader::getFileName)
                     }
                 }.getOrNull() ?: return@mapIndexedNotNull null
                 val score = names.sumOf { textQuality(it, locale) }
@@ -139,7 +151,11 @@ internal object ZipArchiveAccess {
 
     /** Avoids the Path-based Commons builder branch and gives the archive ownership of the channel. */
     @Suppress("DEPRECATION")
-    private fun openCommons(source: File, charset: Charset): OpenZipArchive {
+    private fun openCommons(
+        source: File,
+        charset: Charset,
+        password: CharArray?,
+    ): OpenZipArchive {
         val channel = RandomAccessFile(source, "r").channel
         val zipFile = try {
             CommonsZipFile(channel, charset.name())
@@ -148,18 +164,15 @@ internal object ZipArchiveAccess {
             throw error
         }
         return try {
-            CommonsOpenZipArchive(zipFile)
+            CommonsOpenZipArchive(zipFile, source, charset, password)
         } catch (error: Throwable) {
             runCatching { zipFile.close() }.exceptionOrNull()?.let(error::addSuppressed)
             throw error
         }
     }
 
-    private fun openPlatform(source: File, charset: Charset): OpenZipArchive =
-        PlatformOpenZipArchive(PlatformZipFile(source, charset))
-
     /** Commons Compress 1.27+ calls ZipEntry FileTime methods absent from Android 7.x. */
-    private fun requiresPlatformBackend(): Boolean {
+    private fun requiresZip4jBackend(): Boolean {
         val isAndroidRuntime =
             System.getProperty("java.runtime.name").equals("Android Runtime", ignoreCase = true) ||
                 System.getProperty("java.vm.name").orEmpty().contains("Dalvik", ignoreCase = true)
@@ -290,28 +303,130 @@ internal object ZipArchiveAccess {
 
 private class CommonsOpenZipArchive(
     private val zipFile: CommonsZipFile,
+    source: File,
+    charset: Charset,
+    password: CharArray?,
 ) : OpenZipArchive {
-    override val entries: List<ZipEntryMetadata> = buildList {
-        val sourceEntries = zipFile.entries
-        while (sourceEntries.hasMoreElements()) {
-            val entry = sourceEntries.nextElement()
-            add(
+    private val sourceEntries = buildList {
+        val entries = zipFile.entries
+        while (entries.hasMoreElements()) add(entries.nextElement())
+    }
+    private val encryptedEntryAccess: Zip4jEntryAccess?
+    override val entries: List<ZipEntryMetadata>
+
+    init {
+        var openedEncryptedAccess: Zip4jEntryAccess? = null
+        try {
+            openedEncryptedAccess = if (sourceEntries.any { it.generalPurposeBit.usesEncryption() }) {
+                Zip4jEntryAccess(source, charset, password)
+            } else {
+                null
+            }
+            entries = buildList {
+                sourceEntries.forEachIndexed { ordinal, entry ->
+                    val encryptedHeader = if (entry.generalPurposeBit.usesEncryption()) {
+                        openedEncryptedAccess?.claimHeader(ordinal, entry.name)
+                    } else {
+                        null
+                    }
+                    add(
+                        ZipEntryMetadata(
+                            name = entry.name,
+                            isDirectory = entry.isDirectory,
+                            method = encryptedHeader?.actualCompressionMethodCode() ?: entry.method,
+                            isEncrypted = entry.generalPurposeBit.usesEncryption(),
+                            encryptionMethod = encryptedHeader?.archiveEncryptionMethod(),
+                            canExtract = if (entry.generalPurposeBit.usesEncryption()) {
+                                encryptedHeader?.canExtractWithZip4j() == true
+                            } else {
+                                zipFile.canReadEntryData(entry)
+                            },
+                            compressedSize = entry.compressedSize,
+                            size = entry.size,
+                            crc = if (encryptedHeader != null) {
+                                encryptedHeader.archiveCrc()
+                            } else {
+                                entry.crc.takeIf { it >= 0L }
+                            },
+                            time = entry.time,
+                            backendToken = CommonsZipEntryToken(entry, encryptedHeader),
+                            rawName = entry.rawName,
+                            usesUtf8ForNames = entry.generalPurposeBit.usesUTF8ForNames(),
+                            nameFromOriginalBytes = entry.nameSource == ZipArchiveEntry.NameSource.NAME,
+                        ),
+                    )
+                }
+            }
+            encryptedEntryAccess = openedEncryptedAccess
+        } catch (error: Throwable) {
+            runCatching { openedEncryptedAccess?.close() }
+                .exceptionOrNull()
+                ?.let(error::addSuppressed)
+            throw error
+        }
+    }
+    private val entriesByName = entries.associateBy(ZipEntryMetadata::name)
+
+    override fun getEntry(name: String): ZipEntryMetadata? = entriesByName[name]
+
+    override fun getInputStream(entry: ZipEntryMetadata): InputStream {
+        val token = entry.backendToken as CommonsZipEntryToken
+        return token.encryptedHeader?.let { encryptedHeader ->
+            checkNotNull(encryptedEntryAccess).getInputStream(encryptedHeader)
+        } ?: zipFile.getInputStream(token.commonsEntry)
+    }
+
+    override fun close() {
+        var failure: Throwable? = null
+        try {
+            encryptedEntryAccess?.close()
+        } catch (error: Throwable) {
+            failure = error
+        }
+        try {
+            zipFile.close()
+        } catch (error: Throwable) {
+            failure?.addSuppressed(error) ?: run { failure = error }
+        }
+        failure?.let { throw it }
+    }
+}
+
+private data class CommonsZipEntryToken(
+    val commonsEntry: ZipArchiveEntry,
+    val encryptedHeader: FileHeader?,
+)
+
+private class Zip4jOpenZipArchive(
+    source: File,
+    charset: Charset,
+    password: CharArray?,
+) : OpenZipArchive {
+    private val access: Zip4jEntryAccess
+    override val entries: List<ZipEntryMetadata>
+
+    init {
+        val openedAccess = Zip4jEntryAccess(source, charset, password)
+        try {
+            entries = openedAccess.headers.map { header ->
                 ZipEntryMetadata(
-                    name = entry.name,
-                    isDirectory = entry.isDirectory,
-                    method = entry.method,
-                    isEncrypted = entry.generalPurposeBit.usesEncryption(),
-                    canExtract = zipFile.canReadEntryData(entry),
-                    compressedSize = entry.compressedSize,
-                    size = entry.size,
-                    crc = entry.crc,
-                    time = entry.time,
-                    backendToken = entry,
-                    rawName = entry.rawName,
-                    usesUtf8ForNames = entry.generalPurposeBit.usesUTF8ForNames(),
-                    nameFromOriginalBytes = entry.nameSource == ZipArchiveEntry.NameSource.NAME,
-                ),
-            )
+                    name = header.fileName,
+                    isDirectory = header.isDirectory,
+                    method = header.actualCompressionMethodCode(),
+                    isEncrypted = header.isEncrypted,
+                    encryptionMethod = header.archiveEncryptionMethod(),
+                    canExtract = header.canExtractWithZip4j(),
+                    compressedSize = header.compressedSize,
+                    size = header.uncompressedSize,
+                    crc = header.archiveCrc(),
+                    time = header.lastModifiedTimeEpoch,
+                    backendToken = header,
+                )
+            }
+            access = openedAccess
+        } catch (error: Throwable) {
+            runCatching { openedAccess.close() }.exceptionOrNull()?.let(error::addSuppressed)
+            throw error
         }
     }
     private val entriesByName = entries.associateBy(ZipEntryMetadata::name)
@@ -319,41 +434,151 @@ private class CommonsOpenZipArchive(
     override fun getEntry(name: String): ZipEntryMetadata? = entriesByName[name]
 
     override fun getInputStream(entry: ZipEntryMetadata): InputStream =
-        zipFile.getInputStream(entry.backendToken as ZipArchiveEntry)
+        access.getInputStream(entry.backendToken as FileHeader)
 
-    override fun close() = zipFile.close()
+    override fun close() = access.close()
 }
 
-private class PlatformOpenZipArchive(
-    private val zipFile: PlatformZipFile,
-) : OpenZipArchive {
-    override val entries: List<ZipEntryMetadata> = buildList {
-        val sourceEntries = zipFile.entries()
-        while (sourceEntries.hasMoreElements()) {
-            val entry = sourceEntries.nextElement()
-            add(
-                ZipEntryMetadata(
-                    name = entry.name,
-                    isDirectory = entry.isDirectory,
-                    method = entry.method,
-                    // The Android 7 platform API does not expose the general-purpose ZIP flags.
-                    isEncrypted = false,
-                    canExtract = entry.method == ZipEntry.STORED || entry.method == ZipEntry.DEFLATED,
-                    compressedSize = entry.compressedSize,
-                    size = entry.size,
-                    crc = entry.crc,
-                    time = entry.time,
-                    backendToken = entry,
-                ),
-            )
+/** Owns the password-bearing Zip4j handle used for encrypted entry streams. */
+private class Zip4jEntryAccess(
+    source: File,
+    charset: Charset,
+    password: CharArray?,
+) : Closeable {
+    private val passwordChars = password?.clone()
+    private val zipFile = Zip4jFile(source, passwordChars).apply { setCharset(charset) }
+    private val claimedHeaders = Collections.newSetFromMap(
+        java.util.IdentityHashMap<FileHeader, Boolean>(),
+    )
+
+    val headers: List<FileHeader> = zipFile.fileHeaders
+
+    init {
+        try {
+            validatePasswordIfProvided()
+        } catch (error: Throwable) {
+            runCatching { zipFile.close() }.exceptionOrNull()?.let(error::addSuppressed)
+            passwordChars?.fill('\u0000')
+            throw error
         }
     }
-    private val entriesByName = entries.associateBy(ZipEntryMetadata::name)
 
-    override fun getEntry(name: String): ZipEntryMetadata? = entriesByName[name]
+    fun claimHeader(ordinal: Int, name: String): FileHeader? {
+        val ordinalMatch = headers.getOrNull(ordinal)
+            ?.takeIf { it !in claimedHeaders }
+        val result = ordinalMatch ?: headers.firstOrNull {
+            it.fileName == name && it !in claimedHeaders
+        }
+        result?.let(claimedHeaders::add)
+        return result
+    }
 
-    override fun getInputStream(entry: ZipEntryMetadata): InputStream =
-        zipFile.getInputStream(entry.backendToken as ZipEntry)
+    fun getInputStream(header: FileHeader): InputStream = try {
+        Zip4jFailureMappingInputStream(zipFile.getInputStream(header))
+    } catch (error: IOException) {
+        throw error.asArchiveEntryException()
+    }
 
-    override fun close() = zipFile.close()
+    private fun validatePasswordIfProvided() {
+        if (passwordChars == null) return
+        val encryptedHeader = headers.firstOrNull {
+            it.isEncrypted && !it.isDirectory && it.canExtractWithZip4j()
+        } ?: return
+        zipFile.getInputStream(encryptedHeader).use { }
+    }
+
+    override fun close() {
+        try {
+            zipFile.close()
+        } finally {
+            passwordChars?.fill('\u0000')
+        }
+    }
 }
+
+private class Zip4jFailureMappingInputStream(
+    input: InputStream,
+) : FilterInputStream(input) {
+    override fun read(): Int = mapFailure { super.read() }
+
+    override fun read(buffer: ByteArray): Int = mapFailure { super.read(buffer) }
+
+    override fun read(buffer: ByteArray, offset: Int, length: Int): Int =
+        mapFailure { super.read(buffer, offset, length) }
+
+    override fun skip(byteCount: Long): Long = mapFailure { super.skip(byteCount) }
+
+    override fun close() = mapFailure { super.close() }
+
+    private inline fun <T> mapFailure(action: () -> T): T = try {
+        action()
+    } catch (error: IOException) {
+        throw error.asArchiveEntryException()
+    }
+}
+
+private fun FileHeader.actualCompressionMethodCode(): Int =
+    if (compressionMethod == Zip4jCompressionMethod.AES_INTERNAL_ONLY) {
+        aesExtraDataRecord?.compressionMethod?.code ?: compressionMethod.code
+    } else {
+        compressionMethod.code
+    }
+
+private fun FileHeader.archiveEncryptionMethod(): ArchiveEncryptionMethod? = when {
+    !isEncrypted -> null
+    encryptionMethod == Zip4jEncryptionMethod.ZIP_STANDARD -> ArchiveEncryptionMethod.ZIP_CRYPTO
+    encryptionMethod == Zip4jEncryptionMethod.AES -> ArchiveEncryptionMethod.AES
+    else -> ArchiveEncryptionMethod.OTHER
+}
+
+private fun FileHeader.canExtractWithZip4j(): Boolean =
+    (!isEncrypted || encryptionMethod in ZIP4J_SUPPORTED_ENCRYPTION_METHODS) &&
+        actualCompressionMethodCode() in ZIP4J_SUPPORTED_COMPRESSION_METHOD_CODES
+
+private fun FileHeader.archiveCrc(): Long? =
+    crc.takeIf {
+        it >= 0L &&
+            !(encryptionMethod == Zip4jEncryptionMethod.AES &&
+                aesExtraDataRecord?.aesVersion == AesVersion.TWO &&
+                it == 0L)
+    }
+
+private fun IOException.asArchiveEntryException(): ArchiveExtractionException {
+    val zip4jError = generateSequence<Throwable>(this) { it.cause }
+        .filterIsInstance<Zip4jException>()
+        .firstOrNull()
+    val code = when (zip4jError?.type) {
+        Zip4jException.Type.WRONG_PASSWORD -> ArchiveFailureCode.WRONG_PASSWORD
+        Zip4jException.Type.CHECKSUM_MISMATCH -> ArchiveFailureCode.CRC_MISMATCH
+        Zip4jException.Type.UNKNOWN_COMPRESSION_METHOD,
+        Zip4jException.Type.UNSUPPORTED_ENCRYPTION,
+        -> ArchiveFailureCode.UNSUPPORTED_METHOD
+        else -> ArchiveFailureCode.MALFORMED_ARCHIVE
+    }
+    return ArchiveExtractionException(
+        code = code,
+        message = when (code) {
+            ArchiveFailureCode.WRONG_PASSWORD -> "ZIP password is incorrect"
+            ArchiveFailureCode.CRC_MISMATCH -> "ZIP entry checksum verification failed"
+            ArchiveFailureCode.UNSUPPORTED_METHOD ->
+                "ZIP entry uses an unsupported compression or encryption method"
+            else -> "ZIP entry data cannot be read"
+        },
+        cause = this,
+        format = ArchiveFormat.ZIP,
+        stage = if (code == ArchiveFailureCode.WRONG_PASSWORD) {
+            ArchiveFailureStage.PASSWORD
+        } else {
+            ArchiveFailureStage.ENTRY_DATA
+        },
+    )
+}
+
+private val ZIP4J_SUPPORTED_COMPRESSION_METHOD_CODES = setOf(
+    Zip4jCompressionMethod.STORE.code,
+    Zip4jCompressionMethod.DEFLATE.code,
+)
+private val ZIP4J_SUPPORTED_ENCRYPTION_METHODS = setOf(
+    Zip4jEncryptionMethod.ZIP_STANDARD,
+    Zip4jEncryptionMethod.AES,
+)

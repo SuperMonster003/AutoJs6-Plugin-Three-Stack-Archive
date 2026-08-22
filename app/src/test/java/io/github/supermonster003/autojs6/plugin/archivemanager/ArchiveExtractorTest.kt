@@ -83,6 +83,30 @@ class ArchiveExtractorTest {
     }
 
     @Test
+    fun `extraction reuses the password held by the scanned snapshot`() = runBlocking {
+        val source = copyFixture("7zip-22-aes256-unicode.zip")
+        val snapshot = ArchiveScanner().scan(
+            source,
+            ArchiveReaderOptions(password = "ArchiveManager-Test-2026".toCharArray()),
+        )
+        val writer = FakeArchiveOutputWriter()
+
+        ArchiveExtractor().extractToWriter(
+            source = source,
+            snapshot = snapshot,
+            selectedPaths = listOf("文件.txt"),
+            rootName = "encrypted",
+            writer = writer,
+        )
+
+        assertTrue(
+            writer.content("encrypted/文件.txt")
+                .toString(Charsets.UTF_8)
+                .contains("UTF-8 文件名"),
+        )
+    }
+
+    @Test
     fun `cleans the newly created root after cancellation`() {
         val source = archive(FixtureEntry("large.bin", ByteArray(100_000) { 7 }, ZipEntry.STORED))
         val snapshot = ArchiveScanner().scan(source)
@@ -178,6 +202,13 @@ class ArchiveExtractorTest {
 
     private fun archive(vararg entries: FixtureEntry): File =
         writeZip(temporaryFolder.newFile("archive-${temporaryFolder.root.list().orEmpty().size}.zip"), *entries)
+
+    private fun copyFixture(name: String): File {
+        val target = temporaryFolder.newFile(name)
+        val resource = requireNotNull(javaClass.classLoader?.getResourceAsStream("archive-fixtures/$name"))
+        resource.use { input -> target.outputStream().use(input::copyTo) }
+        return target
+    }
 
     private class FakeArchiveOutputWriter(
         private val failCreatingFile: String? = null,

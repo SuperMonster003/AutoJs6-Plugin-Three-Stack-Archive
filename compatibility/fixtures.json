@@ -22,6 +22,54 @@
           "utf8NameFlag": true
         }
       ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-aes256-unicode.zip",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -tzip <output> .\\ascii.txt .\\目录\\文件.txt -pArchiveManager-Test-2026 -mem=AES256 -mx=6 -mcu=on -mtc=off -mta=off",
+      "password": "ArchiveManager-Test-2026",
+      "encryptionMethod": "AES-256",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "e2a77b155e80f2c8356e7d461f4b86f39fea606c98907fcb3a299b8f45375fd9",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "method": "Store",
+          "size": 87,
+          "utf8NameFlag": true
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-zipcrypto-unicode.zip",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -tzip <output> .\\ascii.txt .\\目录\\文件.txt -pArchiveManager-Test-2026 -mem=ZipCrypto -mx=6 -mcu=on -mtc=off -mta=off",
+      "password": "ArchiveManager-Test-2026",
+      "encryptionMethod": "ZipCrypto",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "a262564d02e9252119f976e13a523756e0cc073dac67d112d84506fed639bf6b",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "method": "Store",
+          "size": 87,
+          "utf8NameFlag": true
+        }
+      ]
     }
   ]
 }

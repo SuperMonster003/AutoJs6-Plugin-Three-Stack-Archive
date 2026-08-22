@@ -16,13 +16,18 @@
     <string name="error_compression_request_invalid">压缩请求或宿主会话无效</string>
     <string name="error_extraction_failed">解压失败</string>
     <string name="error_no_selection">请至少选择一个条目</string>
+    <string name="error_password_incorrect">压缩档案密码不正确</string>
+    <string name="error_password_required">请输入压缩档案密码</string>
     <string name="error_permission_missing">缺少压缩包读取权限</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="plugin_description">文件管理器插件. 打开、解压和创建 ZIP 压缩档案</string>
     <string name="text_cancelled">已取消</string>
-    <string name="text_advanced_compression_pending">密码、分卷、文件名加密、单独压缩及删除源文件将在相应的事务后端可用后开放.</string>
+    <string name="text_advanced_compression_pending">分卷、文件名加密、单独压缩及删除源文件将在相应的事务后端可用后开放.</string>
+    <string name="text_apply_password">应用</string>
+    <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在应用密码...</string>
     <string name="text_archive_file_name">文件名</string>
     <string name="text_archive_format">格式</string>
+    <string name="text_archive_password">压缩档案密码</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分输出...</string>
     <string name="text_compress_separately">单独压缩每个文件和文件夹</string>
     <string name="text_compression_level">压缩级别</string>
@@ -37,7 +42,11 @@
     <string name="text_extract_selected">解压所选项</string>
     <string name="text_extracting">正在解压第 %1$d 项, 共 %2$d 项</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_encrypted_entry">条目已加密; 当前版本暂不支持输入密码</string>
+    <string name="text_encrypted_entry">加密条目 (%1$s); 请输入压缩档案密码以打开</string>
+    <string name="text_encrypted_entry_unlocked">加密条目 (%1$s); 密码已应用</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">其他加密方式</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">正在加载压缩包...</string>
     <string name="text_loading_progress">%1$s / %2$s</string>
     <string name="text_modified">修改时间: %1$s</string>
@@ -46,6 +55,8 @@
     <string name="text_none">无</string>
     <string name="text_output_path">路径</string>
     <string name="text_password">密码</string>
+    <string name="text_password_applied">密码已应用, 可随时更新.</string>
+    <string name="text_password_needed_for_encrypted_entries">输入密码后可打开和解压加密条目.</string>
     <string name="text_parent_directory">上级目录</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在准备压缩...</string>
     <string name="text_search_hint">搜索压缩包</string>
@@ -85,4 +96,5 @@
     <string name="text_filename_encoding_automatic">自动检测</string>
     <string name="text_filename_encoding_automatic_detected">自动检测 (传统名称回退: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">正在重新索引压缩档案...</string>
+    <string name="text_zip_password_encryption_note">非空 ZIP 密码使用 AES-256 加密. 文件名仍然可见.</string>
 </resources>

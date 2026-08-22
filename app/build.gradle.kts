@@ -81,6 +81,7 @@ android {
 
     sourceSets.named("main") {
         kotlin.directories += "src/main/java"
+        assets.directories += "$rootDir/third_party"
     }
 
     packaging {
@@ -142,6 +143,7 @@ dependencies {
     implementation(libs.recyclerview)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation(libs.apache.commons.compress)
+    implementation(libs.zip4j)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.test.ext.junit)

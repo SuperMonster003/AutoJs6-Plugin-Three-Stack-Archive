@@ -78,7 +78,7 @@ internal class ArchiveEntryStreamer(
         }
         if (!entry.canOpen) {
             failure(
-                if (entry.isEncrypted) {
+                if (entry.isEncrypted && !snapshot.readerOptions.hasPassword) {
                     ArchiveFailureCode.PASSWORD_REQUIRED
                 } else {
                     ArchiveFailureCode.UNSUPPORTED_METHOD
@@ -101,6 +101,7 @@ internal class ArchiveEntryStreamer(
             liveEntry.compressionMethodId == scannedEntry.compressionMethodId &&
             liveEntry.capabilities == scannedEntry.capabilities &&
             liveEntry.isEncrypted == scannedEntry.isEncrypted &&
+            liveEntry.encryptionMethod == scannedEntry.encryptionMethod &&
             liveEntry.size == scannedEntry.uncompressedSize &&
             liveEntry.compressedSize == scannedEntry.compressedSize &&
             liveEntry.crc == scannedEntry.crc32

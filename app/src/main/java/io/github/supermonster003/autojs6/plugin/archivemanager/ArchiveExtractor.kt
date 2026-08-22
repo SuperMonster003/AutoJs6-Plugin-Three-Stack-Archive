@@ -58,7 +58,12 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         val safeRootName = ArchivePathPolicy.validateDestinationRootName(rootName, limits)
         validateSnapshot(source, snapshot, limits)
         val selection = ArchiveSelection.resolve(snapshot, selectedPaths)
-        validateSelection(selection, limits, snapshot.format)
+        validateSelection(
+            selection = selection,
+            limits = limits,
+            format = snapshot.format,
+            passwordProvided = snapshot.readerOptions.hasPassword,
+        )
         preflightCentralDirectory(source, snapshot) {
             extractionContext.ensureActive()
         }
@@ -117,6 +122,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                         liveEntry = liveEntry,
                         snapshotEntry = entry,
                         requireExtractable = true,
+                        passwordProvided = snapshot.readerOptions.hasPassword,
                         format = snapshot.format,
                     )
                     val parent = directories[parentPath(entry.path)]
@@ -291,12 +297,13 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         selection: ResolvedArchiveSelection,
         limits: ArchiveSecurityLimits,
         format: ArchiveFormat,
+        passwordProvided: Boolean,
     ) {
         var total = 0L
         selection.files.forEach { entry ->
             if (!entry.canExtract) {
                 throw ArchiveExtractionException(
-                    if (entry.isEncrypted) {
+                    if (entry.isEncrypted && !passwordProvided) {
                         ArchiveFailureCode.PASSWORD_REQUIRED
                     } else {
                         ArchiveFailureCode.UNSUPPORTED_METHOD
@@ -339,6 +346,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     validateCentralEntry(
                         liveEntry = liveEntry,
                         snapshotEntry = snapshot.entries[ordinal],
+                        passwordProvided = snapshot.readerOptions.hasPassword,
                         format = snapshot.format,
                     )
                     ordinal++
@@ -360,11 +368,12 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         liveEntry: ArchiveReaderEntry,
         snapshotEntry: ArchiveEntry,
         requireExtractable: Boolean = false,
+        passwordProvided: Boolean,
         format: ArchiveFormat,
     ) {
         if (requireExtractable && !liveEntry.capabilities.canExtract) {
             throw ArchiveExtractionException(
-                if (liveEntry.isEncrypted) {
+                if (liveEntry.isEncrypted && !passwordProvided) {
                     ArchiveFailureCode.PASSWORD_REQUIRED
                 } else {
                     ArchiveFailureCode.UNSUPPORTED_METHOD
@@ -379,6 +388,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             liveEntry.compressionMethodId == snapshotEntry.compressionMethodId &&
             liveEntry.capabilities == snapshotEntry.capabilities &&
             liveEntry.isEncrypted == snapshotEntry.isEncrypted &&
+            liveEntry.encryptionMethod == snapshotEntry.encryptionMethod &&
             liveEntry.size == snapshotEntry.uncompressedSize &&
             liveEntry.compressedSize == snapshotEntry.compressedSize &&
             liveEntry.crc == snapshotEntry.crc32
