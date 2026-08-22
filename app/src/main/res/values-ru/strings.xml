@@ -15,7 +15,7 @@
     <string name="error_no_selection">Выберите хотя бы одну запись</string>
     <string name="error_permission_missing">Нет доступа на чтение архива</string>
     <string name="error_with_reason">%1$s\nПричина: %2$s</string>
-    <string name="plugin_description">Плагин файлового менеджера. Открывает, извлекает и создаёт ZIP-архивы</string>
+    <string name="plugin_description">Плагин файлового менеджера. Просматривает и извлекает ZIP- и TAR-архивы; создаёт ZIP-архивы</string>
     <string name="text_cancelled">Отменено</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
     <string name="text_extract_selected">Извлечь выбранное</string>
@@ -32,6 +32,7 @@
     <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
     <string name="text_unknown">Неизвестно</string>
     <string name="text_unsupported_compression_method">Метод сжатия %1$s не поддерживает извлечение</string>
+    <string name="text_unsupported_entry_type">Тип записи %1$s не поддерживает извлечение</string>
     <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>
     <string name="error_compression_failed">Не удалось создать архив</string>
     <string name="error_compression_request_invalid">Недопустимый запрос на сжатие или сеанс хоста</string>

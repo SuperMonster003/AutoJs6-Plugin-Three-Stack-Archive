@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>Complemento del gestor de archivos de AutoJs6 para abrir, extraer y crear archivos ZIP</p>
+  <p>Complemento del gestor de archivos de AutoJs6 para explorar y extraer ZIP/TAR y crear archivos ZIP</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,17 +31,18 @@ El README está disponible en los siguientes idiomas:
 
 ### Acerca del proyecto
 
-Archive Manager integra la exploración, extracción y creación de ZIP en el gestor de archivos de AutoJs6. La versión actual explora los archivos en la lista nativa del host con rutas externas e internas, muestra vistas previas de las entradas compatibles y puede comprimir un elemento o una selección con el mismo directorio padre. Más formatos, la extracción por entrada y la edición interna siguen en el Roadmap.
+Archive Manager integra la exploración y extracción de ZIP/TAR y la creación de ZIP en el gestor de archivos de AutoJs6. La versión actual explora los archivos en la lista nativa del host con rutas externas e internas, muestra vistas previas de las entradas compatibles y puede comprimir un elemento o una selección con el mismo directorio padre. Más formatos, la extracción por entrada y la edición interna siguen en el Roadmap.
 
 ### Disponible ahora
 
-- Abrir archivos de la familia ZIP directamente en la lista nativa de AutoJs6, con el tema, el modo oscuro y los colores dinámicos del host.
+- Abrir archivos de la familia ZIP y TAR sin comprimir directamente en la lista nativa de AutoJs6, con el tema, el modo oscuro y los colores dinámicos del host.
 - Mostrar el directorio externo, el nombre del archivo y el directorio interno en la barra de ruta; tocar un nivel para ir a él y usar Atrás para subir antes de salir del archivo.
 - Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.
 - Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.
 - Explorar carpetas, buscar y ordenar el contenido del archivo.
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
-- Verificar la estructura ZIP real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.
+- Explorar, previsualizar y extraer TAR sin comprimir; los enlaces simbólicos y físicos, los nodos de dispositivo y las entradas dispersas solo se muestran y nunca se escriben como archivos normales.
+- Verificar la estructura ZIP/TAR real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.
 - Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.
 - Explorar y extraer ZIP protegidos con ZipCrypto o AES, reintentar una contraseña incorrecta en el mismo lugar y crear opcionalmente ZIP con AES-256 cuyos nombres siguen visibles; la creación cifrada exige confirmar la contraseña con el mismo valor.
 - Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.
@@ -52,10 +53,10 @@ Archive Manager integra la exploración, extracción y creación de ZIP en el ge
 
 ### Formatos actuales
 
-La versión actual reconoce estas extensiones de la familia ZIP:
+La versión actual reconoce estas extensiones explorables y extraíbles:
 
 ```text
-zip, jar, aar, war
+zip, jar, aar, war, tar
 ```
 
 La versión actual puede crear estos formatos:
@@ -64,12 +65,12 @@ La versión actual puede crear estos formatos:
 zip
 ```
 
-> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, 7z, variantes tar, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
+> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, 7z, variantes TAR comprimidas, volúmenes divididos, cifrado de nombres, archivos separados, eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
 1. Instala el complemento y actívalo en el centro de complementos de AutoJs6.
-2. Abre el menú de un archivo ZIP, JAR, AAR o WAR.
+2. Abre el menú de un archivo ZIP, JAR, AAR, WAR o TAR.
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
 5. Para crear un ZIP, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior.
@@ -97,6 +98,7 @@ _Sin publicar_
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
 - `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles y confirmación de contraseña coincidente
+- `Añadido` Exploración, vista previa y extracción de TAR sin comprimir en la lista nativa con validación de la suma de comprobación de cabeceras; enlaces, nodos de dispositivo y entradas dispersas quedan solo para lectura
 - `Corregido` La lista ZIP usa metadatos y admite preámbulos autoextraíbles, codificaciones antiguas, separadores Windows y más métodos legibles
 - `Corregido` La codificación de nombres ZIP se puede cambiar cuando la detección automática sea incorrecta y la extracción reutiliza la selección
 - `Corregido` Los tamaños desconocidos, URI DocumentsProvider válidos y permisos de escritura adicionales del host ya no bloquean archivos válidos

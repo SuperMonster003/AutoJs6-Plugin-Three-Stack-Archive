@@ -15,7 +15,7 @@
     <string name="error_no_selection">Selecciona al menos una entrada</string>
     <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
     <string name="error_with_reason">%1$s\nMotivo: %2$s</string>
-    <string name="plugin_description">Complemento del gestor de archivos. Abre, extrae y crea archivos ZIP</string>
+    <string name="plugin_description">Complemento del gestor de archivos. Explora y extrae archivos ZIP y TAR; crea archivos ZIP</string>
     <string name="text_cancelled">Cancelado</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
     <string name="text_extract_selected">Extraer selección</string>
@@ -32,6 +32,7 @@
     <string name="text_size_details">%1$s, comprimido %2$s, CRC %3$s</string>
     <string name="text_unknown">Desconocido</string>
     <string name="text_unsupported_compression_method">No se puede extraer el método de compresión %1$s</string>
+    <string name="text_unsupported_entry_type">No se puede extraer el tipo de entrada %1$s</string>
     <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
     <string name="error_compression_failed">Error de compresión</string>
     <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>

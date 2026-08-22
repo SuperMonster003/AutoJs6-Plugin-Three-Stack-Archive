@@ -40,7 +40,7 @@ enum class ArchiveEncryptionMethod {
 data class ArchiveEntry(
     /** Portable separator-normalized path without a trailing slash; Unicode spelling is preserved. */
     val path: String,
-    /** Exact entry name used to reopen the entry from the ZIP central directory. */
+    /** Exact backend directory name used to reopen this entry. */
     val sourceName: String,
     val displayName: String,
     val isDirectory: Boolean,
@@ -82,7 +82,7 @@ data class ArchiveNode(
     val path: String,
     val name: String,
     val isDirectory: Boolean,
-    /** Null for an implicit directory that has no central-directory entry. */
+    /** Null for an implicit directory that has no explicit archive entry. */
     val entry: ArchiveEntry?,
     val childCount: Int,
     val descendantFileCount: Int,

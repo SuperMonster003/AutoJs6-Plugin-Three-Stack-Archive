@@ -11,6 +11,7 @@ _Unreleased_
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
 - `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation
+- `Added` Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing

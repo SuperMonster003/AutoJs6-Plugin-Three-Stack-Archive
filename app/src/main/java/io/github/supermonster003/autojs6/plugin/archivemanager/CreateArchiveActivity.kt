@@ -303,6 +303,7 @@ class CreateArchiveActivity : AppCompatActivity() {
 
     private fun formatLabel(format: ArchiveFormat): String = when (format) {
         ArchiveFormat.ZIP -> getString(R.string.text_format_zip)
+        ArchiveFormat.TAR -> format.displayName
     }
 
     private fun setBusy(busy: Boolean, message: String) = with(binding) {

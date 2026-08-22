@@ -25,6 +25,16 @@ enum class ArchiveFormat(
             "application/java-archive",
         ),
     ),
+    TAR(
+        id = "tar",
+        displayName = "TAR",
+        primaryExtension = "tar",
+        extensions = setOf("tar"),
+        mimeTypes = setOf(
+            "application/x-tar",
+            "application/tar",
+        ),
+    ),
     ;
 
     init {
@@ -117,6 +127,7 @@ enum class ArchiveEntryLimitation {
     DIRECTORY_HAS_NO_DATA,
     ENCRYPTED,
     UNSUPPORTED_COMPRESSION_METHOD,
+    UNSUPPORTED_ENTRY_TYPE,
     MUTATION_UNAVAILABLE,
 }
 
@@ -325,24 +336,39 @@ internal class ArchiveEngine private constructor(
         if (format != null) return backend(format).openReader(source, options)
         if (backends.size == 1) return backends.single().openReader(source, options)
 
-        var lastFailure: Throwable? = null
+        var formatFailure: ArchiveBackendException? = null
+        var unexpectedFailure: Throwable? = null
         backends.forEach { candidate ->
             try {
                 return candidate.openReader(source, options)
             } catch (error: ArchiveBackendException) {
-                lastFailure = error
+                if (
+                    error.failure != ArchiveBackendFailure.INVALID_SIGNATURE &&
+                    formatFailure == null
+                ) {
+                    formatFailure = error
+                }
             } catch (error: IOException) {
-                lastFailure = error
+                if (unexpectedFailure == null) unexpectedFailure = error
             } catch (error: IllegalArgumentException) {
-                lastFailure = error
+                if (unexpectedFailure == null) unexpectedFailure = error
             }
+        }
+        formatFailure?.let { throw it }
+        unexpectedFailure?.let { error ->
+            throw ArchiveBackendException(
+                format = null,
+                failure = ArchiveBackendFailure.MALFORMED,
+                stage = ArchiveFailureStage.FORMAT_DETECTION,
+                message = "Archive format detection failed",
+                cause = error,
+            )
         }
         throw ArchiveBackendException(
             format = null,
-            failure = ArchiveBackendFailure.MALFORMED,
+            failure = ArchiveBackendFailure.INVALID_SIGNATURE,
             stage = ArchiveFailureStage.FORMAT_DETECTION,
             message = "Archive format is not recognized by an installed backend",
-            cause = lastFailure,
         )
     }
 
@@ -362,6 +388,6 @@ internal class ArchiveEngine private constructor(
 
     companion object {
         @JvmField
-        val DEFAULT = ArchiveEngine(listOf(ZipArchiveBackend))
+        val DEFAULT = ArchiveEngine(listOf(ZipArchiveBackend, TarArchiveBackend))
     }
 }

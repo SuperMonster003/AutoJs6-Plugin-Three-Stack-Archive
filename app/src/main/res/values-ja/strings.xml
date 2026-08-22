@@ -15,7 +15,7 @@
     <string name="error_no_selection">1 件以上のエントリを選択してください</string>
     <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
     <string name="error_with_reason">%1$s\n理由: %2$s</string>
-    <string name="plugin_description">ファイルマネージャープラグイン. ZIP アーカイブを開く、展開、作成</string>
+    <string name="plugin_description">ファイルマネージャープラグイン. ZIP/TAR の閲覧と展開、ZIP の作成</string>
     <string name="text_cancelled">キャンセルしました</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
     <string name="text_extract_selected">選択項目を展開</string>
@@ -32,6 +32,7 @@
     <string name="text_size_details">%1$s, 圧縮時 %2$s, CRC %3$s</string>
     <string name="text_unknown">不明</string>
     <string name="text_unsupported_compression_method">圧縮方式 %1$s は展開できません</string>
+    <string name="text_unsupported_entry_type">エントリ形式 %1$s は展開できません</string>
     <string name="error_archive_file_name_invalid">有効なアーカイブファイル名を入力してください</string>
     <string name="error_compression_failed">圧縮に失敗しました</string>
     <string name="error_compression_request_invalid">圧縮要求またはホストセッションが無効です</string>

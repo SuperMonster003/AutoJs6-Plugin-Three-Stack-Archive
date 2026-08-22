@@ -15,7 +15,7 @@
     <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
     <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
-    <string name="plugin_description">ملحق مدير الملفات. يفتح أرشيفات ZIP ويستخرجها وينشئها</string>
+    <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP وTAR ويستخرجها وينشئ أرشيفات ZIP</string>
     <string name="text_cancelled">تم الإلغاء</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
     <string name="text_extract_selected">استخراج المحدد</string>
@@ -32,6 +32,7 @@
     <string name="text_size_details">%1$s, مضغوط %2$s, CRC %3$s</string>
     <string name="text_unknown">غير معروف</string>
     <string name="text_unsupported_compression_method">يتعذر استخراج طريقة الضغط %1$s</string>
+    <string name="text_unsupported_entry_type">يتعذر استخراج نوع الإدخال %1$s</string>
     <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
     <string name="error_compression_failed">فشل الضغط</string>
     <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>

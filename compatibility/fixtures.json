@@ -70,6 +70,28 @@
           "utf8NameFlag": true
         }
       ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-ustar-unicode.tar",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -ttar <output> .\\ascii.txt .\\目录\\文件.txt -mtc=off -mta=off",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "771eaf4fc2bef962e4bed64ee109d51d6ef4e25ec95357e5343c882dbb59e403",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "type": "regular",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "type": "regular",
+          "size": 87,
+          "encoding": "UTF-8"
+        }
+      ]
     }
   ]
 }

@@ -10,11 +10,14 @@ import androidx.test.runner.AndroidJUnit4
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -106,6 +109,55 @@ class ExplorerArchiveSessionInstrumentationTest {
                 session.openEntry(requireNotNull(nestedFile.getString(ExplorerArchiveSessionKeys.ID)))
             }.isFailure,
         )
+    }
+
+    @Test
+    fun sessionListsAndStreamsTarEntriesThroughTheHostContract() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = File(context.cacheDir, "archive-input-tar-session-test-${UUID.randomUUID()}")
+        assertTrue(directory.mkdirs())
+        val archive = File(directory, "source.tar")
+        val expected = "host TAR preview".toByteArray()
+        TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(archive))).use { output ->
+            val entry = TarArchiveEntry("preview.txt").apply {
+                size = expected.size.toLong()
+                setModTime(1_700_000_000_000L)
+            }
+            output.putArchiveEntry(entry)
+            output.write(expected)
+            output.closeArchiveEntry()
+        }
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "session-test.tar",
+            stagedArchive = StagedArchive(archive, archive.length()),
+            snapshot = ArchiveScanner().scan(archive),
+            onClosed = {},
+        )
+        try {
+            val page = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            )
+            val item = page
+                .getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+                .orEmpty()
+                .single()
+
+            assertEquals("preview.txt", item.getString(ExplorerArchiveSessionKeys.NAME))
+            assertTrue(item.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+            val actual = ParcelFileDescriptor.AutoCloseInputStream(
+                session.openEntry(requireNotNull(item.getString(ExplorerArchiveSessionKeys.ID))),
+            ).use { it.readBytes() }
+            assertEquals(expected.toList(), actual.toList())
+        } finally {
+            session.close()
+        }
+
+        assertFalse(archive.exists())
+        assertFalse(directory.exists())
     }
 
     private fun createArchive(target: File) {

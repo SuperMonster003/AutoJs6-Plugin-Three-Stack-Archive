@@ -234,14 +234,14 @@ class ArchiveScannerTest {
     }
 
     @Test
-    fun `rejects non zip signatures and unsafe names`() {
+    fun `rejects non archive signatures and unsafe names`() {
         val plain = temporaryFolder.newFile("plain.zip").apply { writeText("not a zip") }
         val error = expectArchiveFailure<ArchiveValidationException>(
             ArchiveFailureCode.INVALID_SIGNATURE,
         ) {
             ArchiveScanner().scan(plain)
         }
-        assertEquals(ArchiveFormat.ZIP, error.format)
+        assertEquals(null, error.format)
         assertEquals(ArchiveFailureStage.FORMAT_DETECTION, error.stage)
 
         val traversal = archive(FixtureEntry("../escape", byteArrayOf(1)))

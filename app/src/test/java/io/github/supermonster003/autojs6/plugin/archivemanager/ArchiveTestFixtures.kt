@@ -1,6 +1,10 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.archivers.tar.TarConstants
 import org.junit.Assert.fail
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
@@ -12,6 +16,20 @@ internal data class FixtureEntry(
     val name: String,
     val bytes: ByteArray = ByteArray(0),
     val method: Int = ZipEntry.DEFLATED,
+)
+
+internal enum class TarFixtureEntryType {
+    FILE,
+    DIRECTORY,
+    SYMBOLIC_LINK,
+    HARD_LINK,
+}
+
+internal data class TarFixtureEntry(
+    val name: String,
+    val bytes: ByteArray = ByteArray(0),
+    val type: TarFixtureEntryType = TarFixtureEntryType.FILE,
+    val linkName: String = "",
 )
 
 internal fun writeZip(file: File, vararg entries: FixtureEntry): File {
@@ -33,6 +51,66 @@ internal fun writeZip(file: File, vararg entries: FixtureEntry): File {
         }
     }
     return file
+}
+
+internal fun writeTar(file: File, vararg entries: TarFixtureEntry): File {
+    TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(file))).use { output ->
+        output.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
+        output.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX)
+        output.setAddPaxHeadersForNonAsciiNames(true)
+        entries.forEach { fixture ->
+            val typeFlag = when (fixture.type) {
+                TarFixtureEntryType.FILE -> TarConstants.LF_NORMAL
+                TarFixtureEntryType.DIRECTORY -> TarConstants.LF_DIR
+                TarFixtureEntryType.SYMBOLIC_LINK -> TarConstants.LF_SYMLINK
+                TarFixtureEntryType.HARD_LINK -> TarConstants.LF_LINK
+            }
+            val name = if (fixture.type == TarFixtureEntryType.DIRECTORY) {
+                fixture.name.trimEnd('/') + '/'
+            } else {
+                fixture.name
+            }
+            val entry = TarArchiveEntry(name, typeFlag).apply {
+                size = if (fixture.type == TarFixtureEntryType.FILE) {
+                    fixture.bytes.size.toLong()
+                } else {
+                    0L
+                }
+                setModTime(FIXED_ZIP_TIME)
+                if (fixture.type in setOf(
+                        TarFixtureEntryType.SYMBOLIC_LINK,
+                        TarFixtureEntryType.HARD_LINK,
+                    )
+                ) {
+                    linkName = fixture.linkName
+                }
+            }
+            output.putArchiveEntry(entry)
+            if (fixture.type == TarFixtureEntryType.FILE) output.write(fixture.bytes)
+            output.closeArchiveEntry()
+        }
+    }
+    return file
+}
+
+internal fun corruptFirstTarHeaderChecksum(file: File) {
+    val bytes = Files.readAllBytes(file.toPath())
+    check(bytes.size >= TAR_RECORD_SIZE)
+    bytes[0] = (bytes[0].toInt() xor 0x01).toByte()
+    Files.write(file.toPath(), bytes)
+}
+
+internal fun convertFirstTarHeaderToV7(file: File) {
+    val bytes = Files.readAllBytes(file.toPath())
+    check(bytes.size >= TAR_RECORD_SIZE)
+    bytes.fill(0, TAR_MAGIC_OFFSET, TAR_VERSION_END)
+    bytes.fill(' '.code.toByte(), TAR_CHECKSUM_OFFSET, TAR_CHECKSUM_END)
+    val checksum = bytes.take(TAR_RECORD_SIZE).sumOf { it.toInt() and 0xFF }
+    val encoded = checksum.toString(8).padStart(6, '0').encodeToByteArray()
+    encoded.copyInto(bytes, TAR_CHECKSUM_OFFSET)
+    bytes[TAR_CHECKSUM_OFFSET + 6] = 0
+    bytes[TAR_CHECKSUM_OFFSET + 7] = ' '.code.toByte()
+    Files.write(file.toPath(), bytes)
 }
 
 internal fun patchFirstStoredEntryData(file: File) {
@@ -92,3 +170,8 @@ private fun findSignature(bytes: ByteArray, signature: Int): Int {
 private const val FIXED_ZIP_TIME = 1_700_000_000_000L
 private const val LOCAL_FILE_HEADER_SIGNATURE = 0x04034B50
 private const val CENTRAL_DIRECTORY_HEADER_SIGNATURE = 0x02014B50
+private const val TAR_RECORD_SIZE = 512
+private const val TAR_CHECKSUM_OFFSET = 148
+private const val TAR_CHECKSUM_END = 156
+private const val TAR_MAGIC_OFFSET = 257
+private const val TAR_VERSION_END = 265

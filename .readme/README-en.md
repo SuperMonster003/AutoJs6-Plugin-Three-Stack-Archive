@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>An AutoJs6 file-manager plugin for opening, extracting, and creating ZIP archives</p>
+  <p>An AutoJs6 file-manager plugin for browsing and extracting ZIP/TAR archives and creating ZIP archives</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,17 +31,18 @@ The README is available in these languages:
 
 ### About
 
-Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, and can compress one item or a same-parent selection. More formats, per-entry extraction, and in-archive editing remain staged in the Roadmap.
+Archive Manager brings ZIP/TAR browsing and extraction plus ZIP creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, and can compress one item or a same-parent selection. More formats, per-entry extraction, and in-archive editing remain staged in the Roadmap.
 
 ### Available now
 
-- Open ZIP-family archives directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
+- Open ZIP-family archives and uncompressed TAR files directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
 - Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
 - Preview supported document, image, audio, and video entries with the host's existing viewers.
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
-- Verify the actual ZIP structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
+- Browse, preview, and extract uncompressed TAR files; symbolic links, hard links, device nodes, and sparse entries are listed but never written as ordinary files.
+- Verify the actual ZIP/TAR structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
 - Browse and extract ZIP files protected with ZipCrypto or AES, retry a wrong password in place, and optionally create AES-256 encrypted ZIP files whose names remain visible; encrypted creation requires matching password confirmation.
 - Override the ZIP filename encoding when automatic detection is wrong; browsing and extraction reuse the same selection.
@@ -52,10 +53,10 @@ Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 f
 
 ### Current formats
 
-The current release recognizes these ZIP-family extensions:
+The current release recognizes these browsable and extractable extensions:
 
 ```text
-zip, jar, aar, war
+zip, jar, aar, war, tar
 ```
 
 The current release can create these formats:
@@ -64,12 +65,12 @@ The current release can create these formats:
 zip
 ```
 
-> Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, 7z, tar variants, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, 7z, compressed TAR variants, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
 1. Install the plugin and enable it in the AutoJs6 Plugin Center.
-2. Open the file menu for a ZIP, JAR, AAR, or WAR file.
+2. Open the file menu for a ZIP, JAR, AAR, WAR, or TAR file.
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
 5. To create a ZIP, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar.
@@ -97,6 +98,7 @@ _Unreleased_
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
 - `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation
+- `Added` Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing

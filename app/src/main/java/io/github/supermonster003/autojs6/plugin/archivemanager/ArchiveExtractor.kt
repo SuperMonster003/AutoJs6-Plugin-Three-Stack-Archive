@@ -64,7 +64,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             format = snapshot.format,
             passwordProvided = snapshot.readerOptions.hasPassword,
         )
-        preflightCentralDirectory(source, snapshot) {
+        preflightDirectoryMetadata(source, snapshot) {
             extractionContext.ensureActive()
         }
 
@@ -308,7 +308,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     } else {
                         ArchiveFailureCode.UNSUPPORTED_METHOD
                     },
-                    "Selected archive entry is encrypted or uses an unsupported compression method",
+                    "Selected archive entry data is unavailable to this backend",
                     format = format,
                 )
             }
@@ -328,7 +328,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         }
     }
 
-    private fun preflightCentralDirectory(
+    private fun preflightDirectoryMetadata(
         source: File,
         snapshot: ArchiveSnapshot,
         cancellationCheck: () -> Unit,
@@ -378,7 +378,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                 } else {
                     ArchiveFailureCode.UNSUPPORTED_METHOD
                 },
-                "Archive entry is encrypted or uses an unsupported compression method",
+                "Archive entry data is unavailable to this backend",
                 format = format,
             )
         }
@@ -392,7 +392,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             liveEntry.size == snapshotEntry.uncompressedSize &&
             liveEntry.compressedSize == snapshotEntry.compressedSize &&
             liveEntry.crc == snapshotEntry.crc32
-        if (!same) changed("Archive central-directory metadata changed")
+        if (!same) changed("Archive directory metadata changed")
     }
 
     private fun validateMeasurement(

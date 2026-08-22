@@ -8,11 +8,14 @@ import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.EncryptionMethod
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.Charset
@@ -39,6 +42,43 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
             val snapshot = ArchiveScanner().scan(source)
             val entry = snapshot.entries.single()
 
+            assertEquals("目录/hello.txt", entry.path)
+            assertTrue(entry.canExtract)
+            ArchiveEngine.DEFAULT.openReader(
+                source = source,
+                format = snapshot.format,
+                options = snapshot.readerOptions,
+            ).use { reader ->
+                val liveEntry = requireNotNull(reader.entryAt(entry.ordinal))
+                assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
+            }
+        } finally {
+            source.delete()
+        }
+    }
+
+    @Test
+    fun tarMetadataAndEntryDataAreReadableOnTheDeviceRuntime() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val source = File(context.cacheDir, "runtime-${UUID.randomUUID()}.tar")
+        val expected = "tar-runtime-check".toByteArray()
+
+        try {
+            TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(source))).use { output ->
+                output.setAddPaxHeadersForNonAsciiNames(true)
+                val entry = TarArchiveEntry("目录/hello.txt").apply {
+                    size = expected.size.toLong()
+                    setModTime(1_700_000_000_000L)
+                }
+                output.putArchiveEntry(entry)
+                output.write(expected)
+                output.closeArchiveEntry()
+            }
+
+            val snapshot = ArchiveScanner().scan(source)
+            val entry = snapshot.entries.single()
+
+            assertEquals(ArchiveFormat.TAR, snapshot.format)
             assertEquals("目录/hello.txt", entry.path)
             assertTrue(entry.canExtract)
             ArchiveEngine.DEFAULT.openReader(

@@ -127,7 +127,7 @@ internal class ExplorerArchiveSession(
             "Archive entry is not a regular file"
         }
         require(formatCapabilities.canPreview && entry.canOpen) {
-            "Archive entry is encrypted or uses an unsupported compression method"
+            "Archive entry data is unavailable to this backend"
         }
 
         val (readEnd, writeEnd) = ParcelFileDescriptor.createReliablePipe()

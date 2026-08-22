@@ -21,7 +21,7 @@
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
-    <string name="plugin_description">File manager plugin. Open, extract, and create ZIP archives</string>
+    <string name="plugin_description">File manager plugin. Browse and extract ZIP and TAR archives; create ZIP archives</string>
     <string name="text_cancelled">Cancelled</string>
     <string name="text_advanced_compression_pending">Split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
     <string name="text_apply_password">Apply</string>
@@ -69,6 +69,7 @@
     <string name="text_split_volume">Split volume (MiB)</string>
     <string name="text_unknown">Unknown</string>
     <string name="text_unsupported_compression_method">Compression method %1$s cannot be extracted</string>
+    <string name="text_unsupported_entry_type">Entry type %1$s cannot be extracted</string>
     <string name="text_encryption_unavailable_for_format">Password and filename encryption are not available for %1$s.</string>
     <string name="error_diagnostic_details">%1$s\nFormat: %2$s\nStage: %3$s\nCode: %4$s\nReason: %5$s</string>
     <string name="error_reason_cache_space">There is not enough cache space to open this archive.</string>

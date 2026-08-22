@@ -2,6 +2,31 @@
 
 This project includes third-party software in its Android application. The project license in [`LICENSE`](LICENSE) does not replace the licenses below.
 
+## Apache Commons Compress 1.28.0
+
+- Component: `org.apache.commons:commons-compress:1.28.0`
+- Project: <https://commons.apache.org/proper/commons-compress/>
+- Purpose here: ZIP directory metadata and uncompressed TAR structure detection, listing, header-checksum validation, and entry streams
+- License: Apache License 2.0; the exact upstream [`LICENSE`](third_party/commons-compress/LICENSE) and [`NOTICE`](third_party/commons-compress/NOTICE) are retained in this repository
+- Resolved runtime dependencies: Commons Codec 1.19.0, Commons IO 2.20.0, and Commons Lang 3.18.0
+- Native code/ABI impact: none; these are Java libraries and add no native ABI
+
+### Security review
+
+Review date: 2026-08-22.
+
+- Apache's security report lists the TAR parsing denial of service CVE-2023-42503 as affecting 1.22 before 1.24.0; 1.28.0 is outside that range.
+- Apache's report lists CVE-2024-25710 and CVE-2024-26308 as fixed in 1.26.0; 1.28.0 includes those fixes.
+- Commons Compress 1.28.0 resolves Commons Lang 3.18.0, whose release replaced the recursive `ClassUtils.getClass` path associated with CVE-2025-48924.
+- Commons IO 2.20.0 is outside the before-2.14.0 range affected by CVE-2024-47554.
+- Future upgrades must repeat the Apache security-report and NVD searches for Commons Compress and its resolved runtime dependencies, then rerun malformed TAR and Android runtime tests.
+
+Archive Manager instantiates `TarArchiveInputStream` directly after its own signature check. It validates visible header checksums, never follows TAR links, does not materialize device or sparse entries, and keeps path validation, source-identity checks, declared/actual size checks, output isolation, and cleanup outside the library.
+
+### Packaging impact
+
+Commons Compress and its three runtime dependencies were already part of the application before the TAR backend. This phase adds no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application.
+
 ## Zip4j 2.11.5
 
 - Component: `net.lingala.zip4j:zip4j:2.11.5`

@@ -83,7 +83,7 @@ internal class ArchiveEntryStreamer(
                 } else {
                     ArchiveFailureCode.UNSUPPORTED_METHOD
                 },
-                "Archive entry is encrypted or uses an unsupported compression method",
+                "Archive entry data is unavailable to this backend",
             )
         }
         if (snapshot.entries.getOrNull(entry.ordinal) != entry) {
@@ -105,7 +105,7 @@ internal class ArchiveEntryStreamer(
             liveEntry.size == scannedEntry.uncompressedSize &&
             liveEntry.compressedSize == scannedEntry.compressedSize &&
             liveEntry.crc == scannedEntry.crc32
-        if (!same) changed("Archive central-directory metadata changed")
+        if (!same) changed("Archive directory metadata changed")
     }
 
     private fun verifySourceIdentity() {

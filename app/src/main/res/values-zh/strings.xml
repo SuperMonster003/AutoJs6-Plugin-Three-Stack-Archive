@@ -21,7 +21,7 @@
     <string name="error_password_confirmation_mismatch">两次输入的密码不一致</string>
     <string name="error_permission_missing">缺少压缩包读取权限</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
-    <string name="plugin_description">文件管理器插件. 打开、解压和创建 ZIP 压缩档案</string>
+    <string name="plugin_description">文件管理器插件. 浏览和解压 ZIP 与 TAR 档案, 创建 ZIP 档案</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_advanced_compression_pending">分卷、文件名加密、单独压缩及删除源文件将在相应的事务后端可用后开放.</string>
     <string name="text_apply_password">应用</string>
@@ -69,6 +69,7 @@
     <string name="text_split_volume">分卷大小 (MiB)</string>
     <string name="text_unknown">未知</string>
     <string name="text_unsupported_compression_method">无法解压压缩方法 %1$s</string>
+    <string name="text_unsupported_entry_type">无法解压条目类型 %1$s</string>
     <string name="text_encryption_unavailable_for_format">%1$s 当前不支持密码和文件名加密.</string>
     <string name="error_diagnostic_details">%1$s\n格式: %2$s\n阶段: %3$s\n代码: %4$s\n原因: %5$s</string>
     <string name="error_reason_cache_space">缓存空间不足, 无法打开此压缩档案.</string>

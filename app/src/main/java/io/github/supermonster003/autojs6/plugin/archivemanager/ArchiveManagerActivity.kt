@@ -486,15 +486,19 @@ class ArchiveManagerActivity : AppCompatActivity() {
             )
         } else if (archiveEntry != null) {
             buildString {
-                append(
-                    getString(
-                        R.string.text_size_details,
-                        formatBytes(archiveEntry.uncompressedSize),
-                        formatBytes(archiveEntry.compressedSize),
-                        archiveEntry.crc32?.let { String.format(Locale.ROOT, "%08X", it) }
-                            ?: getString(R.string.text_unknown),
-                    ),
-                )
+                if (snapshot?.format == ArchiveFormat.TAR) {
+                    append(formatBytes(archiveEntry.uncompressedSize))
+                } else {
+                    append(
+                        getString(
+                            R.string.text_size_details,
+                            formatBytes(archiveEntry.uncompressedSize),
+                            formatBytes(archiveEntry.compressedSize),
+                            archiveEntry.crc32?.let { String.format(Locale.ROOT, "%08X", it) }
+                                ?: getString(R.string.text_unknown),
+                        ),
+                    )
+                }
                 archiveEntry.modifiedTimeMillis?.let { modified ->
                     append('\n')
                     append(getString(R.string.text_modified, formatDate(modified)))
@@ -515,7 +519,14 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     append('\n')
                     append(
                         getString(
-                            R.string.text_unsupported_compression_method,
+                            if (
+                                ArchiveEntryLimitation.UNSUPPORTED_ENTRY_TYPE in
+                                archiveEntry.capabilities.limitations
+                            ) {
+                                R.string.text_unsupported_entry_type
+                            } else {
+                                R.string.text_unsupported_compression_method
+                            },
                             archiveEntry.compressionMethodId,
                         ),
                     )

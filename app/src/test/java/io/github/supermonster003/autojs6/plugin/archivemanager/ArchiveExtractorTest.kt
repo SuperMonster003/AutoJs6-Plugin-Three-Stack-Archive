@@ -56,6 +56,33 @@ class ArchiveExtractorTest {
     }
 
     @Test
+    fun `extracts a tar through the format neutral workflow`() = runBlocking {
+        val source = writeTar(
+            temporaryFolder.newFile("extract.tar"),
+            TarFixtureEntry("folder/", type = TarFixtureEntryType.DIRECTORY),
+            TarFixtureEntry("folder/文件.txt", "tar payload".toByteArray()),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+
+        val result = ArchiveExtractor().extractToWriter(
+            source = source,
+            snapshot = snapshot,
+            selectedPaths = listOf(""),
+            rootName = "tar-output",
+            writer = writer,
+        )
+
+        assertEquals(ArchiveFormat.TAR, snapshot.format)
+        assertEquals(1, result.filesExtracted)
+        assertEquals(1, result.directoriesCreated)
+        assertArrayEquals(
+            "tar payload".toByteArray(),
+            writer.content("tar-output/folder/文件.txt"),
+        )
+    }
+
+    @Test
     fun `extraction reuses a manually selected filename encoding`() = runBlocking {
         val source = temporaryFolder.newFile("manual-encoding.zip")
         val expected = "兼容内容".toByteArray()

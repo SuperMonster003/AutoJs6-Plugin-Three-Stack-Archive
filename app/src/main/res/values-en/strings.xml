@@ -18,7 +18,7 @@
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
-    <string name="plugin_description">File manager plugin. Open, extract, and create ZIP archives</string>
+    <string name="plugin_description">File manager plugin. Browse and extract ZIP and TAR archives; create ZIP archives</string>
     <string name="text_cancelled">Cancelled</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Cleaning up partial output...</string>
     <string name="text_extract_selected">Extract selected</string>
@@ -39,6 +39,7 @@
     <string name="text_size_details">%1$s, compressed %2$s, CRC %3$s</string>
     <string name="text_unknown">Unknown</string>
     <string name="text_unsupported_compression_method">Compression method %1$s cannot be extracted</string>
+    <string name="text_unsupported_entry_type">Entry type %1$s cannot be extracted</string>
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
