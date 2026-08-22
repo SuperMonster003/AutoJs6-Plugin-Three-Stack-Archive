@@ -55,4 +55,32 @@
     <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分卷輸出.</string>
     <string name="text_split_volume">分卷大小 (MiB)</string>
     <string name="text_encryption_unavailable_for_format">%1$s 目前尚未支援密碼和檔案名稱加密.</string>
+    <string name="error_diagnostic_details">%1$s\n格式: %2$s\n階段: %3$s\n代碼: %4$s\n原因: %5$s</string>
+    <string name="error_reason_cache_space">快取空間不足, 無法開啟此壓縮檔.</string>
+    <string name="error_reason_cleanup">無法完整清理部分輸出.</string>
+    <string name="error_reason_compression_method">項目使用了目前後端無法讀取的壓縮方法.</string>
+    <string name="error_reason_entry_data">無法讀取或驗證壓縮檔項目.</string>
+    <string name="error_reason_filename_encoding">所選檔案名稱編碼不可用, 或無法使用該編碼索引此壓縮檔.</string>
+    <string name="error_reason_index">壓縮檔目錄中繼資料損壞或不受支援.</string>
+    <string name="error_reason_input">無法讀取壓縮檔輸入, 或輸入在開啟時發生變更.</string>
+    <string name="error_reason_integrity">項目大小或校驗值與壓縮檔中繼資料不符.</string>
+    <string name="error_reason_invalid_signature">檔案不包含可識別的壓縮檔簽名.</string>
+    <string name="error_reason_limit">操作超出目前設定的資源預算.</string>
+    <string name="error_reason_output">無法安全準備或寫入輸出位置.</string>
+    <string name="error_reason_password">需要密碼, 或提供的密碼不正確.</string>
+    <string name="error_reason_path">項目路徑存在衝突或無法安全處理.</string>
+    <string name="text_archive_diagnostic">壓縮檔診斷資訊</string>
+    <string name="text_copy_diagnostic">複製診斷資訊</string>
+    <string name="text_diagnostic_copied">診斷資訊已複製</string>
+    <string name="text_failure_stage_cleanup">清理</string>
+    <string name="text_failure_stage_entry_data">項目資料</string>
+    <string name="text_failure_stage_format_detection">格式識別</string>
+    <string name="text_failure_stage_index">目錄索引</string>
+    <string name="text_failure_stage_input">輸入</string>
+    <string name="text_failure_stage_output">輸出</string>
+    <string name="text_failure_stage_password">密碼</string>
+    <string name="text_filename_encoding">檔案名稱編碼</string>
+    <string name="text_filename_encoding_automatic">自動偵測</string>
+    <string name="text_filename_encoding_automatic_detected">自動偵測 (傳統名稱後備: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">正在重新索引壓縮檔...</string>
 </resources>

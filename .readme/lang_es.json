@@ -16,6 +16,8 @@
     "Crear la lista desde los metadatos sin descomprimir primero todas las entradas.",
     "Verificar la estructura ZIP real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.",
     "Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.",
+    "Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.",
+    "Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.",
     "Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.",
     "Crear ZIP con nombre y nivel de compresión configurables; usar por defecto el nombre del objetivo para un elemento y el de la carpeta padre para varios.",
     "Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; numerar conflictos sin sobrescribir archivos existentes."

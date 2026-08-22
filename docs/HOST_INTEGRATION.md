@@ -219,6 +219,10 @@ cancelTask(taskId)
 
 插件已经通过 `ArchiveEngine` 统一扫描、预览、解压和创建链路. `ArchiveFormat` 提供格式标识、扩展名和 MIME 类型; `ArchiveReader`/`ArchiveWriter` 隔离具体库; `FormatCapabilities` 与 `ArchiveEntryCapabilities` 分别表达格式级和条目级真实能力. ZIP 字符集探测和底层目录对象只存在于 ZIP 后端内部.
 
+ZIP 后端同时公布可用的文件名解码覆盖列表. 管理/解压 Activity 可在自动识别结果与 UTF-8/GB18030/Shift_JIS/EUC-KR/windows-1251/windows-1256/windows-1252/IBM437 之间切换, 每次切换都会重新索引同一暂存输入. 扫描快照保存最终选择, 预览流和解压器重新打开档案时必须复用它, 防止列表名称正确而实际写出时使用另一套编码. 当前 v6 只读会话尚无原位更新 reader 选项的方法; 宿主原生档案页的编码切换需要后续协议扩展.
+
+读取失败通过统一诊断模型区分输入、格式识别、目录索引、密码、条目数据、输出和清理阶段. 可公开的摘要只包含格式、阶段、稳定错误码及受控原因; 调试构建由用户主动复制的诊断才包含异常链和堆栈. `ExplorerActionService` 把相同安全摘要放入跨进程异常消息, 不传递插件缓存路径.
+
 当前压缩表单的格式列表、压缩级别、密码、文件名加密和分卷控件由已注册 writer 的能力生成. 动作目录的可读扩展名与 MIME 类型也来自同一格式注册表. 尚未实现的后端不会只因 Roadmap 中出现格式名称就进入菜单.
 
 压缩和修改表单必须继续由“真实格式 + 当前后端 + 当前选择”共同生成:
@@ -237,6 +241,8 @@ FormatCapabilities
 特别是“同时加密文件名”应按三态显示: 不支持时关闭且禁用; 可选时默认关闭; 格式强制时开启且禁用. 禁用控件旁必须展示原因, 不能仅用灰色暗示.
 
 当前只注册 ZIP 后端. 它支持识别/列表/预览/打开/解压/创建, 但不声明添加/删除/重命名/密码/文件名加密/分卷. `jar`、`aar` 和 `war` 只是 ZIP 的扩展名别名. 新后端的候选路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
+
+外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). 总样本矩阵只有在 Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链的对应样本均落地后才可标记完成.
 
 ## 不可取消的安全边界
 

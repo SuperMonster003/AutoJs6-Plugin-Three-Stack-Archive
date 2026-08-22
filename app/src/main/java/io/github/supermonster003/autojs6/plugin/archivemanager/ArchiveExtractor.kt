@@ -39,6 +39,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                 ArchiveFailureCode.OUTPUT_FAILURE,
                 "Extraction destination is invalid",
                 error,
+                snapshot.format,
             )
         }
         return extractToWriter(source, snapshot, selectedPaths, rootName, writer, progress)
@@ -57,7 +58,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         val safeRootName = ArchivePathPolicy.validateDestinationRootName(rootName, limits)
         validateSnapshot(source, snapshot, limits)
         val selection = ArchiveSelection.resolve(snapshot, selectedPaths)
-        validateSelection(selection, limits)
+        validateSelection(selection, limits, snapshot.format)
         preflightCentralDirectory(source, snapshot) {
             extractionContext.ensureActive()
         }
@@ -116,6 +117,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                         liveEntry = liveEntry,
                         snapshotEntry = entry,
                         requireExtractable = true,
+                        format = snapshot.format,
                     )
                     val parent = directories[parentPath(entry.path)]
                         ?: extractionFailure("Extraction file parent is missing")
@@ -288,13 +290,19 @@ internal class ArchiveExtractor @JvmOverloads constructor(
     private fun validateSelection(
         selection: ResolvedArchiveSelection,
         limits: ArchiveSecurityLimits,
+        format: ArchiveFormat,
     ) {
         var total = 0L
         selection.files.forEach { entry ->
             if (!entry.canExtract) {
                 throw ArchiveExtractionException(
-                    ArchiveFailureCode.UNSUPPORTED_METHOD,
+                    if (entry.isEncrypted) {
+                        ArchiveFailureCode.PASSWORD_REQUIRED
+                    } else {
+                        ArchiveFailureCode.UNSUPPORTED_METHOD
+                    },
                     "Selected archive entry is encrypted or uses an unsupported compression method",
+                    format = format,
                 )
             }
             if (entry.uncompressedSize > limits.maxSingleUncompressedBytes) {
@@ -331,6 +339,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     validateCentralEntry(
                         liveEntry = liveEntry,
                         snapshotEntry = snapshot.entries[ordinal],
+                        format = snapshot.format,
                     )
                     ordinal++
                 }
@@ -351,11 +360,17 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         liveEntry: ArchiveReaderEntry,
         snapshotEntry: ArchiveEntry,
         requireExtractable: Boolean = false,
+        format: ArchiveFormat,
     ) {
         if (requireExtractable && !liveEntry.capabilities.canExtract) {
             throw ArchiveExtractionException(
-                ArchiveFailureCode.UNSUPPORTED_METHOD,
+                if (liveEntry.isEncrypted) {
+                    ArchiveFailureCode.PASSWORD_REQUIRED
+                } else {
+                    ArchiveFailureCode.UNSUPPORTED_METHOD
+                },
                 "Archive entry is encrypted or uses an unsupported compression method",
+                format = format,
             )
         }
         val same = liveEntry.name == snapshotEntry.sourceName &&

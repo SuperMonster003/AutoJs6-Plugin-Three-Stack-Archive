@@ -57,4 +57,32 @@
     <string name="text_split_unavailable_for_format">La sortie fractionnée n\'est pas disponible pour %1$s.</string>
     <string name="text_split_volume">Taille du volume (MiB)</string>
     <string name="text_encryption_unavailable_for_format">Le mot de passe et le chiffrement des noms ne sont pas disponibles pour %1$s.</string>
+    <string name="error_diagnostic_details">%1$s\nFormat: %2$s\nÉtape: %3$s\nCode: %4$s\nMotif: %5$s</string>
+    <string name="error_reason_cache_space">L\'espace de cache est insuffisant pour ouvrir cette archive.</string>
+    <string name="error_reason_cleanup">La sortie partielle n\'a pas pu être entièrement supprimée.</string>
+    <string name="error_reason_compression_method">Une entrée utilise une méthode de compression que ce moteur ne peut pas lire.</string>
+    <string name="error_reason_entry_data">Une entrée de l\'archive n\'a pas pu être lue ou vérifiée.</string>
+    <string name="error_reason_filename_encoding">L\'encodage de noms sélectionné est indisponible ou ne permet pas d\'indexer cette archive.</string>
+    <string name="error_reason_index">Les métadonnées du répertoire de l\'archive sont endommagées ou non prises en charge.</string>
+    <string name="error_reason_input">L\'archive ne peut pas être lue ou a changé pendant son ouverture.</string>
+    <string name="error_reason_integrity">La taille ou la somme de contrôle ne correspond pas aux métadonnées de l\'archive.</string>
+    <string name="error_reason_invalid_signature">Le fichier ne contient aucune signature d\'archive reconnue.</string>
+    <string name="error_reason_limit">L\'opération dépasse le budget de ressources configuré.</string>
+    <string name="error_reason_output">L\'emplacement de sortie ne peut pas être préparé ou écrit de façon sûre.</string>
+    <string name="error_reason_password">Un mot de passe est requis ou le mot de passe fourni est incorrect.</string>
+    <string name="error_reason_path">Le chemin d\'une entrée est en conflit ou ne peut pas être traité de façon sûre.</string>
+    <string name="text_archive_diagnostic">Diagnostic de l\'archive</string>
+    <string name="text_copy_diagnostic">Copier le diagnostic</string>
+    <string name="text_diagnostic_copied">Diagnostic copié</string>
+    <string name="text_failure_stage_cleanup">Nettoyage</string>
+    <string name="text_failure_stage_entry_data">Données de l\'entrée</string>
+    <string name="text_failure_stage_format_detection">Détection du format</string>
+    <string name="text_failure_stage_index">Index du répertoire</string>
+    <string name="text_failure_stage_input">Entrée</string>
+    <string name="text_failure_stage_output">Sortie</string>
+    <string name="text_failure_stage_password">Mot de passe</string>
+    <string name="text_filename_encoding">Encodage des noms</string>
+    <string name="text_filename_encoding_automatic">Automatique</string>
+    <string name="text_filename_encoding_automatic_detected">Automatique (repli hérité: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Réindexation de l\'archive...</string>
 </resources>

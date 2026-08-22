@@ -4,6 +4,8 @@ import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.nio.charset.IllegalCharsetNameException
+import java.nio.charset.UnsupportedCharsetException
 import java.util.zip.ZipException
 
 internal object ZipArchiveBackend : ArchiveBackend {
@@ -23,6 +25,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
         filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
         splitVolumes = ArchiveOptionMode.UNSUPPORTED,
         compressionLevels = (0..9).toList(),
+        filenameCharsetNames = ZipArchiveAccess.supportedFilenameCharsetNames(),
         limitations = setOf(
             ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT,
             ArchiveFormatLimitation.PASSWORD_UNAVAILABLE,
@@ -36,12 +39,12 @@ internal object ZipArchiveBackend : ArchiveBackend {
         val charsetName = options.filenameCharsetName ?: try {
             ZipArchiveAccess.detectCharset(source).name()
         } catch (error: Exception) {
-            throw mapOpenFailure(error)
+            throw mapOpenFailure(source, error)
         }
         val archive = try {
             ZipArchiveAccess.open(source, charsetName)
         } catch (error: Exception) {
-            throw mapOpenFailure(error)
+            throw mapOpenFailure(source, error)
         }
         return try {
             ZipArchiveReader(
@@ -50,27 +53,41 @@ internal object ZipArchiveBackend : ArchiveBackend {
             )
         } catch (error: Exception) {
             runCatching { archive.close() }.exceptionOrNull()?.let(error::addSuppressed)
-            throw mapOpenFailure(error)
+            throw mapOpenFailure(source, error)
         }
     }
 
     override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
         ZipArchiveCreator(session)
 
-    private fun mapOpenFailure(error: Throwable): ArchiveBackendException {
+    private fun mapOpenFailure(source: File, error: Throwable): ArchiveBackendException {
         if (error is ArchiveBackendException) return error
+        val invalidOptions = error is UnsupportedCharsetException || error is IllegalCharsetNameException
         val unsupportedMethod = error is ZipException &&
             error.message.orEmpty().contains("compression method", ignoreCase = true)
+        val invalidSignature = !invalidOptions && !ZipArchiveAccess.hasZipSignature(source)
+        val failure = when {
+            invalidOptions -> ArchiveBackendFailure.INVALID_OPTIONS
+            invalidSignature -> ArchiveBackendFailure.INVALID_SIGNATURE
+            unsupportedMethod -> ArchiveBackendFailure.UNSUPPORTED_METHOD
+            else -> ArchiveBackendFailure.MALFORMED
+        }
         return ArchiveBackendException(
-            failure = if (unsupportedMethod) {
-                ArchiveBackendFailure.UNSUPPORTED_METHOD
-            } else {
-                ArchiveBackendFailure.MALFORMED
+            format = format,
+            failure = failure,
+            stage = when (failure) {
+                ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureStage.FORMAT_DETECTION
+                ArchiveBackendFailure.INVALID_OPTIONS,
+                ArchiveBackendFailure.MALFORMED,
+                ArchiveBackendFailure.UNSUPPORTED_METHOD,
+                -> ArchiveFailureStage.INDEX
             },
-            message = if (unsupportedMethod) {
-                "ZIP contains an unsupported compression method"
-            } else {
-                "ZIP directory metadata cannot be read"
+            message = when (failure) {
+                ArchiveBackendFailure.INVALID_SIGNATURE -> "ZIP signature is not present"
+                ArchiveBackendFailure.INVALID_OPTIONS -> "ZIP filename encoding is not supported"
+                ArchiveBackendFailure.UNSUPPORTED_METHOD ->
+                    "ZIP contains an unsupported compression method"
+                ArchiveBackendFailure.MALFORMED -> "ZIP directory metadata cannot be read"
             },
             cause = error,
         )

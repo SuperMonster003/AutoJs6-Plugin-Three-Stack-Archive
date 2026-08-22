@@ -57,4 +57,32 @@
     <string name="text_split_unavailable_for_format">%1$s では分割出力を利用できません.</string>
     <string name="text_split_volume">分割サイズ (MiB)</string>
     <string name="text_encryption_unavailable_for_format">%1$s ではパスワードとファイル名暗号化を利用できません.</string>
+    <string name="error_diagnostic_details">%1$s\n形式: %2$s\n段階: %3$s\nコード: %4$s\n理由: %5$s</string>
+    <string name="error_reason_cache_space">このアーカイブを開くためのキャッシュ容量が不足しています.</string>
+    <string name="error_reason_cleanup">部分的な出力を完全に削除できませんでした.</string>
+    <string name="error_reason_compression_method">このバックエンドで読み取れない圧縮方式が使用されています.</string>
+    <string name="error_reason_entry_data">アーカイブ項目を読み取りまたは検証できませんでした.</string>
+    <string name="error_reason_filename_encoding">選択したファイル名エンコーディングは利用できないか, このアーカイブを索引できません.</string>
+    <string name="error_reason_index">アーカイブのディレクトリメタデータが破損しているか未対応です.</string>
+    <string name="error_reason_input">アーカイブを読み取れないか, 開いている間に変更されました.</string>
+    <string name="error_reason_integrity">項目のサイズまたはチェックサムがアーカイブのメタデータと一致しません.</string>
+    <string name="error_reason_invalid_signature">認識可能なアーカイブ署名がファイルにありません.</string>
+    <string name="error_reason_limit">操作が設定済みのリソース予算を超えています.</string>
+    <string name="error_reason_output">出力先を安全に準備または書き込みできません.</string>
+    <string name="error_reason_password">パスワードが必要か, 入力したパスワードが正しくありません.</string>
+    <string name="error_reason_path">項目パスが競合しているか, 安全に処理できません.</string>
+    <string name="text_archive_diagnostic">アーカイブ診断情報</string>
+    <string name="text_copy_diagnostic">診断情報をコピー</string>
+    <string name="text_diagnostic_copied">診断情報をコピーしました</string>
+    <string name="text_failure_stage_cleanup">クリーンアップ</string>
+    <string name="text_failure_stage_entry_data">項目データ</string>
+    <string name="text_failure_stage_format_detection">形式検出</string>
+    <string name="text_failure_stage_index">ディレクトリ索引</string>
+    <string name="text_failure_stage_input">入力</string>
+    <string name="text_failure_stage_output">出力</string>
+    <string name="text_failure_stage_password">パスワード</string>
+    <string name="text_filename_encoding">ファイル名エンコーディング</string>
+    <string name="text_filename_encoding_automatic">自動検出</string>
+    <string name="text_filename_encoding_automatic_detected">自動検出 (旧式名の代替: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">アーカイブを再索引しています...</string>
 </resources>

@@ -17,6 +17,7 @@
       ],
       "fix": [
         "ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods",
+        "ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding",
         "Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing",
         "ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems"
       ],
@@ -25,7 +26,8 @@
         "Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work",
         "The transitional standalone screen now follows system day/night mode and Material dynamic colors",
         "ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files",
-        "Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled"
+        "Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled",
+        "Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics"
       ]
     },
     "v1.0.1": {

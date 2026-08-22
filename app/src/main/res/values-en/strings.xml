@@ -57,4 +57,32 @@
     <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
     <string name="text_split_volume">Split volume (MiB)</string>
     <string name="text_encryption_unavailable_for_format">Password and filename encryption are not available for %1$s.</string>
+    <string name="error_diagnostic_details">%1$s\nFormat: %2$s\nStage: %3$s\nCode: %4$s\nReason: %5$s</string>
+    <string name="error_reason_cache_space">There is not enough cache space to open this archive.</string>
+    <string name="error_reason_cleanup">Partial output could not be removed completely.</string>
+    <string name="error_reason_compression_method">An entry uses a compression method that this backend cannot read.</string>
+    <string name="error_reason_entry_data">An archive entry could not be read or verified.</string>
+    <string name="error_reason_filename_encoding">The selected filename encoding is unavailable or cannot index this archive.</string>
+    <string name="error_reason_index">The archive directory metadata is malformed or unsupported.</string>
+    <string name="error_reason_input">The archive input cannot be read or changed while opening.</string>
+    <string name="error_reason_integrity">The entry size or checksum does not match the archive metadata.</string>
+    <string name="error_reason_invalid_signature">The file does not contain a recognized archive signature.</string>
+    <string name="error_reason_limit">The operation exceeds the configured resource budget.</string>
+    <string name="error_reason_output">The output location cannot be prepared or written safely.</string>
+    <string name="error_reason_password">A password is required or the provided password is incorrect.</string>
+    <string name="error_reason_path">An entry path is conflicting or cannot be handled safely.</string>
+    <string name="text_archive_diagnostic">Archive diagnostic</string>
+    <string name="text_copy_diagnostic">Copy diagnostic</string>
+    <string name="text_diagnostic_copied">Diagnostic copied</string>
+    <string name="text_failure_stage_cleanup">Cleanup</string>
+    <string name="text_failure_stage_entry_data">Entry data</string>
+    <string name="text_failure_stage_format_detection">Format detection</string>
+    <string name="text_failure_stage_index">Directory index</string>
+    <string name="text_failure_stage_input">Input</string>
+    <string name="text_failure_stage_output">Output</string>
+    <string name="text_failure_stage_password">Password</string>
+    <string name="text_filename_encoding">Filename encoding</string>
+    <string name="text_filename_encoding_automatic">Automatic</string>
+    <string name="text_filename_encoding_automatic_detected">Automatic (legacy fallback: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexing archive...</string>
 </resources>

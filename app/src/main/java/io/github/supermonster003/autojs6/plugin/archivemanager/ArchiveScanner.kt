@@ -11,6 +11,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
     @JvmOverloads
     fun scan(
         source: File,
+        options: ArchiveReaderOptions = ArchiveReaderOptions(),
         cancellationCheck: () -> Unit = {},
     ): ArchiveSnapshot {
         cancellationCheck()
@@ -30,7 +31,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
 
         try {
             cancellationCheck()
-            engine.openReader(source).use { reader ->
+            engine.openReader(source, options = options).use { reader ->
                 detectedFormat = reader.format
                 readerOptions = reader.options
                 reader.entries.forEach { readerEntry ->
@@ -74,20 +75,36 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 }
             }
         } catch (error: ArchiveException) {
-            throw error
+            val format = detectedFormat
+            if (error.format != null || format == null) throw error
+            throw ArchiveValidationException(
+                code = error.code,
+                message = error.message ?: "Archive validation failed",
+                cause = error,
+                format = format,
+                stage = error.stage,
+            )
         } catch (error: ArchiveBackendException) {
             fail(
-                if (error.failure == ArchiveBackendFailure.UNSUPPORTED_METHOD) {
-                    ArchiveFailureCode.UNSUPPORTED_METHOD
-                } else {
-                    ArchiveFailureCode.MALFORMED_ARCHIVE
+                code = when (error.failure) {
+                    ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureCode.INVALID_SIGNATURE
+                    ArchiveBackendFailure.INVALID_OPTIONS ->
+                        ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
+                    ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE
                 },
-                if (error.failure == ArchiveBackendFailure.UNSUPPORTED_METHOD) {
-                    "Archive contains an unsupported compression method"
-                } else {
-                    "Archive is malformed or unsupported"
+                message = when (error.failure) {
+                    ArchiveBackendFailure.INVALID_SIGNATURE ->
+                        "Archive signature is not recognized"
+                    ArchiveBackendFailure.INVALID_OPTIONS ->
+                        "Archive filename encoding is not supported"
+                    ArchiveBackendFailure.UNSUPPORTED_METHOD ->
+                        "Archive contains an unsupported compression method"
+                    ArchiveBackendFailure.MALFORMED -> "Archive directory metadata is malformed"
                 },
-                error,
+                cause = error,
+                format = error.format,
+                stage = error.stage,
             )
         } catch (error: IOException) {
             fail(ArchiveFailureCode.MALFORMED_ARCHIVE, "Archive cannot be read", error)
@@ -207,4 +224,6 @@ private fun fail(
     code: ArchiveFailureCode,
     message: String,
     cause: Throwable? = null,
-): Nothing = throw ArchiveValidationException(code, message, cause)
+    format: ArchiveFormat? = null,
+    stage: ArchiveFailureStage = code.defaultStage,
+): Nothing = throw ArchiveValidationException(code, message, cause, format, stage)

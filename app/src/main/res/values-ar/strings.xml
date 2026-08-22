@@ -57,4 +57,32 @@
     <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
     <string name="text_split_volume">حجم الجزء (MiB)</string>
     <string name="text_encryption_unavailable_for_format">كلمة المرور وتشفير أسماء الملفات غير متاحين لتنسيق %1$s.</string>
+    <string name="error_diagnostic_details">%1$s\nالتنسيق: %2$s\nالمرحلة: %3$s\nالرمز: %4$s\nالسبب: %5$s</string>
+    <string name="error_reason_cache_space">لا توجد مساحة تخزين مؤقت كافية لفتح هذا الأرشيف.</string>
+    <string name="error_reason_cleanup">تعذرت إزالة المخرجات الجزئية بالكامل.</string>
+    <string name="error_reason_compression_method">يستخدم أحد العناصر طريقة ضغط لا يمكن لهذه الواجهة الخلفية قراءتها.</string>
+    <string name="error_reason_entry_data">تعذرت قراءة عنصر في الأرشيف أو التحقق منه.</string>
+    <string name="error_reason_filename_encoding">ترميز أسماء الملفات المحدد غير متوفر أو لا يمكنه فهرسة هذا الأرشيف.</string>
+    <string name="error_reason_index">بيانات دليل الأرشيف تالفة أو غير مدعومة.</string>
+    <string name="error_reason_input">يتعذر قراءة الأرشيف أو تغير أثناء فتحه.</string>
+    <string name="error_reason_integrity">حجم العنصر أو قيمة التحقق لا تطابق بيانات الأرشيف.</string>
+    <string name="error_reason_invalid_signature">لا يحتوي الملف على توقيع أرشيف معروف.</string>
+    <string name="error_reason_limit">تتجاوز العملية ميزانية الموارد المضبوطة.</string>
+    <string name="error_reason_output">يتعذر إعداد موقع الإخراج أو الكتابة إليه بأمان.</string>
+    <string name="error_reason_password">كلمة المرور مطلوبة أو كلمة المرور المقدمة غير صحيحة.</string>
+    <string name="error_reason_path">مسار أحد العناصر متعارض أو لا يمكن معالجته بأمان.</string>
+    <string name="text_archive_diagnostic">تشخيص الأرشيف</string>
+    <string name="text_copy_diagnostic">نسخ التشخيص</string>
+    <string name="text_diagnostic_copied">تم نسخ التشخيص</string>
+    <string name="text_failure_stage_cleanup">التنظيف</string>
+    <string name="text_failure_stage_entry_data">بيانات العنصر</string>
+    <string name="text_failure_stage_format_detection">اكتشاف التنسيق</string>
+    <string name="text_failure_stage_index">فهرس الدليل</string>
+    <string name="text_failure_stage_input">الإدخال</string>
+    <string name="text_failure_stage_output">الإخراج</string>
+    <string name="text_failure_stage_password">كلمة المرور</string>
+    <string name="text_filename_encoding">ترميز أسماء الملفات</string>
+    <string name="text_filename_encoding_automatic">تلقائي</string>
+    <string name="text_filename_encoding_automatic_detected">تلقائي (احتياطي للأسماء القديمة: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">جار إعادة فهرسة الأرشيف...</string>
 </resources>

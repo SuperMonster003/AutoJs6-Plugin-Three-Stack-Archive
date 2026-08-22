@@ -43,6 +43,8 @@ Archive Manager brings ZIP browsing, extraction, and creation into the AutoJs6 f
 - Build the listing from directory metadata without decompressing every entry first.
 - Verify the actual ZIP structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
+- Override the ZIP filename encoding when automatic detection is wrong; browsing and extraction reuse the same selection.
+- Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
 - Create ZIP files with a configurable name and compression level; default to the target name for one item and the parent-folder name for multiple items.
 - Write to a same-directory temporary file and commit atomically; automatically number conflicts without overwriting existing files.
@@ -94,6 +96,7 @@ _Unreleased_
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
+- `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
 - `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
@@ -101,6 +104,7 @@ _Unreleased_
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
 - `Improved` ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
 - `Improved` Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled
+- `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
 
 #### v1.0.1
 

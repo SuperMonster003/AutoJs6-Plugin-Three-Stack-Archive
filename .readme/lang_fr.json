@@ -16,6 +16,8 @@
     "Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.",
     "Vérifier la structure ZIP réelle et unifier les capacités de prévisualisation, d'extraction et de création, en laissant désactivées les options non prises en charge.",
     "Prendre en charge Zip64, les préambules auto-extractibles, les anciens encodages de noms et les séparateurs Windows.",
+    "Remplacer l'encodage des noms ZIP quand la détection automatique est incorrecte ; la navigation et l'extraction réutilisent le même choix.",
+    "Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.",
     "Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.",
     "Créer des ZIP avec un nom et un niveau de compression configurables ; utiliser par défaut le nom de la cible pour un élément et celui du dossier parent pour plusieurs.",
     "Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; numéroter les conflits sans écraser les fichiers existants."

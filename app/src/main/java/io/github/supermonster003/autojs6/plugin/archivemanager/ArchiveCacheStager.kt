@@ -160,4 +160,8 @@ internal object ArchiveCacheStager {
     private const val STALE_INPUT_AGE_MILLIS = 7L * 24L * 60L * 60L * 1_000L
 }
 
-internal class ArchiveInputLimitException(message: String) : IOException(message)
+internal class ArchiveInputLimitException(message: String) : ArchiveException(
+    code = ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE,
+    message = message,
+    stage = ArchiveFailureStage.INPUT,
+)

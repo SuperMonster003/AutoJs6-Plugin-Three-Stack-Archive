@@ -57,4 +57,32 @@
     <string name="text_split_unavailable_for_format">%1$s에서는 분할 출력을 사용할 수 없습니다.</string>
     <string name="text_split_volume">분할 크기 (MiB)</string>
     <string name="text_encryption_unavailable_for_format">%1$s에서는 비밀번호와 파일 이름 암호화를 사용할 수 없습니다.</string>
+    <string name="error_diagnostic_details">%1$s\n형식: %2$s\n단계: %3$s\n코드: %4$s\n이유: %5$s</string>
+    <string name="error_reason_cache_space">이 압축 파일을 열 캐시 공간이 부족합니다.</string>
+    <string name="error_reason_cleanup">부분 출력을 완전히 삭제하지 못했습니다.</string>
+    <string name="error_reason_compression_method">현재 백엔드에서 읽을 수 없는 압축 방식이 사용되었습니다.</string>
+    <string name="error_reason_entry_data">압축 파일 항목을 읽거나 검증하지 못했습니다.</string>
+    <string name="error_reason_filename_encoding">선택한 파일 이름 인코딩을 사용할 수 없거나 이 압축 파일을 색인할 수 없습니다.</string>
+    <string name="error_reason_index">압축 파일의 디렉터리 메타데이터가 손상되었거나 지원되지 않습니다.</string>
+    <string name="error_reason_input">압축 파일을 읽을 수 없거나 여는 중에 변경되었습니다.</string>
+    <string name="error_reason_integrity">항목 크기 또는 체크섬이 압축 파일 메타데이터와 일치하지 않습니다.</string>
+    <string name="error_reason_invalid_signature">파일에 인식 가능한 압축 파일 서명이 없습니다.</string>
+    <string name="error_reason_limit">작업이 구성된 리소스 예산을 초과합니다.</string>
+    <string name="error_reason_output">출력 위치를 안전하게 준비하거나 쓸 수 없습니다.</string>
+    <string name="error_reason_password">비밀번호가 필요하거나 입력한 비밀번호가 올바르지 않습니다.</string>
+    <string name="error_reason_path">항목 경로가 충돌하거나 안전하게 처리할 수 없습니다.</string>
+    <string name="text_archive_diagnostic">압축 파일 진단 정보</string>
+    <string name="text_copy_diagnostic">진단 정보 복사</string>
+    <string name="text_diagnostic_copied">진단 정보를 복사했습니다</string>
+    <string name="text_failure_stage_cleanup">정리</string>
+    <string name="text_failure_stage_entry_data">항목 데이터</string>
+    <string name="text_failure_stage_format_detection">형식 감지</string>
+    <string name="text_failure_stage_index">디렉터리 색인</string>
+    <string name="text_failure_stage_input">입력</string>
+    <string name="text_failure_stage_output">출력</string>
+    <string name="text_failure_stage_password">비밀번호</string>
+    <string name="text_filename_encoding">파일 이름 인코딩</string>
+    <string name="text_filename_encoding_automatic">자동 감지</string>
+    <string name="text_filename_encoding_automatic_detected">자동 감지 (기존 이름 대체: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">압축 파일을 다시 색인하는 중...</string>
 </resources>

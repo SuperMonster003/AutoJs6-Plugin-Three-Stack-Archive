@@ -7,6 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import java.nio.charset.Charset
 import java.util.zip.ZipEntry
 
 class ArchiveEngineTest {
@@ -32,6 +33,8 @@ class ArchiveEngineTest {
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
         assertEquals((0..9).toList(), capabilities.compressionLevels)
+        assertTrue(Charset.forName("GB18030").name() in capabilities.filenameCharsetNames)
+        assertTrue(Charset.forName("IBM437").name() in capabilities.filenameCharsetNames)
         assertEquals(listOf(ArchiveFormat.ZIP), engine.readableFormats)
         assertEquals(listOf(ArchiveFormat.ZIP), engine.creatableFormats)
         assertEquals(ArchiveFormat.ZIP.extensions, ArchiveManagerPlugin.EXTENSIONS.toSet())
@@ -89,5 +92,17 @@ class ArchiveEngineTest {
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_SIGNATURE) {
             ArchiveEngine.DEFAULT.probe(source)
         }
+    }
+
+    @Test
+    fun `signature probe finds a valid zip after a long executable style preamble`() {
+        val source = writeZip(
+            temporaryFolder.newFile("long-preamble.zip"),
+            FixtureEntry("payload.txt", "payload".toByteArray(), ZipEntry.STORED),
+        )
+        source.writeBytes(ByteArray(150_000) { 0x4D } + source.readBytes())
+
+        assertTrue(ZipArchiveAccess.hasZipSignature(source))
+        assertEquals(ArchiveFormat.ZIP, ArchiveEngine.DEFAULT.probe(source).format)
     }
 }

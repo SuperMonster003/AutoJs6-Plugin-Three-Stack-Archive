@@ -78,7 +78,11 @@ internal class ArchiveEntryStreamer(
         }
         if (!entry.canOpen) {
             failure(
-                ArchiveFailureCode.UNSUPPORTED_METHOD,
+                if (entry.isEncrypted) {
+                    ArchiveFailureCode.PASSWORD_REQUIRED
+                } else {
+                    ArchiveFailureCode.UNSUPPORTED_METHOD
+                },
                 "Archive entry is encrypted or uses an unsupported compression method",
             )
         }
@@ -117,7 +121,12 @@ internal class ArchiveEntryStreamer(
     )
 
     private fun failure(code: ArchiveFailureCode, message: String): Nothing =
-        throw ArchiveExtractionException(code, message)
+        throw ArchiveExtractionException(
+            code = code,
+            message = message,
+            format = snapshot.format,
+            stage = code.defaultStage,
+        )
 
     private data class EntryMeasurement(
         val bytes: Long,

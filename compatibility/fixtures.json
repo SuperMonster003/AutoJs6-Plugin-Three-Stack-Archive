@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "samples": [
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-deflate-unicode.zip",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -tzip <output> .\\ascii.txt .\\目录\\文件.txt -mx=6 -mcu=on -mtc=off -mta=off",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "af0b0186ec1605f5f2b640816b85586336b1e3d9b46f85fbedc238ae042c9c0c",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "method": "Store",
+          "size": 87,
+          "utf8NameFlag": true
+        }
+      ]
+    }
+  ]
+}

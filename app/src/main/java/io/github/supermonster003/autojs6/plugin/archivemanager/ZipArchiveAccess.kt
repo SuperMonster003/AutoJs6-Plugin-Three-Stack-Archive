@@ -5,6 +5,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipFile as CommonsZipFile
 import java.io.Closeable
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
@@ -52,12 +53,44 @@ internal object ZipArchiveAccess {
 
     fun open(source: File, charsetName: String?): OpenZipArchive {
         val charset = charsetName
-            ?.let { runCatching { Charset.forName(it) }.getOrNull() }
+            ?.let(Charset::forName)
             ?: detectCharset(source)
         return if (requiresPlatformBackend()) {
             openPlatform(source, charset)
         } else {
             openCommons(source, charset)
+        }
+    }
+
+    fun supportedFilenameCharsetNames(): List<String> = charsetCandidates(Locale.ROOT)
+        .map(Charset::name)
+
+    fun hasZipSignature(source: File): Boolean {
+        if (!source.isFile || source.length() < ZIP_SIGNATURE_SIZE) return false
+        return try {
+            RandomAccessFile(source, "r").use { input ->
+                val buffer = ByteArray(SIGNATURE_SCAN_BUFFER_SIZE + ZIP_SIGNATURE_SIZE - 1)
+                var carry = 0
+                var found = false
+                while (!found) {
+                    val read = input.read(buffer, carry, SIGNATURE_SCAN_BUFFER_SIZE)
+                    if (read < 0) break
+                    val length = carry + read
+                    for (offset in 0..length - ZIP_SIGNATURE_SIZE) {
+                        if (isZipSignature(buffer, offset)) {
+                            found = true
+                            break
+                        }
+                    }
+                    carry = minOf(ZIP_SIGNATURE_SIZE - 1, length)
+                    if (carry > 0) {
+                        buffer.copyInto(buffer, 0, length - carry, length)
+                    }
+                }
+                found
+            }
+        } catch (_: IOException) {
+            false
         }
     }
 
@@ -225,8 +258,21 @@ internal object ZipArchiveAccess {
 
     private fun isAscii(value: ByteArray): Boolean = value.all { (it.toInt() and 0x80) == 0 }
 
+    private fun isZipSignature(bytes: ByteArray, offset: Int): Boolean {
+        if (bytes[offset] != 'P'.code.toByte() || bytes[offset + 1] != 'K'.code.toByte()) {
+            return false
+        }
+        val third = bytes[offset + 2].toInt() and 0xFF
+        val fourth = bytes[offset + 3].toInt() and 0xFF
+        return third == 3 && fourth == 4 ||
+            third == 5 && fourth == 6 ||
+            third == 7 && fourth == 8
+    }
+
     private val CP437: Charset = Charset.forName("IBM437")
     private const val MULTIBYTE_COMPACTNESS_BONUS = 4
+    private const val SIGNATURE_SCAN_BUFFER_SIZE = 64 * 1024
+    private const val ZIP_SIGNATURE_SIZE = 4
     private val UNSAFE_CHARACTER_TYPES = setOf(
         Character.CONTROL.toInt(),
         Character.FORMAT.toInt(),

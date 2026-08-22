@@ -50,7 +50,11 @@ class ExplorerActionService : Service() {
                 ).also(sessions::add)
             } catch (error: Throwable) {
                 staged.delete()
-                throw IllegalStateException(error.message ?: "Archive cannot be opened", error)
+                val diagnostic = ArchiveFailureDiagnostic.from(
+                    error = error,
+                    stageHint = ArchiveFailureStage.INDEX,
+                )
+                throw IllegalStateException(diagnostic.wireSummary(), error)
             }
         }
     }

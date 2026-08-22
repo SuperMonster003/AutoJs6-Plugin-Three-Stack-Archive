@@ -1,0 +1,3 @@
+Archive Manager compatibility fixture.
+
+This file verifies ordinary ASCII names and Deflate entry data.

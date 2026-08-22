@@ -12,9 +12,12 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.nio.charset.Charset
 import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 class ArchiveExtractorTest {
 
@@ -50,6 +53,33 @@ class ArchiveExtractorTest {
         assertEquals(ExtractionPhase.PREPARING, progress.first().phase)
         assertEquals(ExtractionPhase.COMPLETED, progress.last().phase)
         assertEquals(10L, progress.last().bytesWritten)
+    }
+
+    @Test
+    fun `extraction reuses a manually selected filename encoding`() = runBlocking {
+        val source = temporaryFolder.newFile("manual-encoding.zip")
+        val expected = "兼容内容".toByteArray()
+        ZipOutputStream(FileOutputStream(source), Charset.forName("GB18030")).use { output ->
+            output.putNextEntry(ZipEntry("目录/文件.txt"))
+            output.write(expected)
+            output.closeEntry()
+        }
+        val snapshot = ArchiveScanner().scan(
+            source,
+            ArchiveReaderOptions(filenameCharsetName = "GB18030"),
+        )
+        val writer = FakeArchiveOutputWriter()
+
+        ArchiveExtractor().extractToWriter(
+            source = source,
+            snapshot = snapshot,
+            selectedPaths = listOf(""),
+            rootName = "encoded",
+            writer = writer,
+        )
+
+        assertEquals(Charset.forName("GB18030").name(), snapshot.readerOptions.filenameCharsetName)
+        assertArrayEquals(expected, writer.content("encoded/目录/文件.txt"))
     }
 
     @Test

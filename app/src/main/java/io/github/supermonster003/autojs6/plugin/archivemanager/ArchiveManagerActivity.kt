@@ -1,9 +1,13 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.text.format.Formatter
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,6 +46,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var renderGeneration = 0
     private var isBusy = false
     private var directActionHandled = false
+    private var selectedFilenameCharsetName: String? = null
+    private var filenameCharsetChoices: List<FilenameCharsetChoice> = emptyList()
+    private var lastFailureDiagnostic: ArchiveFailureDiagnostic? = null
 
     private val outputTreeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree(),
@@ -93,6 +100,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
             }
         }
         outState.putBoolean(STATE_DIRECT_ACTION_HANDLED, directActionHandled)
+        selectedFilenameCharsetName?.let {
+            outState.putString(STATE_FILENAME_CHARSET, it)
+        }
     }
 
     override fun onDestroy() {
@@ -128,6 +138,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
         selectAllButton.setOnClickListener { selectAllVisibleEntries() }
         extractButton.setOnClickListener { chooseExtractionDestination() }
         cancelButton.setOnClickListener { operationJob?.cancel() }
+        filenameEncodingInput.setOnItemClickListener { _, _, position, _ ->
+            filenameCharsetChoices.getOrNull(position)?.let(::selectFilenameCharset)
+        }
+        filenameEncodingInput.setOnClickListener { filenameEncodingInput.showDropDown() }
+        diagnosticCopyButton.setOnClickListener { copyLastDiagnostic() }
+        filenameEncodingLayout.isVisible = false
+        diagnosticCopyButton.isVisible = false
         selectedCount.text = getString(R.string.text_selected_count, 0)
 
         onBackPressedDispatcher.addCallback(
@@ -176,41 +193,133 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         }
                     }.also { stagedArchive = it }
                 }
-                val (scanned, scannedIndex) = withContext(Dispatchers.IO) {
-                    ArchiveScanner().scan(staged.file) { ensureActive() }.let { scanned ->
-                        scanned to ArchiveIndex(scanned)
-                    }
-                }
-                snapshot = scanned
-                index = scannedIndex
-                val currentNode = scannedIndex.node(currentDirectory)
-                if (currentDirectory.isNotEmpty() && currentNode?.isDirectory != true) {
-                    currentDirectory = ArchivePathPolicy.ROOT_PATH
-                }
-                selectedPaths.retainAll { scannedIndex.node(it) != null }
-                binding.archiveSummary.text = resources.getQuantityString(
-                    R.plurals.text_archive_summary,
-                    scanned.entries.size,
-                    scanned.entries.size,
-                    formatBytes(scanned.totalUncompressedBytes),
-                )
-                setBusy(false)
-                renderEntries()
-                pendingOutputTreeUri?.let { treeUri ->
-                    pendingOutputTreeUri = null
-                    extractTo(treeUri)
-                } ?: startDirectExtractionIfRequested(resolvedRequest = request)
+                configureFilenameEncoding(snapshot = null)
+                val (scanned, scannedIndex) = scanStagedArchive(staged)
+                applyScannedArchive(scanned, scannedIndex)
+                resumeRequestedActionAfterScan()
             } catch (cancelled: CancellationException) {
                 clearStagedArchive()
                 showMessage(getString(R.string.text_cancelled))
                 setBusy(false)
                 throw cancelled
             } catch (error: Throwable) {
-                clearStagedArchive()
-                showMessage(messageForLoadFailure(error))
+                if (stagedArchive == null) {
+                    binding.filenameEncodingLayout.isVisible = false
+                } else {
+                    configureFilenameEncoding(snapshot)
+                }
+                showFailure(
+                    error = error,
+                    headline = headlineForLoadFailure(error),
+                    stageHint = if (stagedArchive == null) {
+                        ArchiveFailureStage.INPUT
+                    } else {
+                        ArchiveFailureStage.INDEX
+                    },
+                )
                 setBusy(false)
             }
         }
+    }
+
+    private suspend fun scanStagedArchive(
+        staged: StagedArchive,
+    ): Pair<ArchiveSnapshot, ArchiveIndex> = withContext(Dispatchers.IO) {
+        ArchiveScanner().scan(
+            source = staged.file,
+            options = ArchiveReaderOptions(filenameCharsetName = selectedFilenameCharsetName),
+        ) { ensureActive() }.let { scanned ->
+            scanned to ArchiveIndex(scanned)
+        }
+    }
+
+    private fun applyScannedArchive(scanned: ArchiveSnapshot, scannedIndex: ArchiveIndex) {
+        snapshot = scanned
+        index = scannedIndex
+        val currentNode = scannedIndex.node(currentDirectory)
+        if (currentDirectory.isNotEmpty() && currentNode?.isDirectory != true) {
+            currentDirectory = ArchivePathPolicy.ROOT_PATH
+        }
+        selectedPaths.retainAll { scannedIndex.node(it) != null }
+        binding.archiveSummary.text = resources.getQuantityString(
+            R.plurals.text_archive_summary,
+            scanned.entries.size,
+            scanned.entries.size,
+            formatBytes(scanned.totalUncompressedBytes),
+        )
+        lastFailureDiagnostic = null
+        binding.diagnosticCopyButton.isVisible = false
+        configureFilenameEncoding(scanned)
+        setBusy(false)
+        renderEntries()
+    }
+
+    private fun selectFilenameCharset(choice: FilenameCharsetChoice) {
+        if (choice.charsetName == selectedFilenameCharsetName || isBusy) return
+        val staged = stagedArchive ?: return
+        val previous = selectedFilenameCharsetName
+        selectedFilenameCharsetName = choice.charsetName
+        setBusy(true, getString(R.string.text_reindexing_archive), cancellable = true)
+        operationJob = lifecycleScope.launch {
+            try {
+                val (scanned, scannedIndex) = scanStagedArchive(staged)
+                applyScannedArchive(scanned, scannedIndex)
+                resumeRequestedActionAfterScan()
+            } catch (cancelled: CancellationException) {
+                selectedFilenameCharsetName = previous
+                configureFilenameEncoding(snapshot)
+                showMessage(getString(R.string.text_cancelled))
+                setBusy(false)
+                throw cancelled
+            } catch (error: Throwable) {
+                if (snapshot != null) selectedFilenameCharsetName = previous
+                configureFilenameEncoding(snapshot)
+                showFailure(
+                    error = error,
+                    headline = headlineForLoadFailure(error),
+                    stageHint = ArchiveFailureStage.INDEX,
+                )
+                setBusy(false)
+                renderEntries()
+            }
+        }
+    }
+
+    private fun configureFilenameEncoding(snapshot: ArchiveSnapshot?) {
+        val format = snapshot?.format ?: ArchiveFormat.ZIP
+        val supported = ArchiveEngine.DEFAULT.capabilities(format).filenameCharsetNames
+        if (supported.isEmpty()) {
+            filenameCharsetChoices = emptyList()
+            binding.filenameEncodingLayout.isVisible = false
+            return
+        }
+        if (selectedFilenameCharsetName != null && selectedFilenameCharsetName !in supported) {
+            selectedFilenameCharsetName = null
+        }
+        val detected = snapshot?.readerOptions?.filenameCharsetName
+            ?.takeIf { selectedFilenameCharsetName == null }
+        val automaticLabel = detected?.let {
+            getString(R.string.text_filename_encoding_automatic_detected, it)
+        } ?: getString(R.string.text_filename_encoding_automatic)
+        filenameCharsetChoices = buildList {
+            add(FilenameCharsetChoice(automaticLabel, null))
+            supported.forEach { charsetName ->
+                add(FilenameCharsetChoice(charsetName, charsetName))
+            }
+        }
+        binding.filenameEncodingInput.setAdapter(
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_list_item_1,
+                filenameCharsetChoices.map(FilenameCharsetChoice::label),
+            ),
+        )
+        val selected = filenameCharsetChoices.first {
+            it.charsetName == selectedFilenameCharsetName
+        }
+        binding.filenameEncodingInput.setText(selected.label, false)
+        binding.filenameEncodingLayout.isVisible = true
+        binding.filenameEncodingLayout.isEnabled = !isBusy
     }
 
     private fun renderEntries() {
@@ -245,8 +354,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
             if (generation != renderGeneration || isBusy) return@launch
             binding.currentPath.text = if (query.isEmpty()) "/$directory" else "/"
             binding.upButton.isEnabled = query.isEmpty() && directory.isNotEmpty()
-            binding.message.isVisible = result.rows.isEmpty()
-            if (result.rows.isEmpty()) binding.message.text = getString(R.string.text_no_entries)
+            binding.message.isVisible = result.rows.isEmpty() || lastFailureDiagnostic != null
+            if (result.rows.isEmpty() && lastFailureDiagnostic == null) {
+                binding.message.text = getString(R.string.text_no_entries)
+            }
             binding.entryList.isVisible = result.rows.isNotEmpty()
             adapter.submitList(result.rows)
             binding.selectedCount.text = getString(
@@ -341,6 +452,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
         chooseExtractionDestination()
     }
 
+    private fun resumeRequestedActionAfterScan() {
+        pendingOutputTreeUri?.let { treeUri ->
+            pendingOutputTreeUri = null
+            extractTo(treeUri)
+        } ?: request?.let(::startDirectExtractionIfRequested)
+    }
+
     private fun extractTo(treeUri: Uri) {
         val staged = stagedArchive ?: return
         val archive = snapshot ?: return
@@ -408,7 +526,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 setBusy(false)
                 throw cancelled
             } catch (error: Throwable) {
-                showMessage(messageForExtractionFailure(error))
+                showFailure(
+                    error = error,
+                    headline = headlineForExtractionFailure(error),
+                    formatHint = archive.format,
+                    stageHint = ArchiveFailureStage.ENTRY_DATA,
+                )
                 setBusy(false)
                 renderEntries()
             }
@@ -425,9 +548,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.cancelButton.isVisible = busy && cancellable
         binding.cancelButton.isEnabled = busy && cancellable
         binding.searchInput.isEnabled = !busy
+        binding.filenameEncodingLayout.isEnabled = !busy
         binding.upButton.isEnabled = !busy && currentDirectory.isNotEmpty()
         binding.selectAllButton.isEnabled = !busy && snapshot != null
         binding.extractButton.isEnabled = !busy && snapshot != null && selectedPaths.isNotEmpty()
+        if (busy) binding.diagnosticCopyButton.isVisible = false
         if (status != null) {
             binding.message.text = status
             binding.message.isVisible = true
@@ -437,8 +562,42 @@ class ArchiveManagerActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String) {
+        lastFailureDiagnostic = null
         binding.message.text = message
         binding.message.isVisible = true
+        binding.diagnosticCopyButton.isVisible = false
+    }
+
+    private fun showFailure(
+        error: Throwable,
+        headline: String,
+        formatHint: ArchiveFormat? = snapshot?.format,
+        stageHint: ArchiveFailureStage,
+    ) {
+        val diagnostic = ArchiveFailureDiagnostic.from(error, formatHint, stageHint)
+        lastFailureDiagnostic = diagnostic
+        binding.message.text = getString(
+            R.string.error_diagnostic_details,
+            headline,
+            diagnostic.format?.displayName ?: getString(R.string.text_unknown),
+            failureStageLabel(diagnostic.stage),
+            diagnostic.code?.name ?: getString(R.string.text_unknown),
+            failureReason(diagnostic),
+        )
+        binding.message.isVisible = true
+        binding.diagnosticCopyButton.isVisible =
+            applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+    }
+
+    private fun copyLastDiagnostic() {
+        val diagnostic = lastFailureDiagnostic ?: return
+        getSystemService(ClipboardManager::class.java).setPrimaryClip(
+            ClipData.newPlainText(
+                getString(R.string.text_archive_diagnostic),
+                diagnostic.debugReport(),
+            ),
+        )
+        Toast.makeText(this, R.string.text_diagnostic_copied, Toast.LENGTH_SHORT).show()
     }
 
     @Synchronized
@@ -460,6 +619,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
         pendingOutputTreeUri = savedInstanceState.getString(STATE_PENDING_OUTPUT_TREE_URI)
             ?.let(Uri::parse)
         directActionHandled = savedInstanceState.getBoolean(STATE_DIRECT_ACTION_HANDLED, false)
+        selectedFilenameCharsetName = savedInstanceState.getString(STATE_FILENAME_CHARSET)
+            ?.take(MAX_FILENAME_CHARSET_LENGTH)
     }
 
     private fun Bundle.putBoundedStringList(key: String, values: Collection<String>): Boolean {
@@ -475,6 +636,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
         val selectionCount: Int,
     )
 
+    private data class FilenameCharsetChoice(
+        val label: String,
+        val charsetName: String?,
+    )
+
     private fun postUiUpdate(update: () -> Unit) {
         if (isFinishing || isDestroyed) return
         binding.root.post {
@@ -482,9 +648,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun messageForLoadFailure(error: Throwable): String = withFailureReason(error, when (error) {
+    private fun headlineForLoadFailure(error: Throwable): String = when (error) {
         is ArchiveInputLimitException -> getString(R.string.error_archive_limit)
         is ArchiveException -> when (error.code) {
+            ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE,
             ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
             ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
             ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
@@ -495,9 +662,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
             else -> getString(R.string.error_archive_invalid)
         }
         else -> getString(R.string.error_cannot_open_archive)
-    })
+    }
 
-    private fun messageForExtractionFailure(error: Throwable): String = withFailureReason(error, when (error) {
+    private fun headlineForExtractionFailure(error: Throwable): String = when (error) {
         is ArchiveException -> when (error.code) {
             ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
             ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
@@ -507,12 +674,58 @@ class ArchiveManagerActivity : AppCompatActivity() {
             else -> getString(R.string.error_extraction_failed)
         }
         else -> getString(R.string.error_extraction_failed)
-    })
-
-    private fun withFailureReason(error: Throwable, headline: String): String {
-        val reason = error.message?.trim()?.takeIf(String::isNotEmpty) ?: return headline
-        return getString(R.string.error_with_reason, headline, reason.take(MAX_ERROR_REASON_LENGTH))
     }
+
+    private fun failureStageLabel(stage: ArchiveFailureStage): String = getString(
+        when (stage) {
+            ArchiveFailureStage.INPUT -> R.string.text_failure_stage_input
+            ArchiveFailureStage.FORMAT_DETECTION -> R.string.text_failure_stage_format_detection
+            ArchiveFailureStage.INDEX -> R.string.text_failure_stage_index
+            ArchiveFailureStage.PASSWORD -> R.string.text_failure_stage_password
+            ArchiveFailureStage.ENTRY_DATA -> R.string.text_failure_stage_entry_data
+            ArchiveFailureStage.OUTPUT -> R.string.text_failure_stage_output
+            ArchiveFailureStage.CLEANUP -> R.string.text_failure_stage_cleanup
+        },
+    )
+
+    private fun failureReason(diagnostic: ArchiveFailureDiagnostic): String = getString(
+        when (diagnostic.code) {
+            ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE -> R.string.error_reason_cache_space
+            ArchiveFailureCode.INVALID_SIGNATURE -> R.string.error_reason_invalid_signature
+            ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET ->
+                R.string.error_reason_filename_encoding
+            ArchiveFailureCode.PASSWORD_REQUIRED,
+            ArchiveFailureCode.WRONG_PASSWORD,
+            -> R.string.error_reason_password
+            ArchiveFailureCode.INVALID_PATH,
+            ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
+            ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
+            ArchiveFailureCode.DUPLICATE_PATH,
+            ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
+            -> R.string.error_reason_path
+            ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+            ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
+            ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
+            ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
+            -> R.string.error_reason_limit
+            ArchiveFailureCode.UNSUPPORTED_METHOD -> R.string.error_reason_compression_method
+            ArchiveFailureCode.SIZE_MISMATCH,
+            ArchiveFailureCode.CRC_MISMATCH,
+            -> R.string.error_reason_integrity
+            ArchiveFailureCode.INVALID_DESTINATION_NAME,
+            ArchiveFailureCode.OUTPUT_FAILURE,
+            -> R.string.error_reason_output
+            else -> when (diagnostic.stage) {
+                ArchiveFailureStage.INPUT -> R.string.error_reason_input
+                ArchiveFailureStage.FORMAT_DETECTION -> R.string.error_reason_invalid_signature
+                ArchiveFailureStage.INDEX -> R.string.error_reason_index
+                ArchiveFailureStage.PASSWORD -> R.string.error_reason_password
+                ArchiveFailureStage.ENTRY_DATA -> R.string.error_reason_entry_data
+                ArchiveFailureStage.OUTPUT -> R.string.error_reason_output
+                ArchiveFailureStage.CLEANUP -> R.string.error_reason_cleanup
+            }
+        },
+    )
 
     private fun extractionRootName(displayName: String): String {
         val candidate = displayName.substringBeforeLast('.', displayName)
@@ -536,7 +749,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private companion object {
         const val DEFAULT_EXTRACTION_ROOT = "archive"
         const val MAX_EXTRACTION_ROOT_LENGTH = 120
-        const val MAX_ERROR_REASON_LENGTH = 512
+        const val MAX_FILENAME_CHARSET_LENGTH = 64
         const val MAX_SAVED_STATE_CHARS = 128 * 1024
         const val MAX_SAVED_STATE_PATHS = 2_048
         const val PROGRESS_REPORT_BYTES = 8L * 1024L * 1024L
@@ -545,6 +758,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val SEARCH_DEBOUNCE_MILLIS = 150L
         const val STATE_CURRENT_DIRECTORY = "current_directory"
         const val STATE_DIRECT_ACTION_HANDLED = "direct_action_handled"
+        const val STATE_FILENAME_CHARSET = "filename_charset"
         const val STATE_PENDING_EXTRACTION_PATHS = "pending_extraction_paths"
         const val STATE_PENDING_OUTPUT_TREE_URI = "pending_output_tree_uri"
         const val STATE_SELECTED_PATHS = "selected_paths"

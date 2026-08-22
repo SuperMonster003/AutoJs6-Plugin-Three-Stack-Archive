@@ -82,6 +82,8 @@ data class FormatCapabilities(
     val filenameEncryption: ArchiveOptionMode,
     val splitVolumes: ArchiveOptionMode,
     val compressionLevels: List<Int>,
+    /** Supported manual filename-decoding overrides. An empty list means no override UI. */
+    val filenameCharsetNames: List<String> = emptyList(),
     val limitations: Set<ArchiveFormatLimitation>,
 ) {
     init {
@@ -90,6 +92,11 @@ data class FormatCapabilities(
         require(!canExtract || canList)
         require(compressionLevels.all { it >= 0 })
         require(compressionLevels.distinct().size == compressionLevels.size)
+        require(filenameCharsetNames.none(String::isBlank))
+        require(
+            filenameCharsetNames.distinctBy { it.uppercase(Locale.ROOT) }.size ==
+                filenameCharsetNames.size,
+        )
         require(canCreate || compressionLevels.isEmpty())
     }
 
@@ -189,12 +196,16 @@ internal interface ArchiveWriter {
 }
 
 internal enum class ArchiveBackendFailure {
+    INVALID_SIGNATURE,
     MALFORMED,
+    INVALID_OPTIONS,
     UNSUPPORTED_METHOD,
 }
 
 internal class ArchiveBackendException(
+    val format: ArchiveFormat?,
     val failure: ArchiveBackendFailure,
+    val stage: ArchiveFailureStage,
     message: String,
     cause: Throwable? = null,
 ) : IOException(message, cause)
@@ -250,6 +261,20 @@ internal class ArchiveEngine private constructor(
                     structurallyVerified = true,
                 )
             }
+        } catch (error: ArchiveBackendException) {
+            throw ArchiveValidationException(
+                code = when (error.failure) {
+                    ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureCode.INVALID_SIGNATURE
+                    ArchiveBackendFailure.INVALID_OPTIONS ->
+                        ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
+                    ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE
+                },
+                message = error.message ?: "Archive format probe failed",
+                cause = error,
+                format = error.format,
+                stage = error.stage,
+            )
         } catch (error: ArchiveException) {
             throw error
         } catch (error: Exception) {
@@ -282,9 +307,11 @@ internal class ArchiveEngine private constructor(
             }
         }
         throw ArchiveBackendException(
-            ArchiveBackendFailure.MALFORMED,
-            "Archive format is not recognized by an installed backend",
-            lastFailure,
+            format = null,
+            failure = ArchiveBackendFailure.MALFORMED,
+            stage = ArchiveFailureStage.FORMAT_DETECTION,
+            message = "Archive format is not recognized by an installed backend",
+            cause = lastFailure,
         )
     }
 

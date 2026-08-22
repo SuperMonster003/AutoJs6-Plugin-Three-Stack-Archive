@@ -157,9 +157,13 @@ internal fun interface ArchiveCreationProgressListener {
 enum class ArchiveFailureCode {
     SOURCE_NOT_FILE,
     SOURCE_CHANGED,
+    CACHE_SPACE_UNAVAILABLE,
     INVALID_SIGNATURE,
     MALFORMED_ARCHIVE,
+    UNSUPPORTED_FILENAME_CHARSET,
     UNSUPPORTED_METHOD,
+    PASSWORD_REQUIRED,
+    WRONG_PASSWORD,
     ENTRY_LIMIT_EXCEEDED,
     INVALID_PATH,
     PATH_LIMIT_EXCEEDED,
@@ -177,25 +181,81 @@ enum class ArchiveFailureCode {
     OUTPUT_FAILURE,
 }
 
+enum class ArchiveFailureStage {
+    INPUT,
+    FORMAT_DETECTION,
+    INDEX,
+    PASSWORD,
+    ENTRY_DATA,
+    OUTPUT,
+    CLEANUP,
+}
+
+internal val ArchiveFailureCode.defaultStage: ArchiveFailureStage
+    get() = when (this) {
+        ArchiveFailureCode.SOURCE_NOT_FILE,
+        ArchiveFailureCode.SOURCE_CHANGED,
+        ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE,
+        -> ArchiveFailureStage.INPUT
+
+        ArchiveFailureCode.INVALID_SIGNATURE -> ArchiveFailureStage.FORMAT_DETECTION
+
+        ArchiveFailureCode.MALFORMED_ARCHIVE,
+        ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET,
+        ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+        ArchiveFailureCode.INVALID_PATH,
+        ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
+        ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
+        ArchiveFailureCode.DUPLICATE_PATH,
+        ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
+        -> ArchiveFailureStage.INDEX
+
+        ArchiveFailureCode.PASSWORD_REQUIRED,
+        ArchiveFailureCode.WRONG_PASSWORD,
+        -> ArchiveFailureStage.PASSWORD
+
+        ArchiveFailureCode.UNSUPPORTED_METHOD,
+        ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
+        ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
+        ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
+        ArchiveFailureCode.SIZE_MISMATCH,
+        ArchiveFailureCode.CRC_MISMATCH,
+        ArchiveFailureCode.EMPTY_SELECTION,
+        ArchiveFailureCode.UNKNOWN_SELECTION,
+        -> ArchiveFailureStage.ENTRY_DATA
+
+        ArchiveFailureCode.INVALID_DESTINATION_NAME,
+        ArchiveFailureCode.OUTPUT_FAILURE,
+        -> ArchiveFailureStage.OUTPUT
+    }
+
 open class ArchiveException(
     val code: ArchiveFailureCode,
     message: String,
     cause: Throwable? = null,
+    val format: ArchiveFormat? = null,
+    val stage: ArchiveFailureStage = code.defaultStage,
 ) : IOException(message, cause)
 
 class ArchiveValidationException(
     code: ArchiveFailureCode,
     message: String,
     cause: Throwable? = null,
-) : ArchiveException(code, message, cause)
+    format: ArchiveFormat? = null,
+    stage: ArchiveFailureStage = code.defaultStage,
+) : ArchiveException(code, message, cause, format, stage)
 
 class ArchiveSelectionException(
     code: ArchiveFailureCode,
     message: String,
-) : ArchiveException(code, message)
+    format: ArchiveFormat? = null,
+    stage: ArchiveFailureStage = code.defaultStage,
+) : ArchiveException(code, message, format = format, stage = stage)
 
 class ArchiveExtractionException(
     code: ArchiveFailureCode,
     message: String,
     cause: Throwable? = null,
-) : ArchiveException(code, message, cause)
+    format: ArchiveFormat? = null,
+    stage: ArchiveFailureStage = code.defaultStage,
+) : ArchiveException(code, message, cause, format, stage)

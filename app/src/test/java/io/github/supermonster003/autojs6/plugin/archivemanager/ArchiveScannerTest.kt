@@ -1,5 +1,8 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import org.apache.commons.compress.archivers.zip.Zip64Mode
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -58,6 +61,34 @@ class ArchiveScannerTest {
     }
 
     @Test
+    fun `accepts Zip64 directory records for a small compatibility fixture`() {
+        val source = temporaryFolder.newFile("forced-zip64.zip")
+        val expected = "forced Zip64 payload".toByteArray()
+        ZipArchiveOutputStream(source).use { output ->
+            output.setUseZip64(Zip64Mode.Always)
+            output.putArchiveEntry(ZipArchiveEntry("zip64.txt"))
+            output.write(expected)
+            output.closeArchiveEntry()
+        }
+
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals("zip64.txt", snapshot.entries.single().path)
+        assertEquals(expected.size.toLong(), snapshot.entries.single().uncompressedSize)
+    }
+
+    @Test
+    fun `accepts data descriptors and benign trailing data`() {
+        val source = archive(FixtureEntry("descriptor.txt", "descriptor payload".toByteArray()))
+        source.appendBytes("benign trailing application data".toByteArray())
+
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals("descriptor.txt", snapshot.entries.single().path)
+        assertEquals(ArchiveCompressionMethod.DEFLATED, snapshot.entries.single().compressionMethod)
+    }
+
+    @Test
     fun `detects a legacy GB18030 filename`() {
         val source = temporaryFolder.newFile("legacy-gb18030.zip")
         ZipOutputStream(FileOutputStream(source), Charset.forName("GB18030")).use { output ->
@@ -70,6 +101,41 @@ class ArchiveScannerTest {
 
         assertEquals(Charset.forName("GB18030").name(), snapshot.readerOptions.filenameCharsetName)
         assertEquals("目录/文件.txt", snapshot.entries.single().path)
+    }
+
+    @Test
+    fun `manual filename encoding overrides automatic detection and is retained`() {
+        val source = temporaryFolder.newFile("manual-gb18030.zip")
+        ZipOutputStream(FileOutputStream(source), Charset.forName("GB18030")).use { output ->
+            output.putNextEntry(ZipEntry("目录/文件.txt"))
+            output.write("内容".toByteArray())
+            output.closeEntry()
+        }
+
+        val overridden = ArchiveScanner().scan(
+            source,
+            ArchiveReaderOptions(filenameCharsetName = "GB18030"),
+        )
+
+        assertEquals(Charset.forName("GB18030").name(), overridden.readerOptions.filenameCharsetName)
+        assertEquals("目录/文件.txt", overridden.entries.single().path)
+    }
+
+    @Test
+    fun `unsupported filename encoding has a stable index diagnostic`() {
+        val source = archive(FixtureEntry("entry.txt", byteArrayOf(1)))
+
+        val error = expectArchiveFailure<ArchiveValidationException>(
+            ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET,
+        ) {
+            ArchiveScanner().scan(
+                source,
+                ArchiveReaderOptions(filenameCharsetName = "not-a-real-charset"),
+            )
+        }
+
+        assertEquals(ArchiveFormat.ZIP, error.format)
+        assertEquals(ArchiveFailureStage.INDEX, error.stage)
     }
 
     @Test
@@ -170,9 +236,13 @@ class ArchiveScannerTest {
     @Test
     fun `rejects non zip signatures and unsafe names`() {
         val plain = temporaryFolder.newFile("plain.zip").apply { writeText("not a zip") }
-        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.MALFORMED_ARCHIVE) {
+        val error = expectArchiveFailure<ArchiveValidationException>(
+            ArchiveFailureCode.INVALID_SIGNATURE,
+        ) {
             ArchiveScanner().scan(plain)
         }
+        assertEquals(ArchiveFormat.ZIP, error.format)
+        assertEquals(ArchiveFailureStage.FORMAT_DETECTION, error.stage)
 
         val traversal = archive(FixtureEntry("../escape", byteArrayOf(1)))
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {

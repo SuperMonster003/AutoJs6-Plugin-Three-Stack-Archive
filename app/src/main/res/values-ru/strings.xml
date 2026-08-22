@@ -57,4 +57,32 @@
     <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
     <string name="text_split_volume">Размер тома (MiB)</string>
     <string name="text_encryption_unavailable_for_format">Пароль и шифрование имён файлов недоступны для %1$s.</string>
+    <string name="error_diagnostic_details">%1$s\nФормат: %2$s\nЭтап: %3$s\nКод: %4$s\nПричина: %5$s</string>
+    <string name="error_reason_cache_space">Недостаточно места в кэше для открытия этого архива.</string>
+    <string name="error_reason_cleanup">Не удалось полностью удалить частичный результат.</string>
+    <string name="error_reason_compression_method">Запись использует метод сжатия, который этот модуль не может прочитать.</string>
+    <string name="error_reason_entry_data">Не удалось прочитать или проверить запись архива.</string>
+    <string name="error_reason_filename_encoding">Выбранная кодировка имен недоступна или не позволяет проиндексировать этот архив.</string>
+    <string name="error_reason_index">Метаданные каталога архива повреждены или не поддерживаются.</string>
+    <string name="error_reason_input">Архив невозможно прочитать или он изменился во время открытия.</string>
+    <string name="error_reason_integrity">Размер или контрольная сумма записи не совпадает с метаданными архива.</string>
+    <string name="error_reason_invalid_signature">Файл не содержит распознаваемой сигнатуры архива.</string>
+    <string name="error_reason_limit">Операция превышает настроенный бюджет ресурсов.</string>
+    <string name="error_reason_output">Невозможно безопасно подготовить или записать данные в место вывода.</string>
+    <string name="error_reason_password">Требуется пароль или указанный пароль неверен.</string>
+    <string name="error_reason_path">Путь записи конфликтует с другим путем или небезопасен.</string>
+    <string name="text_archive_diagnostic">Диагностика архива</string>
+    <string name="text_copy_diagnostic">Копировать диагностику</string>
+    <string name="text_diagnostic_copied">Диагностика скопирована</string>
+    <string name="text_failure_stage_cleanup">Очистка</string>
+    <string name="text_failure_stage_entry_data">Данные записи</string>
+    <string name="text_failure_stage_format_detection">Определение формата</string>
+    <string name="text_failure_stage_index">Индекс каталога</string>
+    <string name="text_failure_stage_input">Ввод</string>
+    <string name="text_failure_stage_output">Вывод</string>
+    <string name="text_failure_stage_password">Пароль</string>
+    <string name="text_filename_encoding">Кодировка имен файлов</string>
+    <string name="text_filename_encoding_automatic">Автоматически</string>
+    <string name="text_filename_encoding_automatic_detected">Автоматически (резерв для старых имён: %1$s)</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Повторное индексирование архива...</string>
 </resources>
