@@ -26,13 +26,13 @@ import org.junit.runner.RunWith
 class PluginContractInstrumentationTest {
 
     @Test
-    fun pluginInfoDeclaresAbiIndependentExplorerEngine() {
+    fun pluginInfoDeclaresPackagedNativeAbisForExplorerEngine() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val info = context.archiveManagerPluginInfo()
 
         assertEquals(ArchiveManagerPlugin.ID, info.id)
         assertEquals(ExplorerActionPluginIds.ENGINE, info.engine)
-        assertArrayEquals(emptyArray<String>(), info.supportedAbis)
+        assertArrayEquals(ArchiveManagerPlugin.SUPPORTED_ABIS, info.supportedAbis)
         assertEquals(
             ArchiveManagerPlugin.REQUIRED_HOST_VERSION,
             info.capabilities?.getLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION),

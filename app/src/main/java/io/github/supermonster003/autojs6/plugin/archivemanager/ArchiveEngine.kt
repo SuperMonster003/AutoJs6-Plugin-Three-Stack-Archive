@@ -49,6 +49,23 @@ enum class ArchiveFormat(
         extensions = setOf("tar.xz", "txz"),
         mimeTypes = setOf("application/x-xz-compressed-tar"),
     ),
+    TAR_BZIP2(
+        id = "tar-bzip2",
+        displayName = "TAR.BZ2",
+        primaryExtension = "tar.bz2",
+        extensions = setOf("tar.bz2", "tbz2"),
+        mimeTypes = setOf(
+            "application/x-bzip-compressed-tar",
+            "application/x-bzip2-compressed-tar",
+        ),
+    ),
+    TAR_ZSTD(
+        id = "tar-zstd",
+        displayName = "TAR.ZST",
+        primaryExtension = "tar.zst",
+        extensions = setOf("tar.zst", "tzst"),
+        mimeTypes = setOf("application/x-zstd-compressed-tar"),
+    ),
     ;
 
     /** Leaf extensions accepted by the host catalog protocol. */
@@ -56,11 +73,24 @@ enum class ArchiveFormat(
         get() = extensions.mapTo(linkedSetOf()) { it.substringAfterLast('.') }
 
     val isTarFamily: Boolean
-        get() = this == TAR || this == TAR_GZIP || this == TAR_XZ
+        get() = this == TAR ||
+            this == TAR_GZIP ||
+            this == TAR_XZ ||
+            this == TAR_BZIP2 ||
+            this == TAR_ZSTD
 
     fun matchesFileName(displayName: String): Boolean {
         val normalized = displayName.lowercase(Locale.ROOT)
         return extensions.any { extension -> normalized.endsWith(".$extension") }
+    }
+
+    internal fun baseNameWithoutArchiveExtension(displayName: String): String? {
+        val normalized = displayName.lowercase(Locale.ROOT)
+        val extension = extensions
+            .filter { normalized.endsWith(".$it") }
+            .maxByOrNull(String::length)
+            ?: return null
+        return displayName.dropLast(extension.length + 1)
     }
 
     init {
@@ -420,6 +450,8 @@ internal class ArchiveEngine private constructor(
                 TarArchiveBackend,
                 TarGzipArchiveBackend,
                 TarXzArchiveBackend,
+                TarBzip2ArchiveBackend,
+                TarZstdArchiveBackend,
             ),
         )
     }

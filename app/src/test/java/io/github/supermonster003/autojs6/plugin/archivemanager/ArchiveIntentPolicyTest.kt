@@ -64,6 +64,12 @@ class ArchiveIntentPolicyTest {
         assertFalse(
             ArchiveIntentPolicy.isSupportedArchive("application/x-xz", "standalone.xz"),
         )
+        assertFalse(
+            ArchiveIntentPolicy.isSupportedArchive("application/x-bzip2", "standalone.bz2"),
+        )
+        assertFalse(
+            ArchiveIntentPolicy.isSupportedArchive("application/zstd", "standalone.zst"),
+        )
         assertFalse(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.rar"))
     }
 }

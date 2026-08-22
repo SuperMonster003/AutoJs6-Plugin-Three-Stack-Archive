@@ -140,6 +140,54 @@
           "encoding": "UTF-8"
         }
       ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-ustar-unicode.tar.bz2",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -tbzip2 <output.tar.bz2> <input.tar> -mx=7",
+      "wrappedArchive": "7zip-22-ustar-unicode.tar",
+      "containerMethod": "BZIP2",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "fd1b55270cda192d065c4d9ba352b64baaf94f52d4442ac362308113ac4aebae",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "type": "regular",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "type": "regular",
+          "size": 87,
+          "encoding": "UTF-8"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/bsdtar-3.8.4-ustar-unicode.tar.zst",
+      "producer": "bsdtar",
+      "producerVersion": "3.8.4 (libarchive 3.8.4, libzstd 1.5.7)",
+      "platform": "Windows 11",
+      "command": "tar -c --format raw --zstd -f <output.tar.zst> <input.tar>",
+      "wrappedArchive": "7zip-22-ustar-unicode.tar",
+      "containerMethod": "Zstandard",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "de581c580bd873817ab3cf5d2311c623ded577cfaa7e0096eb7d6c4c0db3655a",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "type": "regular",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "type": "regular",
+          "size": 87,
+          "encoding": "UTF-8"
+        }
+      ]
     }
   ]
 }

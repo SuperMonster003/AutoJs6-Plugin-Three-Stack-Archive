@@ -127,6 +127,8 @@ androidComponents {
 }
 
 dependencies {
+    val zstdJniVersion = libs.versions.zstd.jni.get()
+
     coreLibraryDesugaring(libs.desugar)
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.2.21")
@@ -144,9 +146,12 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation(libs.apache.commons.compress)
     implementation(libs.tukaani.xz)
+    implementation("com.github.luben:zstd-jni:$zstdJniVersion@aar")
     implementation(libs.zip4j)
 
     testImplementation(libs.junit)
+    // The Android AAR contains device libraries only. JVM tests need the desktop-native JAR.
+    testImplementation("com.github.luben:zstd-jni:$zstdJniVersion")
     androidTestImplementation(libs.test.ext.junit)
     androidTestImplementation(libs.test.runner)
 }

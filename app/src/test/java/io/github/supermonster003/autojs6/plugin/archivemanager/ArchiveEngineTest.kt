@@ -41,6 +41,8 @@ class ArchiveEngineTest {
                 ArchiveFormat.TAR,
                 ArchiveFormat.TAR_GZIP,
                 ArchiveFormat.TAR_XZ,
+                ArchiveFormat.TAR_BZIP2,
+                ArchiveFormat.TAR_ZSTD,
             ),
             engine.readableFormats,
         )
@@ -60,7 +62,13 @@ class ArchiveEngineTest {
     fun `tar capabilities describe a read only archive backend`() {
         val engine = ArchiveEngine.DEFAULT
 
-        listOf(ArchiveFormat.TAR, ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+        listOf(
+            ArchiveFormat.TAR,
+            ArchiveFormat.TAR_GZIP,
+            ArchiveFormat.TAR_XZ,
+            ArchiveFormat.TAR_BZIP2,
+            ArchiveFormat.TAR_ZSTD,
+        ).forEach { format ->
             val capabilities = engine.capabilities(format)
             assertTrue(capabilities.supports(ArchiveOperation.DETECT))
             assertTrue(capabilities.supports(ArchiveOperation.LIST))
@@ -87,10 +95,23 @@ class ArchiveEngineTest {
         assertEquals(setOf("gz", "tgz"), ArchiveFormat.TAR_GZIP.catalogExtensions)
         assertEquals(setOf("tar.xz", "txz"), ArchiveFormat.TAR_XZ.extensions)
         assertEquals(setOf("xz", "txz"), ArchiveFormat.TAR_XZ.catalogExtensions)
+        assertEquals(setOf("tar.bz2", "tbz2"), ArchiveFormat.TAR_BZIP2.extensions)
+        assertEquals(setOf("bz2", "tbz2"), ArchiveFormat.TAR_BZIP2.catalogExtensions)
+        assertEquals(setOf("tar.zst", "tzst"), ArchiveFormat.TAR_ZSTD.extensions)
+        assertEquals(setOf("zst", "tzst"), ArchiveFormat.TAR_ZSTD.catalogExtensions)
         assertTrue(ArchiveFormat.TAR_GZIP.matchesFileName("ARCHIVE.TAR.GZ"))
         assertTrue(ArchiveFormat.TAR_XZ.matchesFileName("archive.txz"))
+        assertTrue(ArchiveFormat.TAR_BZIP2.matchesFileName("archive.TAR.BZ2"))
+        assertTrue(ArchiveFormat.TAR_ZSTD.matchesFileName("archive.tzst"))
         assertFalse(ArchiveFormat.TAR_GZIP.matchesFileName("standalone.gz"))
         assertFalse(ArchiveFormat.TAR_XZ.matchesFileName("standalone.xz"))
+        assertFalse(ArchiveFormat.TAR_BZIP2.matchesFileName("standalone.bz2"))
+        assertFalse(ArchiveFormat.TAR_ZSTD.matchesFileName("standalone.zst"))
+        assertEquals("archive", ArchiveFormat.TAR_GZIP.baseNameWithoutArchiveExtension("archive.TAR.GZ"))
+        assertEquals("archive", ArchiveFormat.TAR_XZ.baseNameWithoutArchiveExtension("archive.txz"))
+        assertEquals("archive", ArchiveFormat.TAR_BZIP2.baseNameWithoutArchiveExtension("archive.tar.bz2"))
+        assertEquals("archive", ArchiveFormat.TAR_ZSTD.baseNameWithoutArchiveExtension("archive.TZST"))
+        assertEquals(null, ArchiveFormat.TAR_ZSTD.baseNameWithoutArchiveExtension("archive.bin"))
     }
 
     @Test

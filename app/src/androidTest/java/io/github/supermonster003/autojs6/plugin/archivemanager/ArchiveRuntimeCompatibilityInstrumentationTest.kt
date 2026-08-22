@@ -10,8 +10,10 @@ import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -102,6 +104,18 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
         listOf(
             CompressedTarCase("tgz", ArchiveFormat.TAR_GZIP, ::GzipCompressorOutputStream),
             CompressedTarCase("txz", ArchiveFormat.TAR_XZ, ::XZCompressorOutputStream),
+            CompressedTarCase("tbz2", ArchiveFormat.TAR_BZIP2, ::BZip2CompressorOutputStream),
+            CompressedTarCase(
+                "tzst",
+                ArchiveFormat.TAR_ZSTD,
+                { output ->
+                    ZstdCompressorOutputStream.builder().apply {
+                        setOutputStream(output)
+                        setLevel(3)
+                        setChecksum(true)
+                    }.get()
+                },
+            ),
         ).forEach(::verifyCompressedTarRuntime)
     }
 

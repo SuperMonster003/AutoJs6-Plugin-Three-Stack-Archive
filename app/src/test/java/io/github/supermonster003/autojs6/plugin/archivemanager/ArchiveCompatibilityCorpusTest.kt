@@ -52,7 +52,7 @@ class ArchiveCompatibilityCorpusTest {
     }
 
     @Test
-    fun `7-Zip 22 compressed tar samples preserve unicode names and content`() {
+    fun `external compressed tar samples preserve unicode names and content`() {
         listOf(
             CompressedTarFixture(
                 name = TAR_GZIP_FIXTURE,
@@ -63,6 +63,16 @@ class ArchiveCompatibilityCorpusTest {
                 name = TAR_XZ_FIXTURE,
                 sha256 = EXPECTED_7ZIP_TAR_XZ_SHA256,
                 format = ArchiveFormat.TAR_XZ,
+            ),
+            CompressedTarFixture(
+                name = TAR_BZIP2_FIXTURE,
+                sha256 = EXPECTED_7ZIP_TAR_BZIP2_SHA256,
+                format = ArchiveFormat.TAR_BZIP2,
+            ),
+            CompressedTarFixture(
+                name = TAR_ZSTD_FIXTURE,
+                sha256 = EXPECTED_BSDTAR_TAR_ZSTD_SHA256,
+                format = ArchiveFormat.TAR_ZSTD,
             ),
         ).forEach { fixture ->
             val source = copyFixture(fixture.name)
@@ -188,11 +198,17 @@ class ArchiveCompatibilityCorpusTest {
             "a0a6719169340f5ec6a2147a37e3320a352ec5332951340007c4a96e0e115a9c"
         const val EXPECTED_7ZIP_TAR_XZ_SHA256 =
             "9d929770fddbcce1e114e38e9198fd6b3827a29cbf8a54763859574e05319a22"
+        const val EXPECTED_7ZIP_TAR_BZIP2_SHA256 =
+            "fd1b55270cda192d065c4d9ba352b64baaf94f52d4442ac362308113ac4aebae"
+        const val EXPECTED_BSDTAR_TAR_ZSTD_SHA256 =
+            "de581c580bd873817ab3cf5d2311c623ded577cfaa7e0096eb7d6c4c0db3655a"
         const val AES_FIXTURE = "7zip-22-aes256-unicode.zip"
         const val ZIP_CRYPTO_FIXTURE = "7zip-22-zipcrypto-unicode.zip"
         const val TAR_FIXTURE = "7zip-22-ustar-unicode.tar"
         const val TAR_GZIP_FIXTURE = "7zip-22-ustar-unicode.tar.gz"
         const val TAR_XZ_FIXTURE = "7zip-22-ustar-unicode.tar.xz"
+        const val TAR_BZIP2_FIXTURE = "7zip-22-ustar-unicode.tar.bz2"
+        const val TAR_ZSTD_FIXTURE = "bsdtar-3.8.4-ustar-unicode.tar.zst"
         const val FIXTURE_PASSWORD = "ArchiveManager-Test-2026"
     }
 

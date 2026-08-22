@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.junit.Assert.assertArrayEquals
@@ -44,10 +45,12 @@ class CompressedTarArchiveBackendTest {
     }
 
     @Test
-    fun `accepts empty gzip and xz compressed tar archives`() {
+    fun `accepts empty compressed tar archives`() {
         listOf(
             ArchiveFormat.TAR_GZIP to writeTarGzip(temporaryFolder.newFile("empty.tgz")),
             ArchiveFormat.TAR_XZ to writeTarXz(temporaryFolder.newFile("empty.txz")),
+            ArchiveFormat.TAR_BZIP2 to writeTarBzip2(temporaryFolder.newFile("empty.tbz2")),
+            ArchiveFormat.TAR_ZSTD to writeTarZstd(temporaryFolder.newFile("empty.tzst")),
         ).forEach { (format, source) ->
             val snapshot = ArchiveScanner().scan(source)
 
@@ -62,6 +65,8 @@ class CompressedTarArchiveBackendTest {
         listOf(
             compressedPayload("standalone.gz", ::GzipCompressorOutputStream),
             compressedPayload("standalone.xz", ::XZCompressorOutputStream),
+            compressedPayload("standalone.bz2", ::BZip2CompressorOutputStream),
+            compressedPayload("standalone.zst", ::zstdTestCompressor),
         ).forEach { source ->
             val error = expectArchiveFailure<ArchiveValidationException>(
                 ArchiveFailureCode.INVALID_SIGNATURE,
@@ -86,6 +91,14 @@ class CompressedTarArchiveBackendTest {
                 0x5A,
                 0x00,
             ),
+            ArchiveFormat.TAR_BZIP2 to byteArrayOf(0x42, 0x5A, 0x68, 0x39),
+            ArchiveFormat.TAR_ZSTD to byteArrayOf(
+                0x28,
+                0xB5.toByte(),
+                0x2F,
+                0xFD.toByte(),
+            ),
+            ArchiveFormat.TAR_ZSTD to byteArrayOf(0x50, 0x2A, 0x4D, 0x18),
         ).forEachIndexed { index, (format, bytes) ->
             val source = temporaryFolder.newFile("truncated-$index.bin").apply {
                 writeBytes(bytes)
@@ -103,7 +116,7 @@ class CompressedTarArchiveBackendTest {
     }
 
     @Test
-    fun `rejects damaged gzip and xz stream trailers after reading tar metadata`() {
+    fun `rejects damaged compressed stream trailers after reading tar metadata`() {
         listOf(
             ArchiveFormat.TAR_GZIP to writeTarGzip(
                 temporaryFolder.newFile("damaged-trailer.tgz"),
@@ -113,10 +126,22 @@ class CompressedTarArchiveBackendTest {
                 temporaryFolder.newFile("damaged-trailer.txz"),
                 TarFixtureEntry("payload.txt", "payload".toByteArray()),
             ),
+            ArchiveFormat.TAR_BZIP2 to writeTarBzip2(
+                temporaryFolder.newFile("damaged-trailer.tbz2"),
+                TarFixtureEntry("payload.txt", "payload".toByteArray()),
+            ),
+            ArchiveFormat.TAR_ZSTD to writeTarZstd(
+                temporaryFolder.newFile("damaged-trailer.tzst"),
+                TarFixtureEntry("payload.txt", "payload".toByteArray()),
+            ),
         ).forEach { (format, source) ->
             val bytes = source.readBytes()
-            bytes[bytes.lastIndex] = (bytes.last().toInt() xor 0x01).toByte()
-            source.writeBytes(bytes)
+            if (format == ArchiveFormat.TAR_BZIP2) {
+                source.writeBytes(bytes.copyOf(bytes.size - 2))
+            } else {
+                bytes[bytes.lastIndex] = (bytes.last().toInt() xor 0x01).toByte()
+                source.writeBytes(bytes)
+            }
 
             val error = expectArchiveFailure<ArchiveValidationException>(
                 ArchiveFailureCode.MALFORMED_ARCHIVE,
@@ -144,6 +169,18 @@ class CompressedTarArchiveBackendTest {
             ConcatenatedFixture(
                 ArchiveFormat.TAR_XZ,
                 concatenatedArchive("concatenated.txz", rawTar, ::XZCompressorOutputStream),
+            ),
+            ConcatenatedFixture(
+                ArchiveFormat.TAR_BZIP2,
+                concatenatedArchive("concatenated.tbz2", rawTar, ::BZip2CompressorOutputStream),
+            ),
+            ConcatenatedFixture(
+                ArchiveFormat.TAR_ZSTD,
+                concatenatedArchive("concatenated.tzst", rawTar, ::zstdTestCompressor),
+            ),
+            ConcatenatedFixture(
+                ArchiveFormat.TAR_ZSTD,
+                zstdArchiveWithLeadingSkippableFrame("skippable-frame.tzst", rawTar),
             ),
         ).forEach { fixture ->
             val snapshot = ArchiveScanner().scan(fixture.source)
@@ -174,6 +211,22 @@ class CompressedTarArchiveBackendTest {
                 TarFixtureEntry("目录/文件.txt", expected),
             ),
         ),
+        CompressedFixture(
+            ArchiveFormat.TAR_BZIP2,
+            writeTarBzip2(
+                temporaryFolder.newFile("bzip2-renamed.bin"),
+                TarFixtureEntry("目录/", type = TarFixtureEntryType.DIRECTORY),
+                TarFixtureEntry("目录/文件.txt", expected),
+            ),
+        ),
+        CompressedFixture(
+            ArchiveFormat.TAR_ZSTD,
+            writeTarZstd(
+                temporaryFolder.newFile("zstd-renamed.bin"),
+                TarFixtureEntry("目录/", type = TarFixtureEntryType.DIRECTORY),
+                TarFixtureEntry("目录/文件.txt", expected),
+            ),
+        ),
     )
 
     private fun compressedPayload(
@@ -195,6 +248,31 @@ class CompressedTarArchiveBackendTest {
             .forEach { member ->
                 compressor(FileOutputStream(source, true)).use { output -> output.write(member) }
             }
+    }
+
+    private fun zstdArchiveWithLeadingSkippableFrame(
+        name: String,
+        payload: ByteArray,
+    ): File = temporaryFolder.newFile(name).also { source ->
+        FileOutputStream(source).use { output ->
+            output.write(
+                byteArrayOf(
+                    0x50,
+                    0x2A,
+                    0x4D,
+                    0x18,
+                    0x04,
+                    0x00,
+                    0x00,
+                    0x00,
+                    0x01,
+                    0x02,
+                    0x03,
+                    0x04,
+                ),
+            )
+            zstdTestCompressor(output).use { compressed -> compressed.write(payload) }
+        }
     }
 
     private data class CompressedFixture(

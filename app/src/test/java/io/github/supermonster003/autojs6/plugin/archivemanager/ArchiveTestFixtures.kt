@@ -3,8 +3,10 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarConstants
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream
 import org.junit.Assert.fail
 import java.io.BufferedOutputStream
 import java.io.File
@@ -65,6 +67,19 @@ internal fun writeTarGzip(file: File, vararg entries: TarFixtureEntry): File =
 
 internal fun writeTarXz(file: File, vararg entries: TarFixtureEntry): File =
     writeTar(file, entries, ::XZCompressorOutputStream)
+
+internal fun writeTarBzip2(file: File, vararg entries: TarFixtureEntry): File =
+    writeTar(file, entries, ::BZip2CompressorOutputStream)
+
+internal fun writeTarZstd(file: File, vararg entries: TarFixtureEntry): File =
+    writeTar(file, entries, ::zstdTestCompressor)
+
+internal fun zstdTestCompressor(output: OutputStream): OutputStream =
+    ZstdCompressorOutputStream.builder().apply {
+        setOutputStream(output)
+        setLevel(3)
+        setChecksum(true)
+    }.get()
 
 private fun writeTar(
     file: File,

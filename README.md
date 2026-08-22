@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>AutoJs6 文件管理器插件，用于浏览和解压 ZIP/TAR 档案以及创建 ZIP 档案</p>
+  <p>AutoJs6 文件管理器插件，用于浏览和解压 ZIP 与 TAR 系列档案以及创建 ZIP 档案</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -42,7 +42,7 @@ README 提供以下语言版本:
 - 按目录浏览、搜索和排序档案内容。
 - 只读取目录元数据即可显示列表，不会为了打开页面预先解压全部内容。
 - 浏览、预览和解压未压缩 TAR；符号链接、硬链接、设备节点和稀疏项只列出，不会作为普通文件写出。
-- 浏览、预览和解压 TAR.GZ/TGZ 与 TAR.XZ/TXZ；复用相同的内部路径、特殊条目隔离和完整性检查。
+- 浏览、预览和解压 TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST；复用相同的内部路径、特殊条目隔离和完整性检查。
 - 根据真实 ZIP/TAR 结构确认格式，并统一控制预览、解压和创建能力；未支持的选项保持禁用。
 - 兼容 Zip64、自解压式前导数据、传统文件名编码和 Windows 风格路径分隔符。
 - 浏览和解压使用传统 ZipCrypto 或 AES 的加密 ZIP；密码错误可原位重试。创建 ZIP 时可选择 AES-256 密码，文件名仍然可见；创建加密 ZIP 前需再次输入相同密码确认。
@@ -57,7 +57,7 @@ README 提供以下语言版本:
 当前版本识别以下可浏览与解压的扩展名:
 
 ```text
-zip, jar, aar, war, tar, tar.gz, tgz, tar.xz, txz
+zip, jar, aar, war, tar, tar.gz, tgz, tar.xz, txz, tar.bz2, tbz2, tar.zst, tzst
 ```
 
 当前版本可创建以下格式:
@@ -71,7 +71,7 @@ zip
 ### 使用方法
 
 1. 安装插件，并在 AutoJs6 插件中心启用它。
-2. 在文件管理器中打开 ZIP、JAR、AAR、WAR 或 TAR 文件的菜单。
+2. 在文件管理器中打开任一受支持压缩档案的菜单。
 3. 选择“打开压缩档案”，在宿主文件列表中进入目录、搜索或使用路径栏跳转。
 4. 若要解压整个档案，请从文件菜单选择“解压到...”，再通过 Android 系统选择器指定输出目录。
 5. 要创建 ZIP，请打开普通文件或文件夹的菜单并选择“压缩...”；也可先多选同一目录中的项目，再使用底部“压缩...”动作。
@@ -100,12 +100,13 @@ _未发布_
 - `新增` 新增 ZIP 创建表单，支持默认命名、压缩级别、进度、取消和同名自动编号
 - `新增` 支持浏览和解压 ZipCrypto/AES 加密 ZIP，密码错误可原位重试；创建 ZIP 时可选用 AES-256 密码，文件名保持可见并要求两次密码一致
 - `新增` 支持在宿主原生文件列表中浏览、预览和解压未压缩 TAR；按头校验和确认结构，链接、设备节点和稀疏项只读列出
-- `新增` 支持通过相同的宿主原生路径浏览、预览和解压 TAR.GZ/TGZ 与 TAR.XZ/TXZ；格式识别同时验证压缩流签名和内部 TAR 结构
+- `新增` 支持通过相同的宿主原生路径浏览、预览和解压 TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST；格式识别同时验证压缩流签名和内部 TAR 结构
 - `修复` 改用目录元数据快速打开 ZIP，并兼容自解压式前导数据、传统文件名编码、Windows 路径分隔符及更多可读取的 ZIP 方法
 - `修复` 自动识别 ZIP 文件名编码不正确时可手动覆盖，解压过程会复用所选编码
 - `修复` 接受未知或不精确的文件大小、合法 DocumentsProvider URI 和宿主附加的写入授权，避免有效档案在解析前被拒绝
 - `修复` 修复 Android 7.x 因调用新系统专有 API 而无法浏览或解压 ZIP 的问题
 - `修复` 错误密码统一归类为 PASSWORD/WRONG_PASSWORD，并修正 AES v2 条目校验值为零时被误判损坏的问题
+- `修复` TAR.GZ/TAR.XZ/TAR.BZ2/TAR.ZST 等复合扩展名的默认解压文件夹会去掉完整后缀，不再错误残留 `.tar`
 - `优化` 移除固定 4 GiB 输入上限和浏览阶段的解压大小/压缩比门槛，同时保留路径隔离、完整性校验和失败清理
 - `优化` 新增可逐项追踪的 Roadmap，并重写 README 与 CHANGELOG，使当前能力和后续计划清楚分开
 - `优化` 独立页面改为遵循系统日夜模式和 Material 动态色
@@ -114,6 +115,7 @@ _未发布_
 - `优化` 压缩档案失败时标明格式、处理阶段、稳定代码和原因，调试版本可复制完整诊断信息
 - `依赖` 新增 Apache License 2.0 许可的 Zip4j 2.11.5，用于加密 ZIP 数据流、AES-256 创建及 Android 7.x 兼容路径
 - `依赖` 新增 0BSD 许可的 XZ for Java 1.12，用纯 Java 解码 TAR.XZ/TXZ，不增加原生 ABI
+- `依赖` 新增 BSD 许可的 zstd-jni 1.5.7-15，用于 TAR.ZST/TZST；四个 Android ABI 均通过 16 KiB ELF 对齐与 RELRO 检查
 
 #### v1.0.1
 

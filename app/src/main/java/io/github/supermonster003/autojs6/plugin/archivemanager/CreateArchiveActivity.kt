@@ -306,6 +306,8 @@ class CreateArchiveActivity : AppCompatActivity() {
         ArchiveFormat.TAR,
         ArchiveFormat.TAR_GZIP,
         ArchiveFormat.TAR_XZ,
+        ArchiveFormat.TAR_BZIP2,
+        ArchiveFormat.TAR_ZSTD,
         -> format.displayName
     }
 

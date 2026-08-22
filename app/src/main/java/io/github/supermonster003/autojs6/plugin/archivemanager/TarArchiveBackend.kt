@@ -2,8 +2,10 @@
 
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import com.github.luben.zstd.ZstdInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import org.tukaani.xz.MemoryLimitException
@@ -28,6 +30,16 @@ internal object TarXzArchiveBackend : TarArchiveBackendBase(
     container = TarContainer.XZ,
 )
 
+internal object TarBzip2ArchiveBackend : TarArchiveBackendBase(
+    format = ArchiveFormat.TAR_BZIP2,
+    container = TarContainer.BZIP2,
+)
+
+internal object TarZstdArchiveBackend : TarArchiveBackendBase(
+    format = ArchiveFormat.TAR_ZSTD,
+    container = TarContainer.ZSTD,
+)
+
 internal abstract class TarArchiveBackendBase(
     override val format: ArchiveFormat,
     private val container: TarContainer,
@@ -49,6 +61,7 @@ internal abstract class TarArchiveBackendBase(
         }
         val resolvedOptions = ArchiveReaderOptions()
         return try {
+            container.requirePlausibleStructure(source)
             TarArchiveReader(
                 source = source,
                 entries = TarArchiveAccess.readEntries(source, container),
@@ -78,6 +91,15 @@ internal abstract class TarArchiveBackendBase(
         } catch (error: ArchiveBackendException) {
             resolvedOptions.clearPassword()
             throw error
+        } catch (error: LinkageError) {
+            resolvedOptions.clearPassword()
+            throw ArchiveBackendException(
+                format = format,
+                failure = ArchiveBackendFailure.UNSUPPORTED_METHOD,
+                stage = ArchiveFailureStage.INDEX,
+                message = "${format.displayName} decoder is unavailable on this runtime",
+                cause = error,
+            )
         } catch (error: Exception) {
             resolvedOptions.clearPassword()
             throw ArchiveBackendException(
@@ -246,15 +268,75 @@ internal enum class TarContainer {
         override fun openPayload(input: InputStream): InputStream =
             XZCompressorInputStream(input, true, XZ_MEMORY_LIMIT_KIB)
     },
+    BZIP2 {
+        override fun hasOuterSignature(source: File): Boolean =
+            sourceSignatureMatches(source, BZip2CompressorInputStream::matches)
+
+        override fun openPayload(input: InputStream): InputStream =
+            BZip2CompressorInputStream(input, true)
+    },
+    ZSTD {
+        override fun hasOuterSignature(source: File): Boolean =
+            sourceSignatureMatches(source, ::matchesZstdSignature)
+
+        override fun openPayload(input: InputStream): InputStream =
+            ZstdInputStream(input)
+                .setContinuous(true)
+                .setLongMax(ZSTD_WINDOW_LOG_MAX)
+
+        override fun requirePlausibleStructure(source: File) {
+            val signature = ByteArray(ZSTD_MAGIC_SIZE)
+            val bytesRead = FileInputStream(source).use { input -> input.readPrefix(signature) }
+            val minimumSize = when {
+                matchesStandardZstdSignature(signature, bytesRead) -> ZSTD_MINIMUM_FRAME_SIZE
+                matchesSkippableZstdSignature(signature, bytesRead) -> ZSTD_SKIPPABLE_HEADER_SIZE
+                else -> return
+            }
+            if (source.length() < minimumSize) {
+                throw IOException("Zstandard frame is truncated")
+            }
+        }
+    },
     ;
 
     abstract fun hasOuterSignature(source: File): Boolean
 
     abstract fun openPayload(input: InputStream): InputStream
 
+    open fun requirePlausibleStructure(source: File) = Unit
+
     companion object {
         private const val SIGNATURE_BUFFER_SIZE = 12
         private const val XZ_MEMORY_LIMIT_KIB = 256 * 1_024
+        private const val ZSTD_WINDOW_LOG_MAX = 28
+
+        private fun matchesZstdSignature(signature: ByteArray, length: Int): Boolean =
+            matchesStandardZstdSignature(signature, length) ||
+                matchesSkippableZstdSignature(signature, length)
+
+        private fun matchesStandardZstdSignature(
+            signature: ByteArray,
+            length: Int,
+        ): Boolean {
+            if (length < ZSTD_MAGIC_SIZE) return false
+            val first = signature[0].toInt() and 0xFF
+            val second = signature[1].toInt() and 0xFF
+            val third = signature[2].toInt() and 0xFF
+            val fourth = signature[3].toInt() and 0xFF
+            return first == 0x28 && second == 0xB5 && third == 0x2F && fourth == 0xFD
+        }
+
+        private fun matchesSkippableZstdSignature(
+            signature: ByteArray,
+            length: Int,
+        ): Boolean {
+            if (length < ZSTD_MAGIC_SIZE) return false
+            val first = signature[0].toInt() and 0xFF
+            val second = signature[1].toInt() and 0xFF
+            val third = signature[2].toInt() and 0xFF
+            val fourth = signature[3].toInt() and 0xFF
+            return first in 0x50..0x5F && second == 0x2A && third == 0x4D && fourth == 0x18
+        }
 
         private fun sourceSignatureMatches(
             source: File,
@@ -264,6 +346,10 @@ internal enum class TarContainer {
             val bytesRead = FileInputStream(source).use { input -> input.readPrefix(signature) }
             return matcher(signature, bytesRead)
         }
+
+        private const val ZSTD_MAGIC_SIZE = 4
+        private const val ZSTD_MINIMUM_FRAME_SIZE = 9L
+        private const val ZSTD_SKIPPABLE_HEADER_SIZE = 8L
     }
 }
 

@@ -607,7 +607,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
         setBusy(true, getString(R.string.text_extracting, 0, 0), cancellable = true)
         operationJob = lifecycleScope.launch {
             try {
-                val rootName = extractionRootName(request?.displayName.orEmpty())
+                val rootName = extractionRootName(
+                    displayName = request?.displayName.orEmpty(),
+                    format = archive.format,
+                )
                 val result = withContext(Dispatchers.IO) {
                     var lastReportedBytes = -PROGRESS_REPORT_BYTES
                     var lastCompletedEntries = -1
@@ -883,8 +886,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         },
     )
 
-    private fun extractionRootName(displayName: String): String {
-        val candidate = displayName.substringBeforeLast('.', displayName)
+    private fun extractionRootName(
+        displayName: String,
+        format: ArchiveFormat,
+    ): String {
+        val candidate = (format.baseNameWithoutArchiveExtension(displayName)
+            ?: displayName.substringBeforeLast('.', displayName))
             .ifBlank { DEFAULT_EXTRACTION_ROOT }
             .take(MAX_EXTRACTION_ROOT_LENGTH)
         return runCatching { ArchivePathPolicy.validateDestinationRootName(candidate) }

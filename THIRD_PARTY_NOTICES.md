@@ -6,7 +6,7 @@ This project includes third-party software in its Android application. The proje
 
 - Component: `org.apache.commons:commons-compress:1.28.0`
 - Project: <https://commons.apache.org/proper/commons-compress/>
-- Purpose here: ZIP directory metadata; TAR structure detection, listing, header-checksum validation, and entry streams; and GZIP stream decoding for TAR.GZ/TGZ
+- Purpose here: ZIP directory metadata; TAR structure detection, listing, header-checksum validation, and entry streams; and GZIP/BZIP2 stream decoding for TAR.GZ/TGZ and TAR.BZ2/TBZ2
 - License: Apache License 2.0; the exact upstream [`LICENSE`](third_party/commons-compress/LICENSE) and [`NOTICE`](third_party/commons-compress/NOTICE) are retained in this repository
 - Resolved runtime dependencies: Commons Codec 1.19.0, Commons IO 2.20.0, and Commons Lang 3.18.0
 - Native code/ABI impact: none; these are Java libraries and add no native ABI
@@ -25,7 +25,7 @@ Archive Manager instantiates `TarArchiveInputStream` directly after its own sign
 
 ### Packaging impact
 
-Commons Compress and its three runtime dependencies were already part of the application before the TAR backend. This phase adds no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application.
+Commons Compress and its three runtime dependencies were already part of the application before the TAR backend. TAR.BZ2 support adds no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application.
 
 ## XZ for Java 1.12
 
@@ -34,7 +34,7 @@ Commons Compress and its three runtime dependencies were already part of the app
 - Purpose here: streamed XZ decoding for TAR.XZ/TXZ archives through Commons Compress
 - License: BSD Zero Clause License (0BSD); the exact upstream [`COPYING`](third_party/xz-java/COPYING) is retained in this repository and packaged with the application
 - Transitive dependencies: none in `releaseRuntimeClasspath`
-- Native code/ABI impact: none; XZ for Java is a pure Java library and the application still packages no native libraries
+- Native code/ABI impact: none from XZ for Java; it is a pure Java library. The application now packages native libraries only for the separately documented Zstandard decoder.
 
 ### Version and security review
 
@@ -58,6 +58,48 @@ The resolved XZ for Java JAR is 168,792 bytes with SHA-256 `3E158A87BD73D8AFB4B6
 | R8/resource-shrunk Release APK | 1,826,951 bytes | 1,848,415 bytes | +21,464 bytes |
 
 The difference covers the complete compressed-TAR phase: the XZ decoder, GZIP/XZ adapters, format registration, tests excluded from production, and packaged 0BSD text. Release is the distribution-relevant figure because R8 removes unused encoder and platform-specific code.
+
+## zstd-jni 1.5.7-15
+
+- Component: `com.github.luben:zstd-jni:1.5.7-15`
+- Project: <https://github.com/luben/zstd-jni/tree/v1.5.7-15>
+- Purpose here: streamed Zstandard decoding for TAR.ZST/TZST archives, including concatenated frames and skippable frames
+- Licenses: the Java/JNI bindings use BSD-2-Clause and the embedded Zstandard native library is dual-licensed under BSD-3-Clause or GPL-2.0; this project uses the BSD terms. The exact upstream binding [`LICENSE`](third_party/zstd-jni/LICENSE) and native-library [`LICENSE`](third_party/zstd-jni/LICENSE.zstd) are retained in this repository and packaged with the application.
+- Resolved runtime dependencies: none in `releaseRuntimeClasspath`
+- Native code/ABI impact: the Android AAR contributes `libzstd-jni-1.5.7-15.so` for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`. `PluginInfo.supportedAbis` advertises the same complete set.
+
+### Version and security review
+
+Review date: 2026-08-23.
+
+- Upstream published tag 1.5.7-15 on 2026-08-16. Its Android AAR is documented for Android 5.0 and newer; the application remains at `minSdk 24`.
+- The embedded native Zstandard version is 1.5.7. GitHub Advisory Database records CVE-2022-4899 as affecting Zstandard versions before 1.5.4, so the selected native version is outside that affected range.
+- Historical zstd-jni reports identified missing RELRO in 1.5.7-9 and an NDK r19 build that did not meet Android's 16 KiB page-size requirement. Both reports are closed. This project independently inspected every native library in 1.5.7-15: each was built with NDK r29, every `LOAD` segment has `p_align = 0x4000`, and every ELF contains `GNU_RELRO`.
+- The AAR metadata requires `compileSdk 37`; only the compile SDK was raised. `targetSdk 36` and `minSdk 24` are unchanged.
+- zstd-jni resolves JNI entry points through original Java class and member names. The Release shrinker therefore keeps `com.github.luben.zstd.**` names and members instead of relying on a build that happens to work without the upstream-required rule.
+- Future upgrades must review upstream releases and advisories, verify Maven hashes, inspect every packaged ABI for NDK provenance, 16 KiB `LOAD` alignment and RELRO, run `zipalign -P 16` on final APKs, and rerun malformed-stream, external-corpus, API 24 runtime, and host-session tests.
+
+Archive Manager verifies a standard or skippable Zstandard frame signature and the decompressed TAR structure before indexing. It enables continuous-frame decoding, consumes the stream footer so checksum and truncation errors surface, and caps the permitted frame window at `2^28` bytes (256 MiB). TAR entry paths, types, declared and actual sizes, source identity, output isolation, and cleanup remain enforced by the format-neutral application layer. A magic-only or otherwise undersized frame is reported as a recognized but malformed archive rather than an unknown format.
+
+### Artifact, ABI, and APK measurement
+
+The Android AAR is 947,264 bytes with SHA-256 `CD722A3E928E610D57184BBC8F48A055067C308DBF6C7BACAAC999F9366E5264`. The desktop-native test JAR is 6,451,268 bytes with SHA-256 `88AF05C50951C2C8D0FE10C7B3451736204FCC389EAAD01E767E7ACC64E75FE2`; it is confined to JVM tests and is not packaged in Android builds. Both downloads match their Maven Central SHA-1 sidecars.
+
+| AAR ABI | Native library size | ELF `LOAD` alignment | RELRO | NDK |
+| --- | ---: | ---: | --- | --- |
+| `arm64-v8a` | 476,288 bytes | `0x4000` | `GNU_RELRO` | r29 (14206865) |
+| `armeabi-v7a` | 363,260 bytes | `0x4000` | `GNU_RELRO` | r29 (14206865) |
+| `x86` | 552,248 bytes | `0x4000` | `GNU_RELRO` | r29 (14206865) |
+| `x86_64` | 547,360 bytes | `0x4000` | `GNU_RELRO` | r29 (14206865) |
+
+APK sizes were measured on Windows 11 with JDK 21, Android Gradle Plugin 9.2.1, Gradle 9.5.0, and the same local signing configuration. Baseline commit: `4e990a8`. Both resulting APKs pass Android Build Tools 37.0.0 `zipalign -v -c -P 16 4`, and inspection of the libraries extracted from the Release APK reproduces the four ABI results above.
+
+| Variant | TAR.GZ/TAR.XZ baseline | With TAR.BZ2 and TAR.ZST | Difference |
+| --- | ---: | ---: | ---: |
+| Debug APK | 9,618,862 bytes | 11,645,934 bytes | +2,027,072 bytes |
+| R8/resource-shrunk Release APK | 1,848,543 bytes | 3,863,367 bytes | +2,014,824 bytes |
+
+The difference covers this complete phase: the four native Zstandard ABIs, BZIP2/Zstandard adapters, format registration, R8 JNI rules, tests excluded from production, and packaged BSD license texts. The Release increase is mostly the four compressed native libraries; the desktop-native test JAR does not contribute to it.
 
 ## Zip4j 2.11.5
 

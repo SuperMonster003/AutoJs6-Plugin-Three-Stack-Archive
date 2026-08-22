@@ -32,6 +32,7 @@ internal object ArchiveManagerPlugin {
     const val OPEN_ACTION_PRIORITY = 80
     const val EXTRACT_TO_ACTION_PRIORITY = 70
     const val COMPRESS_ACTION_PRIORITY = 60
+    val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
 
     val MIME_TYPES = ArchiveEngine.DEFAULT.readableFormats
         .flatMap(ArchiveFormat::mimeTypes)
@@ -64,7 +65,7 @@ internal fun Context.archiveManagerPluginInfo(): PluginInfo {
         id = ArchiveManagerPlugin.ID
         engine = ExplorerActionPluginIds.ENGINE
         variant = ArchiveManagerPlugin.VARIANT
-        supportedAbis = emptyArray()
+        supportedAbis = ArchiveManagerPlugin.SUPPORTED_ABIS.clone()
         capabilities = Bundle().apply {
             putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, ArchiveManagerPlugin.REQUIRED_HOST_VERSION)
             putInt(ExplorerActionCapabilityKeys.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
