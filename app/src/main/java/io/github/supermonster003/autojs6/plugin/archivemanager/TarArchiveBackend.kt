@@ -4,52 +4,76 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
+import org.tukaani.xz.MemoryLimitException
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 
-internal object TarArchiveBackend : ArchiveBackend {
-    override val format = ArchiveFormat.TAR
+internal object TarArchiveBackend : TarArchiveBackendBase(
+    format = ArchiveFormat.TAR,
+    container = TarContainer.PLAIN,
+)
 
-    override val capabilities = FormatCapabilities(
-        canDetect = true,
-        canList = true,
-        canPreview = true,
-        canOpen = true,
-        canExtract = true,
-        canCreate = false,
-        canAdd = false,
-        canDelete = false,
-        canRename = false,
-        password = ArchiveOptionMode.UNSUPPORTED,
-        filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
-        splitVolumes = ArchiveOptionMode.UNSUPPORTED,
-        compressionLevels = emptyList(),
-        limitations = setOf(
-            ArchiveFormatLimitation.PASSWORD_UNAVAILABLE,
-            ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
-            ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
-            ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
-        ),
-    )
+internal object TarGzipArchiveBackend : TarArchiveBackendBase(
+    format = ArchiveFormat.TAR_GZIP,
+    container = TarContainer.GZIP,
+)
+
+internal object TarXzArchiveBackend : TarArchiveBackendBase(
+    format = ArchiveFormat.TAR_XZ,
+    container = TarContainer.XZ,
+)
+
+internal abstract class TarArchiveBackendBase(
+    override val format: ArchiveFormat,
+    private val container: TarContainer,
+) : ArchiveBackend {
+    init {
+        require(format.isTarFamily)
+    }
+
+    override val capabilities = TAR_READ_ONLY_CAPABILITIES
 
     override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
-        if (!TarArchiveAccess.hasTarSignature(source)) {
+        if (!container.hasOuterSignature(source)) {
             throw ArchiveBackendException(
                 format = format,
                 failure = ArchiveBackendFailure.INVALID_SIGNATURE,
                 stage = ArchiveFailureStage.FORMAT_DETECTION,
-                message = "TAR signature is not present",
+                message = "${format.displayName} signature is not present",
             )
         }
         val resolvedOptions = ArchiveReaderOptions()
         return try {
             TarArchiveReader(
                 source = source,
-                entries = TarArchiveAccess.readEntries(source),
+                entries = TarArchiveAccess.readEntries(source, container),
                 options = resolvedOptions,
+                format = format,
+                formatCapabilities = capabilities,
+                container = container,
+            )
+        } catch (error: TarPayloadSignatureException) {
+            resolvedOptions.clearPassword()
+            throw ArchiveBackendException(
+                format = format,
+                failure = ArchiveBackendFailure.INVALID_SIGNATURE,
+                stage = ArchiveFailureStage.FORMAT_DETECTION,
+                message = "${format.displayName} payload is not a TAR archive",
+                cause = error,
+            )
+        } catch (error: MemoryLimitException) {
+            resolvedOptions.clearPassword()
+            throw ArchiveBackendException(
+                format = format,
+                failure = ArchiveBackendFailure.UNSUPPORTED_METHOD,
+                stage = ArchiveFailureStage.INDEX,
+                message = "XZ dictionary exceeds the decoder memory limit",
+                cause = error,
             )
         } catch (error: ArchiveBackendException) {
             resolvedOptions.clearPassword()
@@ -60,20 +84,43 @@ internal object TarArchiveBackend : ArchiveBackend {
                 format = format,
                 failure = ArchiveBackendFailure.MALFORMED,
                 stage = ArchiveFailureStage.INDEX,
-                message = "TAR directory metadata cannot be read",
+                message = "${format.displayName} directory metadata cannot be read",
                 cause = error,
             )
         }
     }
 }
 
+private val TAR_READ_ONLY_CAPABILITIES = FormatCapabilities(
+    canDetect = true,
+    canList = true,
+    canPreview = true,
+    canOpen = true,
+    canExtract = true,
+    canCreate = false,
+    canAdd = false,
+    canDelete = false,
+    canRename = false,
+    password = ArchiveOptionMode.UNSUPPORTED,
+    filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
+    splitVolumes = ArchiveOptionMode.UNSUPPORTED,
+    compressionLevels = emptyList(),
+    limitations = setOf(
+        ArchiveFormatLimitation.PASSWORD_UNAVAILABLE,
+        ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
+        ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
+        ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
+    ),
+)
+
 private class TarArchiveReader(
     private val source: File,
     override val entries: List<ArchiveReaderEntry>,
     override val options: ArchiveReaderOptions,
+    override val format: ArchiveFormat,
+    override val formatCapabilities: FormatCapabilities,
+    private val container: TarContainer,
 ) : ArchiveReader {
-    override val format = ArchiveFormat.TAR
-    override val formatCapabilities = TarArchiveBackend.capabilities
 
     override fun openEntry(entry: ArchiveReaderEntry): InputStream {
         val token = entry.backendToken as? TarEntryToken
@@ -98,14 +145,23 @@ private class TarArchiveReader(
             )
         }
 
-        val input = TarArchiveAccess.open(source)
+        val input = TarArchiveAccess.open(
+            source = source,
+            container = container,
+            verifyContainerIntegrity = false,
+        )
         try {
             var ordinal = 0
             while (true) {
                 val liveTarEntry = input.nextEntry
                     ?: changed("TAR entry no longer exists")
                 TarArchiveAccess.requireValidChecksum(liveTarEntry)
-                val liveEntry = TarArchiveAccess.toReaderEntry(input, liveTarEntry, ordinal)
+                val liveEntry = TarArchiveAccess.toReaderEntry(
+                    input = input,
+                    entry = liveTarEntry,
+                    ordinal = ordinal,
+                    container = container,
+                )
                 if (ordinal == token.ordinal) {
                     if (!sameMetadata(liveEntry, entry)) {
                         changed("TAR entry metadata changed")
@@ -169,55 +225,106 @@ private enum class TarEntryType(
     ;
 }
 
+internal enum class TarContainer {
+    PLAIN {
+        override fun hasOuterSignature(source: File): Boolean =
+            TarArchiveAccess.hasRawTarSignature(source)
+
+        override fun openPayload(input: InputStream): InputStream = input
+    },
+    GZIP {
+        override fun hasOuterSignature(source: File): Boolean =
+            sourceSignatureMatches(source, GzipCompressorInputStream::matches)
+
+        override fun openPayload(input: InputStream): InputStream =
+            GzipCompressorInputStream(input, true)
+    },
+    XZ {
+        override fun hasOuterSignature(source: File): Boolean =
+            sourceSignatureMatches(source, XZCompressorInputStream::matches)
+
+        override fun openPayload(input: InputStream): InputStream =
+            XZCompressorInputStream(input, true, XZ_MEMORY_LIMIT_KIB)
+    },
+    ;
+
+    abstract fun hasOuterSignature(source: File): Boolean
+
+    abstract fun openPayload(input: InputStream): InputStream
+
+    companion object {
+        private const val SIGNATURE_BUFFER_SIZE = 12
+        private const val XZ_MEMORY_LIMIT_KIB = 256 * 1_024
+
+        private fun sourceSignatureMatches(
+            source: File,
+            matcher: (ByteArray, Int) -> Boolean,
+        ): Boolean {
+            val signature = ByteArray(SIGNATURE_BUFFER_SIZE)
+            val bytesRead = FileInputStream(source).use { input -> input.readPrefix(signature) }
+            return matcher(signature, bytesRead)
+        }
+    }
+}
+
 internal object TarArchiveAccess {
     private const val RECORD_SIZE = 512
     private const val END_MARKER_SIZE = RECORD_SIZE * 2
 
-    fun hasTarSignature(source: File): Boolean {
+    fun hasRawTarSignature(source: File): Boolean {
         val length = source.length()
         if (length < END_MARKER_SIZE || length % RECORD_SIZE != 0L) return false
 
-        val prefix = ByteArray(END_MARKER_SIZE)
-        val bytesRead = FileInputStream(source).use { input ->
-            var total = 0
-            while (total < prefix.size) {
-                val read = input.read(prefix, total, prefix.size - total)
-                if (read < 0) break
-                if (read == 0) continue
-                total += read
-            }
-            total
+        return FileInputStream(source).use { input ->
+            hasTarSignature(BufferedInputStream(input))
         }
-        if (bytesRead < RECORD_SIZE) return false
-
-        val firstRecordIsEmpty = prefix.copyOfRange(0, RECORD_SIZE).all { it == 0.toByte() }
-        if (firstRecordIsEmpty) {
-            return bytesRead == END_MARKER_SIZE && prefix.all { it == 0.toByte() }
-        }
-        if (TarArchiveInputStream.matches(prefix, RECORD_SIZE)) return true
-
-        return runCatching {
-            TarArchiveEntry(prefix.copyOf(RECORD_SIZE)).let { entry ->
-                entry.isCheckSumOK && entry.name.isNotBlank()
-            }
-        }.getOrDefault(false)
     }
 
-    fun readEntries(source: File): List<ArchiveReaderEntry> = open(source).use { input ->
+    fun readEntries(
+        source: File,
+        container: TarContainer = TarContainer.PLAIN,
+    ): List<ArchiveReaderEntry> = open(source, container).use { input ->
         buildList {
             var ordinal = 0
             while (true) {
                 val entry = input.nextEntry ?: break
                 requireValidChecksum(entry)
-                add(toReaderEntry(input, entry, ordinal))
+                add(toReaderEntry(input, entry, ordinal, container))
                 ordinal++
             }
         }
     }
 
-    fun open(source: File): TarArchiveInputStream = TarArchiveInputStream(
-        BufferedInputStream(FileInputStream(source)),
-    )
+    fun open(
+        source: File,
+        container: TarContainer = TarContainer.PLAIN,
+        verifyContainerIntegrity: Boolean = true,
+    ): TarArchiveInputStream {
+        val sourceInput = BufferedInputStream(FileInputStream(source))
+        var payload: InputStream? = null
+        try {
+            payload = container.openPayload(sourceInput)
+            val bufferedPayload = if (payload is BufferedInputStream) {
+                payload
+            } else {
+                BufferedInputStream(payload)
+            }
+            payload = bufferedPayload
+            if (!hasTarSignature(bufferedPayload)) {
+                throw TarPayloadSignatureException()
+            }
+            return ContainerTarArchiveInputStream(
+                payload = bufferedPayload,
+                verifyContainerIntegrity =
+                    verifyContainerIntegrity && container != TarContainer.PLAIN,
+            )
+        } catch (error: Throwable) {
+            runCatching { (payload ?: sourceInput).close() }
+                .exceptionOrNull()
+                ?.let(error::addSuppressed)
+            throw error
+        }
+    }
 
     fun requireValidChecksum(entry: TarArchiveEntry) {
         if (!entry.isCheckSumOK) throw IOException("TAR entry header checksum is invalid")
@@ -227,6 +334,7 @@ internal object TarArchiveAccess {
         input: TarArchiveInputStream,
         entry: TarArchiveEntry,
         ordinal: Int,
+        container: TarContainer = TarContainer.PLAIN,
     ): ArchiveReaderEntry {
         val entryType = entryType(entry)
         val canReadFile = entryType == TarEntryType.REGULAR_FILE &&
@@ -236,7 +344,12 @@ internal object TarArchiveAccess {
             entry.isSparse -> entry.realSize
             else -> entry.size
         }
-        val compressedSize = if (entry.isSparse) entry.size else size
+        val compressedSize = when {
+            entry.isDirectory -> 0L
+            container != TarContainer.PLAIN -> UNKNOWN_COMPRESSED_SIZE
+            entry.isSparse -> entry.size
+            else -> size
+        }
         val capabilities = when {
             entry.isDirectory -> ArchiveEntryCapabilities.DIRECTORY
             canReadFile -> ArchiveEntryCapabilities.READABLE_FILE
@@ -268,6 +381,28 @@ internal object TarArchiveAccess {
         )
     }
 
+    private fun hasTarSignature(input: BufferedInputStream): Boolean {
+        input.mark(END_MARKER_SIZE)
+        val prefix = ByteArray(END_MARKER_SIZE)
+        val bytesRead = input.readPrefix(prefix)
+        input.reset()
+        if (bytesRead < RECORD_SIZE) return false
+
+        val firstRecordIsEmpty = prefix.copyOfRange(0, RECORD_SIZE).all { it == 0.toByte() }
+        if (firstRecordIsEmpty) {
+            return bytesRead == END_MARKER_SIZE && prefix.all { it == 0.toByte() }
+        }
+        if (TarArchiveInputStream.matches(prefix, RECORD_SIZE)) return true
+
+        return runCatching {
+            TarArchiveEntry(prefix.copyOf(RECORD_SIZE)).let { entry ->
+                entry.isCheckSumOK && entry.name.isNotBlank()
+            }
+        }.getOrDefault(false)
+    }
+
+    private const val UNKNOWN_COMPRESSED_SIZE = -1L
+
     private fun entryType(entry: TarArchiveEntry): TarEntryType = when {
         entry.isDirectory -> TarEntryType.DIRECTORY
         entry.isSparse -> TarEntryType.SPARSE_FILE
@@ -279,4 +414,56 @@ internal object TarArchiveAccess {
         entry.isFile -> TarEntryType.REGULAR_FILE
         else -> TarEntryType.OTHER
     }
+}
+
+private class TarPayloadSignatureException : IOException("Compressed payload is not TAR")
+
+private class ContainerTarArchiveInputStream(
+    private val payload: InputStream,
+    private val verifyContainerIntegrity: Boolean,
+) : TarArchiveInputStream(payload) {
+    private var closed = false
+
+    override fun close() {
+        if (closed) return
+        closed = true
+
+        var failure: Throwable? = null
+        if (verifyContainerIntegrity) {
+            try {
+                val buffer = ByteArray(DRAIN_BUFFER_SIZE)
+                while (true) {
+                    val read = payload.read(buffer)
+                    if (read < 0) break
+                }
+            } catch (error: Throwable) {
+                failure = error
+            }
+        }
+        try {
+            super.close()
+        } catch (error: Throwable) {
+            if (failure == null) {
+                failure = error
+            } else {
+                failure.addSuppressed(error)
+            }
+        }
+        failure?.let { throw it }
+    }
+
+    private companion object {
+        const val DRAIN_BUFFER_SIZE = 32 * 1_024
+    }
+}
+
+private fun InputStream.readPrefix(destination: ByteArray): Int {
+    var total = 0
+    while (total < destination.size) {
+        val read = read(destination, total, destination.size - total)
+        if (read < 0) break
+        if (read == 0) continue
+        total += read
+    }
+    return total
 }

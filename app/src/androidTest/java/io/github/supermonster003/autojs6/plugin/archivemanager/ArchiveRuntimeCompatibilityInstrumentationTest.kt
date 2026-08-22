@@ -10,6 +10,8 @@ import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -18,6 +20,7 @@ import org.junit.runner.RunWith
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.UUID
 import java.util.zip.ZipEntry
@@ -92,6 +95,14 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
         } finally {
             source.delete()
         }
+    }
+
+    @Test
+    fun compressedTarMetadataAndEntryDataAreReadableOnTheDeviceRuntime() {
+        listOf(
+            CompressedTarCase("tgz", ArchiveFormat.TAR_GZIP, ::GzipCompressorOutputStream),
+            CompressedTarCase("txz", ArchiveFormat.TAR_XZ, ::XZCompressorOutputStream),
+        ).forEach(::verifyCompressedTarRuntime)
     }
 
     @Test
@@ -174,7 +185,50 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
         }
     }
 
+    private fun verifyCompressedTarRuntime(case: CompressedTarCase) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val source = File(context.cacheDir, "runtime-${UUID.randomUUID()}.${case.extension}")
+        val expected = "compressed-tar-${case.extension}-runtime-check".toByteArray()
+
+        try {
+            val compressed = case.compressor(BufferedOutputStream(FileOutputStream(source)))
+            TarArchiveOutputStream(compressed).use { output ->
+                output.setAddPaxHeadersForNonAsciiNames(true)
+                val entry = TarArchiveEntry("目录/hello.txt").apply {
+                    size = expected.size.toLong()
+                    setModTime(1_700_000_000_000L)
+                }
+                output.putArchiveEntry(entry)
+                output.write(expected)
+                output.closeArchiveEntry()
+            }
+
+            val snapshot = ArchiveScanner().scan(source)
+            val entry = snapshot.entries.single()
+
+            assertEquals(case.format, snapshot.format)
+            assertEquals("目录/hello.txt", entry.path)
+            assertTrue(entry.canExtract)
+            ArchiveEngine.DEFAULT.openReader(
+                source = source,
+                format = snapshot.format,
+                options = snapshot.readerOptions,
+            ).use { reader ->
+                val liveEntry = requireNotNull(reader.entryAt(entry.ordinal))
+                assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
+            }
+        } finally {
+            source.delete()
+        }
+    }
+
     private companion object {
         const val TEST_PASSWORD = "ArchiveManager-Test-2026"
     }
+
+    private data class CompressedTarCase(
+        val extension: String,
+        val format: ArchiveFormat,
+        val compressor: (OutputStream) -> OutputStream,
+    )
 }

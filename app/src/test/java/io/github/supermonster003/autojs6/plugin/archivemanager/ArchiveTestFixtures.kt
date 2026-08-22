@@ -3,10 +3,13 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarConstants
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.junit.Assert.fail
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.nio.file.Files
 import java.util.zip.CRC32
 import java.util.zip.ZipEntry
@@ -54,7 +57,22 @@ internal fun writeZip(file: File, vararg entries: FixtureEntry): File {
 }
 
 internal fun writeTar(file: File, vararg entries: TarFixtureEntry): File {
-    TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(file))).use { output ->
+    return writeTar(file, entries) { output -> output }
+}
+
+internal fun writeTarGzip(file: File, vararg entries: TarFixtureEntry): File =
+    writeTar(file, entries, ::GzipCompressorOutputStream)
+
+internal fun writeTarXz(file: File, vararg entries: TarFixtureEntry): File =
+    writeTar(file, entries, ::XZCompressorOutputStream)
+
+private fun writeTar(
+    file: File,
+    entries: Array<out TarFixtureEntry>,
+    compressor: (OutputStream) -> OutputStream,
+): File {
+    val target = compressor(BufferedOutputStream(FileOutputStream(file)))
+    TarArchiveOutputStream(target).use { output ->
         output.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
         output.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX)
         output.setAddPaxHeadersForNonAsciiNames(true)

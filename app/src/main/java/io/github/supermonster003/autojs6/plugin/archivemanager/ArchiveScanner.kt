@@ -142,7 +142,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
     private fun validateDeclaredMetadata(entry: ArchiveReaderEntry) {
         val size = entry.size
         val compressedSize = entry.compressedSize
-        if (size < 0L || compressedSize < 0L) {
+        if (size < 0L || compressedSize < UNKNOWN_COMPRESSED_SIZE) {
             fail(ArchiveFailureCode.MALFORMED_ARCHIVE, "Archive entry has incomplete size metadata")
         }
     }
@@ -232,6 +232,8 @@ internal class ArchiveScanner @JvmOverloads constructor(
         val isDirectory: Boolean,
     )
 }
+
+private const val UNKNOWN_COMPRESSED_SIZE = -1L
 
 private fun fail(
     code: ArchiveFailureCode,

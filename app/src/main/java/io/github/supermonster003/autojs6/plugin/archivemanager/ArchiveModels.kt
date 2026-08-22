@@ -54,6 +54,7 @@ data class ArchiveEntry(
     } else {
         ArchiveEntryCapabilities.READABLE_FILE
     },
+    /** Compressed bytes for this entry, or -1 when a stream container has no per-entry value. */
     val compressedSize: Long,
     /** Uncompressed size declared by the archive directory and verified while extracting. */
     val uncompressedSize: Long,

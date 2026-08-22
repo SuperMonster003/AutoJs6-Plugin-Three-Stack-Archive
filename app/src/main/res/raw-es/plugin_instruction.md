@@ -10,6 +10,6 @@ Para extraer de inmediato todo el archivo, selecciona `Extraer en...` en su men�
 
 Para crear un ZIP, selecciona `Comprimir...` en el menú de un archivo o carpeta normal. También puedes seleccionar varios elementos de la misma carpeta y usar `Comprimir...` en la barra inferior. Confirma el nombre y el nivel de compresión para crear el archivo en la carpeta actual.
 
-La versión actual lee y extrae archivos de la familia ZIP y TAR sin comprimir, y crea ZIP con contraseña opcional. Los enlaces, nodos de dispositivo y entradas dispersas TAR son de solo lectura. Las variantes TAR comprimidas, los volúmenes divididos y la edición interna permanecen en el Roadmap.
+La versión actual lee y extrae archivos de la familia ZIP, TAR, TAR.GZ/TGZ y TAR.XZ/TXZ, y crea ZIP con contraseña opcional. Los enlaces, nodos de dispositivo y entradas dispersas TAR son de solo lectura. Las demás variantes TAR comprimidas, los volúmenes divididos y la edición interna permanecen en el Roadmap.
 
 El plugin no solicita acceso general al almacenamiento ni a la red. La exploración guarda la entrada temporalmente en la caché privada. La creación de ZIP lee mediante una sesión breve del host vinculada al plugin y solo puede escribir una salida transaccional en la carpeta padre actual. Las comprobaciones contra el recorrido de rutas y la salida fuera del destino permanecen activas.

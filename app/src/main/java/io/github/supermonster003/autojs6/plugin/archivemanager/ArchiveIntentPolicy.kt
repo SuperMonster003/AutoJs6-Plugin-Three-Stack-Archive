@@ -36,7 +36,7 @@ internal object ArchiveIntentPolicy {
     const val SIZE_UNKNOWN = -1L
 
     private val supportedMimeTypes = ArchiveManagerPlugin.MIME_TYPES.toSet()
-    private val supportedExtensions = ArchiveManagerPlugin.EXTENSIONS.toSet()
+    private val supportedFormats = ArchiveEngine.DEFAULT.readableFormats
 
     fun resolve(intent: Intent): ArchiveOpenRequest? {
         if (intent.action != ExplorerActionPluginActions.EXECUTE) return null
@@ -142,10 +142,8 @@ internal object ArchiveIntentPolicy {
 
     fun isSupportedArchive(mimeType: String?, displayName: String): Boolean {
         val normalizedMimeType = normalizeMimeType(mimeType)
-        val extension = displayName
-            .substringAfterLast('.', missingDelimiterValue = "")
-            .lowercase(Locale.ROOT)
-        return normalizedMimeType in supportedMimeTypes || extension in supportedExtensions
+        val extensionMatches = supportedFormats.any { format -> format.matchesFileName(displayName) }
+        return normalizedMimeType in supportedMimeTypes || extensionMatches
     }
 
     private fun isUsableContentUri(uri: Uri): Boolean =

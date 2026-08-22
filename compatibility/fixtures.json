@@ -92,6 +92,54 @@
           "encoding": "UTF-8"
         }
       ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-ustar-unicode.tar.gz",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -tgzip <output.tar.gz> <input.tar>",
+      "wrappedArchive": "7zip-22-ustar-unicode.tar",
+      "containerMethod": "GZIP",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "a0a6719169340f5ec6a2147a37e3320a352ec5332951340007c4a96e0e115a9c",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "type": "regular",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "type": "regular",
+          "size": 87,
+          "encoding": "UTF-8"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-ustar-unicode.tar.xz",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -txz <output.tar.xz> <input.tar>",
+      "wrappedArchive": "7zip-22-ustar-unicode.tar",
+      "containerMethod": "XZ",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "9d929770fddbcce1e114e38e9198fd6b3827a29cbf8a54763859574e05319a22",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "type": "regular",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "type": "regular",
+          "size": 87,
+          "encoding": "UTF-8"
+        }
+      ]
     }
   ]
 }

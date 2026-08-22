@@ -6,7 +6,7 @@ This project includes third-party software in its Android application. The proje
 
 - Component: `org.apache.commons:commons-compress:1.28.0`
 - Project: <https://commons.apache.org/proper/commons-compress/>
-- Purpose here: ZIP directory metadata and uncompressed TAR structure detection, listing, header-checksum validation, and entry streams
+- Purpose here: ZIP directory metadata; TAR structure detection, listing, header-checksum validation, and entry streams; and GZIP stream decoding for TAR.GZ/TGZ
 - License: Apache License 2.0; the exact upstream [`LICENSE`](third_party/commons-compress/LICENSE) and [`NOTICE`](third_party/commons-compress/NOTICE) are retained in this repository
 - Resolved runtime dependencies: Commons Codec 1.19.0, Commons IO 2.20.0, and Commons Lang 3.18.0
 - Native code/ABI impact: none; these are Java libraries and add no native ABI
@@ -26,6 +26,38 @@ Archive Manager instantiates `TarArchiveInputStream` directly after its own sign
 ### Packaging impact
 
 Commons Compress and its three runtime dependencies were already part of the application before the TAR backend. This phase adds no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application.
+
+## XZ for Java 1.12
+
+- Component: `org.tukaani:xz:1.12`
+- Project: <https://tukaani.org/xz/java.html>
+- Purpose here: streamed XZ decoding for TAR.XZ/TXZ archives through Commons Compress
+- License: BSD Zero Clause License (0BSD); the exact upstream [`COPYING`](third_party/xz-java/COPYING) is retained in this repository and packaged with the application
+- Transitive dependencies: none in `releaseRuntimeClasspath`
+- Native code/ABI impact: none; XZ for Java is a pure Java library and the application still packages no native libraries
+
+### Version and security review
+
+Review date: 2026-08-23.
+
+- Upstream released 1.12 on 2026-03-01 and identifies it as the current release.
+- Upstream states that 1.12 fixes a significant bug present in 1.10 and 1.11. The version catalog therefore moves from 1.10 to 1.12 for both build logic and the application instead of introducing the older version into production.
+- Upstream currently reports no known XZ for Java security issues and warns that scanners may incorrectly apply XZ Utils CVEs because the XZ Utils CPE resembles the Maven coordinate. Findings must be checked against the Java package and version rather than dismissed or accepted by name alone.
+- XZ for Java 1.10 and newer use 0BSD. The main sources are Java 8 compatible, so 1.12 remains compatible with the application's Android toolchain.
+- Future upgrades must review the upstream security and release pages, verify the Maven artifact hash, and rerun malformed-stream, external 7-Zip corpus, API 24 runtime, and host-session tests.
+
+Archive Manager verifies both the six-byte XZ container signature and the decompressed TAR structure before indexing. It enables concatenated-stream decoding, consumes the container footer so XZ integrity checks run, and caps XZ decoder memory at 262,144 KiB so an archive header cannot request unbounded dictionary memory. TAR entry paths, types, declared and actual sizes, source identity, output isolation, and cleanup remain enforced by the format-neutral application layer.
+
+### Artifact and APK measurement
+
+The resolved XZ for Java JAR is 168,792 bytes with SHA-256 `3E158A87BD73D8AFB4B6E8239C013B7D049C48563F45860CE99CD2E448CF4A6B`, matching the checksum published by upstream. APKs were measured on Windows 11 with JDK 21, Android Gradle Plugin 9.2.1, Gradle 9.5.0, and the same local signing configuration. Baseline commit: `6ab8680`.
+
+| Variant | Plain-TAR baseline | With TAR.GZ and TAR.XZ | Difference |
+| --- | ---: | ---: | ---: |
+| Debug APK | 10,769,982 bytes | 11,318,244 bytes | +548,262 bytes |
+| R8/resource-shrunk Release APK | 1,826,951 bytes | 1,848,415 bytes | +21,464 bytes |
+
+The difference covers the complete compressed-TAR phase: the XZ decoder, GZIP/XZ adapters, format registration, tests excluded from production, and packaged 0BSD text. Release is the distribution-relevant figure because R8 removes unused encoder and platform-specific code.
 
 ## Zip4j 2.11.5
 

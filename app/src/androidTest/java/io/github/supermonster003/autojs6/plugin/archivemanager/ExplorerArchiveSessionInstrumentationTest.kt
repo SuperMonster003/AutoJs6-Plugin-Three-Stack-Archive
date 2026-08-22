@@ -12,6 +12,8 @@ import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -20,6 +22,7 @@ import org.junit.runner.RunWith
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -160,6 +163,68 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertFalse(directory.exists())
     }
 
+    @Test
+    fun sessionListsAndStreamsCompressedTarEntriesThroughTheHostContract() {
+        listOf(
+            CompressedTarCase("tgz", ArchiveFormat.TAR_GZIP, ::GzipCompressorOutputStream),
+            CompressedTarCase("txz", ArchiveFormat.TAR_XZ, ::XZCompressorOutputStream),
+        ).forEach(::verifyCompressedTarSession)
+    }
+
+    private fun verifyCompressedTarSession(case: CompressedTarCase) {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = File(
+            context.cacheDir,
+            "archive-input-${case.extension}-session-test-${UUID.randomUUID()}",
+        )
+        assertTrue(directory.mkdirs())
+        val archive = File(directory, "source.${case.extension}")
+        val expected = "host ${case.format.displayName} preview".toByteArray()
+        val compressed = case.compressor(BufferedOutputStream(FileOutputStream(archive)))
+        TarArchiveOutputStream(compressed).use { output ->
+            val entry = TarArchiveEntry("preview.txt").apply {
+                size = expected.size.toLong()
+                setModTime(1_700_000_000_000L)
+            }
+            output.putArchiveEntry(entry)
+            output.write(expected)
+            output.closeArchiveEntry()
+        }
+        val snapshot = ArchiveScanner().scan(archive)
+        assertEquals(case.format, snapshot.format)
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "session-test.${case.extension}",
+            stagedArchive = StagedArchive(archive, archive.length()),
+            snapshot = snapshot,
+            onClosed = {},
+        )
+        try {
+            val page = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            )
+            val item = page
+                .getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+                .orEmpty()
+                .single()
+            val actual = ParcelFileDescriptor.AutoCloseInputStream(
+                session.openEntry(requireNotNull(item.getString(ExplorerArchiveSessionKeys.ID))),
+            ).use { it.readBytes() }
+
+            assertEquals("preview.txt", item.getString(ExplorerArchiveSessionKeys.NAME))
+            assertTrue(item.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+            assertEquals(expected.toList(), actual.toList())
+        } finally {
+            session.close()
+        }
+
+        assertFalse(archive.exists())
+        assertFalse(directory.exists())
+    }
+
     private fun createArchive(target: File) {
         ZipOutputStream(FileOutputStream(target)).use { output ->
             output.putNextEntry(ZipEntry("folder/"))
@@ -174,4 +239,10 @@ class ExplorerArchiveSessionInstrumentationTest {
             }
         }
     }
+
+    private data class CompressedTarCase(
+        val extension: String,
+        val format: ArchiveFormat,
+        val compressor: (OutputStream) -> OutputStream,
+    )
 }

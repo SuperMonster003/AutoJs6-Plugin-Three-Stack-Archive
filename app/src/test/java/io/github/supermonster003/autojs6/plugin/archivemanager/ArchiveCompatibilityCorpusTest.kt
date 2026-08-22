@@ -52,6 +52,37 @@ class ArchiveCompatibilityCorpusTest {
     }
 
     @Test
+    fun `7-Zip 22 compressed tar samples preserve unicode names and content`() {
+        listOf(
+            CompressedTarFixture(
+                name = TAR_GZIP_FIXTURE,
+                sha256 = EXPECTED_7ZIP_TAR_GZIP_SHA256,
+                format = ArchiveFormat.TAR_GZIP,
+            ),
+            CompressedTarFixture(
+                name = TAR_XZ_FIXTURE,
+                sha256 = EXPECTED_7ZIP_TAR_XZ_SHA256,
+                format = ArchiveFormat.TAR_XZ,
+            ),
+        ).forEach { fixture ->
+            val source = copyFixture(fixture.name)
+
+            assertEquals(fixture.sha256, source.sha256())
+            val snapshot = ArchiveScanner().scan(source)
+
+            assertEquals(fixture.format, snapshot.format)
+            assertEquals(listOf("ascii.txt", "文件.txt"), snapshot.entries.map(ArchiveEntry::path))
+            assertTrue(snapshot.entries.all { it.compressionMethod == ArchiveCompressionMethod.STORED })
+            assertTrue(snapshot.entries.all { it.compressionMethodId == "TAR" })
+            assertTrue(snapshot.entries.all { it.crc32 == null })
+            val unicodeEntry = snapshot.entries.last()
+            val output = java.io.ByteArrayOutputStream()
+            ArchiveEntryStreamer(source, snapshot).stream(unicodeEntry, output)
+            assertTrue(output.toString(Charsets.UTF_8.name()).contains("UTF-8 文件名"))
+        }
+    }
+
+    @Test
     fun `truncated external sample reports index damage instead of an unknown failure`() {
         val source = copyFixture("7zip-22-deflate-unicode.zip")
         source.writeBytes(source.readBytes().dropLast(12).toByteArray())
@@ -153,9 +184,21 @@ class ArchiveCompatibilityCorpusTest {
             "af0b0186ec1605f5f2b640816b85586336b1e3d9b46f85fbedc238ae042c9c0c"
         const val EXPECTED_7ZIP_TAR_SHA256 =
             "771eaf4fc2bef962e4bed64ee109d51d6ef4e25ec95357e5343c882dbb59e403"
+        const val EXPECTED_7ZIP_TAR_GZIP_SHA256 =
+            "a0a6719169340f5ec6a2147a37e3320a352ec5332951340007c4a96e0e115a9c"
+        const val EXPECTED_7ZIP_TAR_XZ_SHA256 =
+            "9d929770fddbcce1e114e38e9198fd6b3827a29cbf8a54763859574e05319a22"
         const val AES_FIXTURE = "7zip-22-aes256-unicode.zip"
         const val ZIP_CRYPTO_FIXTURE = "7zip-22-zipcrypto-unicode.zip"
         const val TAR_FIXTURE = "7zip-22-ustar-unicode.tar"
+        const val TAR_GZIP_FIXTURE = "7zip-22-ustar-unicode.tar.gz"
+        const val TAR_XZ_FIXTURE = "7zip-22-ustar-unicode.tar.xz"
         const val FIXTURE_PASSWORD = "ArchiveManager-Test-2026"
     }
+
+    private data class CompressedTarFixture(
+        val name: String,
+        val sha256: String,
+        val format: ArchiveFormat,
+    )
 }

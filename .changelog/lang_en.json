@@ -15,7 +15,8 @@
         "Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar",
         "ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering",
         "Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation",
-        "Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only"
+        "Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only",
+        "Browse, preview, and extract TAR.GZ/TGZ and TAR.XZ/TXZ through the same native host paths; format detection verifies both the compressor signature and inner TAR structure"
       ],
       "fix": [
         "ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods",
@@ -33,7 +34,8 @@
         "Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics"
       ],
       "dependency": [
-        "Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path"
+        "Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path",
+        "Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ decoding without native ABIs"
       ]
     },
     "v1.0.1": {

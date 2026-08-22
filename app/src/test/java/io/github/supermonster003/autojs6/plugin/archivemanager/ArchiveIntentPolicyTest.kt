@@ -46,7 +46,7 @@ class ArchiveIntentPolicyTest {
         ArchiveManagerPlugin.MIME_TYPES.forEach { mimeType ->
             assertTrue(mimeType, ArchiveIntentPolicy.isSupportedArchive(mimeType, "archive.bin"))
         }
-        ArchiveManagerPlugin.EXTENSIONS.forEach { extension ->
+        ArchiveEngine.DEFAULT.readableFormats.flatMap(ArchiveFormat::extensions).forEach { extension ->
             assertTrue(
                 extension,
                 ArchiveIntentPolicy.isSupportedArchive("application/octet-stream", "archive.${extension.uppercase()}"),
@@ -57,6 +57,12 @@ class ArchiveIntentPolicyTest {
                 "application/zip; charset=binary",
                 "archive.bin",
             ),
+        )
+        assertFalse(
+            ArchiveIntentPolicy.isSupportedArchive("application/gzip", "standalone.gz"),
+        )
+        assertFalse(
+            ArchiveIntentPolicy.isSupportedArchive("application/x-xz", "standalone.xz"),
         )
         assertFalse(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.rar"))
     }

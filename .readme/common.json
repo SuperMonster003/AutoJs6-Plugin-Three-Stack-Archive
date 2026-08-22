@@ -2,6 +2,6 @@
   "repo_url": "https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager",
   "repo_slug": "SuperMonster003/AutoJs6-Plugin-Archive-Manager",
   "docs_autojs6_url": "https://docs.autojs6.com",
-  "supported_formats": "zip, jar, aar, war, tar",
+  "supported_formats": "zip, jar, aar, war, tar, tar.gz, tgz, tar.xz, txz",
   "creatable_formats": "zip"
 }

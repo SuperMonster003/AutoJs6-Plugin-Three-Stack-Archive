@@ -143,6 +143,7 @@ dependencies {
     implementation(libs.recyclerview)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
     implementation(libs.apache.commons.compress)
+    implementation(libs.tukaani.xz)
     implementation(libs.zip4j)
 
     testImplementation(libs.junit)

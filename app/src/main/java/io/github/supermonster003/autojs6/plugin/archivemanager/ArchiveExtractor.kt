@@ -421,7 +421,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         compressedSize: Long,
         limits: ArchiveSecurityLimits,
     ) {
-        if (uncompressedSize == 0L) return
+        if (uncompressedSize == 0L || compressedSize < 0L) return
         val threshold = if (compressedSize <= 0L) {
             0L
         } else if (compressedSize > Long.MAX_VALUE / limits.maxCompressionRatio) {

@@ -35,14 +35,22 @@ class ArchiveEngineTest {
         assertEquals((0..9).toList(), capabilities.compressionLevels)
         assertTrue(Charset.forName("GB18030").name() in capabilities.filenameCharsetNames)
         assertTrue(Charset.forName("IBM437").name() in capabilities.filenameCharsetNames)
-        assertEquals(listOf(ArchiveFormat.ZIP, ArchiveFormat.TAR), engine.readableFormats)
+        assertEquals(
+            listOf(
+                ArchiveFormat.ZIP,
+                ArchiveFormat.TAR,
+                ArchiveFormat.TAR_GZIP,
+                ArchiveFormat.TAR_XZ,
+            ),
+            engine.readableFormats,
+        )
         assertEquals(listOf(ArchiveFormat.ZIP), engine.creatableFormats)
         assertEquals(
-            ArchiveFormat.ZIP.extensions + ArchiveFormat.TAR.extensions,
+            engine.readableFormats.flatMap(ArchiveFormat::catalogExtensions).toSet(),
             ArchiveManagerPlugin.EXTENSIONS.toSet(),
         )
         assertEquals(
-            ArchiveFormat.ZIP.mimeTypes + ArchiveFormat.TAR.mimeTypes,
+            engine.readableFormats.flatMap(ArchiveFormat::mimeTypes).toSet(),
             ArchiveManagerPlugin.MIME_TYPES.toSet(),
         )
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
@@ -50,24 +58,39 @@ class ArchiveEngineTest {
 
     @Test
     fun `tar capabilities describe a read only archive backend`() {
-        val capabilities = ArchiveEngine.DEFAULT.capabilities(ArchiveFormat.TAR)
+        val engine = ArchiveEngine.DEFAULT
 
-        assertTrue(capabilities.supports(ArchiveOperation.DETECT))
-        assertTrue(capabilities.supports(ArchiveOperation.LIST))
-        assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
-        assertTrue(capabilities.supports(ArchiveOperation.OPEN))
-        assertTrue(capabilities.supports(ArchiveOperation.EXTRACT))
-        assertFalse(capabilities.supports(ArchiveOperation.CREATE))
-        assertFalse(capabilities.supports(ArchiveOperation.ADD))
-        assertFalse(capabilities.supports(ArchiveOperation.DELETE))
-        assertFalse(capabilities.supports(ArchiveOperation.RENAME))
-        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.password)
-        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
-        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
-        assertTrue(capabilities.compressionLevels.isEmpty())
-        assertTrue(capabilities.filenameCharsetNames.isEmpty())
-        assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
-        assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
+        listOf(ArchiveFormat.TAR, ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+            val capabilities = engine.capabilities(format)
+            assertTrue(capabilities.supports(ArchiveOperation.DETECT))
+            assertTrue(capabilities.supports(ArchiveOperation.LIST))
+            assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
+            assertTrue(capabilities.supports(ArchiveOperation.OPEN))
+            assertTrue(capabilities.supports(ArchiveOperation.EXTRACT))
+            assertFalse(capabilities.supports(ArchiveOperation.CREATE))
+            assertFalse(capabilities.supports(ArchiveOperation.ADD))
+            assertFalse(capabilities.supports(ArchiveOperation.DELETE))
+            assertFalse(capabilities.supports(ArchiveOperation.RENAME))
+            assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.password)
+            assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
+            assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
+            assertTrue(capabilities.compressionLevels.isEmpty())
+            assertTrue(capabilities.filenameCharsetNames.isEmpty())
+            assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
+            assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
+        }
+    }
+
+    @Test
+    fun `compressed tar formats retain compound suffixes and publish host leaf extensions`() {
+        assertEquals(setOf("tar.gz", "tgz"), ArchiveFormat.TAR_GZIP.extensions)
+        assertEquals(setOf("gz", "tgz"), ArchiveFormat.TAR_GZIP.catalogExtensions)
+        assertEquals(setOf("tar.xz", "txz"), ArchiveFormat.TAR_XZ.extensions)
+        assertEquals(setOf("xz", "txz"), ArchiveFormat.TAR_XZ.catalogExtensions)
+        assertTrue(ArchiveFormat.TAR_GZIP.matchesFileName("ARCHIVE.TAR.GZ"))
+        assertTrue(ArchiveFormat.TAR_XZ.matchesFileName("archive.txz"))
+        assertFalse(ArchiveFormat.TAR_GZIP.matchesFileName("standalone.gz"))
+        assertFalse(ArchiveFormat.TAR_XZ.matchesFileName("standalone.xz"))
     }
 
     @Test

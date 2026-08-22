@@ -486,7 +486,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             )
         } else if (archiveEntry != null) {
             buildString {
-                if (snapshot?.format == ArchiveFormat.TAR) {
+                if (snapshot?.format?.isTarFamily == true) {
                     append(formatBytes(archiveEntry.uncompressedSize))
                 } else {
                     append(

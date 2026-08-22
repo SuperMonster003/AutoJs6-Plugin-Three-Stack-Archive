@@ -35,7 +35,33 @@ enum class ArchiveFormat(
             "application/tar",
         ),
     ),
+    TAR_GZIP(
+        id = "tar-gzip",
+        displayName = "TAR.GZ",
+        primaryExtension = "tar.gz",
+        extensions = setOf("tar.gz", "tgz"),
+        mimeTypes = setOf("application/x-compressed-tar"),
+    ),
+    TAR_XZ(
+        id = "tar-xz",
+        displayName = "TAR.XZ",
+        primaryExtension = "tar.xz",
+        extensions = setOf("tar.xz", "txz"),
+        mimeTypes = setOf("application/x-xz-compressed-tar"),
+    ),
     ;
+
+    /** Leaf extensions accepted by the host catalog protocol. */
+    val catalogExtensions: Set<String>
+        get() = extensions.mapTo(linkedSetOf()) { it.substringAfterLast('.') }
+
+    val isTarFamily: Boolean
+        get() = this == TAR || this == TAR_GZIP || this == TAR_XZ
+
+    fun matchesFileName(displayName: String): Boolean {
+        val normalized = displayName.lowercase(Locale.ROOT)
+        return extensions.any { extension -> normalized.endsWith(".$extension") }
+    }
 
     init {
         require(id.isNotBlank())
@@ -388,6 +414,13 @@ internal class ArchiveEngine private constructor(
 
     companion object {
         @JvmField
-        val DEFAULT = ArchiveEngine(listOf(ZipArchiveBackend, TarArchiveBackend))
+        val DEFAULT = ArchiveEngine(
+            listOf(
+                ZipArchiveBackend,
+                TarArchiveBackend,
+                TarGzipArchiveBackend,
+                TarXzArchiveBackend,
+            ),
+        )
     }
 }

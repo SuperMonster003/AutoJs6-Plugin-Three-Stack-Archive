@@ -39,7 +39,7 @@ internal object ArchiveManagerPlugin {
         .sorted()
         .toTypedArray()
     val EXTENSIONS = ArchiveEngine.DEFAULT.readableFormats
-        .flatMap(ArchiveFormat::extensions)
+        .flatMap(ArchiveFormat::catalogExtensions)
         .distinct()
         .sorted()
         .toTypedArray()
