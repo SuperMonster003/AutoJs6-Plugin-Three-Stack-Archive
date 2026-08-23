@@ -58,8 +58,92 @@ internal fun writeZip(file: File, vararg entries: FixtureEntry): File {
     return file
 }
 
+internal fun writeZipWithMalformedExtra(
+    file: File,
+    name: String,
+    bytes: ByteArray,
+): File {
+    ZipOutputStream(FileOutputStream(file)).use { output ->
+        val entry = ZipEntry(name).apply {
+            time = FIXED_ZIP_TIME
+            extra = byteArrayOf(
+                0xEF.toByte(),
+                0xBE.toByte(),
+                0x01,
+                0x00,
+                0x00,
+            )
+        }
+        output.putNextEntry(entry)
+        output.write(bytes)
+        output.closeEntry()
+    }
+
+    val archive = Files.readAllBytes(file.toPath())
+    val localOffset = findSignature(archive, LOCAL_FILE_HEADER_SIGNATURE)
+    check(localOffset >= 0)
+    corruptFirstExtraFieldLength(
+        archive = archive,
+        headerOffset = localOffset,
+        fixedHeaderSize = ZIP_LOCAL_HEADER_SIZE,
+        nameLengthOffset = ZIP_LOCAL_NAME_LENGTH_OFFSET,
+        extraLengthOffset = ZIP_LOCAL_EXTRA_LENGTH_OFFSET,
+    )
+    val centralOffset = findSignature(archive, CENTRAL_DIRECTORY_HEADER_SIGNATURE)
+    check(centralOffset >= 0)
+    corruptFirstExtraFieldLength(
+        archive = archive,
+        headerOffset = centralOffset,
+        fixedHeaderSize = ZIP_CENTRAL_HEADER_SIZE,
+        nameLengthOffset = ZIP_CENTRAL_NAME_LENGTH_OFFSET,
+        extraLengthOffset = ZIP_CENTRAL_EXTRA_LENGTH_OFFSET,
+    )
+    Files.write(file.toPath(), archive)
+    return file
+}
+
 internal fun writeTar(file: File, vararg entries: TarFixtureEntry): File {
     return writeTar(file, entries) { output -> output }
+}
+
+internal fun writeOldGnuSparseTar(
+    file: File,
+    name: String,
+    storedBytes: ByteArray,
+    sparseOffset: Long,
+    realSize: Long,
+): File {
+    require(storedBytes.isNotEmpty())
+    require(sparseOffset >= 0L)
+    require(Math.addExact(sparseOffset, storedBytes.size.toLong()) <= realSize)
+
+    TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(file))).use { output ->
+        val entry = TarArchiveEntry(name, TarConstants.LF_GNUTYPE_SPARSE).apply {
+            size = storedBytes.size.toLong()
+            setModTime(FIXED_ZIP_TIME)
+        }
+        output.putArchiveEntry(entry)
+        output.write(storedBytes)
+        output.closeArchiveEntry()
+    }
+
+    val archive = Files.readAllBytes(file.toPath())
+    check(archive.size >= TAR_RECORD_SIZE)
+    GNU_TAR_MAGIC.encodeToByteArray().copyInto(archive, TAR_MAGIC_OFFSET)
+    archive[TAR_VERSION_OFFSET] = ' '.code.toByte()
+    archive[TAR_VERSION_OFFSET + 1] = 0
+    writeTarOctal(archive, TAR_OLDGNU_SPARSE_OFFSET, TAR_NUMBER_LENGTH, sparseOffset)
+    writeTarOctal(
+        archive,
+        TAR_OLDGNU_SPARSE_OFFSET + TAR_NUMBER_LENGTH,
+        TAR_NUMBER_LENGTH,
+        storedBytes.size.toLong(),
+    )
+    archive[TAR_OLDGNU_IS_EXTENDED_OFFSET] = 0
+    writeTarOctal(archive, TAR_OLDGNU_REAL_SIZE_OFFSET, TAR_NUMBER_LENGTH, realSize)
+    rewriteFirstTarHeaderChecksum(archive)
+    Files.write(file.toPath(), archive)
+    return file
 }
 
 internal fun writeTarGzip(file: File, vararg entries: TarFixtureEntry): File =
@@ -137,13 +221,17 @@ internal fun convertFirstTarHeaderToV7(file: File) {
     val bytes = Files.readAllBytes(file.toPath())
     check(bytes.size >= TAR_RECORD_SIZE)
     bytes.fill(0, TAR_MAGIC_OFFSET, TAR_VERSION_END)
+    rewriteFirstTarHeaderChecksum(bytes)
+    Files.write(file.toPath(), bytes)
+}
+
+private fun rewriteFirstTarHeaderChecksum(bytes: ByteArray) {
     bytes.fill(' '.code.toByte(), TAR_CHECKSUM_OFFSET, TAR_CHECKSUM_END)
     val checksum = bytes.take(TAR_RECORD_SIZE).sumOf { it.toInt() and 0xFF }
     val encoded = checksum.toString(8).padStart(6, '0').encodeToByteArray()
     encoded.copyInto(bytes, TAR_CHECKSUM_OFFSET)
     bytes[TAR_CHECKSUM_OFFSET + 6] = 0
     bytes[TAR_CHECKSUM_OFFSET + 7] = ' '.code.toByte()
-    Files.write(file.toPath(), bytes)
 }
 
 internal fun patchFirstStoredEntryData(file: File) {
@@ -193,6 +281,35 @@ private fun writeLittleEndianShort(bytes: ByteArray, offset: Int, value: Int) {
     bytes[offset + 1] = (value ushr 8).toByte()
 }
 
+private fun corruptFirstExtraFieldLength(
+    archive: ByteArray,
+    headerOffset: Int,
+    fixedHeaderSize: Int,
+    nameLengthOffset: Int,
+    extraLengthOffset: Int,
+) {
+    val nameLength = readLittleEndianShort(archive, headerOffset + nameLengthOffset)
+    val extraLength = readLittleEndianShort(archive, headerOffset + extraLengthOffset)
+    check(extraLength >= MALFORMED_EXTRA_MINIMUM_SIZE)
+    val extraOffset = headerOffset + fixedHeaderSize + nameLength
+    check(readLittleEndianShort(archive, extraOffset) == MALFORMED_EXTRA_HEADER_ID)
+    writeLittleEndianShort(archive, extraOffset + 2, MALFORMED_EXTRA_CLAIMED_SIZE)
+}
+
+private fun writeTarOctal(
+    bytes: ByteArray,
+    offset: Int,
+    length: Int,
+    value: Long,
+) {
+    require(value >= 0L)
+    val encoded = value.toString(8)
+    require(encoded.length <= length - 1)
+    bytes.fill('0'.code.toByte(), offset, offset + length - 1)
+    encoded.encodeToByteArray().copyInto(bytes, offset + length - 1 - encoded.length)
+    bytes[offset + length - 1] = 0
+}
+
 private fun findSignature(bytes: ByteArray, signature: Int): Int {
     for (offset in 0..bytes.size - 4) {
         if (readLittleEndianInt(bytes, offset) == signature) return offset
@@ -203,8 +320,23 @@ private fun findSignature(bytes: ByteArray, signature: Int): Int {
 private const val FIXED_ZIP_TIME = 1_700_000_000_000L
 private const val LOCAL_FILE_HEADER_SIGNATURE = 0x04034B50
 private const val CENTRAL_DIRECTORY_HEADER_SIGNATURE = 0x02014B50
+private const val ZIP_LOCAL_HEADER_SIZE = 30
+private const val ZIP_LOCAL_NAME_LENGTH_OFFSET = 26
+private const val ZIP_LOCAL_EXTRA_LENGTH_OFFSET = 28
+private const val ZIP_CENTRAL_HEADER_SIZE = 46
+private const val ZIP_CENTRAL_NAME_LENGTH_OFFSET = 28
+private const val ZIP_CENTRAL_EXTRA_LENGTH_OFFSET = 30
+private const val MALFORMED_EXTRA_HEADER_ID = 0xBEEF
+private const val MALFORMED_EXTRA_MINIMUM_SIZE = 5
+private const val MALFORMED_EXTRA_CLAIMED_SIZE = 0x7FFF
 private const val TAR_RECORD_SIZE = 512
+private const val TAR_NUMBER_LENGTH = 12
 private const val TAR_CHECKSUM_OFFSET = 148
 private const val TAR_CHECKSUM_END = 156
 private const val TAR_MAGIC_OFFSET = 257
+private const val TAR_VERSION_OFFSET = 263
 private const val TAR_VERSION_END = 265
+private const val TAR_OLDGNU_SPARSE_OFFSET = 386
+private const val TAR_OLDGNU_IS_EXTENDED_OFFSET = 482
+private const val TAR_OLDGNU_REAL_SIZE_OFFSET = 483
+private const val GNU_TAR_MAGIC = "ustar "

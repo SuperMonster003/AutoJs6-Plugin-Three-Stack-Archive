@@ -106,6 +106,75 @@ class TarArchiveBackendTest {
     }
 
     @Test
+    fun `malicious link targets remain inert metadata`() {
+        val source = writeTar(
+            temporaryFolder.newFile("malicious-links.tar"),
+            TarFixtureEntry(
+                name = "links/symbolic-link",
+                type = TarFixtureEntryType.SYMBOLIC_LINK,
+                linkName = "../../outside.txt",
+            ),
+            TarFixtureEntry(
+                name = "links/hard-link",
+                type = TarFixtureEntryType.HARD_LINK,
+                linkName = "/absolute/outside.txt",
+            ),
+        )
+
+        val snapshot = ArchiveScanner().scan(source)
+        val output = ByteArrayOutputStream()
+
+        assertEquals(2, snapshot.entries.size)
+        snapshot.entries.forEach { entry ->
+            assertEquals(ArchiveEntryPathStatus.SAFE, entry.pathStatus)
+            assertFalse(entry.canOpen)
+            assertFalse(entry.canExtract)
+            expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.UNSUPPORTED_METHOD) {
+                ArchiveEntryStreamer(source, snapshot).stream(entry, output)
+            }
+        }
+        assertEquals(0, output.size())
+    }
+
+    @Test
+    fun `large old GNU sparse entry is listed without exposing virtual data`() {
+        val storedBytes = byteArrayOf(0x11, 0x22, 0x33, 0x44)
+        val source = writeOldGnuSparseTar(
+            file = temporaryFolder.newFile("sparse.tar"),
+            name = "sparse.bin",
+            storedBytes = storedBytes,
+            sparseOffset = SPARSE_REAL_SIZE - storedBytes.size,
+            realSize = SPARSE_REAL_SIZE,
+        )
+
+        val snapshot = ArchiveScanner().scan(source)
+        val entry = snapshot.entries.single()
+        val assessment = ArchiveResourceBudgetEvaluator.assess(
+            ArchiveSelection.resolve(snapshot, listOf(ArchivePathPolicy.ROOT_PATH)),
+            ArchiveResourceBudget.STRICT,
+        )
+
+        assertEquals(ArchiveFormat.TAR, snapshot.format)
+        assertEquals("SPARSE_FILE", entry.compressionMethodId)
+        assertEquals(storedBytes.size.toLong(), entry.compressedSize)
+        assertEquals(SPARSE_REAL_SIZE, entry.uncompressedSize)
+        assertEquals(SPARSE_REAL_SIZE, snapshot.totalUncompressedBytes)
+        assertFalse(entry.canOpen)
+        assertFalse(entry.canExtract)
+        assertTrue(
+            ArchiveEntryLimitation.UNSUPPORTED_ENTRY_TYPE in entry.capabilities.limitations,
+        )
+        assertTrue(
+            assessment.violations.any {
+                it.kind == ArchiveResourceBudgetViolationKind.SINGLE_UNCOMPRESSED_SIZE
+            },
+        )
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.UNSUPPORTED_METHOD) {
+            ArchiveEntryStreamer(source, snapshot).stream(entry, ByteArrayOutputStream())
+        }
+    }
+
+    @Test
     fun `rejects an invalid tar header checksum as malformed metadata`() {
         val source = writeTar(
             temporaryFolder.newFile("bad-checksum.tar"),
@@ -155,5 +224,9 @@ class TarArchiveBackendTest {
 
         assertNull(error.format)
         assertEquals(ArchiveFailureStage.FORMAT_DETECTION, error.stage)
+    }
+
+    private companion object {
+        const val SPARSE_REAL_SIZE = 4L * 1_024L * 1_024L * 1_024L
     }
 }

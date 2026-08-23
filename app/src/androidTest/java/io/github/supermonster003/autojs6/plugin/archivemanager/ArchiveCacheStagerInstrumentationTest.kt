@@ -347,6 +347,44 @@ class ArchiveCacheStagerInstrumentationTest {
     }
 
     @Test
+    fun pipeCopyExceedingCacheBudgetClosesInputAndRemovesPartialCache() {
+        withTestDirectory { root ->
+            val cache = File(root, "cache").apply { assertTrue(mkdirs()) }
+            val pipe = ParcelFileDescriptor.createReliablePipe()
+            val writer = thread(name = "archive-stager-space-writer") {
+                runCatching {
+                    ParcelFileDescriptor.AutoCloseOutputStream(pipe[1]).use { output ->
+                        val block = ByteArray(CACHE_PRESSURE_BLOCK_BYTES) { index -> index.toByte() }
+                        repeat(CACHE_PRESSURE_BLOCK_COUNT) { output.write(block) }
+                    }
+                }
+            }
+
+            val error = try {
+                ArchiveCacheStager.stageWithCopyLimitForTesting(
+                    source = pipe[0],
+                    cacheDirectory = cache,
+                    reportedSize = ArchiveIntentPolicy.SIZE_UNKNOWN,
+                    copyLimitBytes = CACHE_PRESSURE_LIMIT_BYTES,
+                )
+                throw AssertionError("Expected the cache copy budget to be exhausted")
+            } catch (expected: ArchiveInputLimitException) {
+                expected
+            }
+            writer.join(5_000L)
+            if (writer.isAlive) {
+                runCatching { pipe[1].close() }
+                writer.join(5_000L)
+            }
+
+            assertEquals(ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE, error.code)
+            assertFalse(writer.isAlive)
+            assertFalse(pipe[0].fileDescriptor.valid())
+            assertTrue(cache.listFiles().isNullOrEmpty())
+        }
+    }
+
+    @Test
     fun cancelledPipeCopyClosesInputAndRemovesPartialCache() {
         withTestDirectory { root ->
             val cache = File(root, "cache").apply { assertTrue(mkdirs()) }
@@ -455,6 +493,9 @@ class ArchiveCacheStagerInstrumentationTest {
     )
 
     private companion object {
+        const val CACHE_PRESSURE_BLOCK_BYTES = 32 * 1_024
+        const val CACHE_PRESSURE_BLOCK_COUNT = 8
+        const val CACHE_PRESSURE_LIMIT_BYTES = 64L * 1_024L
         const val CANCEL_AFTER_BYTES = 8L * 1_024L * 1_024L
         const val ENTRY_NAME = "folder/content.txt"
         const val STALE_TEST_AGE_MILLIS = 8L * 24L * 60L * 60L * 1_000L

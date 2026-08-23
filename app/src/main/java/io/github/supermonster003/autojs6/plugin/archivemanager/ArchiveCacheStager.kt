@@ -93,12 +93,31 @@ internal object ArchiveCacheStager {
         )
     }
 
+    /** Supplies a deterministic capacity ceiling to device tests; production callers use [stage]. */
+    fun stageWithCopyLimitForTesting(
+        source: ParcelFileDescriptor,
+        cacheDirectory: File,
+        reportedSize: Long,
+        copyLimitBytes: Long,
+    ): StagedArchive {
+        require(copyLimitBytes >= 0L)
+        return stageDescriptor(
+            source = source,
+            cacheDirectory = cacheDirectory,
+            reportedSize = reportedSize,
+            checkCancelled = {},
+            onProgress = {},
+            copyLimitOverride = copyLimitBytes,
+        )
+    }
+
     private fun stageDescriptor(
         source: ParcelFileDescriptor,
         cacheDirectory: File,
         reportedSize: Long,
         checkCancelled: () -> Unit,
         onProgress: (Long) -> Unit,
+        copyLimitOverride: Long? = null,
     ): StagedArchive {
         if (!ArchiveIntentPolicy.isReportedSizeAccepted(reportedSize)) {
             source.close()
@@ -117,6 +136,7 @@ internal object ArchiveCacheStager {
                 reportedSize = reportedSize,
                 checkCancelled = checkCancelled,
                 onProgress = onProgress,
+                copyLimitOverride = copyLimitOverride,
             )
         } catch (error: Throwable) {
             runCatching { source.close() }
@@ -247,8 +267,9 @@ internal object ArchiveCacheStager {
         reportedSize: Long,
         checkCancelled: () -> Unit,
         onProgress: (Long) -> Unit,
+        copyLimitOverride: Long? = null,
     ): StagedArchive {
-        val copyLimit = cacheDirectory.copyLimit()
+        val copyLimit = copyLimitOverride ?: cacheDirectory.copyLimit()
         if (reportedSize >= 0L && reportedSize > copyLimit) {
             source.close()
             throw ArchiveInputLimitException("Insufficient cache storage for the archive")
