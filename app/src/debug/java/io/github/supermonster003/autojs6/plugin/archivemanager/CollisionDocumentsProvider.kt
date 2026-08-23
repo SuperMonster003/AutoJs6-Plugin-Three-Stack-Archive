@@ -19,6 +19,7 @@ class CollisionDocumentsProvider : DocumentsProvider() {
     private val nodes = LinkedHashMap<String, Node>()
     private lateinit var storageRoot: File
     private var nextId = 1
+    private var rejectDeletes = false
 
     override fun onCreate(): Boolean {
         storageRoot = File(requireNotNull(context).cacheDir, STORAGE_DIRECTORY)
@@ -108,6 +109,7 @@ class CollisionDocumentsProvider : DocumentsProvider() {
     @Synchronized
     override fun deleteDocument(documentId: String) {
         if (documentId == ROOT_ID) throw FileNotFoundException("Cannot delete the test root")
+        if (rejectDeletes) throw FileNotFoundException("Synthetic deletion refusal")
         val node = requireNode(documentId)
         descendantsOf(documentId).asReversed().forEach { descendant ->
             nodes.remove(descendant.id)
@@ -142,11 +144,16 @@ class CollisionDocumentsProvider : DocumentsProvider() {
     override fun call(method: String, arg: String?, extras: Bundle?): Bundle? {
         val platformResult = super.call(method, arg, extras)
         if (platformResult != null) return platformResult
-        return if (method == METHOD_RESET) {
-            synchronized(this) { reset() }
-            Bundle.EMPTY
-        } else {
-            null
+        return when (method) {
+            METHOD_RESET -> {
+                synchronized(this) { reset() }
+                Bundle.EMPTY
+            }
+            METHOD_REJECT_DELETES -> {
+                synchronized(this) { rejectDeletes = true }
+                Bundle.EMPTY
+            }
+            else -> null
         }
     }
 
@@ -163,6 +170,7 @@ class CollisionDocumentsProvider : DocumentsProvider() {
             backingFile = storageRoot,
         )
         nextId = 1
+        rejectDeletes = false
     }
 
     private fun requireNode(documentId: String): Node =
@@ -217,6 +225,7 @@ class CollisionDocumentsProvider : DocumentsProvider() {
 
     companion object {
         const val AUTHORITY = "io.github.supermonster003.autojs6.plugin.archivemanager.test.documents"
+        const val METHOD_REJECT_DELETES = "reject-deletes"
         const val METHOD_RESET = "reset"
         const val ROOT_ID = "root"
 

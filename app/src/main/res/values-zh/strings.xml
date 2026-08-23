@@ -16,6 +16,7 @@
     <string name="error_cannot_create_output">无法创建输出目录</string>
     <string name="error_cannot_open_archive">无法打开压缩包</string>
     <string name="error_cleanup_failed">清理失败; 可能残留部分输出</string>
+    <string name="error_cleanup_residual_outputs">清理失败. 以下输出位置可能仍然存在:\n%1$s</string>
     <string name="error_compression_failed">压缩失败</string>
     <string name="error_compression_request_invalid">压缩请求或宿主会话无效</string>
     <string name="error_extraction_failed">解压失败</string>
@@ -47,6 +48,10 @@
     <string name="text_encrypt_file_names">同时加密文件名</string>
     <string name="text_extract_selected">解压所选项</string>
     <string name="text_extracting">正在解压第 %1$d 项, 共 %2$d 项</string>
+    <string name="text_extraction_current_item">当前项目: %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/秒</string>
+    <string name="text_extraction_rate_eta">%1$s/秒, 预计剩余 %2$s</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_encrypted_entry">加密条目 (%1$s); 请输入压缩档案密码以打开</string>
     <string name="text_encrypted_entry_unlocked">加密条目 (%1$s); 密码已应用</string>
@@ -66,6 +71,7 @@
     <string name="text_password_needed_for_encrypted_entries">输入密码后可打开和解压加密条目.</string>
     <string name="text_parent_directory">上级目录</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在准备压缩...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在准备解压...</string>
     <string name="text_search_hint">搜索压缩包</string>
     <string name="text_select_entry">选择条目</string>
     <string name="text_selected_count">已选择: %1$d</string>

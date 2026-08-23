@@ -264,8 +264,23 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     val deletionFailure = runCatching {
                         writer.deleteRoot(createdRoot)
                     }.exceptionOrNull()
-                    deletionFailure?.also { failure ->
-                        notificationFailure?.let(failure::addSuppressed)
+                    deletionFailure?.let { failure ->
+                        ArchiveCleanupException(createdRoot.location, failure).also { cleanup ->
+                            notificationFailure?.let(cleanup::addSuppressed)
+                            runCatching {
+                                progress.onProgress(
+                                    ExtractionProgress(
+                                        phase = ExtractionPhase.CLEANUP_FAILED,
+                                        currentPath = null,
+                                        completedEntries = 0,
+                                        totalEntries = selection.totalEntries,
+                                        bytesWritten = 0L,
+                                        totalBytes = selection.totalUncompressedBytes,
+                                        residualOutputs = listOf(createdRoot.location),
+                                    ),
+                                )
+                            }.exceptionOrNull()?.let(cleanup::addSuppressed)
+                        }
                     } ?: notificationFailure
                 }
                 cleanupFailure?.let(mapped::addSuppressed)

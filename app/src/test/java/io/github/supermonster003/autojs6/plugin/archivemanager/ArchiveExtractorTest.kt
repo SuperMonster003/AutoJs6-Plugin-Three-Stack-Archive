@@ -381,7 +381,7 @@ class ArchiveExtractorTest {
         val snapshot = ArchiveScanner().scan(source)
         val writer = FakeArchiveOutputWriter()
 
-        try {
+        val cancellation = try {
             runBlocking {
                 ArchiveExtractor().extractToWriter(
                     source = source,
@@ -400,12 +400,51 @@ class ArchiveExtractorTest {
                 )
             }
             throw AssertionError("Expected cancellation")
-        } catch (_: CancellationException) {
-            // Expected.
+        } catch (expected: CancellationException) {
+            expected
         }
 
         assertNotNull(writer.root)
         assertTrue(writer.rootDeleted)
+        assertTrue(cancellation.residualArchiveOutputs().isEmpty())
+    }
+
+    @Test
+    fun `cancellation reports a residual root even when its exception drops suppressed failures`() {
+        val source = archive(FixtureEntry("large.bin", ByteArray(100_000) { 7 }, ZipEntry.STORED))
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter(failDeletingRoot = true)
+        var reportedResiduals = emptyList<ArchiveOutputLocation>()
+
+        try {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf("large.bin"),
+                    rootName = "cancelled-residual",
+                    writer = writer,
+                    progress = ArchiveProgressListener { update ->
+                        if (update.phase == ExtractionPhase.CLEANUP_FAILED) {
+                            reportedResiduals = update.residualOutputs
+                        }
+                        if (update.phase == ExtractionPhase.EXTRACTING && update.bytesWritten > 0L) {
+                            throw CancellationException("test cancellation")
+                        }
+                    },
+                )
+            }
+            throw AssertionError("Expected cancellation")
+        } catch (_: CancellationException) {
+            // Expected.
+        }
+
+        assertTrue(writer.rootDeletionAttempted)
+        assertFalse(writer.rootDeleted)
+        assertEquals(
+            listOf(ArchiveOutputLocation("cancelled-residual", "cancelled-residual")),
+            reportedResiduals,
+        )
     }
 
     @Test
@@ -427,6 +466,38 @@ class ArchiveExtractorTest {
         }
 
         assertTrue(writer.rootDeleted)
+    }
+
+    @Test
+    fun `reports the stable residual root when destination cleanup fails`() {
+        val source = archive(FixtureEntry("broken.txt", "data".toByteArray(), ZipEntry.STORED))
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter(
+            failCreatingFile = "broken.txt",
+            failDeletingRoot = true,
+        )
+
+        val error = expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.OUTPUT_FAILURE) {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source,
+                    snapshot,
+                    listOf("broken.txt"),
+                    "residual-output",
+                    writer,
+                )
+            }
+        }
+
+        assertTrue(writer.rootDeletionAttempted)
+        assertFalse(writer.rootDeleted)
+        assertEquals(
+            listOf(ArchiveOutputLocation("residual-output", "residual-output")),
+            error.residualArchiveOutputs(),
+        )
+        val cleanup = error.suppressed.filterIsInstance<ArchiveCleanupException>().single()
+        assertEquals(ArchiveFailureStage.CLEANUP, cleanup.stage)
+        assertTrue(cleanup.cause is IOException)
     }
 
     @Test
@@ -481,10 +552,13 @@ class ArchiveExtractorTest {
 
     private class FakeArchiveOutputWriter(
         private val failCreatingFile: String? = null,
+        private val failDeletingRoot: Boolean = false,
     ) : ArchiveOutputWriter {
         var root: FakeNode? = null
             private set
         var rootDeleted = false
+            private set
+        var rootDeletionAttempted = false
             private set
         private val files = HashMap<String, ByteArrayOutputStream>()
 
@@ -515,6 +589,8 @@ class ArchiveExtractorTest {
 
         override fun deleteRoot(root: ArchiveOutputWriter.Node) {
             check(root === this.root)
+            rootDeletionAttempted = true
+            if (failDeletingRoot) throw IOException("Synthetic cleanup failure")
             rootDeleted = true
         }
 

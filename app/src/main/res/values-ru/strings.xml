@@ -15,6 +15,7 @@
     <string name="error_cannot_create_output">Не удалось создать выходной каталог</string>
     <string name="error_cannot_open_archive">Не удалось открыть архив</string>
     <string name="error_cleanup_failed">Не удалось очистить данные; часть выходных файлов могла сохраниться</string>
+    <string name="error_cleanup_residual_outputs">Не удалось очистить данные. Могли сохраниться следующие выходные данные:\n%1$s</string>
     <string name="error_extraction_failed">Не удалось извлечь файлы</string>
     <string name="error_no_selection">Выберите хотя бы одну запись</string>
     <string name="error_no_safe_entries">В выбранном нет записей, которые можно безопасно извлечь</string>
@@ -25,6 +26,10 @@
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
     <string name="text_extract_selected">Извлечь выбранное</string>
     <string name="text_extracting">Извлечение %1$d из %2$d</string>
+    <string name="text_extraction_current_item">Текущий элемент: %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/с</string>
+    <string name="text_extraction_rate_eta">%1$s/с, осталось %2$s</string>
     <string name="text_encrypted_entry">Зашифрованная запись (%1$s); введите пароль архива, чтобы открыть её</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Загрузка архива...</string>
     <string name="text_loading_progress">%1$s из %2$s</string>
@@ -63,6 +68,7 @@
     <string name="text_password">Пароль</string>
     <string name="text_confirm_password">Подтвердите пароль</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Подготовка к извлечению...</string>
     <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
     <string name="text_split_volume">Размер тома (MiB)</string>
     <string name="text_encryption_unavailable_for_format">Пароль и шифрование имён файлов недоступны для %1$s.</string>

@@ -144,6 +144,7 @@ enum class ExtractionPhase {
     PREPARING,
     EXTRACTING,
     CLEANING_UP,
+    CLEANUP_FAILED,
     COMPLETED,
 }
 
@@ -154,6 +155,8 @@ data class ExtractionProgress(
     val totalEntries: Int,
     val bytesWritten: Long,
     val totalBytes: Long,
+    /** Stable output roots that could not be removed. Present only for [ExtractionPhase.CLEANUP_FAILED]. */
+    val residualOutputs: List<ArchiveOutputLocation> = emptyList(),
 )
 
 fun interface ArchiveProgressListener {

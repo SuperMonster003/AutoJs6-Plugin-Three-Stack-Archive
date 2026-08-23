@@ -15,6 +15,7 @@
     <string name="error_cannot_create_output">無法建立輸出目錄</string>
     <string name="error_cannot_open_archive">無法開啟壓縮檔</string>
     <string name="error_cleanup_failed">清理失敗; 可能仍有部分輸出</string>
+    <string name="error_cleanup_residual_outputs">清理失敗. 以下輸出位置可能仍然存在:\n%1$s</string>
     <string name="error_extraction_failed">解壓縮失敗</string>
     <string name="error_no_selection">請至少選取一個項目</string>
     <string name="error_no_safe_entries">所選內容中沒有可安全解壓縮的項目</string>
@@ -24,6 +25,10 @@
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分輸出...</string>
     <string name="text_extract_selected">解壓縮所選項目</string>
     <string name="text_extracting">正在解壓縮第 %1$d 項, 共 %2$d 項</string>
+    <string name="text_extraction_current_item">目前項目: %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/秒</string>
+    <string name="text_extraction_rate_eta">%1$s/秒, 預計剩餘 %2$s</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">正在載入壓縮檔...</string>
     <string name="text_loading_progress">%1$s / %2$s</string>
     <string name="text_modified">修改時間: %1$s</string>
@@ -61,6 +66,7 @@
     <string name="text_password">密碼</string>
     <string name="text_confirm_password">確認密碼</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在準備壓縮...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在準備解壓縮...</string>
     <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分卷輸出.</string>
     <string name="text_split_volume">分卷大小 (MiB)</string>
     <string name="text_encryption_unavailable_for_format">%1$s 目前尚未支援密碼和檔案名稱加密.</string>

@@ -43,6 +43,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Build the listing from directory metadata without decompressing every entry first.
 - Browse ordinary archives directly through the host's seekable read-only descriptor with independent positional channels and no whole-file copy; pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache, which is removed on close.
 - Choose Compatible, Strict, or Custom extraction budgets; an archive that exceeds entry, path, output-size, or compression-ratio thresholds stays browsable and shows its estimated space and risks for one-time confirmation before writing.
+- Show extraction entry and byte progress, the current item, transfer rate, and estimated time remaining; cancellation or failure rolls back the newly created output root, and a provider-refused residual is listed by name and URI.
 - Put parent-traversal, absolute, drive-prefixed, or control-character names in a path-bar-visible Unsafe paths folder; readable data remains previewable, while whole-archive extraction requires explicitly skipping those entries and leaves normal entries unaffected.
 - Browse, preview, and extract uncompressed TAR files; symbolic links, hard links, device nodes, and sparse entries are listed but never written as ordinary files.
 - Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives with the same internal paths, special-entry isolation, and integrity checks.
@@ -114,6 +115,7 @@ _Unreleased_
 - `Added` Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only
 - `Added` Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST through the same native host paths; format detection verifies both the compressor signature and inner TAR structure
 - `Added` Compatible, Strict, and Custom extraction budgets; over-budget archives remain read-only browsable and show estimated output, exceeded dimensions, and one-time confirmation before writing
+- `Added` Extraction progress now shows entries, bytes, the current item, transfer rate, and estimated time remaining, with reliable cancellation
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` Standard `.z01 + .zip` split ZIP files now identify the required earlier volumes instead of reporting the final volume as damaged
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
@@ -123,6 +125,7 @@ _Unreleased_
 - `Fixed` Default extraction folders for compound extensions such as TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now remove the complete suffix instead of retaining `.tar`
 - `Fixed` Archives containing parent traversal, absolute, drive-prefixed, or control-character names remain browsable; unsafe names move to a read-only isolation folder, remain previewable when their data is readable, and require explicit skipping before extraction
 - `Fixed` Extraction no longer overwrites existing files or directories when a destination provider treats case or Unicode-equivalent names as identical; equivalent output-folder names are numbered automatically
+- `Fixed` Cancellation and extraction failures roll back the newly created output root in a non-cancellable cleanup phase; if a provider refuses deletion, the possible residual name and URI are listed instead of only a generic cleanup error
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors

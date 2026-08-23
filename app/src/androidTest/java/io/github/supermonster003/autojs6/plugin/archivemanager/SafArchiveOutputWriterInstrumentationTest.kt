@@ -7,10 +7,12 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
@@ -119,6 +121,107 @@ class SafArchiveOutputWriterInstrumentationTest {
             } finally {
                 source.delete()
             }
+        }
+    }
+
+    @Test
+    fun cancellationRemovesTheRealSafOutputRootWithoutReportingAResidual() {
+        val sentinelPayload = "preserve-after-cancel".toByteArray()
+        val sentinel = createDocument(
+            parent = TREE_ROOT_URI,
+            mimeType = BINARY_MIME_TYPE,
+            displayName = SENTINEL_NAME,
+        )
+        resolver.openOutputStream(sentinel, WRITE_MODE).use { output ->
+            requireNotNull(output).write(sentinelPayload)
+        }
+        val source = writeZip(listOf("large.bin" to ByteArray(256 * 1_024) { 7 }))
+
+        try {
+            val snapshot = ArchiveScanner().scan(source)
+            val cancellation = try {
+                runBlocking {
+                    ArchiveExtractor(contentResolver = resolver).extract(
+                        source = source,
+                        snapshot = snapshot,
+                        selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                        treeUri = TREE_URI,
+                        rootName = "cancelled-output",
+                        progress = ArchiveProgressListener { update ->
+                            if (
+                                update.phase == ExtractionPhase.EXTRACTING &&
+                                update.bytesWritten > 0L
+                            ) {
+                                throw CancellationException("instrumentation cancellation")
+                            }
+                        },
+                    )
+                }
+                fail("Expected extraction cancellation")
+                error("Unreachable")
+            } catch (expected: CancellationException) {
+                expected
+            }
+
+            assertTrue(cancellation.residualArchiveOutputs().isEmpty())
+            assertEquals(setOf(SENTINEL_NAME), childRecords(TREE_ROOT_URI).displayNames())
+            assertArrayEquals(
+                sentinelPayload,
+                resolver.openInputStream(sentinel).use { input ->
+                    requireNotNull(input).readBytes()
+                },
+            )
+        } finally {
+            source.delete()
+        }
+    }
+
+    @Test
+    fun cleanupRefusalReportsTheExactResidualSafRoot() {
+        requireNotNull(
+            resolver.call(
+                PROVIDER_URI,
+                CollisionDocumentsProvider.METHOD_REJECT_DELETES,
+                null,
+                null,
+            ),
+        )
+        val source = writeZip(
+            listOf(
+                "node/child.txt" to "child".toByteArray(),
+                "Node" to "conflict".toByteArray(),
+            ),
+        )
+
+        try {
+            val snapshot = ArchiveScanner().scan(source)
+            val error = try {
+                runBlocking {
+                    ArchiveExtractor(contentResolver = resolver).extract(
+                        source = source,
+                        snapshot = snapshot,
+                        selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                        treeUri = TREE_URI,
+                        rootName = "residual-output",
+                    )
+                }
+                fail("Expected destination conflict")
+                error("Unreachable")
+            } catch (expected: ArchiveExtractionException) {
+                expected
+            }
+
+            assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
+            val residual = error.residualArchiveOutputs().single()
+            assertEquals("residual-output", residual.displayName)
+            assertEquals(
+                "node-1",
+                DocumentsContract.getDocumentId(Uri.parse(residual.identifier)),
+            )
+            assertEquals(setOf("residual-output"), childRecords(TREE_ROOT_URI).displayNames())
+        } finally {
+            source.delete()
+            resetProvider()
         }
     }
 

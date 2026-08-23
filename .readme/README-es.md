@@ -43,6 +43,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
 - Explorar archivos normales mediante el descriptor posicionable de solo lectura del host y canales con posición independiente, sin copiar todo el archivo; las tuberías, las fuentes escribibles o no posicionables, Android 7 y los lectores que requieren un archivo local legible por el proceso (actualmente ZIP cifrado) recurren a la caché privada, que se elimina al cerrar.
 - Elegir presupuestos de extracción Compatible, Estricto o Personalizado; los archivos que superan los umbrales de entradas, rutas, tamaño de salida o relación de compresión siguen disponibles para explorar y muestran el espacio estimado y los riesgos antes de pedir una confirmación única para escribir.
+- Mostrar el progreso por elementos y bytes, el elemento actual, la velocidad y el tiempo restante estimado; una cancelación o un fallo revierte la nueva raíz de salida, y cualquier residuo que el proveedor no elimine se identifica por nombre y URI.
 - Mover los nombres con recorridos al directorio padre, rutas absolutas, prefijos de unidad o caracteres de control a una carpeta Rutas no seguras visible en la barra de ruta; los datos legibles conservan la vista previa y la extracción completa exige omitir explícitamente esas entradas sin afectar a las normales.
 - Explorar, previsualizar y extraer TAR sin comprimir; los enlaces simbólicos y físicos, los nodos de dispositivo y las entradas dispersas solo se muestran y nunca se escriben como archivos normales.
 - Explorar, previsualizar y extraer TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 y TAR.ZST/TZST con las mismas rutas internas, el aislamiento de entradas especiales y las comprobaciones de integridad.
@@ -114,6 +115,7 @@ _Sin publicar_
 - `Añadido` Exploración, vista previa y extracción de TAR sin comprimir en la lista nativa con validación de la suma de comprobación de cabeceras; enlaces, nodos de dispositivo y entradas dispersas quedan solo para lectura
 - `Añadido` Exploración, vista previa y extracción de TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 y TAR.ZST/TZST por las mismas rutas nativas; la detección verifica la firma del compresor y la estructura TAR interna
 - `Añadido` Presupuestos de extracción Compatible, Estricto y Personalizado; los archivos que superan el presupuesto siguen disponibles en modo de solo lectura y muestran salida estimada, dimensiones excedidas y una confirmación única antes de escribir
+- `Añadido` El progreso de extracción muestra elementos, bytes, el elemento actual, la velocidad y el tiempo restante estimado, con cancelación fiable
 - `Corregido` La lista ZIP usa metadatos y admite preámbulos autoextraíbles, codificaciones antiguas, separadores Windows y más métodos legibles
 - `Corregido` Los ZIP divididos estándar `.z01 + .zip` ahora indican los volúmenes anteriores necesarios en lugar de marcar el volumen final como dañado
 - `Corregido` La codificación de nombres ZIP se puede cambiar cuando la detección automática sea incorrecta y la extracción reutiliza la selección
@@ -123,6 +125,7 @@ _Sin publicar_
 - `Corregido` La carpeta de extracción predeterminada de extensiones compuestas como TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST elimina ahora el sufijo completo en lugar de conservar `.tar`
 - `Corregido` Los archivos con nombres que contienen recorridos al directorio padre, rutas absolutas, prefijos de unidad o caracteres de control siguen siendo explorables; esos nombres pasan a una carpeta aislada de solo lectura, conservan la vista previa cuando sus datos son legibles y deben omitirse explícitamente antes de extraer
 - `Corregido` La extracción ya no sobrescribe archivos ni carpetas existentes cuando el proveedor de destino considera idénticos los nombres que solo difieren en mayúsculas o minúsculas o son equivalentes en Unicode; las carpetas de salida equivalentes se numeran automáticamente
+- `Corregido` La cancelación o un fallo de extracción revierte la nueva raíz de salida en una fase de limpieza no cancelable; si el proveedor rechaza la eliminación, se muestran el nombre y el URI del posible residuo en lugar de solo un error genérico
 - `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
 - `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
 - `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material

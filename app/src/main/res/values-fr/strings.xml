@@ -15,6 +15,7 @@
     <string name="error_cannot_create_output">Impossible de créer le dossier de sortie</string>
     <string name="error_cannot_open_archive">Impossible d\'ouvrir l\'archive</string>
     <string name="error_cleanup_failed">Échec du nettoyage; une sortie partielle peut subsister</string>
+    <string name="error_cleanup_residual_outputs">Échec du nettoyage. Les emplacements de sortie suivants peuvent subsister :\n%1$s</string>
     <string name="error_extraction_failed">Échec de l\'extraction</string>
     <string name="error_no_selection">Sélectionnez au moins une entrée</string>
     <string name="error_no_safe_entries">La sélection ne contient aucune entrée pouvant être extraite en toute sécurité</string>
@@ -25,6 +26,10 @@
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Nettoyage de la sortie partielle...</string>
     <string name="text_extract_selected">Extraire la sélection</string>
     <string name="text_extracting">Extraction de %1$d sur %2$d</string>
+    <string name="text_extraction_current_item">Élément actuel : %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/s</string>
+    <string name="text_extraction_rate_eta">%1$s/s, temps restant : %2$s</string>
     <string name="text_encrypted_entry">Entrée chiffrée (%1$s); saisissez le mot de passe de l\'archive pour l\'ouvrir</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Chargement de l\'archive...</string>
     <string name="text_loading_progress">%1$s sur %2$s</string>
@@ -63,6 +68,7 @@
     <string name="text_password">Mot de passe</string>
     <string name="text_confirm_password">Confirmer le mot de passe</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Préparation de la compression...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Préparation de l’extraction...</string>
     <string name="text_split_unavailable_for_format">La sortie fractionnée n\'est pas disponible pour %1$s.</string>
     <string name="text_split_volume">Taille du volume (MiB)</string>
     <string name="text_encryption_unavailable_for_format">Le mot de passe et le chiffrement des noms ne sont pas disponibles pour %1$s.</string>

@@ -119,10 +119,12 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - 单元测试验证父级穿越、绝对路径、Windows 驱动器前缀、双向文本控制符和非法输出根不会创建输出; 指向档案外的 TAR 符号/硬链接不可提取且不会到达输出 writer;
 - 现有扫描、预览、解压及创建回归测试继续通过;
 - 单元测试覆盖六个资源预算维度、兼容/严格档位顺序、未知压缩大小、超预算浏览、写出前拒绝及确认后仅扩展至声明值;
+- 单元测试验证解压进度优先使用字节比例、未知大小时回退到条目比例, 并以单调时钟计算平均速度和剩余时间; 时钟回退、零字节档案和清理阶段不会产生负值或伪造 ETA;
+- 单元测试验证普通取消会删除本次新建根, 清理失败会携带准确的残留输出位置和 `CLEANUP/OUTPUT_FAILURE` 诊断; 即使取消异常传播丢失 suppressed 异常, `CLEANUP_FAILED` 事件仍能把残留根交给 UI;
 - 单元测试以固定生成的 8 MiB 高压缩比 ZIP、20,001 条目 ZIP、512/1,025 层路径和畸形非关键 extra field 验证元数据浏览、资源预算、硬结构上限及兼容读取行为;
 - Android 仪器测试覆盖七种当前 reader 的可 seek 描述符直读、源名称移除后的租约可用性、管道与可写描述符回退、报告大小变化、失败清理、活跃缓存保护、过期目录回收, 以及加密 ZIP 在后端提出本地文件要求后延迟物化并完成 AES 解密; 未知大小管道超过缓存复制预算时还必须关闭两端并移除部分缓存;
 - Android 仪器测试通过统一 reader、writer 与宿主会话验证 7Z 及全部 TAR 族格式的设备运行链路, 包含 Unicode 路径、空目录、未知源大小、取消和源大小变化后的事务回滚.
-- Android 仪器测试使用一个按 NFC 与大小写折叠名称、并在冲突时故意返回旧文档 ID 的 Debug DocumentsProvider, 验证等价根名称安全编号、Unicode 等价文件及大小写等价文件/目录冲突封闭失败、本次输出根回滚和既有内容逐字节不变; 该 provider 不进入 Release 清单.
+- Android 仪器测试使用一个按 NFC 与大小写折叠名称、并在冲突时故意返回旧文档 ID 的 Debug DocumentsProvider, 验证等价根名称安全编号、Unicode 等价文件及大小写等价文件/目录冲突封闭失败、本次输出根回滚和既有内容逐字节不变; 同一 provider 还能拒绝删除, 用于验证取消回滚成功路径及清理拒绝时残留根名称/URI 的精确报告; 该 provider 不进入 Release 清单.
 - 外部 7-Zip 22.00 AES-256/ZipCrypto 样本验证无密码浏览、正确密码读取和错误密码的 `PASSWORD/WRONG_PASSWORD` 诊断; AES-256 writer 产物由统一 reader 重新打开并校验.
 - 外部 7-Zip 22.00 生成的 TAR/TAR.GZ/TAR.XZ/TAR.BZ2 及 bsdtar 3.8.4/libzstd 1.5.7 生成的 TAR.ZST 样本以固定 SHA-256 验证 Unicode 目录、条目元数据和内容流.
 - 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建 TAR.ZST 与普通 TAR; bsdtar 3.8.4/libarchive 3.8.4 完整提取 TAR.ZST, 7-Zip 22.00 与 bsdtar 均验证普通 TAR, 创建产物还能由宿主原生档案页面重新打开并预览哈希一致的 Unicode 条目.

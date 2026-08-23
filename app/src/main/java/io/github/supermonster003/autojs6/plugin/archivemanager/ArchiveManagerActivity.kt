@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
@@ -31,6 +32,7 @@ import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.roundToInt
 
 class ArchiveManagerActivity : AppCompatActivity() {
 
@@ -1018,16 +1020,19 @@ class ArchiveManagerActivity : AppCompatActivity() {
         pendingExtractionPaths = emptySet()
         pendingSkipUnsafePaths = false
         pendingAllowResourceBudgetOverride = false
-        setBusy(true, getString(R.string.text_extracting, 0, 0), cancellable = true)
+        setBusy(true, getString(R.string.text_preparing_extraction), cancellable = true)
         operationJob = lifecycleScope.launch {
+            var reportedResidualOutputs = emptyList<ArchiveOutputLocation>()
             try {
                 val rootName = extractionRootName(
                     displayName = request?.displayName.orEmpty(),
                     format = archive.format,
                 )
                 val result = withContext(Dispatchers.IO) {
+                    val progressTracker = ExtractionProgressTracker()
                     var lastReportedBytes = -PROGRESS_REPORT_BYTES
                     var lastCompletedEntries = -1
+                    var lastReportedElapsedMillis = -PROGRESS_REPORT_INTERVAL_MILLIS
                     ArchiveExtractor(contentResolver, resourceBudget).extract(
                         source = staged.source,
                         snapshot = archive,
@@ -1037,24 +1042,32 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         skipUnsafePaths = skipUnsafePaths,
                         allowResourceBudgetOverride = allowResourceBudgetOverride,
                         progress = ArchiveProgressListener { update ->
+                            val metrics = progressTracker.update(update)
                             when (update.phase) {
                                 ExtractionPhase.CLEANING_UP -> postUiUpdate {
-                                    binding.message.text = getString(R.string.text_cleaning_up)
-                                    binding.cancelButton.isEnabled = false
+                                    renderExtractionCleanup()
+                                }
+                                ExtractionPhase.CLEANUP_FAILED -> {
+                                    reportedResidualOutputs = update.residualOutputs
+                                    postUiUpdate {
+                                        renderExtractionCleanupFailure(update.residualOutputs)
+                                    }
+                                }
+                                ExtractionPhase.PREPARING -> postUiUpdate {
+                                    renderExtractionPreparing()
                                 }
                                 ExtractionPhase.EXTRACTING -> if (
                                     update.bytesWritten - lastReportedBytes >= PROGRESS_REPORT_BYTES ||
                                     update.completedEntries == update.totalEntries ||
-                                    update.completedEntries - lastCompletedEntries >= PROGRESS_REPORT_ENTRIES
+                                    update.completedEntries - lastCompletedEntries >= PROGRESS_REPORT_ENTRIES ||
+                                    metrics.elapsedMillis - lastReportedElapsedMillis >=
+                                    PROGRESS_REPORT_INTERVAL_MILLIS
                                 ) {
                                     lastReportedBytes = update.bytesWritten
                                     lastCompletedEntries = update.completedEntries
+                                    lastReportedElapsedMillis = metrics.elapsedMillis
                                     postUiUpdate {
-                                        binding.message.text = getString(
-                                            R.string.text_extracting,
-                                            update.completedEntries,
-                                            update.totalEntries,
-                                        )
+                                        renderExtractionProgress(update, metrics)
                                     }
                                 }
                                 else -> Unit
@@ -1073,14 +1086,17 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 setBusy(false)
                 renderEntries()
             } catch (cancelled: CancellationException) {
-                val message = if (cancelled.suppressed.isNotEmpty()) {
-                    getString(R.string.error_cleanup_failed)
-                } else {
-                    getString(R.string.text_cancelled)
-                }
+                val cleanupMessage = cleanupResidualMessage(
+                    reportedResidualOutputs + cancelled.residualArchiveOutputs(),
+                )
+                val message = cleanupMessage ?: getString(R.string.text_cancelled)
                 showMessage(message)
-                if (cancelled.suppressed.isNotEmpty()) {
-                    Toast.makeText(this@ArchiveManagerActivity, message, Toast.LENGTH_LONG).show()
+                if (cleanupMessage != null) {
+                    Toast.makeText(
+                        this@ArchiveManagerActivity,
+                        R.string.error_cleanup_failed,
+                        Toast.LENGTH_LONG,
+                    ).show()
                 }
                 setBusy(false)
                 throw cancelled
@@ -1090,6 +1106,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     headline = headlineForExtractionFailure(error),
                     formatHint = archive.format,
                     stageHint = ArchiveFailureStage.ENTRY_DATA,
+                    residualOutputs = reportedResidualOutputs,
                 )
                 setBusy(false)
                 renderEntries()
@@ -1104,6 +1121,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             renderJob?.cancel()
         }
         binding.progress.isVisible = busy
+        if (!busy) setProgressIndicatorIndeterminate(true)
         binding.cancelButton.isVisible = busy && cancellable
         binding.cancelButton.isEnabled = busy && cancellable
         binding.searchInput.isEnabled = !busy
@@ -1136,6 +1154,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         headline: String,
         formatHint: ArchiveFormat? = snapshot?.format,
         stageHint: ArchiveFailureStage,
+        residualOutputs: List<ArchiveOutputLocation> = emptyList(),
     ) {
         val diagnostic = ArchiveFailureDiagnostic.from(
             error = error,
@@ -1144,7 +1163,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             archiveDisplayName = request?.displayName,
         )
         lastFailureDiagnostic = diagnostic
-        binding.message.text = getString(
+        val diagnosticMessage = getString(
             R.string.error_diagnostic_details,
             headline,
             diagnostic.format?.displayName ?: getString(R.string.text_unknown),
@@ -1152,6 +1171,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
             diagnostic.code?.name ?: getString(R.string.text_unknown),
             failureReason(diagnostic),
         )
+        binding.message.text = cleanupResidualMessage(
+            residualOutputs + error.residualArchiveOutputs(),
+        )?.let { cleanup ->
+            "$diagnosticMessage\n\n$cleanup"
+        } ?: diagnosticMessage
         binding.message.isVisible = true
         binding.diagnosticCopyButton.isVisible =
             applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
@@ -1385,6 +1409,107 @@ class ArchiveManagerActivity : AppCompatActivity() {
         else -> Formatter.formatFileSize(this, bytes)
     }
 
+    private fun renderExtractionPreparing() {
+        if (!isBusy) return
+        setProgressIndicatorIndeterminate(true)
+        binding.message.text = getString(R.string.text_preparing_extraction)
+        binding.cancelButton.isEnabled = true
+    }
+
+    private fun renderExtractionProgress(
+        update: ExtractionProgress,
+        metrics: ExtractionProgressMetrics,
+    ) {
+        if (!isBusy) return
+        metrics.fraction?.let { fraction ->
+            setProgressIndicatorIndeterminate(false)
+            binding.progress.max = EXTRACTION_PROGRESS_MAX
+            binding.progress.setProgressCompat(
+                (fraction * EXTRACTION_PROGRESS_MAX).roundToInt()
+                    .coerceIn(0, EXTRACTION_PROGRESS_MAX),
+                true,
+            )
+        } ?: setProgressIndicatorIndeterminate(true)
+
+        binding.message.text = buildList {
+            add(
+                getString(
+                    R.string.text_extracting,
+                    update.completedEntries,
+                    update.totalEntries,
+                ),
+            )
+            update.currentPath?.let { path ->
+                add(
+                    getString(
+                        R.string.text_extraction_current_item,
+                        ArchivePathPolicy.unsafeSourceNameForDisplay(path),
+                    ),
+                )
+            }
+            add(
+                getString(
+                    R.string.text_extraction_progress_bytes,
+                    formatBytes(update.bytesWritten),
+                    formatBytes(update.totalBytes),
+                ),
+            )
+            metrics.bytesPerSecond?.let { rate ->
+                val formattedRate = formatBytes(rate)
+                add(
+                    metrics.estimatedRemainingMillis?.let { remaining ->
+                        getString(
+                            R.string.text_extraction_rate_eta,
+                            formattedRate,
+                            formatElapsedDuration(remaining),
+                        )
+                    } ?: getString(R.string.text_extraction_rate, formattedRate),
+                )
+            }
+        }.joinToString("\n")
+        binding.cancelButton.isEnabled = true
+    }
+
+    private fun renderExtractionCleanup() {
+        if (!isBusy) return
+        setProgressIndicatorIndeterminate(true)
+        binding.message.text = getString(R.string.text_cleaning_up)
+        binding.cancelButton.isEnabled = false
+    }
+
+    private fun renderExtractionCleanupFailure(outputs: List<ArchiveOutputLocation>) {
+        if (!isBusy) return
+        setProgressIndicatorIndeterminate(true)
+        binding.message.text = cleanupResidualMessage(outputs)
+            ?: getString(R.string.error_cleanup_failed)
+        binding.cancelButton.isEnabled = false
+    }
+
+    private fun setProgressIndicatorIndeterminate(indeterminate: Boolean) {
+        if (binding.progress.isIndeterminate == indeterminate) return
+        val wasVisible = binding.progress.isVisible
+        if (wasVisible) binding.progress.isVisible = false
+        binding.progress.isIndeterminate = indeterminate
+        if (wasVisible) binding.progress.isVisible = true
+    }
+
+    private fun formatElapsedDuration(durationMillis: Long): String {
+        val seconds = durationMillis / MILLIS_PER_SECOND +
+            if (durationMillis % MILLIS_PER_SECOND == 0L) 0L else 1L
+        return DateUtils.formatElapsedTime(seconds.coerceAtLeast(1L))
+    }
+
+    private fun cleanupResidualMessage(outputs: Collection<ArchiveOutputLocation>): String? {
+        val uniqueOutputs = outputs.distinctBy(ArchiveOutputLocation::identifier)
+        if (uniqueOutputs.isEmpty()) return null
+        val locations = uniqueOutputs.joinToString("\n") { output ->
+            val name = ArchivePathPolicy.unsafeSourceNameForDisplay(output.displayName)
+            val identifier = ArchivePathPolicy.unsafeSourceNameForDisplay(output.identifier)
+            "- $name\n  $identifier"
+        }
+        return getString(R.string.error_cleanup_residual_outputs, locations)
+    }
+
     private fun formatDate(timeMillis: Long): String {
         val date = Date(timeMillis)
         return DateFormat.getMediumDateFormat(this).format(date) + " " +
@@ -1410,8 +1535,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val MAX_FILENAME_CHARSET_LENGTH = 64
         const val MAX_SAVED_STATE_CHARS = 128 * 1024
         const val MAX_SAVED_STATE_PATHS = 2_048
+        const val EXTRACTION_PROGRESS_MAX = 1_000
+        const val MILLIS_PER_SECOND = 1_000L
         const val PROGRESS_REPORT_BYTES = 8L * 1024L * 1024L
         const val PROGRESS_REPORT_ENTRIES = 64
+        const val PROGRESS_REPORT_INTERVAL_MILLIS = 250L
         const val RENDER_CANCELLATION_INTERVAL = 64
         const val SEARCH_DEBOUNCE_MILLIS = 150L
         const val STATE_CURRENT_DIRECTORY = "current_directory"

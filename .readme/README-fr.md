@@ -43,6 +43,7 @@ Archive Manager intègre la navigation, l'extraction et la création des archive
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
 - Parcourir les archives ordinaires via le descripteur repositionnable en lecture seule de l'hôte et des canaux à position indépendante, sans copie intégrale ; les tubes, les sources inscriptibles ou non repositionnables, Android 7 et les lecteurs exigeant un fichier local lisible par le processus (actuellement les ZIP chiffrés) utilisent le cache privé, supprimé à la fermeture.
 - Choisir un budget d'extraction Compatible, Strict ou Personnalisé ; une archive qui dépasse les seuils d'entrées, de chemin, de taille de sortie ou de taux de compression reste consultable et affiche l'espace estimé et les risques avant une confirmation unique d'écriture.
+- Afficher la progression par éléments et octets, l'élément actuel, le débit et le temps restant estimé ; une annulation ou un échec restaure la nouvelle racine de sortie, et tout résidu refusé par le fournisseur est indiqué par nom et URI.
 - Placer les noms contenant une remontée vers le dossier parent, un chemin absolu, un préfixe de lecteur ou un caractère de contrôle dans un dossier Chemins non sûrs visible dans la barre de chemin ; les données lisibles restent prévisualisables et l'extraction complète exige d'ignorer explicitement ces entrées sans affecter les autres.
 - Parcourir, prévisualiser et extraire les TAR non compressés ; les liens symboliques ou physiques, les nœuds de périphérique et les entrées creuses restent listés sans être écrits comme des fichiers ordinaires.
 - Parcourir, prévisualiser et extraire les TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST avec les mêmes chemins internes, l'isolation des entrées spéciales et les contrôles d'intégrité.
@@ -114,6 +115,7 @@ _Non publié_
 - `Ajout` Navigation, aperçu et extraction des TAR non compressés dans la liste native avec validation de la somme de contrôle des en-têtes ; liens, nœuds de périphérique et entrées creuses restent en lecture seule
 - `Ajout` Navigation, aperçu et extraction des TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST par les mêmes chemins natifs ; la détection vérifie la signature du compresseur et la structure TAR interne
 - `Ajout` Budgets d'extraction Compatible, Strict et Personnalisé ; les archives hors budget restent consultables en lecture seule et affichent la sortie estimée, les dimensions dépassées et une confirmation unique avant écriture
+- `Ajout` La progression d'extraction affiche les éléments, les octets, l'élément actuel, le débit et le temps restant estimé, avec une annulation fiable
 - `Correction` La liste ZIP utilise les métadonnées et accepte les préambules auto-extractibles, les anciens encodages, les séparateurs Windows et davantage de méthodes lisibles
 - `Correction` Les ZIP fractionnés standard `.z01 + .zip` indiquent désormais les volumes précédents requis au lieu de déclarer le volume final endommagé
 - `Correction` L'encodage des noms ZIP peut être remplacé si la détection automatique est incorrecte et l'extraction réutilise ce choix
@@ -123,6 +125,7 @@ _Non publié_
 - `Correction` Le dossier d'extraction par défaut des extensions composées telles que TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST retire désormais le suffixe complet au lieu de conserver `.tar`
 - `Correction` Les archives contenant des remontées vers le dossier parent, des chemins absolus, des préfixes de lecteur ou des caractères de contrôle restent consultables ; ces noms passent dans un dossier isolé en lecture seule, restent prévisualisables si leurs données sont lisibles et doivent être explicitement ignorés avant extraction
 - `Correction` L'extraction n'écrase plus les fichiers ou dossiers existants lorsque le fournisseur de destination considère comme identiques les noms qui ne diffèrent que par la casse ou sont équivalents en Unicode ; les dossiers de sortie équivalents sont numérotés automatiquement
+- `Correction` Une annulation ou un échec d'extraction restaure la nouvelle racine de sortie dans une phase de nettoyage non annulable ; si le fournisseur refuse la suppression, le nom et l'URI du résidu possible remplacent le seul message générique
 - `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
 - `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
 - `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material

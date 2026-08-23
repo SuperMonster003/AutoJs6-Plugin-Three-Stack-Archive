@@ -15,6 +15,7 @@
     <string name="error_cannot_create_output">出力ディレクトリを作成できません</string>
     <string name="error_cannot_open_archive">アーカイブを開けません</string>
     <string name="error_cleanup_failed">クリーンアップに失敗しました; 一部の出力が残っている可能性があります</string>
+    <string name="error_cleanup_residual_outputs">クリーンアップに失敗しました。次の出力場所が残っている可能性があります:\n%1$s</string>
     <string name="error_extraction_failed">展開に失敗しました</string>
     <string name="error_no_selection">1 件以上のエントリを選択してください</string>
     <string name="error_no_safe_entries">選択範囲に安全に展開できるエントリがありません</string>
@@ -25,6 +26,10 @@
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
     <string name="text_extract_selected">選択項目を展開</string>
     <string name="text_extracting">%2$d 件中 %1$d 件目を展開中</string>
+    <string name="text_extraction_current_item">現在の項目: %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/秒</string>
+    <string name="text_extraction_rate_eta">%1$s/秒, 残り %2$s</string>
     <string name="text_encrypted_entry">暗号化エントリ (%1$s)。開くにはアーカイブのパスワードを入力してください</string>
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">アーカイブを読み込み中...</string>
     <string name="text_loading_progress">%2$s 中 %1$s</string>
@@ -63,6 +68,7 @@
     <string name="text_password">パスワード</string>
     <string name="text_confirm_password">パスワードの確認</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">圧縮を準備中...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">展開を準備中...</string>
     <string name="text_split_unavailable_for_format">%1$s では分割出力を利用できません.</string>
     <string name="text_split_volume">分割サイズ (MiB)</string>
     <string name="text_encryption_unavailable_for_format">%1$s ではパスワードとファイル名暗号化を利用できません.</string>
