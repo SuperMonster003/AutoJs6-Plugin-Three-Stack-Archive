@@ -173,6 +173,7 @@ enum class ArchiveFailureCode {
     CACHE_SPACE_UNAVAILABLE,
     INVALID_SIGNATURE,
     MALFORMED_ARCHIVE,
+    MISSING_VOLUME,
     UNSUPPORTED_FILENAME_CHARSET,
     UNSUPPORTED_METHOD,
     PASSWORD_REQUIRED,
@@ -214,6 +215,7 @@ internal val ArchiveFailureCode.defaultStage: ArchiveFailureStage
         ArchiveFailureCode.INVALID_SIGNATURE -> ArchiveFailureStage.FORMAT_DETECTION
 
         ArchiveFailureCode.MALFORMED_ARCHIVE,
+        ArchiveFailureCode.MISSING_VOLUME,
         ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET,
         ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
         ArchiveFailureCode.INVALID_PATH,

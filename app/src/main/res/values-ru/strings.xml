@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_button_select_all">Выбрать все</string>
     <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
+    <string name="error_archive_missing_volumes">Отсутствуют тома ZIP</string>
     <string name="error_archive_limit">Архив превышает безопасный предел</string>
     <string name="error_cannot_create_output">Не удалось создать выходной каталог</string>
     <string name="error_cannot_open_archive">Не удалось открыть архив</string>
@@ -66,6 +67,7 @@
     <string name="error_reason_entry_data">Не удалось прочитать или проверить запись архива.</string>
     <string name="error_reason_filename_encoding">Выбранная кодировка имен недоступна или не позволяет проиндексировать этот архив.</string>
     <string name="error_reason_index">Метаданные каталога архива повреждены или не поддерживаются.</string>
+    <string name="error_reason_missing_volumes">Это многотомный ZIP. Поместите %1$s и %2$s в одну папку, затем снова откройте последний том.</string>
     <string name="error_reason_input">Архив невозможно прочитать или он изменился во время открытия.</string>
     <string name="error_reason_integrity">Размер или контрольная сумма записи не совпадает с метаданными архива.</string>
     <string name="error_reason_invalid_signature">Файл не содержит распознаваемой сигнатуры архива.</string>

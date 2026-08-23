@@ -187,6 +187,7 @@ internal object SevenZArchiveBackend : ArchiveBackend {
                 -> ArchiveFailureStage.PASSWORD
                 ArchiveBackendFailure.INVALID_OPTIONS,
                 ArchiveBackendFailure.MALFORMED,
+                ArchiveBackendFailure.MISSING_VOLUME,
                 ArchiveBackendFailure.UNSUPPORTED_METHOD,
                 -> ArchiveFailureStage.INDEX
             },
@@ -195,6 +196,7 @@ internal object SevenZArchiveBackend : ArchiveBackend {
                 ArchiveBackendFailure.INVALID_OPTIONS -> "7Z reader options are invalid"
                 ArchiveBackendFailure.UNSUPPORTED_METHOD ->
                     "7Z decoder memory requirement is not supported"
+                ArchiveBackendFailure.MISSING_VOLUME -> "7Z volumes are missing or unavailable"
                 ArchiveBackendFailure.PASSWORD_REQUIRED -> "7Z password is required"
                 ArchiveBackendFailure.WRONG_PASSWORD -> "7Z password is incorrect"
                 ArchiveBackendFailure.MALFORMED -> "7Z directory metadata cannot be read"

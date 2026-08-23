@@ -23,6 +23,7 @@
       ],
       "fix": [
         "ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods",
+        "Standard `.z01 + .zip` split ZIP files now identify the required earlier volumes instead of reporting the final volume as damaged",
         "ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding",
         "Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing",
         "ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems",

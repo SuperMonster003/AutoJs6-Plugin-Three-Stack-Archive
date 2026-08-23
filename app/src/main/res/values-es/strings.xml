@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
+    <string name="error_archive_missing_volumes">Faltan volúmenes ZIP</string>
     <string name="error_archive_limit">El archivo supera un límite de seguridad</string>
     <string name="error_cannot_create_output">No se puede crear el directorio de salida</string>
     <string name="error_cannot_open_archive">No se puede abrir el archivo</string>
@@ -66,6 +67,7 @@
     <string name="error_reason_entry_data">No se pudo leer o verificar una entrada del archivo.</string>
     <string name="error_reason_filename_encoding">La codificación de nombres seleccionada no está disponible o no permite indexar este archivo.</string>
     <string name="error_reason_index">Los metadatos del directorio del archivo están dañados o no son compatibles.</string>
+    <string name="error_reason_missing_volumes">Este ZIP está dividido. Coloque %1$s junto a %2$s en la misma carpeta y vuelva a abrir el último volumen.</string>
     <string name="error_reason_input">No se puede leer el archivo o cambió mientras se abría.</string>
     <string name="error_reason_integrity">El tamaño o la suma de comprobación no coincide con los metadatos del archivo.</string>
     <string name="error_reason_invalid_signature">El archivo no contiene una firma de archivo reconocida.</string>

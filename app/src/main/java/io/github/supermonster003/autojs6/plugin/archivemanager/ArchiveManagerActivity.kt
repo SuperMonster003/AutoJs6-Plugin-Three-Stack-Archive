@@ -755,7 +755,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         formatHint: ArchiveFormat? = snapshot?.format,
         stageHint: ArchiveFailureStage,
     ) {
-        val diagnostic = ArchiveFailureDiagnostic.from(error, formatHint, stageHint)
+        val diagnostic = ArchiveFailureDiagnostic.from(
+            error = error,
+            formatHint = formatHint,
+            stageHint = stageHint,
+            archiveDisplayName = request?.displayName,
+        )
         lastFailureDiagnostic = diagnostic
         binding.message.text = getString(
             R.string.error_diagnostic_details,
@@ -851,6 +856,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             -> getString(R.string.error_archive_limit)
             ArchiveFailureCode.PASSWORD_REQUIRED -> getString(R.string.error_password_required)
             ArchiveFailureCode.WRONG_PASSWORD -> getString(R.string.error_password_incorrect)
+            ArchiveFailureCode.MISSING_VOLUME -> getString(R.string.error_archive_missing_volumes)
             else -> getString(R.string.error_archive_invalid)
         }
         else -> getString(R.string.error_cannot_open_archive)
@@ -882,44 +888,55 @@ class ArchiveManagerActivity : AppCompatActivity() {
         },
     )
 
-    private fun failureReason(diagnostic: ArchiveFailureDiagnostic): String = getString(
-        when (diagnostic.code) {
-            ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE -> R.string.error_reason_cache_space
-            ArchiveFailureCode.INVALID_SIGNATURE -> R.string.error_reason_invalid_signature
-            ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET ->
-                R.string.error_reason_filename_encoding
-            ArchiveFailureCode.PASSWORD_REQUIRED,
-            ArchiveFailureCode.WRONG_PASSWORD,
-            -> R.string.error_reason_password
-            ArchiveFailureCode.INVALID_PATH,
-            ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
-            ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
-            ArchiveFailureCode.DUPLICATE_PATH,
-            ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
-            -> R.string.error_reason_path
-            ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
-            ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
-            ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
-            ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
-            -> R.string.error_reason_limit
-            ArchiveFailureCode.UNSUPPORTED_METHOD -> R.string.error_reason_compression_method
-            ArchiveFailureCode.SIZE_MISMATCH,
-            ArchiveFailureCode.CRC_MISMATCH,
-            -> R.string.error_reason_integrity
-            ArchiveFailureCode.INVALID_DESTINATION_NAME,
-            ArchiveFailureCode.OUTPUT_FAILURE,
-            -> R.string.error_reason_output
-            else -> when (diagnostic.stage) {
-                ArchiveFailureStage.INPUT -> R.string.error_reason_input
-                ArchiveFailureStage.FORMAT_DETECTION -> R.string.error_reason_invalid_signature
-                ArchiveFailureStage.INDEX -> R.string.error_reason_index
-                ArchiveFailureStage.PASSWORD -> R.string.error_reason_password
-                ArchiveFailureStage.ENTRY_DATA -> R.string.error_reason_entry_data
-                ArchiveFailureStage.OUTPUT -> R.string.error_reason_output
-                ArchiveFailureStage.CLEANUP -> R.string.error_reason_cleanup
-            }
-        },
-    )
+    private fun failureReason(diagnostic: ArchiveFailureDiagnostic): String {
+        if (diagnostic.code == ArchiveFailureCode.MISSING_VOLUME) {
+            val displayName = request?.displayName ?: getString(R.string.text_unknown)
+            val splitArchive = diagnostic.splitArchiveInfo
+            return getString(
+                R.string.error_reason_missing_volumes,
+                splitArchive?.requiredVolumeSummary(displayName) ?: "*.z01, *.z02, ...",
+                splitArchive?.finalVolumeName(displayName) ?: displayName,
+            )
+        }
+        return getString(
+            when (diagnostic.code) {
+                ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE -> R.string.error_reason_cache_space
+                ArchiveFailureCode.INVALID_SIGNATURE -> R.string.error_reason_invalid_signature
+                ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET ->
+                    R.string.error_reason_filename_encoding
+                ArchiveFailureCode.PASSWORD_REQUIRED,
+                ArchiveFailureCode.WRONG_PASSWORD,
+                -> R.string.error_reason_password
+                ArchiveFailureCode.INVALID_PATH,
+                ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
+                ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
+                ArchiveFailureCode.DUPLICATE_PATH,
+                ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
+                -> R.string.error_reason_path
+                ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+                ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
+                ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
+                ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
+                -> R.string.error_reason_limit
+                ArchiveFailureCode.UNSUPPORTED_METHOD -> R.string.error_reason_compression_method
+                ArchiveFailureCode.SIZE_MISMATCH,
+                ArchiveFailureCode.CRC_MISMATCH,
+                -> R.string.error_reason_integrity
+                ArchiveFailureCode.INVALID_DESTINATION_NAME,
+                ArchiveFailureCode.OUTPUT_FAILURE,
+                -> R.string.error_reason_output
+                else -> when (diagnostic.stage) {
+                    ArchiveFailureStage.INPUT -> R.string.error_reason_input
+                    ArchiveFailureStage.FORMAT_DETECTION -> R.string.error_reason_invalid_signature
+                    ArchiveFailureStage.INDEX -> R.string.error_reason_index
+                    ArchiveFailureStage.PASSWORD -> R.string.error_reason_password
+                    ArchiveFailureStage.ENTRY_DATA -> R.string.error_reason_entry_data
+                    ArchiveFailureStage.OUTPUT -> R.string.error_reason_output
+                    ArchiveFailureStage.CLEANUP -> R.string.error_reason_cleanup
+                }
+            },
+        )
+    }
 
     private fun extractionRootName(
         displayName: String,

@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">취소</string>
     <string name="dialog_button_select_all">모두 선택</string>
     <string name="error_archive_invalid">압축 파일이 잘못되었거나 지원되지 않습니다</string>
+    <string name="error_archive_missing_volumes">ZIP 분할 볼륨이 없습니다</string>
     <string name="error_archive_limit">압축 파일이 안전 제한을 초과합니다</string>
     <string name="error_cannot_create_output">출력 디렉터리를 만들 수 없습니다</string>
     <string name="error_cannot_open_archive">압축 파일을 열 수 없습니다</string>
@@ -66,6 +67,7 @@
     <string name="error_reason_entry_data">압축 파일 항목을 읽거나 검증하지 못했습니다.</string>
     <string name="error_reason_filename_encoding">선택한 파일 이름 인코딩을 사용할 수 없거나 이 압축 파일을 색인할 수 없습니다.</string>
     <string name="error_reason_index">압축 파일의 디렉터리 메타데이터가 손상되었거나 지원되지 않습니다.</string>
+    <string name="error_reason_missing_volumes">분할 ZIP입니다. %1$s 및 %2$s을 같은 폴더에 놓은 다음 마지막 볼륨을 다시 여세요.</string>
     <string name="error_reason_input">압축 파일을 읽을 수 없거나 여는 중에 변경되었습니다.</string>
     <string name="error_reason_integrity">항목 크기 또는 체크섬이 압축 파일 메타데이터와 일치하지 않습니다.</string>
     <string name="error_reason_invalid_signature">파일에 인식 가능한 압축 파일 서명이 없습니다.</string>

@@ -53,6 +53,7 @@ class ExplorerActionService : Service() {
                 val diagnostic = ArchiveFailureDiagnostic.from(
                     error = error,
                     stageHint = ArchiveFailureStage.INDEX,
+                    archiveDisplayName = displayName,
                 )
                 throw IllegalStateException(diagnostic.wireSummary(), error)
             }

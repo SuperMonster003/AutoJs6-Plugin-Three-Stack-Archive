@@ -7,6 +7,7 @@ import androidx.test.runner.AndroidJUnit4
 import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.AesKeyStrength
+import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
@@ -247,6 +248,45 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
                 payload.delete()
                 source.delete()
             }
+        }
+    }
+
+    @Test
+    fun standardSplitZipIsReportedAsMissingVolumesOnTheDeviceRuntime() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val source = File(context.cacheDir, "split-${UUID.randomUUID()}.zip")
+        val payload = File(context.cacheDir, "split-payload-${UUID.randomUUID()}.bin")
+        var splitFiles = emptyList<File>()
+
+        try {
+            payload.writeBytes(ByteArray(70_000) { index -> (index * 31 + 17).toByte() })
+            ZipFile(source).use { archive ->
+                archive.createSplitZipFile(
+                    listOf(payload),
+                    ZipParameters().apply {
+                        compressionMethod = CompressionMethod.STORE
+                    },
+                    true,
+                    65_536L,
+                )
+                splitFiles = archive.splitZipFiles
+            }
+
+            assertEquals(2, splitFiles.size)
+            val info = requireNotNull(ZipSplitArchiveDetector.inspect(source))
+            assertEquals(ZipSplitSegmentKind.FINAL_VOLUME, info.segmentKind)
+            assertEquals(2, info.totalVolumeCount)
+            try {
+                ArchiveScanner().scan(source)
+                throw AssertionError("Expected a missing-volume diagnostic")
+            } catch (error: ArchiveValidationException) {
+                assertEquals(ArchiveFailureCode.MISSING_VOLUME, error.code)
+                assertEquals(ArchiveFailureStage.INDEX, error.stage)
+            }
+        } finally {
+            splitFiles.forEach(File::delete)
+            source.delete()
+            payload.delete()
         }
     }
 

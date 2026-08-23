@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_select_all">全选</string>
     <string name="error_archive_invalid">压缩包无效或不受支持</string>
+    <string name="error_archive_missing_volumes">缺少 ZIP 分卷</string>
     <string name="error_archive_limit">压缩包超出安全限制</string>
     <string name="error_archive_file_name_invalid">请输入有效的压缩档案文件名</string>
     <string name="error_cannot_create_output">无法创建输出目录</string>
@@ -78,6 +79,7 @@
     <string name="error_reason_entry_data">无法读取或验证压缩档案条目.</string>
     <string name="error_reason_filename_encoding">所选文件名编码不可用, 或无法使用该编码索引此压缩档案.</string>
     <string name="error_reason_index">压缩档案目录元数据损坏或不受支持.</string>
+    <string name="error_reason_missing_volumes">这是一个分卷 ZIP. 请将 %1$s 与 %2$s 放在同一文件夹中, 然后重新打开末卷.</string>
     <string name="error_reason_input">无法读取压缩档案输入, 或输入在打开时发生变化.</string>
     <string name="error_reason_integrity">条目大小或校验和与压缩档案元数据不符.</string>
     <string name="error_reason_invalid_signature">文件不包含可识别的压缩档案签名.</string>

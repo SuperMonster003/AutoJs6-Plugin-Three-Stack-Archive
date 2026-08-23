@@ -311,6 +311,7 @@ internal interface ArchiveWriter {
 internal enum class ArchiveBackendFailure {
     INVALID_SIGNATURE,
     MALFORMED,
+    MISSING_VOLUME,
     INVALID_OPTIONS,
     UNSUPPORTED_METHOD,
     PASSWORD_REQUIRED,
@@ -383,6 +384,7 @@ internal class ArchiveEngine private constructor(
                     ArchiveBackendFailure.INVALID_OPTIONS ->
                         ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
                     ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.MISSING_VOLUME -> ArchiveFailureCode.MISSING_VOLUME
                     ArchiveBackendFailure.PASSWORD_REQUIRED -> ArchiveFailureCode.PASSWORD_REQUIRED
                     ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureCode.WRONG_PASSWORD
                     ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE

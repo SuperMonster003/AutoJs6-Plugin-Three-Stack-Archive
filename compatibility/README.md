@@ -2,6 +2,8 @@
 
 This directory records reproducible, privacy-free archive samples produced by external tools. A sample is accepted only when its producer, exact command, contents and SHA-256 digest are recorded. Tests consume the committed files from `app/src/test/resources/archive-fixtures`.
 
+Manifest schema v2 retains `file` as the primary/final archive file and records any required split companions in `companionVolumes`, with an independent size, volume index and SHA-256 for every physical file.
+
 The corpus is intentionally incremental. A producer listed in the Roadmap is not considered covered until at least one independently generated sample and its relevant edge cases are committed and verified.
 
 ## Source material

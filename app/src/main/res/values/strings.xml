@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">Cancel</string>
     <string name="dialog_button_select_all">Select all</string>
     <string name="error_archive_invalid">The archive is invalid or unsupported</string>
+    <string name="error_archive_missing_volumes">ZIP volumes are missing</string>
     <string name="error_archive_limit">The archive exceeds a safety limit</string>
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_cannot_create_output">Cannot create the output directory</string>
@@ -78,6 +79,7 @@
     <string name="error_reason_entry_data">An archive entry could not be read or verified.</string>
     <string name="error_reason_filename_encoding">The selected filename encoding is unavailable or cannot index this archive.</string>
     <string name="error_reason_index">The archive directory metadata is malformed or unsupported.</string>
+    <string name="error_reason_missing_volumes">This is a split ZIP. Put %1$s beside %2$s in the same folder, then reopen the final volume.</string>
     <string name="error_reason_input">The archive input cannot be read or changed while opening.</string>
     <string name="error_reason_integrity">The entry size or checksum does not match the archive metadata.</string>
     <string name="error_reason_invalid_signature">The file does not contain a recognized archive signature.</string>

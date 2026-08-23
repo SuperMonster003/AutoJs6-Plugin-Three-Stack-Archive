@@ -175,6 +175,12 @@ v6 的 `openEntry` 追加在 v5 AIDL 方法之后, 因此 v5 的 `getInfo`、`li
 - 输出完成后的最小范围目录刷新事件;
 - 只有完整验证成功后才可触发的源文件删除/回收站流程.
 
+### 操作结果与目录刷新边界
+
+当前 Explorer Action v6 的 Activity 请求没有操作结果或刷新范围字段, 宿主的只读动作启动器使用 `startActivity`, 而 `IExplorerActionHostSession` 只提供目录读取与输出事务方法, 没有请求刷新宿主页面的接口. `commitOutput` 返回的输出元数据也不构成页面刷新回执. 因此插件无法仅靠现有公开合同可靠地触发最小范围刷新; 当前不发送私有广播, 也不引用宿主内部类或 action 字符串.
+
+后续协议应在保持旧版本解析的前提下定义结构化操作结果, 至少包含结果状态、受影响父目录的稳定标识与 URI、创建/删除/替换的目标标识, 以及宿主应采用的刷新范围. Activity 与绑定会话两种呈现方式应通过同一合同回传, 由宿主验证调用方、会话和目录归属后执行刷新.
+
 ### 提交前重开验证的最小协议扩展
 
 已直接核对当前随插件编译的 `explorer-action-api.aar`: v6 `IExplorerActionHostSession` 只有 `prepareOutput`、只写 `openOutput`、`commitOutput` 和 `abortOutput`, 没有取得待提交临时文件只读描述符的方法. 只写描述符关闭后, 插件既不能可靠地从同一描述符读取中央目录, 也不应把整个大档案复制到另一份插件私有临时文件来冒充事务验证. 因此当前阶段保持源文件删除关闭, 并把提交前重开验证留作明确的宿主协议任务.
@@ -241,6 +247,8 @@ cancelTask(taskId)
 
 ZIP 后端同时公布可用的文件名解码覆盖列表. 管理/解压 Activity 可在自动识别结果与 UTF-8/GB18030/Shift_JIS/EUC-KR/windows-1251/windows-1256/windows-1252/IBM437 之间切换, 每次切换都会重新索引同一暂存输入. 扫描快照保存最终选择, 预览流和解压器重新打开档案时必须复用它, 防止列表名称正确而实际写出时使用另一套编码. 当前 v6 只读会话尚无原位更新 reader 选项的方法; 宿主原生档案页的编码切换与一次性密码请求均需要后续协议扩展. 在此之前, 宿主原生页面仍可无密码浏览加密 ZIP 的目录, 解锁、预览和解压加密条目则进入管理/解压 Activity 完成.
 
+ZIP reader 会在解析目录前识别标准 PKZIP 风格的 `.z01 + .zip` 分卷. 首卷通过分卷标记识别, 末卷通过 EOCD/Zip64 结构确认; 当前 v6 只向插件传递一个只读档案描述符, 没有枚举或打开同级伴随卷的合同, 所以 reader 不声明分卷读取能力. 当末卷单独打开时, 诊断返回 `INDEX/MISSING_VOLUME`, 根据受控显示名列出所需 `.z01`、`.z02` 等名称和最终 `.zip` 名称; 列表最多展开 8 项, 避免恶意卷数元数据造成无界分配. `.zip.001` 连续分片、分卷读取和分卷创建仍属于后续工作.
+
 读取失败通过统一诊断模型区分输入、格式识别、目录索引、密码、条目数据、输出和清理阶段. 可公开的摘要只包含格式、阶段、稳定错误码及受控原因; 调试构建由用户主动复制的诊断才包含异常链和堆栈. `ExplorerActionService` 把相同安全摘要放入跨进程异常消息, 不传递插件缓存路径.
 
 当前压缩表单的格式列表、压缩级别、密码、文件名加密和分卷控件由已注册 writer 的能力生成. ZIP 将密码声明为可选并提供显示/隐藏控件; TAR 系列声明不支持密码, 切换格式时会清空并禁用密码输入. 未压缩 TAR 只提供级别 0; GZIP、XZ、BZIP2 与 Zstandard 容器提供各自后端验证过的级别. 文件名加密和分卷继续分别声明为不支持. 动作目录的可读扩展名与 MIME 类型也来自同一格式注册表. 尚未实现的后端不会只因 Roadmap 中出现格式名称就进入菜单.
@@ -260,7 +268,7 @@ FormatCapabilities
 
 特别是“同时加密文件名”应按三态显示: 不支持时关闭且禁用; 可选时默认关闭; 格式强制时开启且禁用. 禁用控件旁必须展示原因, 不能仅用灰色暗示.
 
-当前注册 ZIP、7Z 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是扩展名别名. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. TAR writer 使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 所有后端均不声明尚未实现的添加/删除/重命名/创建时文件名加密/分卷能力. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
+当前注册 ZIP、7Z 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是扩展名别名. 标准 ZIP 分卷可以识别并在伴随卷不可用时给出精确诊断, 但能力表仍正确声明分卷读取和创建不受支持. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. TAR writer 使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 所有后端均不声明尚未实现的添加/删除/重命名/创建时文件名加密/分卷能力. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
 
 外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). 总样本矩阵只有在 Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链的对应样本均落地后才可标记完成.
 

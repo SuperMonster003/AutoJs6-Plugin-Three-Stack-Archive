@@ -48,9 +48,41 @@ class ArchiveDiagnosticsTest {
     }
 
     @Test
+    fun `split diagnostic uses the validated display name and keeps the volume list bounded`() {
+        val splitFailure = ZipSplitArchiveException(
+            ZipSplitArchiveInfo(
+                segmentKind = ZipSplitSegmentKind.FINAL_VOLUME,
+                lastDiskNumber = 10,
+            ),
+        )
+        val archiveError = ArchiveValidationException(
+            code = ArchiveFailureCode.MISSING_VOLUME,
+            message = "Archive volumes are missing or unavailable",
+            cause = splitFailure,
+            format = ArchiveFormat.ZIP,
+            stage = ArchiveFailureStage.INDEX,
+        )
+
+        val diagnostic = ArchiveFailureDiagnostic.from(
+            error = archiveError,
+            archiveDisplayName = "backup.zip",
+        )
+
+        assertEquals(ArchiveFailureCode.MISSING_VOLUME, diagnostic.code)
+        assertEquals(splitFailure.info, diagnostic.splitArchiveInfo)
+        assertTrue(diagnostic.technicalReason.contains("backup.z01"))
+        assertTrue(diagnostic.technicalReason.contains("backup.z08 (+2)"))
+        assertTrue(diagnostic.technicalReason.contains("final volume: backup.zip"))
+        val wireSummary = diagnostic.wireSummary()
+        assertTrue(wireSummary.startsWith("Code: MISSING_VOLUME; Reason: Required volumes: backup.z01"))
+        assertTrue(wireSummary.contains("Format: ZIP; Stage: INDEX"))
+    }
+
+    @Test
     fun `failure codes map to stable user facing stages`() {
         assertEquals(ArchiveFailureStage.INPUT, ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE.defaultStage)
         assertEquals(ArchiveFailureStage.FORMAT_DETECTION, ArchiveFailureCode.INVALID_SIGNATURE.defaultStage)
+        assertEquals(ArchiveFailureStage.INDEX, ArchiveFailureCode.MISSING_VOLUME.defaultStage)
         assertEquals(ArchiveFailureStage.INDEX, ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET.defaultStage)
         assertEquals(ArchiveFailureStage.PASSWORD, ArchiveFailureCode.PASSWORD_REQUIRED.defaultStage)
         assertEquals(ArchiveFailureStage.ENTRY_DATA, ArchiveFailureCode.CRC_MISMATCH.defaultStage)

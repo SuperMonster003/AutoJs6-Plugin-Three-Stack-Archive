@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">إلغاء</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
+    <string name="error_archive_missing_volumes">وحدات ZIP مفقودة</string>
     <string name="error_archive_limit">يتجاوز الأرشيف حد أمان</string>
     <string name="error_cannot_create_output">يتعذر إنشاء دليل الإخراج</string>
     <string name="error_cannot_open_archive">يتعذر فتح الأرشيف</string>
@@ -66,6 +67,7 @@
     <string name="error_reason_entry_data">تعذرت قراءة عنصر في الأرشيف أو التحقق منه.</string>
     <string name="error_reason_filename_encoding">ترميز أسماء الملفات المحدد غير متوفر أو لا يمكنه فهرسة هذا الأرشيف.</string>
     <string name="error_reason_index">بيانات دليل الأرشيف تالفة أو غير مدعومة.</string>
+    <string name="error_reason_missing_volumes">هذا ملف ZIP متعدد الأجزاء. ضع %1$s بجانب %2$s في المجلد نفسه، ثم افتح الجزء الأخير مجددًا.</string>
     <string name="error_reason_input">يتعذر قراءة الأرشيف أو تغير أثناء فتحه.</string>
     <string name="error_reason_integrity">حجم العنصر أو قيمة التحقق لا تطابق بيانات الأرشيف.</string>
     <string name="error_reason_invalid_signature">لا يحتوي الملف على توقيع أرشيف معروف.</string>

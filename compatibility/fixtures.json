@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "samples": [
     {
       "file": "app/src/test/resources/archive-fixtures/7zip-22-deflate-unicode.zip",
@@ -68,6 +68,41 @@
           "method": "Store",
           "size": 87,
           "utf8NameFlag": true
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/zip4j-2.11.5-store-split.zip",
+      "companionVolumes": [
+        {
+          "file": "app/src/test/resources/archive-fixtures/zip4j-2.11.5-store-split.z01",
+          "volumeIndex": 0,
+          "size": 65536,
+          "sha256": "3acda0b2528818e2838b5525b187c354d2a4a9a4c17953f7d69106b2f60e94cd"
+        }
+      ],
+      "producer": "Zip4j",
+      "producerVersion": "2.11.5",
+      "platform": "Windows 11 / Java 8",
+      "command": "new ZipFile(<output.zip>).createSplitZipFile(Collections.singletonList(<资料.bin>), ZipParameters(STORE), true, 65536)",
+      "sourceDescription": "70,000 deterministic bytes where byte[i] = (i * 31 + i / 251 + 17) & 0xFF",
+      "sourceSha256": "030ed3574b4b1765d225a5472fc85f33d447fde24968f38e499d57165110c851",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "split": true,
+      "volumeSize": 65536,
+      "volumeIndex": 1,
+      "volumes": 2,
+      "size": 4592,
+      "totalPhysicalSize": 70128,
+      "sha256": "37453a6abdd3c13493a68beea151cd9382f41abfebde98b7d8826301064eff4e",
+      "entries": [
+        {
+          "name": "资料.bin",
+          "method": "Store",
+          "size": 70000,
+          "crc32": "ED90C665",
+          "utf8NameFlag": true,
+          "volumeIndex": 0
         }
       ]
     },

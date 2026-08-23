@@ -36,6 +36,16 @@ internal object ZipArchiveBackend : ArchiveBackend {
     )
 
     override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
+        ZipSplitArchiveDetector.inspect(source)?.let { splitArchive ->
+            val error = ZipSplitArchiveException(splitArchive)
+            throw ArchiveBackendException(
+                format = format,
+                failure = ArchiveBackendFailure.MISSING_VOLUME,
+                stage = ArchiveFailureStage.INDEX,
+                message = error.message ?: "ZIP volumes are missing or unavailable",
+                cause = error,
+            )
+        }
         val charsetName = options.filenameCharsetName ?: try {
             ZipArchiveAccess.detectCharset(source).name()
         } catch (error: Exception) {
@@ -94,6 +104,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
                 ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureStage.PASSWORD
                 ArchiveBackendFailure.INVALID_OPTIONS,
                 ArchiveBackendFailure.MALFORMED,
+                ArchiveBackendFailure.MISSING_VOLUME,
                 ArchiveBackendFailure.UNSUPPORTED_METHOD,
                 -> ArchiveFailureStage.INDEX
             },
@@ -103,6 +114,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
                 ArchiveBackendFailure.WRONG_PASSWORD -> "ZIP password is incorrect"
                 ArchiveBackendFailure.UNSUPPORTED_METHOD ->
                     "ZIP contains an unsupported compression method"
+                ArchiveBackendFailure.MISSING_VOLUME -> "ZIP volumes are missing or unavailable"
                 ArchiveBackendFailure.PASSWORD_REQUIRED -> "ZIP password is required"
                 ArchiveBackendFailure.MALFORMED -> "ZIP directory metadata cannot be read"
             },

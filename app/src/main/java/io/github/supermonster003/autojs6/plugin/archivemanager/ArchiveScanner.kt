@@ -96,6 +96,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
                     ArchiveBackendFailure.INVALID_OPTIONS ->
                         ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
                     ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.MISSING_VOLUME -> ArchiveFailureCode.MISSING_VOLUME
                     ArchiveBackendFailure.PASSWORD_REQUIRED -> ArchiveFailureCode.PASSWORD_REQUIRED
                     ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureCode.WRONG_PASSWORD
                     ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE
@@ -107,6 +108,8 @@ internal class ArchiveScanner @JvmOverloads constructor(
                         "Archive filename encoding is not supported"
                     ArchiveBackendFailure.UNSUPPORTED_METHOD ->
                         "Archive contains an unsupported compression method"
+                    ArchiveBackendFailure.MISSING_VOLUME ->
+                        error.message ?: "Archive volumes are missing or unavailable"
                     ArchiveBackendFailure.PASSWORD_REQUIRED -> "Archive password is required"
                     ArchiveBackendFailure.WRONG_PASSWORD -> "Archive password is incorrect"
                     ArchiveBackendFailure.MALFORMED -> "Archive directory metadata is malformed"

@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">キャンセル</string>
     <string name="dialog_button_select_all">すべて選択</string>
     <string name="error_archive_invalid">アーカイブが無効か未対応です</string>
+    <string name="error_archive_missing_volumes">ZIP の分割ファイルがありません</string>
     <string name="error_archive_limit">アーカイブが安全制限を超えています</string>
     <string name="error_cannot_create_output">出力ディレクトリを作成できません</string>
     <string name="error_cannot_open_archive">アーカイブを開けません</string>
@@ -66,6 +67,7 @@
     <string name="error_reason_entry_data">アーカイブ項目を読み取りまたは検証できませんでした.</string>
     <string name="error_reason_filename_encoding">選択したファイル名エンコーディングは利用できないか, このアーカイブを索引できません.</string>
     <string name="error_reason_index">アーカイブのディレクトリメタデータが破損しているか未対応です.</string>
+    <string name="error_reason_missing_volumes">これは分割 ZIP です. %1$s と %2$s を同じフォルダーに置き, 最後のボリュームをもう一度開いてください.</string>
     <string name="error_reason_input">アーカイブを読み取れないか, 開いている間に変更されました.</string>
     <string name="error_reason_integrity">項目のサイズまたはチェックサムがアーカイブのメタデータと一致しません.</string>
     <string name="error_reason_invalid_signature">認識可能なアーカイブ署名がファイルにありません.</string>

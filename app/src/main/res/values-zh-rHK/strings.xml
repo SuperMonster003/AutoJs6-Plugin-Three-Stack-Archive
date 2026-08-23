@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_select_all">全部選取</string>
     <string name="error_archive_invalid">壓縮檔無效或不受支援</string>
+    <string name="error_archive_missing_volumes">缺少 ZIP 分卷</string>
     <string name="error_archive_limit">壓縮檔超出安全限制</string>
     <string name="error_cannot_create_output">無法建立輸出目錄</string>
     <string name="error_cannot_open_archive">無法開啟壓縮檔</string>
@@ -64,6 +65,7 @@
     <string name="error_reason_entry_data">無法讀取或驗證壓縮檔項目.</string>
     <string name="error_reason_filename_encoding">所選檔案名稱編碼不可用, 或無法使用該編碼索引此壓縮檔.</string>
     <string name="error_reason_index">壓縮檔目錄中繼資料損壞或不受支援.</string>
+    <string name="error_reason_missing_volumes">這是分卷 ZIP. 請將 %1$s 與 %2$s 放在同一資料夾, 然後重新開啟最後一卷.</string>
     <string name="error_reason_input">無法讀取壓縮檔輸入, 或輸入在開啟時發生變更.</string>
     <string name="error_reason_integrity">項目大小或校驗值與壓縮檔中繼資料不符.</string>
     <string name="error_reason_invalid_signature">檔案不包含可識別的壓縮檔簽名.</string>

@@ -19,6 +19,7 @@
     "Explorar, previsualizar y extraer 7Z normales o solid, incluidas cadenas comunes de compresión y filtros, además de entradas con contenido o cabecera cifrados; las contraseñas ausentes o erróneas reciben un diagnóstico explícito.",
     "Verificar la estructura ZIP/7Z/TAR real y unificar las capacidades de vista previa, extracción y creación, manteniendo desactivadas las opciones no compatibles.",
     "Admitir Zip64, preámbulos autoextraíbles, codificaciones antiguas y separadores de Windows.",
+    "Reconocer la estructura ZIP dividida estándar `.z01 + .zip` y mostrar los nombres de los volúmenes necesarios en lugar de marcar el volumen final como dañado; la lectura y la creación de archivos divididos aún no están disponibles.",
     "Explorar y extraer ZIP protegidos con ZipCrypto o AES, reintentar una contraseña incorrecta en el mismo lugar y crear opcionalmente ZIP con AES-256 cuyos nombres siguen visibles; la creación cifrada exige confirmar la contraseña con el mismo valor.",
     "Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.",
     "Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.",

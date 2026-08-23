@@ -7,6 +7,7 @@
     <string name="dialog_button_cancel">Annuler</string>
     <string name="dialog_button_select_all">Tout sélectionner</string>
     <string name="error_archive_invalid">L\'archive est non valide ou non prise en charge</string>
+    <string name="error_archive_missing_volumes">Des volumes ZIP sont manquants</string>
     <string name="error_archive_limit">L\'archive dépasse une limite de sécurité</string>
     <string name="error_cannot_create_output">Impossible de créer le dossier de sortie</string>
     <string name="error_cannot_open_archive">Impossible d\'ouvrir l\'archive</string>
@@ -66,6 +67,7 @@
     <string name="error_reason_entry_data">Une entrée de l\'archive n\'a pas pu être lue ou vérifiée.</string>
     <string name="error_reason_filename_encoding">L\'encodage de noms sélectionné est indisponible ou ne permet pas d\'indexer cette archive.</string>
     <string name="error_reason_index">Les métadonnées du répertoire de l\'archive sont endommagées ou non prises en charge.</string>
+    <string name="error_reason_missing_volumes">Cette archive ZIP est fractionnée. Placez %1$s avec %2$s dans le même dossier, puis rouvrez le dernier volume.</string>
     <string name="error_reason_input">L\'archive ne peut pas être lue ou a changé pendant son ouverture.</string>
     <string name="error_reason_integrity">La taille ou la somme de contrôle ne correspond pas aux métadonnées de l\'archive.</string>
     <string name="error_reason_invalid_signature">Le fichier ne contient aucune signature d\'archive reconnue.</string>

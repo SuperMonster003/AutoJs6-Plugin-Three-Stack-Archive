@@ -30,7 +30,7 @@
 - [x] (发布) 本地仓库目录/README 链接和构建产物统一为 `AutoJs6-Plugin-Archive-Manager`; 首次发布时直接使用新 GitHub 地址.
 - [x] (插件) 错误界面显示 "格式/阶段/稳定代码/失败原因", 调试构建可复制完整根因和堆栈; 宿主会话异常也携带相同的安全摘要, 不再把所有异常压缩成 "无效或不受支持".
 - [ ] (测试) 建立来自 Android/Windows 资源管理器/7-Zip/WinRAR/Info-ZIP/macOS Archive Utility 和 Java/Kotlin 工具链的去隐私化样本集.
-- [x] (测试) 建立可提交二进制样本、生产工具/版本/命令/内容/SHA-256 清单和自动化消费规则; 7-Zip 22.00 Windows 样本已覆盖 ZIP 的 Deflate/Stored/UTF-8 名称/AES-256/ZipCrypto/错误密码/截断目录, 以及 7Z 的 solid LZMA2、BCJ + LZMA2、AES-256 内容与头部加密, 其余生产工具继续补齐.
+- [x] (测试) 建立可提交二进制样本、生产工具/版本/命令/内容/SHA-256 清单和自动化消费规则; 7-Zip 22.00 Windows 样本已覆盖 ZIP 的 Deflate/Stored/UTF-8 名称/AES-256/ZipCrypto/错误密码/截断目录, 以及 7Z 的 solid LZMA2、BCJ + LZMA2、AES-256 内容与头部加密; Zip4j 2.11.5 样本覆盖标准 `.z01 + .zip` 两卷结构, 其余生产工具继续补齐.
 
 验收条件: 全仓检索中不再存在非兼容用途的旧产品名; 一个失败样本可以从用户提示或日志定位到输入/格式识别/索引/密码/条目或输出阶段.
 
@@ -52,6 +52,7 @@
 - [ ] (API) 扩展可写虚拟目录合同: 创建/删除/重命名/能力查询和任务进度/取消.
 - [x] (API/宿主) 只读档案 provider 以会话 ID/条目 ID 和页面祖先链表达内部路径, 供现有宿主路径栏绘制与跳转.
 - [ ] (API) 定义操作结果与刷新范围, 使压缩/解压或档案改写后宿主只刷新受影响目录.
+- [x] (插件/API 审计) 已核对 Explorer Action v6: Activity 请求没有结果/刷新字段, 宿主通过 `startActivity` 启动只读动作, `IExplorerActionHostSession` 也没有刷新方法; 插件单独无法可靠通知宿主刷新, 因而不引入私有广播或依赖宿主内部实现, 该任务留待后续协议版本.
 - [x] (API) v4/v5/v6 请求/目标/分页/输出/条目流字段均有版本与长度/数量上限; v1-v3 目录仍按各自能力解析.
 - [x] (测试) 覆盖 v1-v6 目录解析、目标/基数/位置/授权/呈现方式配对、恶意请求字段、ZIP 文件会话、只读档案分页和条目读取闭环.
 - [ ] (测试) 补齐 URI grant、插件进程死亡、超大多选 Binder 负载和输出临时文件过期回收的跨进程测试.
@@ -97,7 +98,7 @@
 - [x] (插件) ZIP 后端支持 Zip64/数据描述符/合法前导与尾随数据/常见时间和 Unicode 附加字段; 强制 Zip64、Java 数据描述符和 7-Zip NTFS/UTF-8 样本均有回归测试.
 - [x] (插件) ZIP 后端支持传统 ZipCrypto 与 AES; 无密码仍可浏览目录, 正确密码解锁预览/解压, 错误密码映射到 `PASSWORD/WRONG_PASSWORD` 而不是档案损坏.
 - [x] (插件) 合法的自解压式前导数据/Windows 反斜杠路径/无害 `.`/重复分隔符/大小写不同路径和 Unicode 拼写变体均有回归测试.
-- [ ] (插件) ZIP 分卷识别 `.z01 + .zip`, 缺卷时列出缺失文件而不是报告 "档案损坏".
+- [x] (插件) 识别标准 `.z01 + .zip` 分卷的首卷标记与末卷 EOCD/Zip64 结构; 当前单源 v6 会话无法取得同级伴随卷时返回稳定的 `INDEX/MISSING_VOLUME`, 并以固定上限列出所需 `.z01`、`.z02` 等文件及末卷名称, 不再误报 "档案损坏". 分卷读取/创建和 `.zip.001` 连续分片仍未开放.
 - [x] (插件) 7Z 后端通过 seekable channel 支持普通与 solid 档案、常见压缩/过滤器链、AES 内容加密和头部加密; 读取设置 262,144 KiB 解码内存上限. writer 创建非 solid 7Z, 级别 0 使用 Copy、1 至 9 使用 LZMA2, 可选 AES-256 内容加密; 文件名加密、分卷及档案内增删改保持禁用并给出准确能力说明.
 - [x] (插件) 未压缩 `tar` 支持真实结构探测、宿主原生浏览、路径栏、预览和解压; 符号链接、硬链接、设备节点及稀疏项只读列出, 不会伪装成普通文件写出.
 - [x] (插件) `tar.gz`/`tgz` 与 `tar.xz`/`txz` 已接入缓冲压缩流, 复用 TAR 条目能力、头校验和、特殊条目隔离、路径栏、预览与解压语义; GZIP/XZ 外层签名和内部 TAR 结构均需通过验证.
@@ -113,7 +114,7 @@
 
 | 级别 | 格式 | 当前能力与明确边界 |
 | --- | --- | --- |
-| A | zip, jar, aar, war | 浏览/解压/创建/ZipCrypto 与 AES 读取/AES-256 创建; 暂无分卷与档案内增删改 |
+| A | zip, jar, aar, war | 浏览/解压/创建/ZipCrypto 与 AES 读取/AES-256 创建; 标准 `.z01 + .zip` 缺卷可明确诊断, 暂无分卷读取/创建与档案内增删改 |
 | A | 7z | 浏览/解压普通或 solid 档案/AES 内容与头部加密读取/非 solid 创建/可选 AES-256 内容加密; 暂无创建时文件名加密、分卷与档案内增删改 |
 | A | tar, tar.gz, tar.xz, tar.bz2, tar.zst | 浏览/解压/创建; 暂无档案内增删改 |
 | B | cpio | 浏览/解压/创建 (依后端) |
@@ -212,6 +213,7 @@
 - [x] (验证) M3/M4 BZIP2/Zstandard TAR 阶段的 77 项 JVM 测试与 23 项仪器测试全部通过; 外部 7-Zip 22.00 TAR.BZ2 与 bsdtar 3.8.4/libzstd 1.5.7 TAR.ZST 样本、双重结构探测、空档案、连接帧、截断/尾部损坏、256 MiB Zstandard 窗口上限和四 ABI 原生审计均已覆盖. 真实宿主的 `.tar.bz2`/`.tar.zst` 主操作、内部路径栏、Unicode 列表、Markdown 预览、逐级返回、会话缓存清理及 `解压到...` 产物/复合后缀命名已在 `emulator-5554` 完成闭环, 未操作实体设备.
 - [x] (验证) M3/M5 TAR 创建阶段的 78 项 JVM 测试与 27 项仪器测试全部通过; 五种 TAR writer 均覆盖宿主输出 MIME、Unicode/PAX 路径、空目录、未知大小两次打开、取消和源大小变化回滚. 真实 AutoJs6 宿主在 `emulator-5554` 创建的 TAR.ZST 已由 bsdtar 3.8.4/libarchive 3.8.4 解压并核对 SHA-256, 普通 TAR 已由 7-Zip 22.00 与 bsdtar 验证; 两个产物均从宿主原生档案页面重新打开, TAR.ZST 内部 Unicode Markdown 预览与源内容哈希一致. Release/R8 构建及 `zipalign -P 16` 复核通过, 全程未操作实体设备.
 - [x] (验证) M3/M4/M5 7Z 阶段的 85 项 JVM 测试与 33 项仪器测试全部通过; 固定 SHA-256 的 7-Zip 22.00 样本覆盖 solid LZMA2、BCJ + LZMA2、AES-256 内容/头部加密、缺少/错误/正确密码、签名与截断, Android 运行时覆盖 seekable channel、Unicode、空目录、Copy/LZMA2、取消和源大小变化回滚. 真实 AutoJs6 宿主在 `emulator-5554` 浏览外部 solid 7Z, 路径栏显示外部路径/档案名/内部目录并可预览 Unicode Markdown; 宿主创建的普通与 AES-256 内容加密 7Z 均为非 solid, 由 7-Zip 22.00 完整测试和提取, 正确/错误密码行为符合预期, 空目录保留, 源内容 SHA-256 `3754703BD4A6D112404977BA3F8A9F653463A42E26C50A991534989EFEA3BEE8` 一致, 既有同名档案与源文件未被覆盖. 普通产物还能从宿主原生页面重新打开并预览同一条目; 创建后目录仍需手动刷新, 已归入 M1 的操作结果/刷新合同待办. Lint 无错误, Release/R8 APK 为 3,915,839 bytes 且仅包含既有四个 zstd-jni ABI, `zipalign -P 16` 复核通过; 全程未操作实体设备.
+- [x] (验证) M3 标准 ZIP 分卷诊断阶段的 93 项 JVM 测试与 34 项仪器测试全部通过; 固定 SHA-256 的 Zip4j 2.11.5 `.z01 + .zip` 两卷样本覆盖首卷标记、末卷 EOCD、普通 ZIP 防误判、精确卷名和恶意大卷数有界摘要, Android 运行时另行创建真实两卷 ZIP 复核 `INDEX/MISSING_VOLUME`. AutoJs6 6.8.0 (5276) 在 `emulator-5554` 的真实文件列表中保留原生打开入口; 只放置末卷时, 宿主可见提示显示 `MISSING_VOLUME` 与所需的 `archive-split.z01`, 跨进程安全摘要完整保留末卷 `archive-split.zip`、格式及索引阶段; 测试目录随后已清理. Lint 无错误, Release/R8 APK 为 3,920,295 bytes, SHA-256 为 `1BAD6DB7927266C4246B04E347F7EED297C34AA3E678C8145EE92A96AE5013A2`, `zipalign -P 16` 复核通过; 全程未操作实体设备.
 - [ ] (发布) 为首次公开发布准备插件中心元数据/截图和格式能力说明.
 - [ ] (CI) 每次提交运行单元测试/Android Lint/Debug/Release 构建和格式样本测试.
 - [ ] (CI) 发布前在支持的最低/最高 Android API/至少一台低内存设备和一台大屏设备执行冒烟测试.
