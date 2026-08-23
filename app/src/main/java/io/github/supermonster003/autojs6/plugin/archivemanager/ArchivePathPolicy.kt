@@ -14,10 +14,11 @@ object ArchivePathPolicy {
     fun validateEntryPath(
         sourceName: String,
         isDirectory: Boolean,
-        limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+        limits: ArchiveStructureLimits = ArchiveStructureLimits.DEFAULT,
     ): ValidatedArchivePath {
+        val effectiveLimits = limits.restrictedToHardLimits()
         if (sourceName.isEmpty()) invalid("Archive entry path is empty")
-        if (sourceName.length > limits.maxPathLength) {
+        if (sourceName.length > effectiveLimits.maxPathLength) {
             invalid(ArchiveFailureCode.PATH_LIMIT_EXCEEDED, "Archive entry path is too long")
         }
         if (hasUnsafeCodePoint(sourceName)) invalid("Control characters are not allowed in archive paths")
@@ -35,7 +36,7 @@ object ArchivePathPolicy {
             .split('/')
             .filterNot { it.isEmpty() || it == "." }
         if (rawSegments.isEmpty()) invalid("Archive entry path is empty")
-        if (rawSegments.size > limits.maxDepth) {
+        if (rawSegments.size > effectiveLimits.maxDepth) {
             invalid(ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED, "Archive entry path is too deep")
         }
 
@@ -47,7 +48,7 @@ object ArchivePathPolicy {
             }
         }
         val path = segments.joinToString("/")
-        if (path.length > limits.maxPathLength) {
+        if (path.length > effectiveLimits.maxPathLength) {
             invalid(ArchiveFailureCode.PATH_LIMIT_EXCEEDED, "Archive entry path is too long")
         }
         return ValidatedArchivePath(
@@ -60,7 +61,7 @@ object ArchivePathPolicy {
 
     fun normalizeSelectionPath(
         path: String,
-        limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+        limits: ArchiveStructureLimits = ArchiveStructureLimits.DEFAULT,
         allowRoot: Boolean = true,
     ): String {
         if (path.isEmpty() && allowRoot) return ROOT_PATH
@@ -69,12 +70,13 @@ object ArchivePathPolicy {
 
     fun validateDestinationRootName(
         name: String,
-        limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+        limits: ArchiveStructureLimits = ArchiveStructureLimits.DEFAULT,
     ): String {
+        val effectiveLimits = limits.restrictedToHardLimits()
         if (name.isBlank() || name == "." || name == "..") {
             invalid(ArchiveFailureCode.INVALID_DESTINATION_NAME, "Extraction root name is invalid")
         }
-        if (name.length > limits.maxPathLength || '/' in name || '\\' in name) {
+        if (name.length > effectiveLimits.maxPathLength || '/' in name || '\\' in name) {
             invalid(ArchiveFailureCode.INVALID_DESTINATION_NAME, "Extraction root name is invalid")
         }
         if (hasDrivePrefix(name) || hasUnsafeCodePoint(name)) {
@@ -93,7 +95,7 @@ object ArchivePathPolicy {
         root: String,
         ordinal: Int,
         isDirectory: Boolean,
-        limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+        limits: ArchiveStructureLimits = ArchiveStructureLimits.DEFAULT,
     ): ValidatedArchivePath {
         require(ordinal >= 0)
         val entryNumber = ordinal.toLong() + 1L

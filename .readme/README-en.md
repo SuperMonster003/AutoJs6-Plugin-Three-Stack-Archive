@@ -41,6 +41,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
+- Choose Compatible, Strict, or Custom extraction budgets; an archive that exceeds entry, path, output-size, or compression-ratio thresholds stays browsable and shows its estimated space and risks for one-time confirmation before writing.
 - Put parent-traversal, absolute, drive-prefixed, or control-character names in a path-bar-visible Unsafe paths folder; readable data remains previewable, while whole-archive extraction requires explicitly skipping those entries and leaves normal entries unaffected.
 - Browse, preview, and extract uncompressed TAR files; symbolic links, hard links, device nodes, and sparse entries are listed but never written as ordinary files.
 - Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives with the same internal paths, special-entry isolation, and integrity checks.
@@ -83,6 +84,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 The plugin requests neither storage nor network permission. Native browsing uses a short-lived read-only archive session pinned to the host UID and removes staged input when the page closes or unbinds; extraction uses only the input URI temporarily granted by the host. Archive creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. Passwords stay only in clearable memory buffers, are never written to Bundles, preferences, logs, or diagnostics, and are cleared when replaced, after a task, or when the page is destroyed. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, source-size checks, output transactions, and failure cleanup remain.
 
+Resource budgets decide when to warn or request confirmation; they never relax structural safety. After confirmation, live byte and ratio bounds expand only to the selected entries' declared values for that extraction. Undeclared growth, source changes, and size or CRC mismatches still stop the operation and clean its output.
+
 ### Roadmap
 
 The implementation tasks and acceptance criteria for more formats, split volumes, per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
@@ -116,6 +119,7 @@ _Unreleased_
 - `Fixed` Wrong passwords now map consistently to PASSWORD/WRONG_PASSWORD, and AES v2 entries with a zero stored CRC are no longer misreported as damaged
 - `Fixed` Default extraction folders for compound extensions such as TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now remove the complete suffix instead of retaining `.tar`
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
+- `Added` Compatible, Strict, and Custom extraction budgets; over-budget archives remain read-only browsable and show estimated output, exceeded dimensions, and one-time confirmation before writing
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
 - `Improved` ZIP, 7Z, and TAR-family output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files

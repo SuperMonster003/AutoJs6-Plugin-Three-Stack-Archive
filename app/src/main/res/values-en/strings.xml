@@ -107,5 +107,32 @@
     <string name="text_filename_encoding_automatic">Automatic</string>
     <string name="text_filename_encoding_automatic_detected">Automatic (legacy fallback: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexing archive...</string>
+    <string name="dialog_button_continue_anyway">Continue anyway</string>
+    <string name="dialog_button_save">Save</string>
+    <string name="dialog_title_custom_budget">Custom extraction budget</string>
+    <string name="dialog_title_resource_budget">Extraction budget exceeded</string>
+    <string name="error_custom_budget_invalid">Enter non-negative whole numbers within the supported range</string>
+    <string name="error_custom_budget_total_less_single">The total-size budget must be zero (unlimited) or at least the single-entry budget</string>
+    <string name="text_budget_compression_ratio">Maximum compression ratio</string>
+    <string name="text_budget_entry_count">Maximum selected entries</string>
+    <string name="text_budget_path_depth">Maximum path depth</string>
+    <string name="text_budget_path_length">Maximum path length</string>
+    <string name="text_budget_profile_compatible">Compatible (recommended)</string>
+    <string name="text_budget_profile_custom">Custom</string>
+    <string name="text_budget_profile_custom_details">Custom values are active; choose Custom again to edit them.</string>
+    <string name="text_budget_profile_details">%1$s entries; path %2$s characters / %3$s levels; %4$s GiB each; %5$s GiB total; %6$s:1.</string>
+    <string name="text_budget_profile_strict">Strict</string>
+    <string name="text_budget_single_size_mib">Maximum single-entry size (MiB)</string>
+    <string name="text_budget_total_size_mib">Maximum total size (MiB)</string>
+    <string name="text_budget_violation_compression_ratio">Compression ratio: %1$s:1 (budget %2$s:1)</string>
+    <string name="text_budget_violation_entry_count">Selected entries: %1$s (budget %2$s)</string>
+    <string name="text_budget_violation_path_depth">Path depth: %1$s (budget %2$s)</string>
+    <string name="text_budget_violation_path_length">Path length: %1$s (budget %2$s)</string>
+    <string name="text_budget_violation_single_size">Largest entry: %1$s (budget %2$s)</string>
+    <string name="text_budget_violation_total_size">Estimated output: %1$s (budget %2$s)</string>
+    <string name="text_custom_budget_zero_note">Use 0 for the hard structural maximum (entry count, path length, and depth) or for no resource warning threshold (sizes and compression ratio). Structural path safety cannot be disabled.</string>
+    <string name="text_extraction_budget">Extraction budget</string>
+    <string name="text_resource_budget_summary">Estimated output: %1$s\nSelected entries: %2$d\nAvailable destination space: verify before continuing.</string>
+    <string name="text_resource_budget_warning">Continuing permits the declared values for this extraction only. Path safety, source identity, size, checksum, and cleanup checks stay enabled.</string>
     <string name="text_password_encryption_note">A non-empty password uses AES-256 encryption. File names remain visible.</string>
 </resources>

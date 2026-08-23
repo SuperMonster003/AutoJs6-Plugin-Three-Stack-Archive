@@ -7,7 +7,7 @@ class ArchiveIndex(
     snapshot: ArchiveSnapshot,
     isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
 ) {
-    private val limits = snapshot.limits
+    private val structureLimits = snapshot.structureLimits.restrictedToHardLimits()
     private val isolatedPathRoot = snapshot.isolatedPathRoot
     private val isolatedPathDisplayName = isolatedPathDisplayName.ifBlank {
         ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME
@@ -89,7 +89,7 @@ class ArchiveIndex(
             val child = parent.children[segment]
             if (child == null) {
                 nodeCount++
-                if (nodeCount > limits.maxEntries) {
+                if (nodeCount > structureLimits.maxPathNodes) {
                     throw ArchiveValidationException(
                         ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
                         "Archive snapshot exceeds the path-node limit",
@@ -158,7 +158,7 @@ class ArchiveIndex(
     }
 
     private fun normalizedLookupPath(path: String): String =
-        ArchivePathPolicy.normalizeSelectionPath(path, limits = limits, allowRoot = true)
+        ArchivePathPolicy.normalizeSelectionPath(path, limits = structureLimits, allowRoot = true)
 
     private data class MutableNode(
         val path: String,

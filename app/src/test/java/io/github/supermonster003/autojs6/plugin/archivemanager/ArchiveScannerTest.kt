@@ -191,28 +191,57 @@ class ArchiveScannerTest {
     }
 
     @Test
-    fun `metadata browsing applies structural limits but defers extraction budgets`() {
+    fun `metadata browsing applies hard structure limits but only assesses resource budgets`() {
         val source = archive(
             FixtureEntry("a", ByteArray(20) { 1 }, ZipEntry.STORED),
             FixtureEntry("b", ByteArray(20) { 2 }, ZipEntry.STORED),
         )
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED) {
-            ArchiveScanner(ArchiveSecurityLimits(maxEntries = 1)).scan(source)
+            ArchiveScanner(ArchiveStructureLimits(maxEntries = 1)).scan(source)
         }
         val implicitDirectoryExpansion = archive(
             FixtureEntry("one/two/three.txt", byteArrayOf(1), ZipEntry.STORED),
         )
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED) {
-            ArchiveScanner(ArchiveSecurityLimits(maxEntries = 2)).scan(implicitDirectoryExpansion)
+            ArchiveScanner(
+                ArchiveStructureLimits(maxEntries = 2, maxPathNodes = 2),
+            ).scan(implicitDirectoryExpansion)
         }
-        assertEquals(40L, ArchiveScanner(limits(single = 10, total = 10)).scan(source).totalUncompressedBytes)
+        val browsable = ArchiveScanner().scan(source)
+        assertEquals(40L, browsable.totalUncompressedBytes)
+        val sizeAssessment = ArchiveResourceBudgetEvaluator.assess(
+            ArchiveSelection.resolve(browsable, listOf("")),
+            budget(single = 10, total = 10),
+        )
+        assertEquals(
+            setOf(
+                ArchiveResourceBudgetViolationKind.SINGLE_UNCOMPRESSED_SIZE,
+                ArchiveResourceBudgetViolationKind.TOTAL_UNCOMPRESSED_SIZE,
+            ),
+            sizeAssessment.violations.map(ArchiveResourceBudgetViolation::kind).toSet(),
+        )
 
         val compressed = archive(FixtureEntry("bomb", ByteArray(20_000)))
-        assertEquals(
-            20_000L,
-            ArchiveScanner(limits(single = 10, total = 10, ratio = 2))
-                .scan(compressed)
-                .totalUncompressedBytes,
+        val compressedSnapshot = ArchiveScanner().scan(compressed)
+        assertEquals(20_000L, compressedSnapshot.totalUncompressedBytes)
+        assertTrue(
+            ArchiveResourceBudgetEvaluator.assess(
+                ArchiveSelection.resolve(compressedSnapshot, listOf("")),
+                budget(single = Long.MAX_VALUE, total = Long.MAX_VALUE, ratio = 2),
+            ).violations.any {
+                it.kind == ArchiveResourceBudgetViolationKind.COMPRESSION_RATIO
+            },
+        )
+
+        val longButBrowsable = archive(
+            FixtureEntry("a".repeat(ArchiveResourceBudget.COMPATIBLE.maxPathLength + 1), byteArrayOf(1)),
+        )
+        val longSnapshot = ArchiveScanner().scan(longButBrowsable)
+        assertTrue(
+            ArchiveResourceBudgetEvaluator.assess(
+                ArchiveSelection.resolve(longSnapshot, listOf("")),
+                ArchiveResourceBudget.COMPATIBLE,
+            ).violations.any { it.kind == ArchiveResourceBudgetViolationKind.PATH_LENGTH },
         )
     }
 
@@ -313,26 +342,29 @@ class ArchiveScannerTest {
     }
 
     @Test
-    fun `path resource limits still fail instead of entering read only isolation`() {
+    fun `hard path structure limits still fail instead of entering read only isolation`() {
         val tooLong = archive(FixtureEntry("a".repeat(65), byteArrayOf(1), ZipEntry.STORED))
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.PATH_LIMIT_EXCEEDED) {
-            ArchiveScanner(ArchiveSecurityLimits(maxPathLength = 64)).scan(tooLong)
+            ArchiveScanner(ArchiveStructureLimits(maxPathLength = 64)).scan(tooLong)
         }
 
         val tooDeep = archive(FixtureEntry("a/b/c.txt", byteArrayOf(1), ZipEntry.STORED))
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED) {
-            ArchiveScanner(ArchiveSecurityLimits(maxDepth = 2)).scan(tooDeep)
+            ArchiveScanner(ArchiveStructureLimits(maxDepth = 2)).scan(tooDeep)
         }
     }
 
     private fun archive(vararg entries: FixtureEntry): File =
         writeZip(temporaryFolder.newFile("archive-${temporaryFolder.root.list().orEmpty().size}.zip"), *entries)
 
-    private fun limits(
+    private fun budget(
         single: Long,
         total: Long,
         ratio: Long = 1_000,
-    ) = ArchiveSecurityLimits(
+    ) = ArchiveResourceBudget(
+        maxEntries = ArchiveResourceBudget.COMPATIBLE.maxEntries,
+        maxPathLength = ArchiveResourceBudget.COMPATIBLE.maxPathLength,
+        maxDepth = ArchiveResourceBudget.COMPATIBLE.maxDepth,
         maxSingleUncompressedBytes = single,
         maxTotalUncompressedBytes = total,
         maxCompressionRatio = ratio,

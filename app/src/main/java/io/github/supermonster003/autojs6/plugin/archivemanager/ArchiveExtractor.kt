@@ -13,11 +13,10 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.IOException
 import java.util.zip.CRC32
-import kotlin.math.min
 
 internal class ArchiveExtractor @JvmOverloads constructor(
     private val contentResolver: ContentResolver? = null,
-    private val extractionLimits: ArchiveSecurityLimits? = null,
+    private val resourceBudget: ArchiveResourceBudget = ArchiveResourceBudget.COMPATIBLE,
     private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
 ) {
 
@@ -28,6 +27,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         treeUri: Uri,
         rootName: String,
         skipUnsafePaths: Boolean = false,
+        allowResourceBudgetOverride: Boolean = false,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult {
         val resolver = contentResolver ?: throw IllegalStateException(
@@ -44,13 +44,14 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             )
         }
         return extractToWriter(
-            source,
-            snapshot,
-            selectedPaths,
-            rootName,
-            writer,
-            skipUnsafePaths,
-            progress,
+            source = source,
+            snapshot = snapshot,
+            selectedPaths = selectedPaths,
+            rootName = rootName,
+            writer = writer,
+            skipUnsafePaths = skipUnsafePaths,
+            allowResourceBudgetOverride = allowResourceBudgetOverride,
+            progress = progress,
         )
     }
 
@@ -61,20 +62,28 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         rootName: String,
         writer: ArchiveOutputWriter,
         skipUnsafePaths: Boolean = false,
+        allowResourceBudgetOverride: Boolean = false,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult = withContext(Dispatchers.IO) {
         val extractionContext = currentCoroutineContext()
-        val limits = extractionLimits?.let { snapshot.limits.restrictedBy(it) } ?: snapshot.limits
-        val safeRootName = ArchivePathPolicy.validateDestinationRootName(rootName, limits)
-        validateSnapshot(source, snapshot, limits)
+        val structureLimits = snapshot.structureLimits
+        val safeRootName = ArchivePathPolicy.validateDestinationRootName(rootName, structureLimits)
+        validateSnapshot(source, snapshot, structureLimits)
         val selection = ArchiveSelection.resolve(snapshot, selectedPaths)
+        val budgetAssessment = ArchiveResourceBudgetEvaluator.assess(selection, resourceBudget)
         validateSelection(
             selection = selection,
-            limits = limits,
+            budgetAssessment = budgetAssessment,
             format = snapshot.format,
             passwordProvided = snapshot.readerOptions.hasPassword,
             skipUnsafePaths = skipUnsafePaths,
+            allowResourceBudgetOverride = allowResourceBudgetOverride,
         )
+        val enforcedBudget = if (allowResourceBudgetOverride) {
+            resourceBudget.expandedToInclude(budgetAssessment)
+        } else {
+            resourceBudget
+        }
         preflightDirectoryMetadata(source, snapshot) {
             extractionContext.ensureActive()
         }
@@ -150,15 +159,19 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                                 totalExpected = selection.totalUncompressedBytes,
                                 completedEntries = completedEntries,
                                 totalEntries = selection.totalEntries,
-                                limits = limits,
+                                budget = enforcedBudget,
                                 progress = progress,
                             )
                         }
                     }
-                    bytesWritten = checkedAdd(bytesWritten, measurement.bytes, limits.maxTotalUncompressedBytes) {
+                    bytesWritten = checkedAdd(
+                        bytesWritten,
+                        measurement.bytes,
+                        enforcedBudget.maxTotalUncompressedBytes,
+                    ) {
                         ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED
                     }
-                    validateMeasurement(entry, liveEntry, measurement, limits)
+                    validateMeasurement(entry, liveEntry, measurement, enforcedBudget)
                     completedEntries++
                     progress.onProgress(
                         ExtractionProgress(
@@ -230,7 +243,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         totalExpected: Long,
         completedEntries: Int,
         totalEntries: Int,
-        limits: ArchiveSecurityLimits,
+        budget: ArchiveResourceBudget,
         progress: ArchiveProgressListener,
     ): EntryMeasurement {
         val crc32 = CRC32()
@@ -241,13 +254,21 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             val read = input.read(buffer)
             if (read < 0) break
             if (read == 0) continue
-            entryBytes = checkedAdd(entryBytes, read.toLong(), limits.maxSingleUncompressedBytes) {
+            entryBytes = checkedAdd(
+                entryBytes,
+                read.toLong(),
+                budget.maxSingleUncompressedBytes,
+            ) {
                 ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED
             }
-            val totalBytes = checkedAdd(totalBeforeEntry, entryBytes, limits.maxTotalUncompressedBytes) {
+            val totalBytes = checkedAdd(
+                totalBeforeEntry,
+                entryBytes,
+                budget.maxTotalUncompressedBytes,
+            ) {
                 ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED
             }
-            validateCompressionRatio(entryBytes, compressedSize, limits)
+            validateCompressionRatio(entryBytes, compressedSize, budget)
             output.write(buffer, 0, read)
             crc32.update(buffer, 0, read)
             progress.onProgress(
@@ -268,7 +289,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
     private fun validateSnapshot(
         source: File,
         snapshot: ArchiveSnapshot,
-        limits: ArchiveSecurityLimits,
+        structureLimits: ArchiveStructureLimits,
     ) {
         if (!source.isFile) {
             throw ArchiveExtractionException(
@@ -277,10 +298,13 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             )
         }
         verifySourceIdentity(source, snapshot)
-        if (snapshot.entries.size > limits.maxEntries) {
+        if (!structureLimits.isWithinHardLimits()) {
+            changed("Archive snapshot exceeds the hard structure limits")
+        }
+        if (snapshot.entries.size > structureLimits.maxEntries) {
             throw ArchiveExtractionException(
                 ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
-                "Archive snapshot exceeds the entry limit",
+                "Archive snapshot exceeds the hard entry limit",
             )
         }
         var total = 0L
@@ -288,7 +312,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             val validatedRoot = ArchivePathPolicy.validateEntryPath(
                 isolatedRoot,
                 isDirectory = true,
-                limits = snapshot.limits,
+                limits = structureLimits,
             )
             if (validatedRoot.path != isolatedRoot || '/' in isolatedRoot) {
                 changed("Archive snapshot isolation root is inconsistent")
@@ -301,7 +325,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             changed("Archive snapshot isolation metadata is inconsistent")
         }
         snapshot.entries.forEach { entry ->
-            validateSnapshotPath(entry, snapshot, limits)
+            validateSnapshotPath(entry, snapshot, structureLimits)
             if (entry.uncompressedSize < 0L) {
                 throw ArchiveExtractionException(
                     ArchiveFailureCode.MALFORMED_ARCHIVE,
@@ -319,10 +343,11 @@ internal class ArchiveExtractor @JvmOverloads constructor(
 
     private fun validateSelection(
         selection: ResolvedArchiveSelection,
-        limits: ArchiveSecurityLimits,
+        budgetAssessment: ArchiveResourceBudgetAssessment,
         format: ArchiveFormat,
         passwordProvided: Boolean,
         skipUnsafePaths: Boolean,
+        allowResourceBudgetOverride: Boolean,
     ) {
         if (selection.skippedUnsafeEntries.isNotEmpty() && !skipUnsafePaths) {
             throw ArchiveExtractionException(
@@ -351,26 +376,26 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     format = format,
                 )
             }
-            if (entry.uncompressedSize > limits.maxSingleUncompressedBytes) {
-                throw ArchiveExtractionException(
-                    ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
-                    "Selected archive entry exceeds the single-entry limit",
-                )
-            }
-            validateCompressionRatio(entry.uncompressedSize, entry.compressedSize, limits)
-            total = checkedAdd(total, entry.uncompressedSize, limits.maxTotalUncompressedBytes) {
-                ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED
+            total = checkedAdd(total, entry.uncompressedSize, Long.MAX_VALUE) {
+                ArchiveFailureCode.MALFORMED_ARCHIVE
             }
         }
         if (total != selection.totalUncompressedBytes) {
             changed("Archive selection size is inconsistent")
+        }
+        if (!allowResourceBudgetOverride && budgetAssessment.exceedsBudget) {
+            throw ArchiveExtractionException(
+                ArchiveFailureCode.RESOURCE_BUDGET_CONFIRMATION_REQUIRED,
+                "Archive selection exceeds the configured resource budget",
+                format = format,
+            )
         }
     }
 
     private fun validateSnapshotPath(
         entry: ArchiveEntry,
         snapshot: ArchiveSnapshot,
-        limits: ArchiveSecurityLimits,
+        structureLimits: ArchiveStructureLimits,
     ) {
         when (entry.pathStatus) {
             ArchiveEntryPathStatus.SAFE -> {
@@ -380,7 +405,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                 val validated = ArchivePathPolicy.validateEntryPath(
                     entry.sourceName,
                     entry.isDirectory,
-                    limits,
+                    structureLimits,
                 )
                 if (validated.path != entry.path || validated.displayName != entry.displayName) {
                     changed("Archive snapshot path metadata is inconsistent")
@@ -393,7 +418,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     isolatedRoot,
                     entry.ordinal,
                     entry.isDirectory,
-                    snapshot.limits,
+                    structureLimits,
                 )
                 if (
                     entry.path != expected.path ||
@@ -406,7 +431,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                     ArchivePathPolicy.validateEntryPath(
                         entry.sourceName,
                         entry.isDirectory,
-                        snapshot.limits,
+                        structureLimits,
                     )
                     changed("Archive snapshot isolated a safe source path")
                 } catch (error: ArchiveValidationException) {
@@ -487,7 +512,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         entry: ArchiveEntry,
         liveEntry: ArchiveReaderEntry,
         measurement: EntryMeasurement,
-        limits: ArchiveSecurityLimits,
+        budget: ArchiveResourceBudget,
     ) {
         if (measurement.bytes != entry.uncompressedSize || measurement.bytes != liveEntry.size) {
             throw ArchiveExtractionException(
@@ -501,21 +526,22 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                 "Extracted entry CRC does not match the scanned CRC",
             )
         }
-        validateCompressionRatio(measurement.bytes, liveEntry.compressedSize, limits)
+        validateCompressionRatio(measurement.bytes, liveEntry.compressedSize, budget)
     }
 
     private fun validateCompressionRatio(
         uncompressedSize: Long,
         compressedSize: Long,
-        limits: ArchiveSecurityLimits,
+        budget: ArchiveResourceBudget,
     ) {
         if (uncompressedSize == 0L || compressedSize < 0L) return
+        if (compressedSize == 0L && budget.maxCompressionRatio == Long.MAX_VALUE) return
         val threshold = if (compressedSize <= 0L) {
             0L
-        } else if (compressedSize > Long.MAX_VALUE / limits.maxCompressionRatio) {
+        } else if (compressedSize > Long.MAX_VALUE / budget.maxCompressionRatio) {
             Long.MAX_VALUE
         } else {
-            compressedSize * limits.maxCompressionRatio
+            compressedSize * budget.maxCompressionRatio
         }
         if (uncompressedSize > threshold) {
             throw ArchiveExtractionException(
@@ -532,15 +558,6 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             changed("Archive source changed after scanning")
         }
     }
-
-    private fun ArchiveSecurityLimits.restrictedBy(other: ArchiveSecurityLimits) = ArchiveSecurityLimits(
-        maxEntries = min(maxEntries, other.maxEntries),
-        maxPathLength = min(maxPathLength, other.maxPathLength),
-        maxDepth = min(maxDepth, other.maxDepth),
-        maxSingleUncompressedBytes = min(maxSingleUncompressedBytes, other.maxSingleUncompressedBytes),
-        maxTotalUncompressedBytes = min(maxTotalUncompressedBytes, other.maxTotalUncompressedBytes),
-        maxCompressionRatio = min(maxCompressionRatio, other.maxCompressionRatio),
-    )
 
     private fun checkedAdd(
         current: Long,

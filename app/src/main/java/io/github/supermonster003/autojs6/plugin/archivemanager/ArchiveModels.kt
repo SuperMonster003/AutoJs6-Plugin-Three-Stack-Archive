@@ -2,28 +2,46 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import java.io.IOException
 
-data class ArchiveSecurityLimits(
-    val maxEntries: Int = 100_000,
-    val maxPathLength: Int = 16_384,
-    val maxDepth: Int = 256,
-    val maxSingleUncompressedBytes: Long = Long.MAX_VALUE,
-    val maxTotalUncompressedBytes: Long = Long.MAX_VALUE,
-    val maxCompressionRatio: Long = Long.MAX_VALUE,
+/**
+ * Non-configurable in-memory structure ceilings. These prevent an archive index from exhausting
+ * the process and are deliberately separate from user-overridable extraction budgets.
+ */
+data class ArchiveStructureLimits(
+    val maxEntries: Int = 250_000,
+    val maxPathNodes: Int = 500_000,
+    val maxPathLength: Int = 65_536,
+    val maxDepth: Int = 1_024,
 ) {
     init {
         require(maxEntries > 0)
+        require(maxPathNodes >= maxEntries)
         require(maxPathLength > 0)
         require(maxDepth > 0)
-        require(maxSingleUncompressedBytes >= 0L)
-        require(maxTotalUncompressedBytes >= maxSingleUncompressedBytes)
-        require(maxCompressionRatio > 0L)
     }
 
     companion object {
         @JvmField
-        val DEFAULT = ArchiveSecurityLimits()
+        val DEFAULT = ArchiveStructureLimits()
     }
 }
+
+internal fun ArchiveStructureLimits.isWithinHardLimits(): Boolean =
+    maxEntries <= ArchiveStructureLimits.DEFAULT.maxEntries &&
+        maxPathNodes <= ArchiveStructureLimits.DEFAULT.maxPathNodes &&
+        maxPathLength <= ArchiveStructureLimits.DEFAULT.maxPathLength &&
+        maxDepth <= ArchiveStructureLimits.DEFAULT.maxDepth
+
+internal fun ArchiveStructureLimits.restrictedToHardLimits(): ArchiveStructureLimits =
+    if (isWithinHardLimits()) {
+        this
+    } else {
+        ArchiveStructureLimits(
+            maxEntries = minOf(maxEntries, ArchiveStructureLimits.DEFAULT.maxEntries),
+            maxPathNodes = minOf(maxPathNodes, ArchiveStructureLimits.DEFAULT.maxPathNodes),
+            maxPathLength = minOf(maxPathLength, ArchiveStructureLimits.DEFAULT.maxPathLength),
+            maxDepth = minOf(maxDepth, ArchiveStructureLimits.DEFAULT.maxDepth),
+        )
+    }
 
 enum class ArchiveCompressionMethod {
     STORED,
@@ -88,7 +106,7 @@ data class ArchiveSnapshot(
     val sourceLastModifiedMillis: Long,
     val entries: List<ArchiveEntry>,
     val totalUncompressedBytes: Long,
-    val limits: ArchiveSecurityLimits,
+    val structureLimits: ArchiveStructureLimits,
     val format: ArchiveFormat = ArchiveFormat.ZIP,
     val readerOptions: ArchiveReaderOptions = ArchiveReaderOptions(),
     /** Safe virtual root containing flat, read-only representations of unsafe source names. */
@@ -199,6 +217,7 @@ enum class ArchiveFailureCode {
     ENTRY_LIMIT_EXCEEDED,
     INVALID_PATH,
     UNSAFE_PATH_CONFIRMATION_REQUIRED,
+    RESOURCE_BUDGET_CONFIRMATION_REQUIRED,
     PATH_LIMIT_EXCEEDED,
     DEPTH_LIMIT_EXCEEDED,
     DUPLICATE_PATH,
@@ -257,6 +276,7 @@ internal val ArchiveFailureCode.defaultStage: ArchiveFailureStage
         ArchiveFailureCode.EMPTY_SELECTION,
         ArchiveFailureCode.UNKNOWN_SELECTION,
         ArchiveFailureCode.UNSAFE_PATH_CONFIRMATION_REQUIRED,
+        ArchiveFailureCode.RESOURCE_BUDGET_CONFIRMATION_REQUIRED,
         -> ArchiveFailureStage.ENTRY_DATA
 
         ArchiveFailureCode.INVALID_DESTINATION_NAME,

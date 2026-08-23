@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityArchiveManagerBinding
+import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveResourceBudgetBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -27,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
 
@@ -44,6 +46,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private val selectedPaths = linkedSetOf<String>()
     private var pendingExtractionPaths: Set<String> = emptySet()
     private var pendingSkipUnsafePaths = false
+    private var pendingAllowResourceBudgetOverride = false
     private var pendingOutputTreeUri: Uri? = null
     private var operationJob: Job? = null
     private var renderJob: Job? = null
@@ -53,6 +56,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var selectedFilenameCharsetName: String? = null
     private var selectedPassword: CharArray? = null
     private var filenameCharsetChoices: List<FilenameCharsetChoice> = emptyList()
+    private var selectedResourceBudgetProfile = ArchiveResourceBudgetProfile.COMPATIBLE
+    private var customResourceBudget = ArchiveResourceBudget.COMPATIBLE
     private var lastFailureDiagnostic: ArchiveFailureDiagnostic? = null
 
     private val outputTreeLauncher = registerForActivityResult(
@@ -61,6 +66,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         if (treeUri == null) {
             pendingExtractionPaths = emptySet()
             pendingSkipUnsafePaths = false
+            pendingAllowResourceBudgetOverride = false
             if (
                 request?.requestedAction == ArchiveRequestedAction.EXTRACT_TO &&
                 selectedPaths == setOf(ArchivePathPolicy.ROOT_PATH)
@@ -106,7 +112,18 @@ class ArchiveManagerActivity : AppCompatActivity() {
             }
         }
         outState.putBoolean(STATE_PENDING_SKIP_UNSAFE_PATHS, pendingSkipUnsafePaths)
+        outState.putBoolean(
+            STATE_PENDING_RESOURCE_BUDGET_OVERRIDE,
+            pendingAllowResourceBudgetOverride,
+        )
         outState.putBoolean(STATE_DIRECT_ACTION_HANDLED, directActionHandled)
+        outState.putString(STATE_RESOURCE_BUDGET_PROFILE, selectedResourceBudgetProfile.name)
+        outState.putInt(STATE_CUSTOM_BUDGET_ENTRIES, customResourceBudget.maxEntries)
+        outState.putInt(STATE_CUSTOM_BUDGET_PATH_LENGTH, customResourceBudget.maxPathLength)
+        outState.putInt(STATE_CUSTOM_BUDGET_DEPTH, customResourceBudget.maxDepth)
+        outState.putLong(STATE_CUSTOM_BUDGET_SINGLE_SIZE, customResourceBudget.maxSingleUncompressedBytes)
+        outState.putLong(STATE_CUSTOM_BUDGET_TOTAL_SIZE, customResourceBudget.maxTotalUncompressedBytes)
+        outState.putLong(STATE_CUSTOM_BUDGET_RATIO, customResourceBudget.maxCompressionRatio)
         selectedFilenameCharsetName?.let {
             outState.putString(STATE_FILENAME_CHARSET, it)
         }
@@ -135,6 +152,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             onSelectionChanged = { row, checked ->
                 if (checked) selectedPaths += row.path else selectedPaths -= row.path
                 pendingSkipUnsafePaths = false
+                pendingAllowResourceBudgetOverride = false
                 renderEntries()
             },
         )
@@ -152,6 +170,18 @@ class ArchiveManagerActivity : AppCompatActivity() {
             filenameCharsetChoices.getOrNull(position)?.let(::selectFilenameCharset)
         }
         filenameEncodingInput.setOnClickListener { filenameEncodingInput.showDropDown() }
+        extractionBudgetInput.setAdapter(
+            ArrayAdapter(
+                this@ArchiveManagerActivity,
+                android.R.layout.simple_list_item_1,
+                resourceBudgetProfiles().map(::resourceBudgetProfileLabel),
+            ),
+        )
+        extractionBudgetInput.setOnItemClickListener { _, _, position, _ ->
+            resourceBudgetProfiles().getOrNull(position)?.let(::selectResourceBudgetProfile)
+        }
+        extractionBudgetInput.setOnClickListener { extractionBudgetInput.showDropDown() }
+        updateResourceBudgetInput()
         applyPasswordButton.setOnClickListener { applyPassword() }
         archivePassword.setOnEditorActionListener { _, _, _ ->
             applyPassword()
@@ -609,13 +639,235 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private fun selectAllVisibleEntries() {
         pendingSkipUnsafePaths = false
+        pendingAllowResourceBudgetOverride = false
         adapter.currentList.forEach { row ->
             if (!row.isBlocked) selectedPaths += row.path
         }
         renderEntries()
     }
 
-    private fun chooseExtractionDestination(skipUnsafePathsConfirmed: Boolean = false) {
+    private fun resourceBudgetProfiles(): List<ArchiveResourceBudgetProfile> =
+        ArchiveResourceBudgetProfile.entries
+
+    private fun resourceBudgetProfileLabel(profile: ArchiveResourceBudgetProfile): String = getString(
+        when (profile) {
+            ArchiveResourceBudgetProfile.COMPATIBLE -> R.string.text_budget_profile_compatible
+            ArchiveResourceBudgetProfile.STRICT -> R.string.text_budget_profile_strict
+            ArchiveResourceBudgetProfile.CUSTOM -> R.string.text_budget_profile_custom
+        },
+    )
+
+    private fun selectedResourceBudget(): ArchiveResourceBudget = when (selectedResourceBudgetProfile) {
+        ArchiveResourceBudgetProfile.COMPATIBLE -> ArchiveResourceBudget.COMPATIBLE
+        ArchiveResourceBudgetProfile.STRICT -> ArchiveResourceBudget.STRICT
+        ArchiveResourceBudgetProfile.CUSTOM -> customResourceBudget
+    }
+
+    private fun selectResourceBudgetProfile(profile: ArchiveResourceBudgetProfile) {
+        if (profile == ArchiveResourceBudgetProfile.CUSTOM) {
+            showCustomResourceBudgetDialog()
+            return
+        }
+        selectedResourceBudgetProfile = profile
+        pendingAllowResourceBudgetOverride = false
+        updateResourceBudgetInput()
+    }
+
+    private fun updateResourceBudgetInput() {
+        binding.extractionBudgetInput.setText(
+            resourceBudgetProfileLabel(selectedResourceBudgetProfile),
+            false,
+        )
+        binding.extractionBudgetLayout.helperText = if (
+            selectedResourceBudgetProfile == ArchiveResourceBudgetProfile.CUSTOM
+        ) {
+            getString(R.string.text_budget_profile_custom_details)
+        } else {
+            val budget = selectedResourceBudget()
+            getString(
+                R.string.text_budget_profile_details,
+                formatWholeNumber(budget.maxEntries.toLong()),
+                formatWholeNumber(budget.maxPathLength.toLong()),
+                formatWholeNumber(budget.maxDepth.toLong()),
+                formatWholeNumber(budget.maxSingleUncompressedBytes / GIB),
+                formatWholeNumber(budget.maxTotalUncompressedBytes / GIB),
+                formatWholeNumber(budget.maxCompressionRatio),
+            )
+        }
+    }
+
+    private fun showCustomResourceBudgetDialog() {
+        val customBinding = DialogArchiveResourceBudgetBinding.inflate(layoutInflater)
+        val hardLimits = ArchiveStructureLimits.DEFAULT
+        customBinding.maxEntries.setText(
+            customStructuralInput(customResourceBudget.maxEntries, hardLimits.maxPathNodes),
+        )
+        customBinding.maxPathLength.setText(
+            customStructuralInput(customResourceBudget.maxPathLength, hardLimits.maxPathLength),
+        )
+        customBinding.maxDepth.setText(
+            customStructuralInput(customResourceBudget.maxDepth, hardLimits.maxDepth),
+        )
+        customBinding.maxSingleSize.setText(customMibInput(customResourceBudget.maxSingleUncompressedBytes))
+        customBinding.maxTotalSize.setText(customMibInput(customResourceBudget.maxTotalUncompressedBytes))
+        customBinding.maxCompressionRatio.setText(customUnlimitedInput(customResourceBudget.maxCompressionRatio))
+
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_custom_budget)
+            .setView(customBinding.root)
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .setPositiveButton(R.string.dialog_button_save, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val budget = readCustomResourceBudget(customBinding) ?: return@setOnClickListener
+                customResourceBudget = budget
+                selectedResourceBudgetProfile = ArchiveResourceBudgetProfile.CUSTOM
+                pendingAllowResourceBudgetOverride = false
+                updateResourceBudgetInput()
+                dialog.dismiss()
+            }
+        }
+        dialog.setOnDismissListener { updateResourceBudgetInput() }
+        dialog.show()
+    }
+
+    private fun readCustomResourceBudget(
+        customBinding: DialogArchiveResourceBudgetBinding,
+    ): ArchiveResourceBudget? {
+        val fields = listOf(
+            customBinding.maxEntriesLayout to customBinding.maxEntries.text,
+            customBinding.maxPathLengthLayout to customBinding.maxPathLength.text,
+            customBinding.maxDepthLayout to customBinding.maxDepth.text,
+            customBinding.maxSingleSizeLayout to customBinding.maxSingleSize.text,
+            customBinding.maxTotalSizeLayout to customBinding.maxTotalSize.text,
+            customBinding.maxCompressionRatioLayout to customBinding.maxCompressionRatio.text,
+        )
+        fields.forEach { (layout, _) -> layout.error = null }
+        val parsed = fields.map { (layout, value) ->
+            value?.toString()?.trim()?.toLongOrNull()
+                ?.takeIf { it >= 0L }
+                .also { if (it == null) layout.error = getString(R.string.error_custom_budget_invalid) }
+        }
+        if (parsed.any { it == null }) return null
+        val values = parsed.filterNotNull()
+        val hardLimits = ArchiveStructureLimits.DEFAULT
+        val structuralMaximums = listOf(
+            hardLimits.maxPathNodes.toLong(),
+            hardLimits.maxPathLength.toLong(),
+            hardLimits.maxDepth.toLong(),
+        )
+        var structuralInvalid = false
+        values.take(3).forEachIndexed { index, value ->
+            if (value > structuralMaximums[index]) {
+                fields[index].first.error = getString(R.string.error_custom_budget_invalid)
+                structuralInvalid = true
+            }
+        }
+        val singleMib = values[3]
+        val totalMib = values[4]
+        if (singleMib > MAX_MIB_VALUE) {
+            customBinding.maxSingleSizeLayout.error = getString(R.string.error_custom_budget_invalid)
+        }
+        if (totalMib > MAX_MIB_VALUE) {
+            customBinding.maxTotalSizeLayout.error = getString(R.string.error_custom_budget_invalid)
+        }
+        if (structuralInvalid || singleMib > MAX_MIB_VALUE || totalMib > MAX_MIB_VALUE) return null
+
+        val maxSingleBytes = unlimitedOrMib(singleMib)
+        val maxTotalBytes = unlimitedOrMib(totalMib)
+        if (maxTotalBytes < maxSingleBytes) {
+            customBinding.maxTotalSizeLayout.error = getString(
+                R.string.error_custom_budget_total_less_single,
+            )
+            return null
+        }
+        return ArchiveResourceBudget(
+            maxEntries = structuralBudgetValue(values[0], hardLimits.maxPathNodes),
+            maxPathLength = structuralBudgetValue(values[1], hardLimits.maxPathLength),
+            maxDepth = structuralBudgetValue(values[2], hardLimits.maxDepth),
+            maxSingleUncompressedBytes = maxSingleBytes,
+            maxTotalUncompressedBytes = maxTotalBytes,
+            maxCompressionRatio = values[5].takeUnless { it == 0L } ?: Long.MAX_VALUE,
+        )
+    }
+
+    private fun resourceBudgetConfirmationMessage(
+        assessment: ArchiveResourceBudgetAssessment,
+    ): String = buildString {
+        append(
+            getString(
+                R.string.text_resource_budget_summary,
+                formatBytes(assessment.estimatedOutputBytes),
+                assessment.totalEntries,
+            ),
+        )
+        append("\n\n")
+        assessment.violations.forEach { violation ->
+            append("- ")
+            append(resourceBudgetViolationLabel(violation))
+            append('\n')
+        }
+        append('\n')
+        append(getString(R.string.text_resource_budget_warning))
+    }
+
+    private fun resourceBudgetViolationLabel(violation: ArchiveResourceBudgetViolation): String =
+        when (violation.kind) {
+            ArchiveResourceBudgetViolationKind.ENTRY_COUNT -> getString(
+                R.string.text_budget_violation_entry_count,
+                formatWholeNumber(violation.actual),
+                formatWholeNumber(violation.limit),
+            )
+            ArchiveResourceBudgetViolationKind.PATH_LENGTH -> getString(
+                R.string.text_budget_violation_path_length,
+                formatWholeNumber(violation.actual),
+                formatWholeNumber(violation.limit),
+            )
+            ArchiveResourceBudgetViolationKind.DEPTH -> getString(
+                R.string.text_budget_violation_path_depth,
+                formatWholeNumber(violation.actual),
+                formatWholeNumber(violation.limit),
+            )
+            ArchiveResourceBudgetViolationKind.SINGLE_UNCOMPRESSED_SIZE -> getString(
+                R.string.text_budget_violation_single_size,
+                formatBytes(violation.actual),
+                formatBytes(violation.limit),
+            )
+            ArchiveResourceBudgetViolationKind.TOTAL_UNCOMPRESSED_SIZE -> getString(
+                R.string.text_budget_violation_total_size,
+                formatBytes(violation.actual),
+                formatBytes(violation.limit),
+            )
+            ArchiveResourceBudgetViolationKind.COMPRESSION_RATIO -> getString(
+                R.string.text_budget_violation_compression_ratio,
+                formatWholeNumber(violation.actual),
+                formatWholeNumber(violation.limit),
+            )
+        }
+
+    private fun customStructuralInput(value: Int, hardMaximum: Int): String =
+        if (value == hardMaximum) "0" else value.toString()
+
+    private fun customMibInput(value: Long): String =
+        if (value == Long.MAX_VALUE) "0" else (value / MIB).toString()
+
+    private fun customUnlimitedInput(value: Long): String =
+        if (value == Long.MAX_VALUE) "0" else value.toString()
+
+    private fun structuralBudgetValue(value: Long, hardMaximum: Int): Int =
+        if (value == 0L) hardMaximum else value.toInt()
+
+    private fun unlimitedOrMib(value: Long): Long =
+        if (value == 0L) Long.MAX_VALUE else value * MIB
+
+    private fun formatWholeNumber(value: Long): String =
+        NumberFormat.getIntegerInstance(Locale.getDefault()).format(value)
+
+    private fun chooseExtractionDestination(
+        skipUnsafePathsConfirmed: Boolean = false,
+        resourceBudgetConfirmed: Boolean = false,
+    ) {
         val archive = snapshot
         val archiveIndex = index
         if (archive == null || archiveIndex == null || selectedPaths.isEmpty()) {
@@ -638,6 +890,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         if (selection.totalEntries == 0 && selection.skippedUnsafeEntries.isNotEmpty()) {
             pendingExtractionPaths = emptySet()
             pendingSkipUnsafePaths = false
+            pendingAllowResourceBudgetOverride = false
             showMessage(getString(R.string.error_no_safe_entries))
             return
         }
@@ -663,14 +916,40 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 .setNegativeButton(R.string.dialog_button_cancel) { _, _ ->
                     pendingExtractionPaths = emptySet()
                     pendingSkipUnsafePaths = false
+                    pendingAllowResourceBudgetOverride = false
                 }
                 .setPositiveButton(R.string.dialog_button_skip_unsafe) { _, _ ->
-                    chooseExtractionDestination(skipUnsafePathsConfirmed = true)
+                    chooseExtractionDestination(
+                        skipUnsafePathsConfirmed = true,
+                        resourceBudgetConfirmed = resourceBudgetConfirmed,
+                    )
+                }
+                .show()
+            return
+        }
+        val budget = selectedResourceBudget()
+        val budgetAssessment = ArchiveResourceBudgetEvaluator.assess(selection, budget)
+        if (budgetAssessment.exceedsBudget && !resourceBudgetConfirmed) {
+            pendingAllowResourceBudgetOverride = false
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_resource_budget)
+                .setMessage(resourceBudgetConfirmationMessage(budgetAssessment))
+                .setNegativeButton(R.string.dialog_button_cancel) { _, _ ->
+                    pendingExtractionPaths = emptySet()
+                    pendingSkipUnsafePaths = false
+                    pendingAllowResourceBudgetOverride = false
+                }
+                .setPositiveButton(R.string.dialog_button_continue_anyway) { _, _ ->
+                    chooseExtractionDestination(
+                        skipUnsafePathsConfirmed = skipUnsafePathsConfirmed,
+                        resourceBudgetConfirmed = true,
+                    )
                 }
                 .show()
             return
         }
         pendingSkipUnsafePaths = selection.skippedUnsafeEntries.isNotEmpty()
+        pendingAllowResourceBudgetOverride = budgetAssessment.exceedsBudget
         outputTreeLauncher.launch(null)
     }
 
@@ -684,6 +963,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         directActionHandled = true
         selectedPaths.clear()
         pendingSkipUnsafePaths = false
+        pendingAllowResourceBudgetOverride = false
         selectedPaths += ArchivePathPolicy.ROOT_PATH
         renderEntries()
         chooseExtractionDestination()
@@ -705,8 +985,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
         val archive = snapshot ?: return
         val paths = pendingExtractionPaths.takeIf(Set<String>::isNotEmpty) ?: return
         val skipUnsafePaths = pendingSkipUnsafePaths
+        val allowResourceBudgetOverride = pendingAllowResourceBudgetOverride
+        val resourceBudget = selectedResourceBudget()
         pendingExtractionPaths = emptySet()
         pendingSkipUnsafePaths = false
+        pendingAllowResourceBudgetOverride = false
         setBusy(true, getString(R.string.text_extracting, 0, 0), cancellable = true)
         operationJob = lifecycleScope.launch {
             try {
@@ -717,13 +1000,14 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 val result = withContext(Dispatchers.IO) {
                     var lastReportedBytes = -PROGRESS_REPORT_BYTES
                     var lastCompletedEntries = -1
-                    ArchiveExtractor(contentResolver, archive.limits).extract(
+                    ArchiveExtractor(contentResolver, resourceBudget).extract(
                         source = staged.file,
                         snapshot = archive,
                         selectedPaths = paths,
                         treeUri = treeUri,
                         rootName = rootName,
                         skipUnsafePaths = skipUnsafePaths,
+                        allowResourceBudgetOverride = allowResourceBudgetOverride,
                         progress = ArchiveProgressListener { update ->
                             when (update.phase) {
                                 ExtractionPhase.CLEANING_UP -> postUiUpdate {
@@ -795,6 +1079,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.cancelButton.isVisible = busy && cancellable
         binding.cancelButton.isEnabled = busy && cancellable
         binding.searchInput.isEnabled = !busy
+        binding.extractionBudgetLayout.isEnabled = !busy
         binding.filenameEncodingLayout.isEnabled = !busy
         binding.archivePasswordLayout.isEnabled = !busy
         binding.archivePassword.isEnabled = !busy
@@ -886,9 +1171,50 @@ class ArchiveManagerActivity : AppCompatActivity() {
             STATE_PENDING_SKIP_UNSAFE_PATHS,
             false,
         )
+        pendingAllowResourceBudgetOverride = savedInstanceState.getBoolean(
+            STATE_PENDING_RESOURCE_BUDGET_OVERRIDE,
+            false,
+        )
         directActionHandled = savedInstanceState.getBoolean(STATE_DIRECT_ACTION_HANDLED, false)
+        selectedResourceBudgetProfile = savedInstanceState
+            .getString(STATE_RESOURCE_BUDGET_PROFILE)
+            ?.let { stored ->
+                ArchiveResourceBudgetProfile.entries.firstOrNull { it.name == stored }
+            }
+            ?: ArchiveResourceBudgetProfile.COMPATIBLE
+        customResourceBudget = restoredCustomResourceBudget(savedInstanceState)
         selectedFilenameCharsetName = savedInstanceState.getString(STATE_FILENAME_CHARSET)
             ?.take(MAX_FILENAME_CHARSET_LENGTH)
+    }
+
+    private fun restoredCustomResourceBudget(savedInstanceState: Bundle): ArchiveResourceBudget {
+        val requiredKeys = listOf(
+            STATE_CUSTOM_BUDGET_ENTRIES,
+            STATE_CUSTOM_BUDGET_PATH_LENGTH,
+            STATE_CUSTOM_BUDGET_DEPTH,
+            STATE_CUSTOM_BUDGET_SINGLE_SIZE,
+            STATE_CUSTOM_BUDGET_TOTAL_SIZE,
+            STATE_CUSTOM_BUDGET_RATIO,
+        )
+        if (requiredKeys.any { !savedInstanceState.containsKey(it) }) {
+            return ArchiveResourceBudget.COMPATIBLE
+        }
+        val restored = runCatching {
+            ArchiveResourceBudget(
+                maxEntries = savedInstanceState.getInt(STATE_CUSTOM_BUDGET_ENTRIES),
+                maxPathLength = savedInstanceState.getInt(STATE_CUSTOM_BUDGET_PATH_LENGTH),
+                maxDepth = savedInstanceState.getInt(STATE_CUSTOM_BUDGET_DEPTH),
+                maxSingleUncompressedBytes = savedInstanceState.getLong(STATE_CUSTOM_BUDGET_SINGLE_SIZE),
+                maxTotalUncompressedBytes = savedInstanceState.getLong(STATE_CUSTOM_BUDGET_TOTAL_SIZE),
+                maxCompressionRatio = savedInstanceState.getLong(STATE_CUSTOM_BUDGET_RATIO),
+            )
+        }.getOrNull() ?: return ArchiveResourceBudget.COMPATIBLE
+        val hardLimits = ArchiveStructureLimits.DEFAULT
+        return restored.takeIf {
+            it.maxEntries <= hardLimits.maxPathNodes &&
+                it.maxPathLength <= hardLimits.maxPathLength &&
+                it.maxDepth <= hardLimits.maxDepth
+        } ?: ArchiveResourceBudget.COMPATIBLE
     }
 
     private fun Bundle.putBoundedStringList(key: String, values: Collection<String>): Boolean {
@@ -926,6 +1252,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
             ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
             ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
+            ArchiveFailureCode.RESOURCE_BUDGET_CONFIRMATION_REQUIRED,
             -> getString(R.string.error_archive_limit)
             ArchiveFailureCode.PASSWORD_REQUIRED -> getString(R.string.error_password_required)
             ArchiveFailureCode.WRONG_PASSWORD -> getString(R.string.error_password_incorrect)
@@ -988,6 +1315,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
                 -> R.string.error_reason_path
                 ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+                ArchiveFailureCode.RESOURCE_BUDGET_CONFIRMATION_REQUIRED,
                 ArchiveFailureCode.SINGLE_SIZE_LIMIT_EXCEEDED,
                 ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
                 ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
@@ -1047,6 +1375,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private companion object {
         const val DEFAULT_EXTRACTION_ROOT = "archive"
+        const val MIB = 1_024L * 1_024L
+        const val GIB = 1_024L * MIB
+        const val MAX_MIB_VALUE = Long.MAX_VALUE / MIB
         const val MAX_EXTRACTION_ROOT_LENGTH = 120
         const val MAX_FILENAME_CHARSET_LENGTH = 64
         const val MAX_SAVED_STATE_CHARS = 128 * 1024
@@ -1060,7 +1391,15 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val STATE_FILENAME_CHARSET = "filename_charset"
         const val STATE_PENDING_EXTRACTION_PATHS = "pending_extraction_paths"
         const val STATE_PENDING_OUTPUT_TREE_URI = "pending_output_tree_uri"
+        const val STATE_PENDING_RESOURCE_BUDGET_OVERRIDE = "pending_resource_budget_override"
         const val STATE_PENDING_SKIP_UNSAFE_PATHS = "pending_skip_unsafe_paths"
+        const val STATE_RESOURCE_BUDGET_PROFILE = "resource_budget_profile"
+        const val STATE_CUSTOM_BUDGET_ENTRIES = "custom_budget_entries"
+        const val STATE_CUSTOM_BUDGET_PATH_LENGTH = "custom_budget_path_length"
+        const val STATE_CUSTOM_BUDGET_DEPTH = "custom_budget_depth"
+        const val STATE_CUSTOM_BUDGET_SINGLE_SIZE = "custom_budget_single_size"
+        const val STATE_CUSTOM_BUDGET_TOTAL_SIZE = "custom_budget_total_size"
+        const val STATE_CUSTOM_BUDGET_RATIO = "custom_budget_ratio"
         const val STATE_SELECTED_PATHS = "selected_paths"
     }
 }

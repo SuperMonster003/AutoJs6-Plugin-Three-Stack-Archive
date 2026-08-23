@@ -4,9 +4,10 @@ import java.io.File
 import java.io.IOException
 
 internal class ArchiveScanner @JvmOverloads constructor(
-    private val limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+    structureLimits: ArchiveStructureLimits = ArchiveStructureLimits.DEFAULT,
     private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
 ) {
+    private val structureLimits = structureLimits.restrictedToHardLimits()
 
     @JvmOverloads
     fun scan(
@@ -25,7 +26,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
         val sourceLastModifiedMillis = source.lastModified()
         val candidates = ArrayList<ScannedEntryCandidate>()
         val entries = ArrayList<ArchiveEntry>()
-        val pathRegistry = PathRegistry(limits.maxEntries)
+        val pathRegistry = PathRegistry(structureLimits)
         var totalUncompressedBytes = 0L
         var detectedFormat: ArchiveFormat? = null
         var readerOptions: ArchiveReaderOptions? = null
@@ -38,10 +39,10 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 readerOptions = reader.options.retainedCopy()
                 reader.entries.forEach { readerEntry ->
                     cancellationCheck()
-                    if (candidates.size >= limits.maxEntries) {
+                    if (candidates.size >= structureLimits.maxEntries) {
                         fail(
                             ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
-                            "Archive contains more than ${limits.maxEntries} entries",
+                            "Archive contains more than ${structureLimits.maxEntries} entries",
                         )
                     }
 
@@ -73,7 +74,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
                         root = requireNotNull(isolatedPathRoot),
                         ordinal = candidate.ordinal,
                         isDirectory = readerEntry.isDirectory,
-                        limits = limits,
+                        limits = structureLimits,
                     ).also { path ->
                         pathRegistry.register(path, readerEntry.isDirectory)
                     }
@@ -163,7 +164,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
             sourceLastModifiedMillis = sourceLastModifiedMillis,
             entries = entries.toList(),
             totalUncompressedBytes = totalUncompressedBytes,
-            limits = limits,
+            structureLimits = structureLimits,
             format = requireNotNull(detectedFormat),
             readerOptions = requireNotNull(readerOptions),
             isolatedPathRoot = isolatedPathRoot,
@@ -174,7 +175,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
         ArchivePathPolicy.validateEntryPath(
             sourceName = entry.name,
             isDirectory = entry.isDirectory,
-            limits = limits,
+            limits = structureLimits,
         )
     } catch (error: ArchiveValidationException) {
         if (error.code == ArchiveFailureCode.INVALID_PATH) null else throw error
@@ -195,14 +196,14 @@ internal class ArchiveScanner @JvmOverloads constructor(
     }
 
     private class PathRegistry(
-        private val maxNodes: Int,
+        private val limits: ArchiveStructureLimits,
     ) {
         private val explicitEntries = HashMap<String, RegisteredPath>()
         private val fileKeys = HashSet<String>()
         private val directoryRepresentatives = HashMap<String, String>()
 
         fun allocateIsolatedRoot(): String {
-            for (suffix in 1L..maxNodes.toLong()) {
+            for (suffix in 1L..limits.maxPathNodes.toLong()) {
                 val candidate = if (suffix == 1L) {
                     ArchivePathPolicy.ISOLATED_PATH_ROOT_BASENAME
                 } else {
@@ -211,6 +212,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 val path = ArchivePathPolicy.validateEntryPath(
                     candidate,
                     isDirectory = true,
+                    limits = limits,
                 )
                 if (path.collisionKey !in fileKeys && path.collisionKey !in directoryRepresentatives) {
                     return path.path
@@ -280,10 +282,10 @@ internal class ArchiveScanner @JvmOverloads constructor(
         }
 
         private fun checkNodeCount() {
-            if (fileKeys.size + directoryRepresentatives.size > maxNodes) {
+            if (fileKeys.size + directoryRepresentatives.size > limits.maxPathNodes) {
                 fail(
                     ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
-                    "Archive expands to more than $maxNodes path nodes",
+                    "Archive expands to more than ${limits.maxPathNodes} path nodes",
                 )
             }
         }

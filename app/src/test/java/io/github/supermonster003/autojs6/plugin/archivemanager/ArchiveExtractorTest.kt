@@ -190,6 +190,85 @@ class ArchiveExtractorTest {
     }
 
     @Test
+    fun `over budget extraction requires confirmation before creating output`() {
+        val source = archive(FixtureEntry("large.txt", "large payload".toByteArray(), ZipEntry.STORED))
+        val snapshot = ArchiveScanner().scan(source)
+        val budget = ArchiveResourceBudget.COMPATIBLE.copy(
+            maxSingleUncompressedBytes = 4L,
+            maxTotalUncompressedBytes = 4L,
+        )
+        val rejectedWriter = FakeArchiveOutputWriter()
+
+        expectArchiveFailure<ArchiveExtractionException>(
+            ArchiveFailureCode.RESOURCE_BUDGET_CONFIRMATION_REQUIRED,
+        ) {
+            runBlocking {
+                ArchiveExtractor(resourceBudget = budget).extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf("large.txt"),
+                    rootName = "rejected-budget",
+                    writer = rejectedWriter,
+                )
+            }
+        }
+        assertEquals(null, rejectedWriter.root)
+
+        val confirmedWriter = FakeArchiveOutputWriter()
+        val result = runBlocking {
+            ArchiveExtractor(resourceBudget = budget).extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf("large.txt"),
+                rootName = "confirmed-budget",
+                writer = confirmedWriter,
+                allowResourceBudgetOverride = true,
+            )
+        }
+
+        assertEquals("large payload".toByteArray().size.toLong(), result.bytesWritten)
+        assertArrayEquals(
+            "large payload".toByteArray(),
+            confirmedWriter.content("confirmed-budget/large.txt"),
+        )
+        assertFalse(confirmedWriter.rootDeleted)
+    }
+
+    @Test
+    fun `confirmed compression ratio budget expands to the declared selection`() {
+        val payload = ByteArray(100_000) { 7 }
+        val source = archive(FixtureEntry("compressible.bin", payload))
+        val snapshot = ArchiveScanner().scan(source)
+        val budget = ArchiveResourceBudget.COMPATIBLE.copy(
+            maxSingleUncompressedBytes = Long.MAX_VALUE,
+            maxTotalUncompressedBytes = Long.MAX_VALUE,
+            maxCompressionRatio = 2L,
+        )
+        val selection = ArchiveSelection.resolve(snapshot, listOf("compressible.bin"))
+        val assessment = ArchiveResourceBudgetEvaluator.assess(selection, budget)
+        assertEquals(
+            listOf(ArchiveResourceBudgetViolationKind.COMPRESSION_RATIO),
+            assessment.violations.map(ArchiveResourceBudgetViolation::kind),
+        )
+
+        val writer = FakeArchiveOutputWriter()
+        val result = runBlocking {
+            ArchiveExtractor(resourceBudget = budget).extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf("compressible.bin"),
+                rootName = "confirmed-ratio",
+                writer = writer,
+                allowResourceBudgetOverride = true,
+            )
+        }
+
+        assertEquals(payload.size.toLong(), result.bytesWritten)
+        assertArrayEquals(payload, writer.content("confirmed-ratio/compressible.bin"))
+        assertFalse(writer.rootDeleted)
+    }
+
+    @Test
     fun `extracts an empty archive as an empty output root`() = runBlocking {
         val source = archive()
         val snapshot = ArchiveScanner().scan(source)

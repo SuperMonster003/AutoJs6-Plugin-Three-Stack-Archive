@@ -57,7 +57,7 @@ class ArchivePathPolicyTest {
 
     @Test
     fun `enforces path length and depth limits`() {
-        val limits = ArchiveSecurityLimits(maxPathLength = 1_024, maxDepth = 64)
+        val limits = ArchiveStructureLimits(maxPathLength = 1_024, maxDepth = 64)
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.PATH_LIMIT_EXCEEDED) {
             ArchivePathPolicy.validateEntryPath("a".repeat(1_025), isDirectory = false, limits = limits)
         }
@@ -66,6 +66,32 @@ class ArchivePathPolicyTest {
                 (1..65).joinToString("/") { "a" },
                 isDirectory = false,
                 limits = limits,
+            )
+        }
+    }
+
+    @Test
+    fun `caller supplied limits cannot relax hard structure ceilings`() {
+        val requested = ArchiveStructureLimits(
+            maxEntries = 300_000,
+            maxPathNodes = 600_000,
+            maxPathLength = 70_000,
+            maxDepth = 2_000,
+        )
+        assertEquals(ArchiveStructureLimits.DEFAULT, requested.restrictedToHardLimits())
+
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.PATH_LIMIT_EXCEEDED) {
+            ArchivePathPolicy.validateEntryPath(
+                "a".repeat(ArchiveStructureLimits.DEFAULT.maxPathLength + 1),
+                isDirectory = false,
+                limits = requested,
+            )
+        }
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED) {
+            ArchivePathPolicy.validateEntryPath(
+                (1..ArchiveStructureLimits.DEFAULT.maxDepth + 1).joinToString("/") { "a" },
+                isDirectory = false,
+                limits = requested,
             )
         }
     }

@@ -131,10 +131,9 @@ class ArchiveIndexSelectionTest {
             sourceLastModifiedMillis = 0L,
             entries = listOf(entry),
             totalUncompressedBytes = 1L,
-            limits = ArchiveSecurityLimits(
+            structureLimits = ArchiveStructureLimits(
                 maxEntries = 2,
-                maxSingleUncompressedBytes = 1L,
-                maxTotalUncompressedBytes = 1L,
+                maxPathNodes = 2,
             ),
         )
 
@@ -165,7 +164,7 @@ class ArchiveIndexSelectionTest {
             sourceLastModifiedMillis = 0L,
             entries = entries,
             totalUncompressedBytes = 20_000L,
-            limits = ArchiveSecurityLimits.DEFAULT,
+            structureLimits = ArchiveStructureLimits.DEFAULT,
         )
 
         val selection = ArchiveSelection.resolve(largeSnapshot, entries.map(ArchiveEntry::path))

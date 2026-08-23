@@ -19,7 +19,7 @@ object ArchiveSelection {
         val requested = selectedPaths.mapTo(LinkedHashSet()) { path ->
             ArchivePathPolicy.normalizeSelectionPath(
                 path = path,
-                limits = snapshot.limits,
+                limits = snapshot.structureLimits.restrictedToHardLimits(),
                 allowRoot = true,
             )
         }

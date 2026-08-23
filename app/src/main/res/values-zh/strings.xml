@@ -107,5 +107,32 @@
     <string name="text_filename_encoding_automatic">自动检测</string>
     <string name="text_filename_encoding_automatic_detected">自动检测 (传统名称回退: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">正在重新索引压缩档案...</string>
+    <string name="dialog_button_continue_anyway">仍要继续</string>
+    <string name="dialog_button_save">保存</string>
+    <string name="dialog_title_custom_budget">自定义解压预算</string>
+    <string name="dialog_title_resource_budget">超出解压预算</string>
+    <string name="error_custom_budget_invalid">请输入受支持范围内的非负整数</string>
+    <string name="error_custom_budget_total_less_single">总大小预算必须为 0 (无限制), 或不小于单个条目预算</string>
+    <string name="text_budget_compression_ratio">最大压缩比</string>
+    <string name="text_budget_entry_count">最多选中条目数</string>
+    <string name="text_budget_path_depth">最大路径深度</string>
+    <string name="text_budget_path_length">最大路径长度</string>
+    <string name="text_budget_profile_compatible">兼容 (推荐)</string>
+    <string name="text_budget_profile_custom">自定义</string>
+    <string name="text_budget_profile_custom_details">自定义值已生效; 再次选择“自定义”可修改.</string>
+    <string name="text_budget_profile_details">%1$s 个条目; 路径 %2$s 字符 / %3$s 层; 单项 %4$s GiB; 总计 %5$s GiB; %6$s:1.</string>
+    <string name="text_budget_profile_strict">严格</string>
+    <string name="text_budget_single_size_mib">单个条目最大大小 (MiB)</string>
+    <string name="text_budget_total_size_mib">最大总大小 (MiB)</string>
+    <string name="text_budget_violation_compression_ratio">压缩比: %1$s:1 (预算 %2$s:1)</string>
+    <string name="text_budget_violation_entry_count">选中条目: %1$s (预算 %2$s)</string>
+    <string name="text_budget_violation_path_depth">路径深度: %1$s (预算 %2$s)</string>
+    <string name="text_budget_violation_path_length">路径长度: %1$s (预算 %2$s)</string>
+    <string name="text_budget_violation_single_size">最大条目: %1$s (预算 %2$s)</string>
+    <string name="text_budget_violation_total_size">预计输出: %1$s (预算 %2$s)</string>
+    <string name="text_custom_budget_zero_note">条目数、路径长度和深度填 0 时使用不可放宽的结构上限; 大小和压缩比填 0 时不设置资源告警阈值. 路径结构安全无法关闭.</string>
+    <string name="text_extraction_budget">解压预算</string>
+    <string name="text_resource_budget_summary">预计输出: %1$s\n选中条目: %2$d\n目标可用空间: 继续前请自行确认.</string>
+    <string name="text_resource_budget_warning">继续操作只会为本次解压放行档案声明值. 路径安全、源文件身份、大小、校验和与失败清理仍然生效.</string>
     <string name="text_password_encryption_note">非空密码使用 AES-256 加密. 文件名仍然可见.</string>
 </resources>
