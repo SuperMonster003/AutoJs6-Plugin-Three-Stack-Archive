@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
     <string name="app_name">Менеджер архивов</string>
     <string name="dialog_button_cancel">Отмена</string>
+    <string name="dialog_button_skip_unsafe">Пропустить и продолжить</string>
     <string name="dialog_button_select_all">Выбрать все</string>
+    <string name="dialog_message_skip_unsafe_paths">Записи архива (%1$d) используют пути, которые нельзя безопасно записать. Их по-прежнему можно просмотреть в папке «Небезопасные пути». Продолжить и пропустить их?</string>
+    <string name="dialog_title_unsafe_paths">Небезопасные пути</string>
     <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
     <string name="error_archive_missing_volumes">Отсутствуют тома ZIP</string>
     <string name="error_archive_limit">Архив превышает безопасный предел</string>
@@ -14,6 +17,7 @@
     <string name="error_cleanup_failed">Не удалось очистить данные; часть выходных файлов могла сохраниться</string>
     <string name="error_extraction_failed">Не удалось извлечь файлы</string>
     <string name="error_no_selection">Выберите хотя бы одну запись</string>
+    <string name="error_no_safe_entries">В выбранном нет записей, которые можно безопасно извлечь</string>
     <string name="error_permission_missing">Нет доступа на чтение архива</string>
     <string name="error_with_reason">%1$s\nПричина: %2$s</string>
     <string name="plugin_description">Плагин файлового менеджера. Просматривает, извлекает и создаёт ZIP- и TAR-архивы</string>
@@ -32,6 +36,8 @@
     <string name="text_selected_count">Выбрано: %1$d</string>
     <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
     <string name="text_unknown">Неизвестно</string>
+    <string name="text_unsafe_path_read_only">Исходный путь небезопасен; доступен только просмотр. Запись исключена из извлечения.</string>
+    <string name="text_unsafe_paths_folder">Небезопасные пути</string>
     <string name="text_unsupported_compression_method">Метод сжатия %1$s не поддерживает извлечение</string>
     <string name="text_unsupported_entry_type">Тип записи %1$s не поддерживает извлечение</string>
     <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>

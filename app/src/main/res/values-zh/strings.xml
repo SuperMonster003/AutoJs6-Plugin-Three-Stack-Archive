@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">压缩...</string>
     <string name="app_name">压缩档案管理器</string>
     <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_skip_unsafe">跳过并继续</string>
     <string name="dialog_button_select_all">全选</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d 个档案条目使用了无法安全写出的路径. 它们仍可在“危险路径”文件夹中预览. 是否继续并跳过这些条目?</string>
+    <string name="dialog_title_unsafe_paths">危险路径</string>
     <string name="error_archive_invalid">压缩包无效或不受支持</string>
     <string name="error_archive_missing_volumes">缺少 ZIP 分卷</string>
     <string name="error_archive_limit">压缩包超出安全限制</string>
@@ -17,6 +20,7 @@
     <string name="error_compression_request_invalid">压缩请求或宿主会话无效</string>
     <string name="error_extraction_failed">解压失败</string>
     <string name="error_no_selection">请至少选择一个条目</string>
+    <string name="error_no_safe_entries">所选内容中没有可安全解压的条目</string>
     <string name="error_password_incorrect">压缩档案密码不正确</string>
     <string name="error_password_required">请输入压缩档案密码</string>
     <string name="error_password_confirmation_mismatch">两次输入的密码不一致</string>
@@ -69,6 +73,8 @@
     <string name="text_split_unavailable_for_format">%1$s 当前不支持分卷输出.</string>
     <string name="text_split_volume">分卷大小 (MiB)</string>
     <string name="text_unknown">未知</string>
+    <string name="text_unsafe_path_read_only">原始路径不安全; 仅可预览, 解压时将被排除.</string>
+    <string name="text_unsafe_paths_folder">危险路径</string>
     <string name="text_unsupported_compression_method">无法解压压缩方法 %1$s</string>
     <string name="text_unsupported_entry_type">无法解压条目类型 %1$s</string>
     <string name="text_encryption_unavailable_for_format">%1$s 当前不支持密码和文件名加密.</string>

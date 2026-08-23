@@ -27,6 +27,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         selectedPaths: Collection<String>,
         treeUri: Uri,
         rootName: String,
+        skipUnsafePaths: Boolean = false,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult {
         val resolver = contentResolver ?: throw IllegalStateException(
@@ -42,7 +43,15 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                 snapshot.format,
             )
         }
-        return extractToWriter(source, snapshot, selectedPaths, rootName, writer, progress)
+        return extractToWriter(
+            source,
+            snapshot,
+            selectedPaths,
+            rootName,
+            writer,
+            skipUnsafePaths,
+            progress,
+        )
     }
 
     suspend fun extractToWriter(
@@ -51,6 +60,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         selectedPaths: Collection<String>,
         rootName: String,
         writer: ArchiveOutputWriter,
+        skipUnsafePaths: Boolean = false,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult = withContext(Dispatchers.IO) {
         val extractionContext = currentCoroutineContext()
@@ -63,6 +73,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             limits = limits,
             format = snapshot.format,
             passwordProvided = snapshot.readerOptions.hasPassword,
+            skipUnsafePaths = skipUnsafePaths,
         )
         preflightDirectoryMetadata(source, snapshot) {
             extractionContext.ensureActive()
@@ -273,11 +284,24 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             )
         }
         var total = 0L
-        snapshot.entries.forEach { entry ->
-            val validated = ArchivePathPolicy.validateEntryPath(entry.sourceName, entry.isDirectory, limits)
-            if (validated.path != entry.path || validated.displayName != entry.displayName) {
-                changed("Archive snapshot path metadata is inconsistent")
+        snapshot.isolatedPathRoot?.let { isolatedRoot ->
+            val validatedRoot = ArchivePathPolicy.validateEntryPath(
+                isolatedRoot,
+                isDirectory = true,
+                limits = snapshot.limits,
+            )
+            if (validatedRoot.path != isolatedRoot || '/' in isolatedRoot) {
+                changed("Archive snapshot isolation root is inconsistent")
             }
+        }
+        val containsIsolatedEntries = snapshot.entries.any {
+            it.pathStatus == ArchiveEntryPathStatus.UNSAFE_ISOLATED
+        }
+        if ((snapshot.isolatedPathRoot != null) != containsIsolatedEntries) {
+            changed("Archive snapshot isolation metadata is inconsistent")
+        }
+        snapshot.entries.forEach { entry ->
+            validateSnapshotPath(entry, snapshot, limits)
             if (entry.uncompressedSize < 0L) {
                 throw ArchiveExtractionException(
                     ArchiveFailureCode.MALFORMED_ARCHIVE,
@@ -298,7 +322,22 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         limits: ArchiveSecurityLimits,
         format: ArchiveFormat,
         passwordProvided: Boolean,
+        skipUnsafePaths: Boolean,
     ) {
+        if (selection.skippedUnsafeEntries.isNotEmpty() && !skipUnsafePaths) {
+            throw ArchiveExtractionException(
+                ArchiveFailureCode.UNSAFE_PATH_CONFIRMATION_REQUIRED,
+                "Unsafe archive paths require explicit skip confirmation",
+                format = format,
+            )
+        }
+        if (selection.totalEntries == 0 && selection.skippedUnsafeEntries.isNotEmpty()) {
+            throw ArchiveExtractionException(
+                ArchiveFailureCode.EMPTY_SELECTION,
+                "The selection contains no safely extractable entries",
+                format = format,
+            )
+        }
         var total = 0L
         selection.files.forEach { entry ->
             if (!entry.canExtract) {
@@ -325,6 +364,55 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         }
         if (total != selection.totalUncompressedBytes) {
             changed("Archive selection size is inconsistent")
+        }
+    }
+
+    private fun validateSnapshotPath(
+        entry: ArchiveEntry,
+        snapshot: ArchiveSnapshot,
+        limits: ArchiveSecurityLimits,
+    ) {
+        when (entry.pathStatus) {
+            ArchiveEntryPathStatus.SAFE -> {
+                if (snapshot.isIsolatedPath(entry.path)) {
+                    changed("Archive snapshot safe path overlaps the isolation root")
+                }
+                val validated = ArchivePathPolicy.validateEntryPath(
+                    entry.sourceName,
+                    entry.isDirectory,
+                    limits,
+                )
+                if (validated.path != entry.path || validated.displayName != entry.displayName) {
+                    changed("Archive snapshot path metadata is inconsistent")
+                }
+            }
+            ArchiveEntryPathStatus.UNSAFE_ISOLATED -> {
+                val isolatedRoot = snapshot.isolatedPathRoot
+                    ?: changed("Archive snapshot isolation root is missing")
+                val expected = ArchivePathPolicy.isolatedEntryPath(
+                    isolatedRoot,
+                    entry.ordinal,
+                    entry.isDirectory,
+                    snapshot.limits,
+                )
+                if (
+                    entry.path != expected.path ||
+                    entry.displayName != ArchivePathPolicy.unsafeSourceNameForDisplay(entry.sourceName) ||
+                    entry.canExtract
+                ) {
+                    changed("Archive snapshot isolated path metadata is inconsistent")
+                }
+                try {
+                    ArchivePathPolicy.validateEntryPath(
+                        entry.sourceName,
+                        entry.isDirectory,
+                        snapshot.limits,
+                    )
+                    changed("Archive snapshot isolated a safe source path")
+                } catch (error: ArchiveValidationException) {
+                    if (error.code != ArchiveFailureCode.INVALID_PATH) throw error
+                }
+            }
         }
     }
 

@@ -41,6 +41,12 @@ enum class ArchiveEncryptionMethod {
     OTHER,
 }
 
+enum class ArchiveEntryPathStatus {
+    SAFE,
+    /** The source name is visible and its data may be previewed, but it must never be a write path. */
+    UNSAFE_ISOLATED,
+}
+
 data class ArchiveEntry(
     /** Portable separator-normalized path without a trailing slash; Unicode spelling is preserved. */
     val path: String,
@@ -48,6 +54,7 @@ data class ArchiveEntry(
     val sourceName: String,
     val displayName: String,
     val isDirectory: Boolean,
+    val pathStatus: ArchiveEntryPathStatus = ArchiveEntryPathStatus.SAFE,
     val compressionMethod: ArchiveCompressionMethod,
     /** Backend-defined method identifier interpreted together with [ArchiveSnapshot.format]. */
     val compressionMethodId: String = compressionMethod.name,
@@ -70,7 +77,10 @@ data class ArchiveEntry(
         get() = capabilities.canOpen
 
     val canExtract: Boolean
-        get() = capabilities.canExtract
+        get() = capabilities.canExtract && isOutputPathSafe
+
+    val isOutputPathSafe: Boolean
+        get() = pathStatus == ArchiveEntryPathStatus.SAFE
 }
 
 data class ArchiveSnapshot(
@@ -81,7 +91,13 @@ data class ArchiveSnapshot(
     val limits: ArchiveSecurityLimits,
     val format: ArchiveFormat = ArchiveFormat.ZIP,
     val readerOptions: ArchiveReaderOptions = ArchiveReaderOptions(),
-)
+    /** Safe virtual root containing flat, read-only representations of unsafe source names. */
+    val isolatedPathRoot: String? = null,
+) {
+    fun isIsolatedPath(path: String): Boolean = isolatedPathRoot?.let { root ->
+        path == root || path.startsWith("$root/")
+    } == true
+}
 
 data class ArchiveNode(
     val path: String,
@@ -99,6 +115,8 @@ data class ResolvedArchiveSelection(
     /** Directories relative to the newly created extraction root, parents first. */
     val directories: List<String>,
     val files: List<ArchiveEntry>,
+    /** Unsafe source names covered by the request but deliberately excluded from output paths. */
+    val skippedUnsafeEntries: List<ArchiveEntry> = emptyList(),
 ) {
     val totalUncompressedBytes: Long = files.sumOf(ArchiveEntry::uncompressedSize)
     val totalEntries: Int = directories.size + files.size
@@ -180,6 +198,7 @@ enum class ArchiveFailureCode {
     WRONG_PASSWORD,
     ENTRY_LIMIT_EXCEEDED,
     INVALID_PATH,
+    UNSAFE_PATH_CONFIRMATION_REQUIRED,
     PATH_LIMIT_EXCEEDED,
     DEPTH_LIMIT_EXCEEDED,
     DUPLICATE_PATH,
@@ -237,6 +256,7 @@ internal val ArchiveFailureCode.defaultStage: ArchiveFailureStage
         ArchiveFailureCode.CRC_MISMATCH,
         ArchiveFailureCode.EMPTY_SELECTION,
         ArchiveFailureCode.UNKNOWN_SELECTION,
+        ArchiveFailureCode.UNSAFE_PATH_CONFIRMATION_REQUIRED,
         -> ArchiveFailureStage.ENTRY_DATA
 
         ArchiveFailureCode.INVALID_DESTINATION_NAME,

@@ -239,6 +239,72 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertFalse(directory.exists())
     }
 
+    @Test
+    fun sessionListsUnsafePathsInAReadOnlyFolderAndStillStreamsTheirData() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = File(context.cacheDir, "archive-input-unsafe-session-test-${UUID.randomUUID()}")
+        assertTrue(directory.mkdirs())
+        val archive = File(directory, "unsafe.zip")
+        val expected = "read-only unsafe preview".toByteArray()
+        ZipOutputStream(FileOutputStream(archive)).use { output ->
+            output.putNextEntry(ZipEntry("../preview.txt"))
+            output.write(expected)
+            output.closeEntry()
+        }
+        val snapshot = ArchiveScanner().scan(archive)
+        assertEquals(ArchiveEntryPathStatus.UNSAFE_ISOLATED, snapshot.entries.single().pathStatus)
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "unsafe.zip",
+            stagedArchive = StagedArchive(archive, archive.length()),
+            snapshot = snapshot,
+            isolatedPathDisplayName = "Quarantined paths",
+            onClosed = {},
+        )
+        try {
+            val rootPage = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            )
+            val isolatedFolder = rootPage
+                .getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+                .orEmpty()
+                .single()
+            assertEquals(
+                ExplorerArchiveSessionValues.KIND_DIRECTORY,
+                isolatedFolder.getInt(ExplorerArchiveSessionKeys.KIND),
+            )
+            assertEquals(
+                "Quarantined paths",
+                isolatedFolder.getString(ExplorerArchiveSessionKeys.NAME),
+            )
+
+            val isolatedPage = session.listChildren(
+                requireNotNull(isolatedFolder.getString(ExplorerArchiveSessionKeys.ID)),
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            )
+            val isolatedEntry = isolatedPage
+                .getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+                .orEmpty()
+                .single()
+            assertEquals("../preview.txt", isolatedEntry.getString(ExplorerArchiveSessionKeys.NAME))
+            assertTrue(isolatedEntry.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+
+            val actual = ParcelFileDescriptor.AutoCloseInputStream(
+                session.openEntry(requireNotNull(isolatedEntry.getString(ExplorerArchiveSessionKeys.ID))),
+            ).use { it.readBytes() }
+            assertEquals(expected.toList(), actual.toList())
+        } finally {
+            session.close()
+        }
+
+        assertFalse(archive.exists())
+        assertFalse(directory.exists())
+    }
+
     private fun createArchive(target: File) {
         ZipOutputStream(FileOutputStream(target)).use { output ->
             output.putNextEntry(ZipEntry("folder/"))

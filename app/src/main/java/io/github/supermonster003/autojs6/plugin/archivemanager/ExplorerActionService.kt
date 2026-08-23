@@ -46,6 +46,7 @@ class ExplorerActionService : Service() {
                     displayName = displayName,
                     stagedArchive = staged,
                     snapshot = snapshot,
+                    isolatedPathDisplayName = getString(R.string.text_unsafe_paths_folder),
                     onClosed = sessions::remove,
                 ).also(sessions::add)
             } catch (error: Throwable) {

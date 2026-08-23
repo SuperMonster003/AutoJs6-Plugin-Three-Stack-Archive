@@ -33,6 +33,7 @@ class ArchivePathPolicyTest {
             "safe/C:/escape.txt",
             "safe/control\u0000.txt",
             "safe/bidi\u202Etxt",
+            "safe/unpaired-\uD800.txt",
         )
 
         invalidPaths.forEach { path ->
@@ -40,6 +41,18 @@ class ArchivePathPolicyTest {
                 ArchivePathPolicy.validateEntryPath(path, isDirectory = false)
             }
         }
+    }
+
+    @Test
+    fun `escapes unsafe source code points for read only display`() {
+        assertEquals(
+            "../folder/bidi\\u202E.txt\\u000A",
+            ArchivePathPolicy.unsafeSourceNameForDisplay("../folder/bidi\u202E.txt\n"),
+        )
+        assertEquals(
+            "(empty name)",
+            ArchivePathPolicy.unsafeSourceNameForDisplay(""),
+        )
     }
 
     @Test

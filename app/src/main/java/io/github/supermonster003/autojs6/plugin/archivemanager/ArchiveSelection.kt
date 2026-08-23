@@ -57,14 +57,20 @@ object ArchiveSelection {
             }
         }
 
+        val safeSelectedEntries = selectedEntries.filter(ArchiveEntry::isOutputPathSafe)
+        val skippedUnsafeEntries = selectedEntries.asSequence()
+            .filterNot(ArchiveEntry::isOutputPathSafe)
+            .sortedBy(ArchiveEntry::ordinal)
+            .toList()
         val directories = LinkedHashSet<String>()
         requestedNodes.values.forEach { selectedNode ->
             selectedNode.takeIf(ArchiveNode::isDirectory)
                 ?.path
                 ?.takeIf(String::isNotEmpty)
+                ?.takeUnless(snapshot::isIsolatedPath)
                 ?.let(directories::add)
         }
-        selectedEntries.forEach { entry ->
+        safeSelectedEntries.forEach { entry ->
             if (entry.isDirectory) directories += entry.path
             addParentDirectories(entry.path, directories)
         }
@@ -76,10 +82,11 @@ object ArchiveSelection {
                     .thenBy { it.lowercase(Locale.ROOT) }
                     .thenBy { it },
             ),
-            files = selectedEntries.asSequence()
+            files = safeSelectedEntries.asSequence()
                 .filterNot(ArchiveEntry::isDirectory)
                 .sortedBy(ArchiveEntry::ordinal)
                 .toList(),
+            skippedUnsafeEntries = skippedUnsafeEntries,
         )
     }
 

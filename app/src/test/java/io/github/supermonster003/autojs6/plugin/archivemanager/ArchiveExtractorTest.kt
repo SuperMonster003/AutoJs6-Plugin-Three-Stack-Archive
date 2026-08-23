@@ -134,6 +134,82 @@ class ArchiveExtractorTest {
     }
 
     @Test
+    fun `unsafe paths require explicit skip confirmation and are never written`() {
+        val source = archive(
+            FixtureEntry("safe.txt", "safe".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("../escape.txt", "escape".toByteArray(), ZipEntry.STORED),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val rejectedWriter = FakeArchiveOutputWriter()
+
+        expectArchiveFailure<ArchiveExtractionException>(
+            ArchiveFailureCode.UNSAFE_PATH_CONFIRMATION_REQUIRED,
+        ) {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(""),
+                    rootName = "rejected",
+                    writer = rejectedWriter,
+                )
+            }
+        }
+        assertEquals(null, rejectedWriter.root)
+
+        val confirmedWriter = FakeArchiveOutputWriter()
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf(""),
+                rootName = "confirmed",
+                writer = confirmedWriter,
+                skipUnsafePaths = true,
+            )
+        }
+
+        assertEquals(1, result.filesExtracted)
+        assertArrayEquals("safe".toByteArray(), confirmedWriter.content("confirmed/safe.txt"))
+        assertEquals(setOf("confirmed/safe.txt"), confirmedWriter.filePaths())
+
+        val isolatedOnlyWriter = FakeArchiveOutputWriter()
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.EMPTY_SELECTION) {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(requireNotNull(snapshot.isolatedPathRoot)),
+                    rootName = "empty",
+                    writer = isolatedOnlyWriter,
+                    skipUnsafePaths = true,
+                )
+            }
+        }
+        assertEquals(null, isolatedOnlyWriter.root)
+    }
+
+    @Test
+    fun `extracts an empty archive as an empty output root`() = runBlocking {
+        val source = archive()
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+
+        val result = ArchiveExtractor().extractToWriter(
+            source = source,
+            snapshot = snapshot,
+            selectedPaths = listOf(""),
+            rootName = "empty-archive",
+            writer = writer,
+        )
+
+        assertEquals(0, result.filesExtracted)
+        assertEquals(0, result.directoriesCreated)
+        assertNotNull(writer.root)
+        assertFalse(writer.rootDeleted)
+    }
+
+    @Test
     fun `cleans the newly created root after cancellation`() {
         val source = archive(FixtureEntry("large.bin", ByteArray(100_000) { 7 }, ZipEntry.STORED))
         val snapshot = ArchiveScanner().scan(source)
@@ -277,6 +353,8 @@ class ArchiveExtractorTest {
         }
 
         fun content(path: String): ByteArray = files.getValue(path).toByteArray()
+
+        fun filePaths(): Set<String> = files.keys.toSet()
 
         data class FakeNode(
             val path: String,

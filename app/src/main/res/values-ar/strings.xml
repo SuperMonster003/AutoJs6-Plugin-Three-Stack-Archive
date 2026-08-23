@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">ضغط...</string>
     <string name="app_name">مدير الأرشيف</string>
     <string name="dialog_button_cancel">إلغاء</string>
+    <string name="dialog_button_skip_unsafe">تخطي والمتابعة</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
+    <string name="dialog_message_skip_unsafe_paths">تستخدم %1$d من عناصر الأرشيف مسارات لا يمكن كتابتها بأمان. تظل متاحة للمعاينة في مجلد المسارات غير الآمنة. هل تريد المتابعة وتخطيها؟</string>
+    <string name="dialog_title_unsafe_paths">مسارات غير آمنة</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
     <string name="error_archive_missing_volumes">وحدات ZIP مفقودة</string>
     <string name="error_archive_limit">يتجاوز الأرشيف حد أمان</string>
@@ -14,6 +17,7 @@
     <string name="error_cleanup_failed">فشل التنظيف; قد تبقى مخرجات جزئية</string>
     <string name="error_extraction_failed">فشل الاستخراج</string>
     <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
+    <string name="error_no_safe_entries">لا يحتوي التحديد على عناصر يمكن استخراجها بأمان</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
     <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
     <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP وTAR ويستخرجها وينشئها</string>
@@ -32,6 +36,8 @@
     <string name="text_selected_count">المحدد: %1$d</string>
     <string name="text_size_details">%1$s, مضغوط %2$s, CRC %3$s</string>
     <string name="text_unknown">غير معروف</string>
+    <string name="text_unsafe_path_read_only">المسار الأصلي غير آمن؛ المعاينة فقط. يتم استبعاده من الاستخراج.</string>
+    <string name="text_unsafe_paths_folder">مسارات غير آمنة</string>
     <string name="text_unsupported_compression_method">يتعذر استخراج طريقة الضغط %1$s</string>
     <string name="text_unsupported_entry_type">يتعذر استخراج نوع الإدخال %1$s</string>
     <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>

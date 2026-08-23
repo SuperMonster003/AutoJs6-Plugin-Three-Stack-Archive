@@ -18,6 +18,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityArchiveManagerBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +43,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var currentDirectory = ArchivePathPolicy.ROOT_PATH
     private val selectedPaths = linkedSetOf<String>()
     private var pendingExtractionPaths: Set<String> = emptySet()
+    private var pendingSkipUnsafePaths = false
     private var pendingOutputTreeUri: Uri? = null
     private var operationJob: Job? = null
     private var renderJob: Job? = null
@@ -58,6 +60,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     ) { treeUri ->
         if (treeUri == null) {
             pendingExtractionPaths = emptySet()
+            pendingSkipUnsafePaths = false
             if (
                 request?.requestedAction == ArchiveRequestedAction.EXTRACT_TO &&
                 selectedPaths == setOf(ArchivePathPolicy.ROOT_PATH)
@@ -102,6 +105,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 outState.putString(STATE_PENDING_OUTPUT_TREE_URI, it.toString())
             }
         }
+        outState.putBoolean(STATE_PENDING_SKIP_UNSAFE_PATHS, pendingSkipUnsafePaths)
         outState.putBoolean(STATE_DIRECT_ACTION_HANDLED, directActionHandled)
         selectedFilenameCharsetName?.let {
             outState.putString(STATE_FILENAME_CHARSET, it)
@@ -130,6 +134,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             },
             onSelectionChanged = { row, checked ->
                 if (checked) selectedPaths += row.path else selectedPaths -= row.path
+                pendingSkipUnsafePaths = false
                 renderEntries()
             },
         )
@@ -247,7 +252,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 source = staged.file,
                 options = readerOptions,
             ) { ensureActive() }.let { scanned ->
-                scanned to ArchiveIndex(scanned)
+                scanned to ArchiveIndex(
+                    scanned,
+                    getString(R.string.text_unsafe_paths_folder),
+                )
             }
         } finally {
             readerOptions.clearPassword()
@@ -479,7 +487,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 }
                 val rows = nodes.mapIndexed { position, node ->
                     if (position % RENDER_CANCELLATION_INTERVAL == 0) ensureActive()
-                    node.toRow(query.isNotEmpty(), selected)
+                    node.toRow(query.isNotEmpty(), selected, archiveIndex)
                 }
                 val selectionCount = if (selected.isEmpty()) {
                     0
@@ -491,7 +499,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 RenderResult(rows, selectionCount)
             }
             if (generation != renderGeneration || isBusy) return@launch
-            binding.currentPath.text = if (query.isEmpty()) "/$directory" else "/"
+            binding.currentPath.text = if (query.isEmpty()) {
+                "/${archiveIndex.displayPath(directory)}"
+            } else {
+                "/"
+            }
             binding.upButton.isEnabled = query.isEmpty() && directory.isNotEmpty()
             binding.message.isVisible = result.rows.isEmpty() || lastFailureDiagnostic != null
             if (result.rows.isEmpty() && lastFailureDiagnostic == null) {
@@ -510,15 +522,26 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private fun ArchiveNode.toRow(
         showFullPath: Boolean,
         selected: Set<String>,
+        archiveIndex: ArchiveIndex,
     ): ArchiveEntryRow {
         val archiveEntry = entry
+        val isUnsafePath = snapshot?.isIsolatedPath(path) == true ||
+            archiveEntry?.isOutputPathSafe == false
         val details = if (isDirectory) {
-            resources.getQuantityString(
-                R.plurals.text_folder_details,
-                descendantFileCount,
-                descendantFileCount,
-                formatBytes(uncompressedSize),
-            )
+            buildString {
+                append(
+                    resources.getQuantityString(
+                        R.plurals.text_folder_details,
+                        descendantFileCount,
+                        descendantFileCount,
+                        formatBytes(uncompressedSize),
+                    ),
+                )
+                if (isUnsafePath) {
+                    append('\n')
+                    append(getString(R.string.text_unsafe_path_read_only))
+                }
+            }
         } else if (archiveEntry != null) {
             buildString {
                 if (snapshot?.format?.isTarFamily == true) {
@@ -538,11 +561,15 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     append('\n')
                     append(getString(R.string.text_modified, formatDate(modified)))
                 }
+                if (isUnsafePath) {
+                    append('\n')
+                    append(getString(R.string.text_unsafe_path_read_only))
+                }
                 if (archiveEntry.isEncrypted) {
                     append('\n')
                     append(
                         getString(
-                            if (archiveEntry.canExtract) {
+                            if (archiveEntry.capabilities.canExtract) {
                                 R.string.text_encrypted_entry_unlocked
                             } else {
                                 R.string.text_encrypted_entry
@@ -550,7 +577,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                             encryptionMethodLabel(archiveEntry.encryptionMethod),
                         ),
                     )
-                } else if (!archiveEntry.canExtract) {
+                } else if (!archiveEntry.capabilities.canExtract) {
                     append('\n')
                     append(
                         getString(
@@ -572,22 +599,23 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
         return ArchiveEntryRow(
             path = path,
-            displayName = if (showFullPath) path else name,
+            displayName = if (showFullPath) archiveIndex.displayPath(path) else name,
             details = details,
             isDirectory = isDirectory,
-            isBlocked = archiveEntry?.canExtract == false,
+            isBlocked = isUnsafePath || archiveEntry?.canExtract == false,
             isSelected = path in selected,
         )
     }
 
     private fun selectAllVisibleEntries() {
+        pendingSkipUnsafePaths = false
         adapter.currentList.forEach { row ->
             if (!row.isBlocked) selectedPaths += row.path
         }
         renderEntries()
     }
 
-    private fun chooseExtractionDestination() {
+    private fun chooseExtractionDestination(skipUnsafePathsConfirmed: Boolean = false) {
         val archive = snapshot
         val archiveIndex = index
         if (archive == null || archiveIndex == null || selectedPaths.isEmpty()) {
@@ -595,17 +623,54 @@ class ArchiveManagerActivity : AppCompatActivity() {
             return
         }
         pendingExtractionPaths = selectedPaths.toSet()
-        val passwordRequired = runCatching {
-            ArchiveSelection.resolve(archive, pendingExtractionPaths, archiveIndex).files.any {
-                it.isEncrypted && !archive.readerOptions.hasPassword
-            }
-        }.getOrDefault(false)
+        val selection = try {
+            ArchiveSelection.resolve(archive, pendingExtractionPaths, archiveIndex)
+        } catch (error: Throwable) {
+            pendingExtractionPaths = emptySet()
+            showFailure(
+                error = error,
+                headline = headlineForExtractionFailure(error),
+                formatHint = archive.format,
+                stageHint = ArchiveFailureStage.ENTRY_DATA,
+            )
+            return
+        }
+        if (selection.totalEntries == 0 && selection.skippedUnsafeEntries.isNotEmpty()) {
+            pendingExtractionPaths = emptySet()
+            pendingSkipUnsafePaths = false
+            showMessage(getString(R.string.error_no_safe_entries))
+            return
+        }
+        val passwordRequired = selection.files.any {
+            it.isEncrypted && !archive.readerOptions.hasPassword
+        }
         if (passwordRequired) {
             binding.archivePasswordLayout.error = getString(R.string.error_password_required)
             showMessage(getString(R.string.error_password_required))
             focusArchivePassword()
             return
         }
+        if (selection.skippedUnsafeEntries.isNotEmpty() && !skipUnsafePathsConfirmed) {
+            pendingSkipUnsafePaths = false
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.dialog_title_unsafe_paths)
+                .setMessage(
+                    getString(
+                        R.string.dialog_message_skip_unsafe_paths,
+                        selection.skippedUnsafeEntries.size,
+                    ),
+                )
+                .setNegativeButton(R.string.dialog_button_cancel) { _, _ ->
+                    pendingExtractionPaths = emptySet()
+                    pendingSkipUnsafePaths = false
+                }
+                .setPositiveButton(R.string.dialog_button_skip_unsafe) { _, _ ->
+                    chooseExtractionDestination(skipUnsafePathsConfirmed = true)
+                }
+                .show()
+            return
+        }
+        pendingSkipUnsafePaths = selection.skippedUnsafeEntries.isNotEmpty()
         outputTreeLauncher.launch(null)
     }
 
@@ -618,6 +683,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
         directActionHandled = true
         selectedPaths.clear()
+        pendingSkipUnsafePaths = false
         selectedPaths += ArchivePathPolicy.ROOT_PATH
         renderEntries()
         chooseExtractionDestination()
@@ -638,7 +704,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
         val staged = stagedArchive ?: return
         val archive = snapshot ?: return
         val paths = pendingExtractionPaths.takeIf(Set<String>::isNotEmpty) ?: return
+        val skipUnsafePaths = pendingSkipUnsafePaths
         pendingExtractionPaths = emptySet()
+        pendingSkipUnsafePaths = false
         setBusy(true, getString(R.string.text_extracting, 0, 0), cancellable = true)
         operationJob = lifecycleScope.launch {
             try {
@@ -655,6 +723,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         selectedPaths = paths,
                         treeUri = treeUri,
                         rootName = rootName,
+                        skipUnsafePaths = skipUnsafePaths,
                         progress = ArchiveProgressListener { update ->
                             when (update.phase) {
                                 ExtractionPhase.CLEANING_UP -> postUiUpdate {
@@ -813,6 +882,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
             .toSet()
         pendingOutputTreeUri = savedInstanceState.getString(STATE_PENDING_OUTPUT_TREE_URI)
             ?.let(Uri::parse)
+        pendingSkipUnsafePaths = savedInstanceState.getBoolean(
+            STATE_PENDING_SKIP_UNSAFE_PATHS,
+            false,
+        )
         directActionHandled = savedInstanceState.getBoolean(STATE_DIRECT_ACTION_HANDLED, false)
         selectedFilenameCharsetName = savedInstanceState.getString(STATE_FILENAME_CHARSET)
             ?.take(MAX_FILENAME_CHARSET_LENGTH)
@@ -908,6 +981,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 ArchiveFailureCode.WRONG_PASSWORD,
                 -> R.string.error_reason_password
                 ArchiveFailureCode.INVALID_PATH,
+                ArchiveFailureCode.UNSAFE_PATH_CONFIRMATION_REQUIRED,
                 ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
                 ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
                 ArchiveFailureCode.DUPLICATE_PATH,
@@ -986,6 +1060,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val STATE_FILENAME_CHARSET = "filename_charset"
         const val STATE_PENDING_EXTRACTION_PATHS = "pending_extraction_paths"
         const val STATE_PENDING_OUTPUT_TREE_URI = "pending_output_tree_uri"
+        const val STATE_PENDING_SKIP_UNSAFE_PATHS = "pending_skip_unsafe_paths"
         const val STATE_SELECTED_PATHS = "selected_paths"
     }
 }

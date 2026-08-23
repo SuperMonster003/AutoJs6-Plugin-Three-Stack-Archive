@@ -19,6 +19,7 @@ internal class ExplorerArchiveSession(
     private val displayName: String,
     private val stagedArchive: StagedArchive,
     private val snapshot: ArchiveSnapshot,
+    private val isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
     private val onClosed: (ExplorerArchiveSession) -> Unit,
 ) : IExplorerArchiveSession.Stub() {
 
@@ -41,7 +42,7 @@ internal class ExplorerArchiveSession(
     }
 
     init {
-        val index = ArchiveIndex(snapshot)
+        val index = ArchiveIndex(snapshot, isolatedPathDisplayName)
         val nodesByPath = LinkedHashMap<String, SessionNode>()
         val mutableNodesById = LinkedHashMap<String, SessionNode>()
         val mutableChildren = LinkedHashMap<String, MutableList<SessionNode>>()

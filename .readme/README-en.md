@@ -41,6 +41,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
+- Put parent-traversal, absolute, drive-prefixed, or control-character names in a path-bar-visible Unsafe paths folder; readable data remains previewable, while whole-archive extraction requires explicitly skipping those entries and leaves normal entries unaffected.
 - Browse, preview, and extract uncompressed TAR files; symbolic links, hard links, device nodes, and sparse entries are listed but never written as ordinary files.
 - Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives with the same internal paths, special-entry isolation, and integrity checks.
 - Browse, preview, and extract ordinary or solid 7Z archives, including common compression/filter pipelines plus content- and header-encrypted inputs; missing and wrong passwords receive explicit diagnostics.
@@ -108,6 +109,7 @@ _Unreleased_
 - `Added` Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST through the same native host paths; format detection verifies both the compressor signature and inner TAR structure
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` Standard `.z01 + .zip` split ZIP files now identify the required earlier volumes instead of reporting the final volume as damaged
+- `Fixed` Archives containing parent traversal, absolute, drive-prefixed, or control-character names remain browsable; unsafe names move to a read-only isolation folder, remain previewable when their data is readable, and require explicit skipping before extraction
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
 - `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems

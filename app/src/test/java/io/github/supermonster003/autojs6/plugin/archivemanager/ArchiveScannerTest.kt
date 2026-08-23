@@ -9,6 +9,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.charset.Charset
@@ -234,7 +235,7 @@ class ArchiveScannerTest {
     }
 
     @Test
-    fun `rejects non archive signatures and unsafe names`() {
+    fun `rejects non archive signatures`() {
         val plain = temporaryFolder.newFile("plain.zip").apply { writeText("not a zip") }
         val error = expectArchiveFailure<ArchiveValidationException>(
             ArchiveFailureCode.INVALID_SIGNATURE,
@@ -243,10 +244,84 @@ class ArchiveScannerTest {
         }
         assertEquals(null, error.format)
         assertEquals(ArchiveFailureStage.FORMAT_DETECTION, error.stage)
+    }
 
-        val traversal = archive(FixtureEntry("../escape", byteArrayOf(1)))
-        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
-            ArchiveScanner().scan(traversal)
+    @Test
+    fun `isolates unsafe names while keeping safe entries browsable and previewable`() {
+        val source = archive(
+            FixtureEntry("good.txt", "good".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("../escape.txt", "traversal".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("/absolute.txt", "absolute".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("C:/drive.txt", "drive".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("bidi\u202Ename.txt", "bidi".toByteArray(), ZipEntry.STORED),
+        )
+
+        val snapshot = ArchiveScanner().scan(source)
+        val isolatedRoot = requireNotNull(snapshot.isolatedPathRoot)
+        val safeEntry = snapshot.entries.single { it.sourceName == "good.txt" }
+        val isolatedEntries = snapshot.entries.filter {
+            it.pathStatus == ArchiveEntryPathStatus.UNSAFE_ISOLATED
+        }
+
+        assertEquals("good.txt", safeEntry.path)
+        assertTrue(safeEntry.canExtract)
+        assertEquals(4, isolatedEntries.size)
+        assertTrue(isolatedEntries.all { it.path.startsWith("$isolatedRoot/") })
+        assertTrue(isolatedEntries.all(ArchiveEntry::canOpen))
+        assertTrue(isolatedEntries.none(ArchiveEntry::canExtract))
+        assertEquals(
+            "bidi\\u202Ename.txt",
+            isolatedEntries.single { it.sourceName.startsWith("bidi") }.displayName,
+        )
+
+        val traversal = isolatedEntries.single { it.sourceName == "../escape.txt" }
+        val output = ByteArrayOutputStream()
+        ArchiveEntryStreamer(source, snapshot).stream(traversal, output)
+        assertEquals("traversal", output.toString(Charsets.UTF_8.name()))
+
+        val index = ArchiveIndex(snapshot, "Quarantined paths")
+        assertEquals(
+            listOf("Quarantined paths", "good.txt"),
+            index.children().map(ArchiveNode::name),
+        )
+        assertEquals(
+            setOf("../escape.txt", "/absolute.txt", "C:/drive.txt", "bidi\\u202Ename.txt"),
+            index.children(isolatedRoot).map(ArchiveNode::name).toSet(),
+        )
+        assertEquals("Quarantined paths", index.displayPath(isolatedRoot))
+        assertEquals(listOf("../escape.txt"), index.search("escape").map(ArchiveNode::name))
+    }
+
+    @Test
+    fun `isolated virtual root never collides with a safe archive path`() {
+        val source = archive(
+            FixtureEntry(
+                "${ArchivePathPolicy.ISOLATED_PATH_ROOT_BASENAME}/legit.txt",
+                "legit".toByteArray(),
+                ZipEntry.STORED,
+            ),
+            FixtureEntry("../escape.txt", "escape".toByteArray(), ZipEntry.STORED),
+        )
+
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(
+            "${ArchivePathPolicy.ISOLATED_PATH_ROOT_BASENAME}-2",
+            snapshot.isolatedPathRoot,
+        )
+        assertTrue(snapshot.entries.map(ArchiveEntry::path).distinct().size == 2)
+    }
+
+    @Test
+    fun `path resource limits still fail instead of entering read only isolation`() {
+        val tooLong = archive(FixtureEntry("a".repeat(65), byteArrayOf(1), ZipEntry.STORED))
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.PATH_LIMIT_EXCEEDED) {
+            ArchiveScanner(ArchiveSecurityLimits(maxPathLength = 64)).scan(tooLong)
+        }
+
+        val tooDeep = archive(FixtureEntry("a/b/c.txt", byteArrayOf(1), ZipEntry.STORED))
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED) {
+            ArchiveScanner(ArchiveSecurityLimits(maxDepth = 2)).scan(tooDeep)
         }
     }
 

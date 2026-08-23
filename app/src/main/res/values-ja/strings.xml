@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">圧縮...</string>
     <string name="app_name">アーカイブマネージャー</string>
     <string name="dialog_button_cancel">キャンセル</string>
+    <string name="dialog_button_skip_unsafe">スキップして続行</string>
     <string name="dialog_button_select_all">すべて選択</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d 件のエントリに安全に書き出せないパスがあります。これらは「安全でないパス」フォルダーで引き続きプレビューできます。スキップして続行しますか?</string>
+    <string name="dialog_title_unsafe_paths">安全でないパス</string>
     <string name="error_archive_invalid">アーカイブが無効か未対応です</string>
     <string name="error_archive_missing_volumes">ZIP の分割ファイルがありません</string>
     <string name="error_archive_limit">アーカイブが安全制限を超えています</string>
@@ -14,6 +17,7 @@
     <string name="error_cleanup_failed">クリーンアップに失敗しました; 一部の出力が残っている可能性があります</string>
     <string name="error_extraction_failed">展開に失敗しました</string>
     <string name="error_no_selection">1 件以上のエントリを選択してください</string>
+    <string name="error_no_safe_entries">選択範囲に安全に展開できるエントリがありません</string>
     <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
     <string name="error_with_reason">%1$s\n理由: %2$s</string>
     <string name="plugin_description">ファイルマネージャープラグイン. ZIP/TAR の閲覧、展開、作成</string>
@@ -32,6 +36,8 @@
     <string name="text_selected_count">選択済み: %1$d</string>
     <string name="text_size_details">%1$s, 圧縮時 %2$s, CRC %3$s</string>
     <string name="text_unknown">不明</string>
+    <string name="text_unsafe_path_read_only">元のパスは安全ではありません。プレビュー専用で、展開から除外されます。</string>
+    <string name="text_unsafe_paths_folder">安全でないパス</string>
     <string name="text_unsupported_compression_method">圧縮方式 %1$s は展開できません</string>
     <string name="text_unsupported_entry_type">エントリ形式 %1$s は展開できません</string>
     <string name="error_archive_file_name_invalid">有効なアーカイブファイル名を入力してください</string>

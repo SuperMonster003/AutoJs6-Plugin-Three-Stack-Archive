@@ -89,6 +89,41 @@ object ArchivePathPolicy {
 
     fun collisionKey(path: String): String = path
 
+    internal fun isolatedEntryPath(
+        root: String,
+        ordinal: Int,
+        isDirectory: Boolean,
+        limits: ArchiveSecurityLimits = ArchiveSecurityLimits.DEFAULT,
+    ): ValidatedArchivePath {
+        require(ordinal >= 0)
+        val entryNumber = ordinal.toLong() + 1L
+        val leaf = "entry-${entryNumber.toString().padStart(ISOLATED_ENTRY_NUMBER_WIDTH, '0')}"
+        return validateEntryPath("$root/$leaf", isDirectory, limits)
+    }
+
+    internal fun unsafeSourceNameForDisplay(sourceName: String): String {
+        if (sourceName.isEmpty()) return EMPTY_SOURCE_NAME_DISPLAY
+        val result = StringBuilder(sourceName.length.coerceAtMost(MAX_UNSAFE_DISPLAY_NAME_LENGTH))
+        var offset = 0
+        while (offset < sourceName.length && result.length < MAX_UNSAFE_DISPLAY_NAME_LENGTH) {
+            val codePoint = sourceName.codePointAt(offset)
+            val escaped = when {
+                isUnsafeCodePoint(codePoint) || Character.getType(codePoint) == Character.SURROGATE.toInt() ->
+                    if (codePoint <= 0xFFFF) {
+                        "\\u${codePoint.toString(16).uppercase().padStart(4, '0')}"
+                    } else {
+                        "\\U${codePoint.toString(16).uppercase().padStart(8, '0')}"
+                    }
+                else -> String(Character.toChars(codePoint))
+            }
+            if (result.length + escaped.length > MAX_UNSAFE_DISPLAY_NAME_LENGTH) break
+            result.append(escaped)
+            offset += Character.charCount(codePoint)
+        }
+        if (offset < sourceName.length) result.append("...")
+        return result.toString().ifEmpty { EMPTY_SOURCE_NAME_DISPLAY }
+    }
+
     private fun hasDrivePrefix(segment: String): Boolean =
         segment.length >= 2 && segment[0].isAsciiLetter() && segment[1] == ':'
 
@@ -98,16 +133,20 @@ object ArchivePathPolicy {
         var offset = 0
         while (offset < value.length) {
             val codePoint = value.codePointAt(offset)
-            when (Character.getType(codePoint)) {
-                Character.CONTROL.toInt(),
-                Character.FORMAT.toInt(),
-                Character.LINE_SEPARATOR.toInt(),
-                Character.PARAGRAPH_SEPARATOR.toInt(),
-                -> return true
-            }
+            if (isUnsafeCodePoint(codePoint)) return true
             offset += Character.charCount(codePoint)
         }
         return false
+    }
+
+    private fun isUnsafeCodePoint(codePoint: Int): Boolean = when (Character.getType(codePoint)) {
+        Character.CONTROL.toInt(),
+        Character.FORMAT.toInt(),
+        Character.LINE_SEPARATOR.toInt(),
+        Character.PARAGRAPH_SEPARATOR.toInt(),
+        Character.SURROGATE.toInt(),
+        -> true
+        else -> false
     }
 
     private fun invalid(
@@ -120,4 +159,9 @@ object ArchivePathPolicy {
     ): Nothing = throw ArchiveValidationException(code, message)
 
     const val ROOT_PATH = ""
+    internal const val ISOLATED_PATH_ROOT_BASENAME = "__archive_manager_unsafe_paths__"
+    internal const val DEFAULT_ISOLATED_PATH_DISPLAY_NAME = "Unsafe paths"
+    private const val EMPTY_SOURCE_NAME_DISPLAY = "(empty name)"
+    private const val ISOLATED_ENTRY_NUMBER_WIDTH = 6
+    private const val MAX_UNSAFE_DISPLAY_NAME_LENGTH = 512
 }

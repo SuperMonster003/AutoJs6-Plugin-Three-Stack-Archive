@@ -140,6 +140,8 @@ session.close()
 
 当前 ZIP、7Z 与 TAR 族实现把输入描述符暂存到插件私有缓存, 只扫描目录元数据并建立索引. 7Z 支持普通/solid、常见压缩与过滤器链以及 AES 内容/头部加密读取; TAR 族包括 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST. 页大小最大为 128; 宿主会持续取页直到 `complete`, 同时验证条目数、ID、父子关系、名称、类型、大小和分页游标. 插件不会把缓存路径或真实档案内部路径暴露给宿主, 条目使用会话内不透明 ID.
 
+目录索引只把严格通过路径策略的名称映射为正常虚拟路径. 父级穿越、绝对路径、驱动器前缀、控制字符、双向文本控制符或空名称等 `INVALID_PATH` 条目会被平铺到一个独立的只读隔离目录: 会话 ID 由安全序号路径生成, 与原始名称无关; 宿主只收到经可见转义的显示名. 后端数据可读时 `openEntry` 仍可通过不透明 ID 预览, 但条目能力始终拒绝写出. 隔离根会避开档案内的合法同名路径, 并作为普通目录层级进入宿主现有路径栏. 路径长度、层级、条目数和展开节点数仍是结构资源边界, 不会被隔离机制静默降级.
+
 v6 的 `openEntry` 追加在 v5 AIDL 方法之后, 因此 v5 的 `getInfo`、`listChildren` 和 `close` 事务编号保持不变. `canOpenEntries` 缺失或为 `false` 时, 宿主继续提供 v5 浏览但不显示预览入口, 也不会调用新方法.
 
 打开条目时, 插件根据不透明 ID 找回扫描快照中的普通文件, 重新打开对应后端并核对源文件身份、目录元数据、条目类型与声明大小; ZIP 继续核对压缩方法、加密状态和 CRC, 7Z 继续核对方法链、加密状态、声明大小和 CRC, TAR 继续核对可见头部校验和及条目元数据. 数据经可靠只读管道发送; 关闭会话会中止排队或进行中的管道. 宿主仅把支持现有主动作的文档、图片或媒体条目复制到自己的私有会话缓存, 并在发布缓存文件前核对准确字节数和可用空间. 文档沿用 8 MiB 限制, 图片和媒体目前分别使用 256 MiB 与 512 MiB 预览预算; 这些限制只影响预览, 不影响目录浏览.
@@ -241,6 +243,8 @@ cancelTask(taskId)
 
 每个条目需要独立的 `canOpen`/`canExtract`/`canDelete` 等能力与不可用原因. `entryId` 不能只由规范化路径生成, 因为真实档案可能包含重复名称、原始编码差异或同名文件/目录.
 
+`ArchiveEntryPathStatus` 与后端 `ArchiveEntryCapabilities` 分开表达. `UNSAFE_ISOLATED` 不会撤销后端的只读 `canOpen`, 但有效 `canExtract` 必定为 `false`. 根目录或其他正常选择解析时会把这类条目放入 `skippedUnsafeEntries`, 不会把隔离目录或其虚拟序号写到目标. 管理/解压页必须展示数量并由用户选择“跳过并继续”; 解压器默认返回 `UNSAFE_PATH_CONFIRMATION_REQUIRED`, 只有调用方显式传入 `skipUnsafePaths` 才能继续写出其余安全条目. 仅选择危险条目时返回空安全选择, 不创建空输出根.
+
 ## 格式能力模型
 
 插件已经通过 `ArchiveEngine` 统一扫描、预览、解压和创建链路. `ArchiveFormat` 提供格式标识、扩展名和 MIME 类型; `ArchiveReader`/`ArchiveWriter` 隔离具体库; `FormatCapabilities` 与 `ArchiveEntryCapabilities` 分别表达格式级和条目级真实能力. ZIP 字符集探测和底层目录对象只存在于 ZIP 后端内部.
@@ -278,6 +282,7 @@ FormatCapabilities
 
 - 目标根目录与规范路径约束;
 - Zip Slip/绝对路径/驱动器路径和符号链接越界防护;
+- 危险原始名称只读隔离、可见字符转义和写出前显式跳过确认;
 - Binder 调用 UID 固定与最小 URI/文件描述符授权;
 - 输出暂存、失败清理及不覆盖既有文件的事务规则;
 - 密码不写日志、不进状态 Bundle、不持久化;

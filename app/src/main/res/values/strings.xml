@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>
     <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_skip_unsafe">Skip and continue</string>
     <string name="dialog_button_select_all">Select all</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
+    <string name="dialog_title_unsafe_paths">Unsafe paths</string>
     <string name="error_archive_invalid">The archive is invalid or unsupported</string>
     <string name="error_archive_missing_volumes">ZIP volumes are missing</string>
     <string name="error_archive_limit">The archive exceeds a safety limit</string>
@@ -17,6 +20,7 @@
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
     <string name="error_extraction_failed">Extraction failed</string>
     <string name="error_no_selection">Select at least one entry</string>
+    <string name="error_no_safe_entries">The selection contains no entries that can be extracted safely</string>
     <string name="error_password_incorrect">The archive password is incorrect</string>
     <string name="error_password_required">Enter the archive password</string>
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
@@ -69,6 +73,8 @@
     <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
     <string name="text_split_volume">Split volume (MiB)</string>
     <string name="text_unknown">Unknown</string>
+    <string name="text_unsafe_path_read_only">Unsafe original path; preview only. It is excluded from extraction.</string>
+    <string name="text_unsafe_paths_folder">Unsafe paths</string>
     <string name="text_unsupported_compression_method">Compression method %1$s cannot be extracted</string>
     <string name="text_unsupported_entry_type">Entry type %1$s cannot be extracted</string>
     <string name="text_encryption_unavailable_for_format">Password and filename encryption are not available for %1$s.</string>

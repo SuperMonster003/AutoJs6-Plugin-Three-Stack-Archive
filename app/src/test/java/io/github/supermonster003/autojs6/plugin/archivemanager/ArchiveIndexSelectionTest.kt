@@ -84,6 +84,35 @@ class ArchiveIndexSelectionTest {
     }
 
     @Test
+    fun `selection separates isolated unsafe paths from writable output`() {
+        val unsafeSnapshot = ArchiveScanner().scan(
+            writeZip(
+                temporaryFolder.newFile("unsafe-selection.zip"),
+                FixtureEntry("safe.txt", "safe".toByteArray(), ZipEntry.STORED),
+                FixtureEntry("../escape.txt", "escape".toByteArray(), ZipEntry.STORED),
+            ),
+        )
+        val isolatedRoot = requireNotNull(unsafeSnapshot.isolatedPathRoot)
+
+        val rootSelection = ArchiveSelection.resolve(unsafeSnapshot, listOf(""))
+        assertEquals(listOf("safe.txt"), rootSelection.files.map(ArchiveEntry::path))
+        assertEquals(
+            listOf("../escape.txt"),
+            rootSelection.skippedUnsafeEntries.map(ArchiveEntry::sourceName),
+        )
+        assertTrue(isolatedRoot !in rootSelection.directories)
+
+        val isolatedSelection = ArchiveSelection.resolve(unsafeSnapshot, listOf(isolatedRoot))
+        assertTrue(isolatedSelection.files.isEmpty())
+        assertTrue(isolatedSelection.directories.isEmpty())
+        assertEquals(0, isolatedSelection.totalEntries)
+        assertEquals(
+            listOf("../escape.txt"),
+            isolatedSelection.skippedUnsafeEntries.map(ArchiveEntry::sourceName),
+        )
+    }
+
+    @Test
     fun `rejects crafted snapshots that exceed the path node limit`() {
         val entry = ArchiveEntry(
             path = "one/two/file.bin",

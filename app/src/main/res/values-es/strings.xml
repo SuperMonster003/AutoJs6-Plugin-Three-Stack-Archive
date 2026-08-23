@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
     <string name="app_name">Gestor de archivos comprimidos</string>
     <string name="dialog_button_cancel">Cancelar</string>
+    <string name="dialog_button_skip_unsafe">Omitir y continuar</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d entradas del archivo usan rutas que no se pueden escribir de forma segura. Siguen disponibles para vista previa en la carpeta Rutas no seguras. ¿Continuar y omitirlas?</string>
+    <string name="dialog_title_unsafe_paths">Rutas no seguras</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
     <string name="error_archive_missing_volumes">Faltan volúmenes ZIP</string>
     <string name="error_archive_limit">El archivo supera un límite de seguridad</string>
@@ -14,6 +17,7 @@
     <string name="error_cleanup_failed">Error de limpieza; puede quedar una salida parcial</string>
     <string name="error_extraction_failed">Error de extracción</string>
     <string name="error_no_selection">Selecciona al menos una entrada</string>
+    <string name="error_no_safe_entries">La selección no contiene entradas que se puedan extraer de forma segura</string>
     <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
     <string name="error_with_reason">%1$s\nMotivo: %2$s</string>
     <string name="plugin_description">Complemento del gestor de archivos. Explora, extrae y crea archivos ZIP y TAR</string>
@@ -32,6 +36,8 @@
     <string name="text_selected_count">Seleccionadas: %1$d</string>
     <string name="text_size_details">%1$s, comprimido %2$s, CRC %3$s</string>
     <string name="text_unknown">Desconocido</string>
+    <string name="text_unsafe_path_read_only">Ruta original no segura; solo vista previa. Se excluye de la extracción.</string>
+    <string name="text_unsafe_paths_folder">Rutas no seguras</string>
     <string name="text_unsupported_compression_method">No se puede extraer el método de compresión %1$s</string>
     <string name="text_unsupported_entry_type">No se puede extraer el tipo de entrada %1$s</string>
     <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>

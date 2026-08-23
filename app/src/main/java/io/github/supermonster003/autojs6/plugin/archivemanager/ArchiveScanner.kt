@@ -23,11 +23,13 @@ internal class ArchiveScanner @JvmOverloads constructor(
         }
         val sourceLength = source.length()
         val sourceLastModifiedMillis = source.lastModified()
+        val candidates = ArrayList<ScannedEntryCandidate>()
         val entries = ArrayList<ArchiveEntry>()
         val pathRegistry = PathRegistry(limits.maxEntries)
         var totalUncompressedBytes = 0L
         var detectedFormat: ArchiveFormat? = null
         var readerOptions: ArchiveReaderOptions? = null
+        var isolatedPathRoot: String? = null
 
         try {
             cancellationCheck()
@@ -36,20 +38,18 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 readerOptions = reader.options.retainedCopy()
                 reader.entries.forEach { readerEntry ->
                     cancellationCheck()
-                    if (entries.size >= limits.maxEntries) {
+                    if (candidates.size >= limits.maxEntries) {
                         fail(
                             ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
                             "Archive contains more than ${limits.maxEntries} entries",
                         )
                     }
 
-                    val ordinal = entries.size
-                    val validatedPath = ArchivePathPolicy.validateEntryPath(
-                        sourceName = readerEntry.name,
-                        isDirectory = readerEntry.isDirectory,
-                        limits = limits,
-                    )
-                    pathRegistry.register(validatedPath, readerEntry.isDirectory)
+                    val ordinal = candidates.size
+                    val validatedPath = validatePathForListing(readerEntry)
+                    if (validatedPath != null) {
+                        pathRegistry.register(validatedPath, readerEntry.isDirectory)
+                    }
 
                     validateDeclaredMetadata(readerEntry)
                     if (readerEntry.isDirectory && readerEntry.size != 0L) {
@@ -57,11 +57,36 @@ internal class ArchiveScanner @JvmOverloads constructor(
                     }
                     totalUncompressedBytes = checkedMetadataTotal(totalUncompressedBytes, readerEntry.size)
 
-                    entries += ArchiveEntry(
-                        path = validatedPath.path,
-                        sourceName = readerEntry.name,
-                        displayName = validatedPath.displayName,
+                    candidates += ScannedEntryCandidate(ordinal, readerEntry, validatedPath)
+                }
+                isolatedPathRoot = candidates
+                    .takeIf { scannedEntries -> scannedEntries.any { it.validatedPath == null } }
+                    ?.let { pathRegistry.allocateIsolatedRoot() }
+                candidates.forEach { candidate ->
+                    val readerEntry = candidate.readerEntry
+                    val pathStatus = if (candidate.validatedPath == null) {
+                        ArchiveEntryPathStatus.UNSAFE_ISOLATED
+                    } else {
+                        ArchiveEntryPathStatus.SAFE
+                    }
+                    val resolvedPath = candidate.validatedPath ?: ArchivePathPolicy.isolatedEntryPath(
+                        root = requireNotNull(isolatedPathRoot),
+                        ordinal = candidate.ordinal,
                         isDirectory = readerEntry.isDirectory,
+                        limits = limits,
+                    ).also { path ->
+                        pathRegistry.register(path, readerEntry.isDirectory)
+                    }
+                    entries += ArchiveEntry(
+                        path = resolvedPath.path,
+                        sourceName = readerEntry.name,
+                        displayName = if (pathStatus == ArchiveEntryPathStatus.SAFE) {
+                            resolvedPath.displayName
+                        } else {
+                            ArchivePathPolicy.unsafeSourceNameForDisplay(readerEntry.name)
+                        },
+                        isDirectory = readerEntry.isDirectory,
+                        pathStatus = pathStatus,
                         compressionMethod = readerEntry.compressionMethod,
                         compressionMethodId = readerEntry.compressionMethodId,
                         isEncrypted = readerEntry.isEncrypted,
@@ -71,7 +96,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
                         uncompressedSize = readerEntry.size,
                         crc32 = readerEntry.crc,
                         modifiedTimeMillis = readerEntry.time,
-                        ordinal = ordinal,
+                        ordinal = candidate.ordinal,
                     )
                 }
             }
@@ -141,7 +166,18 @@ internal class ArchiveScanner @JvmOverloads constructor(
             limits = limits,
             format = requireNotNull(detectedFormat),
             readerOptions = requireNotNull(readerOptions),
+            isolatedPathRoot = isolatedPathRoot,
         )
+    }
+
+    private fun validatePathForListing(entry: ArchiveReaderEntry): ValidatedArchivePath? = try {
+        ArchivePathPolicy.validateEntryPath(
+            sourceName = entry.name,
+            isDirectory = entry.isDirectory,
+            limits = limits,
+        )
+    } catch (error: ArchiveValidationException) {
+        if (error.code == ArchiveFailureCode.INVALID_PATH) null else throw error
     }
 
     private fun validateDeclaredMetadata(entry: ArchiveReaderEntry) {
@@ -164,6 +200,27 @@ internal class ArchiveScanner @JvmOverloads constructor(
         private val explicitEntries = HashMap<String, RegisteredPath>()
         private val fileKeys = HashSet<String>()
         private val directoryRepresentatives = HashMap<String, String>()
+
+        fun allocateIsolatedRoot(): String {
+            for (suffix in 1L..maxNodes.toLong()) {
+                val candidate = if (suffix == 1L) {
+                    ArchivePathPolicy.ISOLATED_PATH_ROOT_BASENAME
+                } else {
+                    "${ArchivePathPolicy.ISOLATED_PATH_ROOT_BASENAME}-$suffix"
+                }
+                val path = ArchivePathPolicy.validateEntryPath(
+                    candidate,
+                    isDirectory = true,
+                )
+                if (path.collisionKey !in fileKeys && path.collisionKey !in directoryRepresentatives) {
+                    return path.path
+                }
+            }
+            fail(
+                ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+                "Archive has no available path for isolated unsafe entries",
+            )
+        }
 
         fun register(path: ValidatedArchivePath, isDirectory: Boolean) {
             explicitEntries[path.collisionKey]?.let { existing ->
@@ -235,6 +292,12 @@ internal class ArchiveScanner @JvmOverloads constructor(
     private data class RegisteredPath(
         val path: String,
         val isDirectory: Boolean,
+    )
+
+    private data class ScannedEntryCandidate(
+        val ordinal: Int,
+        val readerEntry: ArchiveReaderEntry,
+        val validatedPath: ValidatedArchivePath?,
     )
 }
 

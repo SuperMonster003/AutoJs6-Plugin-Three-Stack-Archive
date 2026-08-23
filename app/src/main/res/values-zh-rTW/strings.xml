@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>
     <string name="app_name">壓縮檔管理器</string>
     <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_skip_unsafe">略過並繼續</string>
     <string name="dialog_button_select_all">全選</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d 個檔案項目使用了無法安全寫出的路徑. 它們仍可在「危險路徑」資料夾中預覽. 是否繼續並略過這些項目?</string>
+    <string name="dialog_title_unsafe_paths">危險路徑</string>
     <string name="error_archive_invalid">壓縮檔無效或不支援</string>
     <string name="error_archive_missing_volumes">缺少 ZIP 分割檔</string>
     <string name="error_archive_limit">壓縮檔超過安全限制</string>
@@ -14,6 +17,7 @@
     <string name="error_cleanup_failed">清理失敗; 可能仍有部分輸出</string>
     <string name="error_extraction_failed">解壓縮失敗</string>
     <string name="error_no_selection">請至少選取一個項目</string>
+    <string name="error_no_safe_entries">所選內容中沒有可安全解壓縮的項目</string>
     <string name="error_permission_missing">缺少壓縮檔讀取權限</string>
     <string name="plugin_description">檔案管理器外掛程式. 瀏覽、解壓縮與建立 ZIP 及 TAR 壓縮檔</string>
     <string name="text_cancelled">已取消</string>
@@ -30,6 +34,8 @@
     <string name="text_selected_count">已選取: %1$d</string>
     <string name="text_size_details">%1$s, 壓縮後 %2$s, CRC %3$s</string>
     <string name="text_unknown">未知</string>
+    <string name="text_unsafe_path_read_only">原始路徑不安全; 僅可預覽, 解壓縮時將被排除.</string>
+    <string name="text_unsafe_paths_folder">危險路徑</string>
     <string name="text_unsupported_compression_method">無法解壓縮方法 %1$s</string>
     <string name="text_unsupported_entry_type">無法解壓縮項目類型 %1$s</string>
     <string name="error_archive_file_name_invalid">請輸入有效的壓縮檔名稱</string>

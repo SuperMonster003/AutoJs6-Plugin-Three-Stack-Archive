@@ -5,7 +5,10 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compresser...</string>
     <string name="app_name">Gestionnaire d\'archives</string>
     <string name="dialog_button_cancel">Annuler</string>
+    <string name="dialog_button_skip_unsafe">Ignorer et continuer</string>
     <string name="dialog_button_select_all">Tout sélectionner</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d entrées de l\'archive utilisent des chemins qui ne peuvent pas être écrits en toute sécurité. Elles restent disponibles pour aperçu dans le dossier Chemins non sûrs. Continuer et les ignorer ?</string>
+    <string name="dialog_title_unsafe_paths">Chemins non sûrs</string>
     <string name="error_archive_invalid">L\'archive est non valide ou non prise en charge</string>
     <string name="error_archive_missing_volumes">Des volumes ZIP sont manquants</string>
     <string name="error_archive_limit">L\'archive dépasse une limite de sécurité</string>
@@ -14,6 +17,7 @@
     <string name="error_cleanup_failed">Échec du nettoyage; une sortie partielle peut subsister</string>
     <string name="error_extraction_failed">Échec de l\'extraction</string>
     <string name="error_no_selection">Sélectionnez au moins une entrée</string>
+    <string name="error_no_safe_entries">La sélection ne contient aucune entrée pouvant être extraite en toute sécurité</string>
     <string name="error_permission_missing">L\'accès en lecture à l\'archive est manquant</string>
     <string name="error_with_reason">%1$s\nMotif : %2$s</string>
     <string name="plugin_description">Plugin du gestionnaire de fichiers. Parcourt, extrait et crée des archives ZIP et TAR</string>
@@ -32,6 +36,8 @@
     <string name="text_selected_count">Sélection: %1$d</string>
     <string name="text_size_details">%1$s, compressé %2$s, CRC %3$s</string>
     <string name="text_unknown">Inconnu</string>
+    <string name="text_unsafe_path_read_only">Chemin d\'origine non sûr; aperçu uniquement. Il est exclu de l\'extraction.</string>
+    <string name="text_unsafe_paths_folder">Chemins non sûrs</string>
     <string name="text_unsupported_compression_method">La méthode de compression %1$s ne peut pas être extraite</string>
     <string name="text_unsupported_entry_type">Le type d\'entrée %1$s ne peut pas être extrait</string>
     <string name="error_archive_file_name_invalid">Saisissez un nom de fichier d\'archive valide</string>

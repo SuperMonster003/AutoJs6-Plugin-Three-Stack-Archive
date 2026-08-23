@@ -5,8 +5,13 @@ import java.util.Locale
 
 class ArchiveIndex(
     snapshot: ArchiveSnapshot,
+    isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
 ) {
     private val limits = snapshot.limits
+    private val isolatedPathRoot = snapshot.isolatedPathRoot
+    private val isolatedPathDisplayName = isolatedPathDisplayName.ifBlank {
+        ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME
+    }
     private val nodesByPath: Map<String, ArchiveNode>
     private val childrenByPath: Map<String, List<ArchiveNode>>
     private var nodeCount = 0
@@ -51,7 +56,10 @@ class ArchiveIndex(
             .filter {
                 Normalizer.normalize(it.path, Normalizer.Form.NFC)
                     .lowercase(Locale.ROOT)
-                    .contains(needle)
+                    .contains(needle) ||
+                    Normalizer.normalize(it.name, Normalizer.Form.NFC)
+                        .lowercase(Locale.ROOT)
+                        .contains(needle)
             }
             .sortedWith(NODE_COMPARATOR)
             .toList()
@@ -60,6 +68,16 @@ class ArchiveIndex(
     fun node(path: String): ArchiveNode? = nodesByPath[normalizedLookupPath(path)]
 
     fun contains(path: String): Boolean = node(path) != null
+
+    fun displayPath(path: String): String {
+        val normalized = normalizedLookupPath(path)
+        if (normalized.isEmpty()) return ArchivePathPolicy.ROOT_PATH
+        var current = ""
+        return normalized.split('/').joinToString("/") { segment ->
+            current = if (current.isEmpty()) segment else "$current/$segment"
+            nodesByPath[current]?.name ?: segment
+        }
+    }
 
     private fun insert(root: MutableNode, entry: ArchiveEntry) {
         val segments = entry.path.split('/')
@@ -77,7 +95,12 @@ class ArchiveIndex(
                         "Archive snapshot exceeds the path-node limit",
                     )
                 }
-                MutableNode(childPath, segment, mustBeDirectory).also {
+                val childName = when {
+                    childPath == isolatedPathRoot -> isolatedPathDisplayName
+                    isLast -> entry.displayName
+                    else -> segment
+                }
+                MutableNode(childPath, childName, mustBeDirectory).also {
                     parent.children[segment] = it
                     parent = it
                 }
@@ -98,6 +121,7 @@ class ArchiveIndex(
                     )
                 }
                 parent.entry = entry
+                parent.name = entry.displayName
             }
         }
     }
@@ -138,7 +162,7 @@ class ArchiveIndex(
 
     private data class MutableNode(
         val path: String,
-        val name: String,
+        var name: String,
         val isDirectory: Boolean,
         var entry: ArchiveEntry? = null,
         val children: LinkedHashMap<String, MutableNode> = LinkedHashMap(),
