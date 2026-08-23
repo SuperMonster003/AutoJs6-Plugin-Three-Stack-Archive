@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <provider
+            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.CollisionDocumentsProvider"
+            android:authorities="io.github.supermonster003.autojs6.plugin.archivemanager.test.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS"
+            tools:ignore="ExportedContentProvider" />
+    </application>
+
+</manifest>

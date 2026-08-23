@@ -107,4 +107,17 @@ class ArchivePathPolicyTest {
             }
         }
     }
+
+    @Test
+    fun `destination collision keys are case insensitive and Unicode normalized`() {
+        assertEquals(
+            ArchivePathPolicy.destinationCollisionKey("Archive"),
+            ArchivePathPolicy.destinationCollisionKey("archive"),
+        )
+        assertEquals(
+            ArchivePathPolicy.destinationCollisionKey("\u00E9"),
+            ArchivePathPolicy.destinationCollisionKey("e\u0301"),
+        )
+        assertEquals("Folder/File", ArchivePathPolicy.collisionKey("Folder/File"))
+    }
 }

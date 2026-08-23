@@ -83,6 +83,53 @@ class ArchiveExtractorTest {
     }
 
     @Test
+    fun `tar links with external targets cannot reach the output writer`() {
+        val source = writeTar(
+            temporaryFolder.newFile("link-boundary.tar"),
+            TarFixtureEntry("safe.txt", "safe".toByteArray()),
+            TarFixtureEntry(
+                name = "symbolic-link",
+                type = TarFixtureEntryType.SYMBOLIC_LINK,
+                linkName = "../../outside.txt",
+            ),
+            TarFixtureEntry(
+                name = "hard-link",
+                type = TarFixtureEntryType.HARD_LINK,
+                linkName = "/absolute/outside.txt",
+            ),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val rejectedWriter = FakeArchiveOutputWriter()
+
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.UNSUPPORTED_METHOD) {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                    rootName = "rejected-links",
+                    writer = rejectedWriter,
+                )
+            }
+        }
+        assertEquals(null, rejectedWriter.root)
+
+        val safeWriter = FakeArchiveOutputWriter()
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf("safe.txt"),
+                rootName = "safe-only",
+                writer = safeWriter,
+            )
+        }
+        assertEquals(1, result.filesExtracted)
+        assertEquals(setOf("safe-only/safe.txt"), safeWriter.filePaths())
+        assertArrayEquals("safe".toByteArray(), safeWriter.content("safe-only/safe.txt"))
+    }
+
+    @Test
     fun `extraction reuses a manually selected filename encoding`() = runBlocking {
         val source = temporaryFolder.newFile("manual-encoding.zip")
         val expected = "兼容内容".toByteArray()
@@ -138,9 +185,18 @@ class ArchiveExtractorTest {
         val source = archive(
             FixtureEntry("safe.txt", "safe".toByteArray(), ZipEntry.STORED),
             FixtureEntry("../escape.txt", "escape".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("/absolute.txt", "absolute".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("C:/drive.txt", "drive".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("bidi\u202Ename.txt", "bidi".toByteArray(), ZipEntry.STORED),
         )
         val snapshot = ArchiveScanner().scan(source)
+        val selection = ArchiveSelection.resolve(snapshot, listOf(ArchivePathPolicy.ROOT_PATH))
         val rejectedWriter = FakeArchiveOutputWriter()
+
+        assertEquals(
+            setOf("../escape.txt", "/absolute.txt", "C:/drive.txt", "bidi\u202Ename.txt"),
+            selection.skippedUnsafeEntries.map(ArchiveEntry::sourceName).toSet(),
+        )
 
         expectArchiveFailure<ArchiveExtractionException>(
             ArchiveFailureCode.UNSAFE_PATH_CONFIRMATION_REQUIRED,
@@ -187,6 +243,37 @@ class ArchiveExtractorTest {
             }
         }
         assertEquals(null, isolatedOnlyWriter.root)
+    }
+
+    @Test
+    fun `unsafe extraction root names are rejected before output creation`() {
+        val source = archive(FixtureEntry("safe.txt", "safe".toByteArray(), ZipEntry.STORED))
+        val snapshot = ArchiveScanner().scan(source)
+        val invalidNames = listOf(
+            "../outside",
+            "/absolute",
+            "C:\\outside",
+            "bidi\u202Ename",
+        )
+
+        invalidNames.forEach { rootName ->
+            val writer = FakeArchiveOutputWriter()
+            expectArchiveFailure<ArchiveValidationException>(
+                ArchiveFailureCode.INVALID_DESTINATION_NAME,
+            ) {
+                runBlocking {
+                    ArchiveExtractor().extractToWriter(
+                        source = source,
+                        snapshot = snapshot,
+                        selectedPaths = listOf("safe.txt"),
+                        rootName = rootName,
+                        writer = writer,
+                    )
+                }
+            }
+            assertEquals(null, writer.root)
+            assertFalse(writer.rootDeleted)
+        }
     }
 
     @Test

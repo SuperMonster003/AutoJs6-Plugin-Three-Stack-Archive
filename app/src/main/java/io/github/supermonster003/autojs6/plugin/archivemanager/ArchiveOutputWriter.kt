@@ -3,8 +3,9 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import java.io.OutputStream
 
 /**
- * Destination abstraction used by [ArchiveExtractor]. Implementations must create a new root and
- * must never return a pre-existing directory from [createRoot].
+ * Destination abstraction used by [ArchiveExtractor]. Every create operation must allocate a new
+ * node under the supplied parent. Implementations must never return a pre-existing node or a node
+ * from another parent.
  */
 interface ArchiveOutputWriter {
     interface Node {

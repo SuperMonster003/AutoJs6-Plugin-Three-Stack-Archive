@@ -135,11 +135,11 @@ class SafArchiveOutputWriter(
         }
 
     private fun uniqueRootName(requested: String, existingNames: Set<String>): String {
-        val collisionKeys = existingNames.mapTo(HashSet(), ArchivePathPolicy::collisionKey)
-        if (ArchivePathPolicy.collisionKey(requested) !in collisionKeys) return requested
+        val collisionKeys = existingNames.mapTo(HashSet(), ArchivePathPolicy::destinationCollisionKey)
+        if (ArchivePathPolicy.destinationCollisionKey(requested) !in collisionKeys) return requested
         for (suffix in 2..MAX_ROOT_NAME_ATTEMPTS) {
             val candidate = "$requested ($suffix)"
-            if (ArchivePathPolicy.collisionKey(candidate) !in collisionKeys) return candidate
+            if (ArchivePathPolicy.destinationCollisionKey(candidate) !in collisionKeys) return candidate
         }
         throw IOException("Cannot allocate a unique extraction output name")
     }

@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import java.text.Normalizer
+import java.util.Locale
 
 data class ValidatedArchivePath(
     val path: String,
@@ -90,6 +91,9 @@ object ArchivePathPolicy {
     }
 
     fun collisionKey(path: String): String = path
+
+    internal fun destinationCollisionKey(name: String): String =
+        Normalizer.normalize(name, Normalizer.Form.NFC).lowercase(Locale.ROOT)
 
     internal fun isolatedEntryPath(
         root: String,
