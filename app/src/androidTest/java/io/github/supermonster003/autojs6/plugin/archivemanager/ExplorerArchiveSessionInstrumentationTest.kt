@@ -44,7 +44,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         val session = ExplorerArchiveSession(
             ownerUid = Process.myUid(),
             displayName = "session-test.zip",
-            stagedArchive = StagedArchive(archive, archive.length()),
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
             snapshot = ArchiveScanner().scan(archive),
             onClosed = { closed = true },
         )
@@ -136,7 +136,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         val session = ExplorerArchiveSession(
             ownerUid = Process.myUid(),
             displayName = "session-test.tar",
-            stagedArchive = StagedArchive(archive, archive.length()),
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
             snapshot = ArchiveScanner().scan(archive),
             onClosed = {},
         )
@@ -210,7 +210,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         val session = ExplorerArchiveSession(
             ownerUid = Process.myUid(),
             displayName = "session-test.${case.extension}",
-            stagedArchive = StagedArchive(archive, archive.length()),
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
             snapshot = snapshot,
             onClosed = {},
         )
@@ -257,7 +257,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         val session = ExplorerArchiveSession(
             ownerUid = Process.myUid(),
             displayName = "unsafe.zip",
-            stagedArchive = StagedArchive(archive, archive.length()),
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
             snapshot = snapshot,
             isolatedPathDisplayName = "Quarantined paths",
             onClosed = {},

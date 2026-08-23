@@ -330,7 +330,7 @@ internal interface ArchiveBackend {
     val format: ArchiveFormat
     val capabilities: FormatCapabilities
 
-    fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader
+    fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader
 
     fun createWriter(session: IExplorerActionHostSession): ArchiveWriter? = null
 }
@@ -362,8 +362,10 @@ internal class ArchiveEngine private constructor(
 
     fun capabilities(format: ArchiveFormat): FormatCapabilities = backend(format).capabilities
 
-    fun probe(source: File): DetectedArchiveFormat {
-        if (!source.isFile) {
+    fun probe(source: File): DetectedArchiveFormat = probe(source.asArchiveReadSource())
+
+    fun probe(source: ArchiveReadSource): DetectedArchiveFormat {
+        if (!source.isRegularFile) {
             throw ArchiveValidationException(
                 ArchiveFailureCode.SOURCE_NOT_FILE,
                 "Archive source is not a regular file",
@@ -377,6 +379,8 @@ internal class ArchiveEngine private constructor(
                     structurallyVerified = true,
                 )
             }
+        } catch (error: ArchiveLocalFileRequiredException) {
+            throw error
         } catch (error: ArchiveBackendException) {
             throw ArchiveValidationException(
                 code = when (error.failure) {
@@ -409,6 +413,12 @@ internal class ArchiveEngine private constructor(
         source: File,
         format: ArchiveFormat? = null,
         options: ArchiveReaderOptions = ArchiveReaderOptions(),
+    ): ArchiveReader = openReader(source.asArchiveReadSource(), format, options)
+
+    fun openReader(
+        source: ArchiveReadSource,
+        format: ArchiveFormat? = null,
+        options: ArchiveReaderOptions = ArchiveReaderOptions(),
     ): ArchiveReader {
         if (format != null) return backend(format).openReader(source, options)
         if (backends.size == 1) return backends.single().openReader(source, options)
@@ -418,6 +428,8 @@ internal class ArchiveEngine private constructor(
         backends.forEach { candidate ->
             try {
                 return candidate.openReader(source, options)
+            } catch (error: ArchiveLocalFileRequiredException) {
+                throw error
             } catch (error: ArchiveBackendException) {
                 if (
                     error.failure != ArchiveBackendFailure.INVALID_SIGNATURE &&

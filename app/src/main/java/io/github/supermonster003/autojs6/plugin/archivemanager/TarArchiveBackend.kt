@@ -11,8 +11,6 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import org.tukaani.xz.MemoryLimitException
 import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 
@@ -54,7 +52,7 @@ internal abstract class TarArchiveBackendBase(
     override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
         TarArchiveCreator(format, capabilities, session)
 
-    override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
+    override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {
         if (!container.hasOuterSignature(source)) {
             throw ArchiveBackendException(
                 format = format,
@@ -147,7 +145,7 @@ private fun tarCapabilities(container: TarContainer) = FormatCapabilities(
 )
 
 private class TarArchiveReader(
-    private val source: File,
+    private val source: ArchiveReadSource,
     override val entries: List<ArchiveReaderEntry>,
     override val options: ArchiveReaderOptions,
     override val format: ArchiveFormat,
@@ -260,34 +258,34 @@ private enum class TarEntryType(
 
 internal enum class TarContainer {
     PLAIN {
-        override fun hasOuterSignature(source: File): Boolean =
+        override fun hasOuterSignature(source: ArchiveReadSource): Boolean =
             TarArchiveAccess.hasRawTarSignature(source)
 
         override fun openPayload(input: InputStream): InputStream = input
     },
     GZIP {
-        override fun hasOuterSignature(source: File): Boolean =
+        override fun hasOuterSignature(source: ArchiveReadSource): Boolean =
             sourceSignatureMatches(source, GzipCompressorInputStream::matches)
 
         override fun openPayload(input: InputStream): InputStream =
             GzipCompressorInputStream(input, true)
     },
     XZ {
-        override fun hasOuterSignature(source: File): Boolean =
+        override fun hasOuterSignature(source: ArchiveReadSource): Boolean =
             sourceSignatureMatches(source, XZCompressorInputStream::matches)
 
         override fun openPayload(input: InputStream): InputStream =
             XZCompressorInputStream(input, true, XZ_MEMORY_LIMIT_KIB)
     },
     BZIP2 {
-        override fun hasOuterSignature(source: File): Boolean =
+        override fun hasOuterSignature(source: ArchiveReadSource): Boolean =
             sourceSignatureMatches(source, BZip2CompressorInputStream::matches)
 
         override fun openPayload(input: InputStream): InputStream =
             BZip2CompressorInputStream(input, true)
     },
     ZSTD {
-        override fun hasOuterSignature(source: File): Boolean =
+        override fun hasOuterSignature(source: ArchiveReadSource): Boolean =
             sourceSignatureMatches(source, ::matchesZstdSignature)
 
         override fun openPayload(input: InputStream): InputStream =
@@ -295,26 +293,26 @@ internal enum class TarContainer {
                 .setContinuous(true)
                 .setLongMax(ZSTD_WINDOW_LOG_MAX)
 
-        override fun requirePlausibleStructure(source: File) {
+        override fun requirePlausibleStructure(source: ArchiveReadSource) {
             val signature = ByteArray(ZSTD_MAGIC_SIZE)
-            val bytesRead = FileInputStream(source).use { input -> input.readPrefix(signature) }
+            val bytesRead = source.openInputStream().use { input -> input.readPrefix(signature) }
             val minimumSize = when {
                 matchesStandardZstdSignature(signature, bytesRead) -> ZSTD_MINIMUM_FRAME_SIZE
                 matchesSkippableZstdSignature(signature, bytesRead) -> ZSTD_SKIPPABLE_HEADER_SIZE
                 else -> return
             }
-            if (source.length() < minimumSize) {
+            if (source.identity().length < minimumSize) {
                 throw IOException("Zstandard frame is truncated")
             }
         }
     },
     ;
 
-    abstract fun hasOuterSignature(source: File): Boolean
+    abstract fun hasOuterSignature(source: ArchiveReadSource): Boolean
 
     abstract fun openPayload(input: InputStream): InputStream
 
-    open fun requirePlausibleStructure(source: File) = Unit
+    open fun requirePlausibleStructure(source: ArchiveReadSource) = Unit
 
     companion object {
         private const val SIGNATURE_BUFFER_SIZE = 12
@@ -350,11 +348,11 @@ internal enum class TarContainer {
         }
 
         private fun sourceSignatureMatches(
-            source: File,
+            source: ArchiveReadSource,
             matcher: (ByteArray, Int) -> Boolean,
         ): Boolean {
             val signature = ByteArray(SIGNATURE_BUFFER_SIZE)
-            val bytesRead = FileInputStream(source).use { input -> input.readPrefix(signature) }
+            val bytesRead = source.openInputStream().use { input -> input.readPrefix(signature) }
             return matcher(signature, bytesRead)
         }
 
@@ -368,17 +366,17 @@ internal object TarArchiveAccess {
     private const val RECORD_SIZE = 512
     private const val END_MARKER_SIZE = RECORD_SIZE * 2
 
-    fun hasRawTarSignature(source: File): Boolean {
-        val length = source.length()
+    fun hasRawTarSignature(source: ArchiveReadSource): Boolean {
+        val length = source.identity().length
         if (length < END_MARKER_SIZE || length % RECORD_SIZE != 0L) return false
 
-        return FileInputStream(source).use { input ->
+        return source.openInputStream().use { input ->
             hasTarSignature(BufferedInputStream(input))
         }
     }
 
     fun readEntries(
-        source: File,
+        source: ArchiveReadSource,
         container: TarContainer = TarContainer.PLAIN,
     ): List<ArchiveReaderEntry> = open(source, container).use { input ->
         buildList {
@@ -393,11 +391,11 @@ internal object TarArchiveAccess {
     }
 
     fun open(
-        source: File,
+        source: ArchiveReadSource,
         container: TarContainer = TarContainer.PLAIN,
         verifyContainerIntegrity: Boolean = true,
     ): TarArchiveInputStream {
-        val sourceInput = BufferedInputStream(FileInputStream(source))
+        val sourceInput = BufferedInputStream(source.openInputStream())
         var payload: InputStream? = null
         try {
             payload = container.openPayload(sourceInput)

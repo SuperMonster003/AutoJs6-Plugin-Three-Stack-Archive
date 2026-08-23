@@ -14,16 +14,24 @@ internal class ArchiveScanner @JvmOverloads constructor(
         source: File,
         options: ArchiveReaderOptions = ArchiveReaderOptions(),
         cancellationCheck: () -> Unit = {},
+    ): ArchiveSnapshot = scan(source.asArchiveReadSource(), options, cancellationCheck)
+
+    @JvmOverloads
+    fun scan(
+        source: ArchiveReadSource,
+        options: ArchiveReaderOptions = ArchiveReaderOptions(),
+        cancellationCheck: () -> Unit = {},
     ): ArchiveSnapshot {
         cancellationCheck()
-        if (!source.isFile) {
+        if (!source.isRegularFile) {
             throw ArchiveValidationException(
                 ArchiveFailureCode.SOURCE_NOT_FILE,
                 "Archive source is not a regular file",
             )
         }
-        val sourceLength = source.length()
-        val sourceLastModifiedMillis = source.lastModified()
+        val sourceIdentity = inspectIdentity(source, changed = false)
+        val sourceLength = sourceIdentity.length
+        val sourceLastModifiedMillis = sourceIdentity.lastModifiedMillis
         val candidates = ArrayList<ScannedEntryCandidate>()
         val entries = ArrayList<ArchiveEntry>()
         val pathRegistry = PathRegistry(structureLimits)
@@ -144,6 +152,10 @@ internal class ArchiveScanner @JvmOverloads constructor(
                 format = error.format,
                 stage = error.stage,
             )
+        } catch (error: ArchiveLocalFileRequiredException) {
+            readerOptions?.clearPassword()
+            readerOptions = null
+            throw error
         } catch (error: IOException) {
             readerOptions?.clearPassword()
             readerOptions = null
@@ -154,7 +166,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
             fail(ArchiveFailureCode.MALFORMED_ARCHIVE, "Archive metadata is malformed", error)
         }
 
-        if (source.length() != sourceLength || source.lastModified() != sourceLastModifiedMillis) {
+        if (inspectIdentity(source, changed = true) != sourceIdentity) {
             readerOptions?.clearPassword()
             readerOptions = null
             fail(ArchiveFailureCode.SOURCE_CHANGED, "Archive changed while it was being scanned")
@@ -168,6 +180,23 @@ internal class ArchiveScanner @JvmOverloads constructor(
             format = requireNotNull(detectedFormat),
             readerOptions = requireNotNull(readerOptions),
             isolatedPathRoot = isolatedPathRoot,
+        )
+    }
+
+    private fun inspectIdentity(
+        source: ArchiveReadSource,
+        changed: Boolean,
+    ): ArchiveSourceIdentity = try {
+        source.identity()
+    } catch (error: IOException) {
+        fail(
+            code = if (changed) ArchiveFailureCode.SOURCE_CHANGED else ArchiveFailureCode.SOURCE_NOT_FILE,
+            message = if (changed) {
+                "Archive source cannot be inspected after scanning"
+            } else {
+                "Archive source cannot be inspected"
+            },
+            cause = error,
         )
     }
 

@@ -2,7 +2,6 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import net.lingala.zip4j.exception.ZipException as Zip4jException
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.IllegalCharsetNameException
@@ -35,7 +34,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
         ),
     )
 
-    override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
+    override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {
         ZipSplitArchiveDetector.inspect(source)?.let { splitArchive ->
             val error = ZipSplitArchiveException(splitArchive)
             throw ArchiveBackendException(
@@ -48,12 +47,16 @@ internal object ZipArchiveBackend : ArchiveBackend {
         }
         val charsetName = options.filenameCharsetName ?: try {
             ZipArchiveAccess.detectCharset(source).name()
+        } catch (error: ArchiveLocalFileRequiredException) {
+            throw error
         } catch (error: Exception) {
             throw mapOpenFailure(source, error)
         }
         val password = options.passwordChars()
         val archive = try {
             ZipArchiveAccess.open(source, charsetName, password)
+        } catch (error: ArchiveLocalFileRequiredException) {
+            throw error
         } catch (error: Exception) {
             throw mapOpenFailure(source, error)
         } finally {
@@ -75,7 +78,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
     override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
         ZipArchiveCreator(session)
 
-    private fun mapOpenFailure(source: File, error: Throwable): ArchiveBackendException {
+    private fun mapOpenFailure(source: ArchiveReadSource, error: Throwable): ArchiveBackendException {
         if (error is ArchiveBackendException) return error
         val invalidOptions = error is UnsupportedCharsetException || error is IllegalCharsetNameException
         val zip4jError = generateSequence(error) { it.cause }

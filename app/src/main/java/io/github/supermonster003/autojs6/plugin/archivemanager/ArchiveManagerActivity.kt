@@ -278,10 +278,22 @@ class ArchiveManagerActivity : AppCompatActivity() {
             password = selectedPassword,
         )
         try {
-            ArchiveScanner().scan(
-                source = staged.file,
+            fun scan(source: ArchiveReadSource): ArchiveSnapshot = ArchiveScanner().scan(
+                source = source,
                 options = readerOptions,
-            ) { ensureActive() }.let { scanned ->
+            ) { ensureActive() }
+            val scanned = try {
+                scan(staged.source)
+            } catch (_: ArchiveLocalFileRequiredException) {
+                val cached = ArchiveCacheStager.materialize(
+                    staged = staged,
+                    cacheDirectory = cacheDir,
+                    onProgress = {},
+                )
+                replaceStagedArchive(staged, cached)
+                scan(cached.source)
+            }
+            scanned.let {
                 scanned to ArchiveIndex(
                     scanned,
                     getString(R.string.text_unsafe_paths_folder),
@@ -290,6 +302,22 @@ class ArchiveManagerActivity : AppCompatActivity() {
         } finally {
             readerOptions.clearPassword()
         }
+    }
+
+    private fun replaceStagedArchive(expected: StagedArchive, replacement: StagedArchive) {
+        val replaced = synchronized(this) {
+            if (stagedArchive !== expected) {
+                false
+            } else {
+                stagedArchive = replacement
+                true
+            }
+        }
+        if (!replaced) {
+            replacement.close()
+            throw CancellationException("Archive input changed during materialization")
+        }
+        expected.close()
     }
 
     private fun applyScannedArchive(scanned: ArchiveSnapshot, scannedIndex: ArchiveIndex) {
@@ -1001,7 +1029,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     var lastReportedBytes = -PROGRESS_REPORT_BYTES
                     var lastCompletedEntries = -1
                     ArchiveExtractor(contentResolver, resourceBudget).extract(
-                        source = staged.file,
+                        source = staged.source,
                         snapshot = archive,
                         selectedPaths = paths,
                         treeUri = treeUri,
@@ -1147,7 +1175,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         clearSelectedPassword()
         val staged = stagedArchive
         stagedArchive = null
-        staged?.delete()
+        staged?.close()
     }
 
     @Synchronized

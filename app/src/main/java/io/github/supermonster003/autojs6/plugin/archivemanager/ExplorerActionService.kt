@@ -38,9 +38,16 @@ class ExplorerActionService : Service() {
             if (!ArchiveIntentPolicy.isReportedSizeAccepted(reportedSize)) {
                 throw IllegalArgumentException("Archive size is invalid")
             }
-            val staged = ArchiveCacheStager.stage(source, cacheDir, reportedSize)
+            var staged = ArchiveCacheStager.stage(source, cacheDir, reportedSize)
             try {
-                val snapshot = ArchiveScanner().scan(staged.file)
+                val snapshot = try {
+                    ArchiveScanner().scan(staged.source)
+                } catch (_: ArchiveLocalFileRequiredException) {
+                    val cached = ArchiveCacheStager.materialize(staged, cacheDir)
+                    staged.close()
+                    staged = cached
+                    ArchiveScanner().scan(staged.source)
+                }
                 return ExplorerArchiveSession(
                     ownerUid = ownerUid,
                     displayName = displayName,
@@ -50,7 +57,7 @@ class ExplorerActionService : Service() {
                     onClosed = sessions::remove,
                 ).also(sessions::add)
             } catch (error: Throwable) {
-                staged.delete()
+                staged.close()
                 val diagnostic = ArchiveFailureDiagnostic.from(
                     error = error,
                     stageHint = ArchiveFailureStage.INDEX,

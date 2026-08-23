@@ -3,7 +3,6 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import net.lingala.zip4j.ZipFile as Zip4jFile
 import java.io.File
 import java.io.IOException
-import java.io.RandomAccessFile
 
 internal enum class ZipSplitSegmentKind {
     FIRST_VOLUME,
@@ -85,39 +84,67 @@ internal class ZipSplitArchiveException(
 internal object ZipSplitArchiveDetector {
 
     fun inspect(source: File): ZipSplitArchiveInfo? {
-        if (!source.isFile || source.length() < ZIP_SIGNATURE_SIZE) return null
+        return inspect(source.asArchiveReadSource())
+    }
+
+    fun inspect(source: ArchiveReadSource): ZipSplitArchiveInfo? {
+        if (!source.isRegularFile || source.identity().length < ZIP_SIGNATURE_SIZE) return null
         if (hasLeadingSplitSignature(source)) {
             return ZipSplitArchiveInfo(ZipSplitSegmentKind.FIRST_VOLUME)
         }
+        val ordinaryDiskNumber = ordinaryEndRecordDiskNumber(source)
+        if (ordinaryDiskNumber != null && ordinaryDiskNumber != 0) {
+            return ZipSplitArchiveInfo(
+                segmentKind = ZipSplitSegmentKind.FINAL_VOLUME,
+                lastDiskNumber = ordinaryDiskNumber.takeUnless {
+                    it == ZIP64_UNSIGNED_SHORT_SENTINEL
+                },
+            )
+        }
+        val localFile = source.localFile ?: return null
         val isSplitArchive = try {
-            Zip4jFile(source).use(Zip4jFile::isSplitArchive)
+            Zip4jFile(localFile).use(Zip4jFile::isSplitArchive)
         } catch (_: Exception) {
             return null
         }
         if (!isSplitArchive) return null
         return ZipSplitArchiveInfo(
             segmentKind = ZipSplitSegmentKind.FINAL_VOLUME,
-            lastDiskNumber = ordinaryEndRecordDiskNumber(source),
+            lastDiskNumber = ordinaryDiskNumber?.takeUnless {
+                it == ZIP64_UNSIGNED_SHORT_SENTINEL || it == 0
+            },
         )
     }
 
-    private fun hasLeadingSplitSignature(source: File): Boolean = try {
-        RandomAccessFile(source, READ_MODE).use { input ->
-            input.readLittleEndianInt() == SPLIT_ARCHIVE_SIGNATURE
+    private fun hasLeadingSplitSignature(source: ArchiveReadSource): Boolean = try {
+        source.openInputStream().use { input ->
+            val first = input.read()
+            val second = input.read()
+            val third = input.read()
+            val fourth = input.read()
+            if (first or second or third or fourth < 0) {
+                false
+            } else {
+                first or (second shl 8) or (third shl 16) or (fourth shl 24) ==
+                    SPLIT_ARCHIVE_SIGNATURE
+            }
         }
     } catch (_: IOException) {
         false
     }
 
-    private fun ordinaryEndRecordDiskNumber(source: File): Int? {
-        val sourceLength = source.length()
+    private fun ordinaryEndRecordDiskNumber(source: ArchiveReadSource): Int? {
+        val sourceLength = source.identity().length
         val tailLength = minOf(sourceLength, MAX_EOCD_SEARCH_BYTES.toLong()).toInt()
         if (tailLength < MIN_EOCD_SIZE) return null
         val tail = ByteArray(tailLength)
         try {
-            RandomAccessFile(source, READ_MODE).use { input ->
-                input.seek(sourceLength - tailLength)
-                input.readFully(tail)
+            source.openSeekableChannel().use { input ->
+                input.position(sourceLength - tailLength)
+                val buffer = java.nio.ByteBuffer.wrap(tail)
+                while (buffer.hasRemaining()) {
+                    if (input.read(buffer) < 0) throw IOException("Unexpected end of ZIP input")
+                }
             }
         } catch (_: IOException) {
             return null
@@ -127,18 +154,9 @@ internal object ZipSplitArchiveDetector {
             val commentLength = tail.littleEndianUnsignedShort(offset + EOCD_COMMENT_LENGTH_OFFSET)
             if (offset + MIN_EOCD_SIZE + commentLength > tailLength) continue
             val diskNumber = tail.littleEndianUnsignedShort(offset + EOCD_DISK_NUMBER_OFFSET)
-            return diskNumber.takeUnless { it == ZIP64_UNSIGNED_SHORT_SENTINEL || it == 0 }
+            return diskNumber
         }
         return null
-    }
-
-    private fun RandomAccessFile.readLittleEndianInt(): Int {
-        val first = read()
-        val second = read()
-        val third = read()
-        val fourth = read()
-        if (first or second or third or fourth < 0) throw IOException("Unexpected end of ZIP input")
-        return first or (second shl 8) or (third shl 16) or (fourth shl 24)
     }
 
     private fun ByteArray.littleEndianInt(offset: Int): Int =
@@ -150,7 +168,6 @@ internal object ZipSplitArchiveDetector {
     private fun ByteArray.littleEndianUnsignedShort(offset: Int): Int =
         (this[offset].toInt() and 0xFF) or ((this[offset + 1].toInt() and 0xFF) shl 8)
 
-    private const val READ_MODE = "r"
     private const val ZIP_SIGNATURE_SIZE = 4L
     private const val MIN_EOCD_SIZE = 22
     private const val EOCD_DISK_NUMBER_OFFSET = 4

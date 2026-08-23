@@ -6,12 +6,9 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.compress.archivers.sevenz.SevenZMethod
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
-import java.io.File
-import java.io.FileInputStream
 import java.io.FilterInputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.RandomAccessFile
 
 internal object SevenZArchiveBackend : ArchiveBackend {
     override val format = ArchiveFormat.SEVEN_Z
@@ -39,7 +36,7 @@ internal object SevenZArchiveBackend : ArchiveBackend {
         ),
     )
 
-    override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
+    override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {
         if (!hasSignature(source)) {
             throw ArchiveBackendException(
                 format = format,
@@ -75,12 +72,12 @@ internal object SevenZArchiveBackend : ArchiveBackend {
     override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
         SevenZArchiveCreator(session)
 
-    private fun openArchive(source: File, password: CharArray?): SevenZFile {
-        val channel = RandomAccessFile(source, READ_MODE).channel
+    private fun openArchive(source: ArchiveReadSource, password: CharArray?): SevenZFile {
+        val channel = source.openSeekableChannel()
         return try {
             SevenZFile.builder()
                 .setSeekableByteChannel(channel)
-                .setDefaultName(source.name)
+                .setDefaultName(source.displayName)
                 .setMaxMemoryLimitKiB(DECODER_MEMORY_LIMIT_KIB)
                 .apply { if (password != null) setPassword(password) }
                 .get()
@@ -205,9 +202,9 @@ internal object SevenZArchiveBackend : ArchiveBackend {
         )
     }
 
-    private fun hasSignature(source: File): Boolean {
+    private fun hasSignature(source: ArchiveReadSource): Boolean {
         val signature = ByteArray(SIGNATURE_SIZE)
-        val length = FileInputStream(source).use { input ->
+        val length = source.openInputStream().use { input ->
             var total = 0
             while (total < signature.size) {
                 val read = input.read(signature, total, signature.size - total)
@@ -221,7 +218,6 @@ internal object SevenZArchiveBackend : ArchiveBackend {
     }
 
     private const val DECODER_MEMORY_LIMIT_KIB = 256 * 1_024
-    private const val READ_MODE = "r"
     private const val SIGNATURE_SIZE = 6
     private const val UNKNOWN_COMPRESSED_SIZE = -1L
 }

@@ -14,7 +14,6 @@ import java.io.Closeable
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
@@ -51,7 +50,7 @@ internal interface OpenZipArchive : Closeable {
 /** Opens a ZIP with one stable filename charset for indexing and extraction. */
 internal object ZipArchiveAccess {
 
-    fun detectCharset(source: File, locale: Locale = Locale.getDefault()): Charset =
+    fun detectCharset(source: ArchiveReadSource, locale: Locale = Locale.getDefault()): Charset =
         if (requiresZip4jBackend()) {
             detectZip4jCharset(source, locale)
         } else {
@@ -59,7 +58,7 @@ internal object ZipArchiveAccess {
         }
 
     fun open(
-        source: File,
+        source: ArchiveReadSource,
         charsetName: String?,
         password: CharArray? = null,
     ): OpenZipArchive {
@@ -68,7 +67,7 @@ internal object ZipArchiveAccess {
                 ?.let(Charset::forName)
                 ?: detectCharset(source)
             return if (requiresZip4jBackend()) {
-                Zip4jOpenZipArchive(source, charset, password)
+                Zip4jOpenZipArchive(requireNotNull(source.localFile), charset, password)
             } else {
                 openCommons(source, charset, password)
             }
@@ -80,10 +79,12 @@ internal object ZipArchiveAccess {
     fun supportedFilenameCharsetNames(): List<String> = charsetCandidates(Locale.ROOT)
         .map(Charset::name)
 
-    fun hasZipSignature(source: File): Boolean {
-        if (!source.isFile || source.length() < ZIP_SIGNATURE_SIZE) return false
+    fun hasZipSignature(source: File): Boolean = hasZipSignature(source.asArchiveReadSource())
+
+    fun hasZipSignature(source: ArchiveReadSource): Boolean {
         return try {
-            RandomAccessFile(source, "r").use { input ->
+            if (!source.isRegularFile || source.identity().length < ZIP_SIGNATURE_SIZE) return false
+            source.openInputStream().use { input ->
                 val buffer = ByteArray(SIGNATURE_SCAN_BUFFER_SIZE + ZIP_SIGNATURE_SIZE - 1)
                 var carry = 0
                 var found = false
@@ -109,7 +110,7 @@ internal object ZipArchiveAccess {
         }
     }
 
-    private fun detectCommonsCharset(source: File, locale: Locale): Charset {
+    private fun detectCommonsCharset(source: ArchiveReadSource, locale: Locale): Charset {
         val rawNames = openCommons(source, CP437, null).use { archive ->
             archive.entries.asSequence()
                 .filterNot(ZipEntryMetadata::usesUtf8ForNames)
@@ -133,11 +134,14 @@ internal object ZipArchiveAccess {
      * Android 7 uses Zip4j because Commons Compress calls FileTime methods that are absent on
      * that platform version. Candidate scoring preserves the same filename-encoding behavior.
      */
-    private fun detectZip4jCharset(source: File, locale: Locale): Charset {
+    private fun detectZip4jCharset(source: ArchiveReadSource, locale: Locale): Charset {
+        val localFile = requireNotNull(source.localFile) {
+            "Zip4j requires a process-readable archive file"
+        }
         return charsetCandidates(locale)
             .mapIndexedNotNull { index, charset ->
                 val names = runCatching {
-                    Zip4jEntryAccess(source, charset, null).use { access ->
+                    Zip4jEntryAccess(localFile, charset, null).use { access ->
                         access.headers.map(FileHeader::getFileName)
                     }
                 }.getOrNull() ?: return@mapIndexedNotNull null
@@ -152,11 +156,11 @@ internal object ZipArchiveAccess {
     /** Avoids the Path-based Commons builder branch and gives the archive ownership of the channel. */
     @Suppress("DEPRECATION")
     private fun openCommons(
-        source: File,
+        source: ArchiveReadSource,
         charset: Charset,
         password: CharArray?,
     ): OpenZipArchive {
-        val channel = RandomAccessFile(source, "r").channel
+        val channel = source.openSeekableChannel()
         val zipFile = try {
             CommonsZipFile(channel, charset.name())
         } catch (error: Throwable) {
@@ -303,7 +307,7 @@ internal object ZipArchiveAccess {
 
 private class CommonsOpenZipArchive(
     private val zipFile: CommonsZipFile,
-    source: File,
+    source: ArchiveReadSource,
     charset: Charset,
     password: CharArray?,
 ) : OpenZipArchive {
@@ -317,8 +321,16 @@ private class CommonsOpenZipArchive(
     init {
         var openedEncryptedAccess: Zip4jEntryAccess? = null
         try {
-            openedEncryptedAccess = if (sourceEntries.any { it.generalPurposeBit.usesEncryption() }) {
-                Zip4jEntryAccess(source, charset, password)
+            val localFile = source.localFile
+            if (sourceEntries.any { it.generalPurposeBit.usesEncryption() } && localFile == null) {
+                throw ArchiveLocalFileRequiredException(
+                    "Encrypted ZIP access requires a private local copy",
+                )
+            }
+            openedEncryptedAccess = if (
+                sourceEntries.any { it.generalPurposeBit.usesEncryption() } && localFile != null
+            ) {
+                Zip4jEntryAccess(localFile, charset, password)
             } else {
                 null
             }

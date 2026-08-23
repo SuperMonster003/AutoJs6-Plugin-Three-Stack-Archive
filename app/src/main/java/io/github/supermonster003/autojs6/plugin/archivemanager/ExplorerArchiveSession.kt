@@ -85,7 +85,10 @@ internal class ExplorerArchiveSession(
             putString(ExplorerArchiveSessionKeys.ROOT_ID, rootId)
             putString(ExplorerArchiveSessionKeys.DISPLAY_NAME, displayName)
             putLong(ExplorerArchiveSessionKeys.SOURCE_SIZE, stagedArchive.bytes)
-            putLong(ExplorerArchiveSessionKeys.SOURCE_LAST_MODIFIED, stagedArchive.file.lastModified())
+            putLong(
+                ExplorerArchiveSessionKeys.SOURCE_LAST_MODIFIED,
+                stagedArchive.source.identity().lastModifiedMillis,
+            )
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES,
                 formatCapabilities.canPreview,
@@ -167,14 +170,14 @@ internal class ExplorerArchiveSession(
             runCatching { writer.closeWithError(STREAM_CLOSED_MESSAGE) }
         }
         streamExecutor.shutdownNow()
-        stagedArchive.delete()
+        stagedArchive.close()
         onClosed(this)
     }
 
     private fun streamEntry(entry: ArchiveEntry, writeEnd: ParcelFileDescriptor) {
         val output = ParcelFileDescriptor.AutoCloseOutputStream(writeEnd)
         try {
-            ArchiveEntryStreamer(stagedArchive.file, snapshot).stream(entry, output) {
+            ArchiveEntryStreamer(stagedArchive.source, snapshot).stream(entry, output) {
                 if (closed.get() || Thread.currentThread().isInterrupted) {
                     throw InterruptedIOException(STREAM_CLOSED_MESSAGE)
                 }

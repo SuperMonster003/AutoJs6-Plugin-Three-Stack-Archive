@@ -5,12 +5,18 @@ import java.io.File
 import java.io.OutputStream
 import java.util.zip.CRC32
 
-/** Reopens and verifies one scanned regular entry before exposing its bytes to the host. */
+/** Opens a fresh reader and verifies one scanned regular entry before exposing it to the host. */
 internal class ArchiveEntryStreamer(
-    private val source: File,
+    private val source: ArchiveReadSource,
     private val snapshot: ArchiveSnapshot,
     private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
 ) {
+
+    constructor(
+        source: File,
+        snapshot: ArchiveSnapshot,
+        engine: ArchiveEngine = ArchiveEngine.DEFAULT,
+    ) : this(source.asArchiveReadSource(), snapshot, engine)
 
     fun stream(
         entry: ArchiveEntry,
@@ -109,8 +115,13 @@ internal class ArchiveEntryStreamer(
     }
 
     private fun verifySourceIdentity() {
-        if (source.length() != snapshot.sourceLength ||
-            source.lastModified() != snapshot.sourceLastModifiedMillis
+        val identity = try {
+            source.identity()
+        } catch (_: Exception) {
+            changed("Archive source cannot be inspected after scanning")
+        }
+        if (identity.length != snapshot.sourceLength ||
+            identity.lastModifiedMillis != snapshot.sourceLastModifiedMillis
         ) {
             changed("Archive source changed after scanning")
         }

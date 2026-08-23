@@ -29,6 +29,26 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         skipUnsafePaths: Boolean = false,
         allowResourceBudgetOverride: Boolean = false,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
+    ): ExtractionResult = extract(
+        source = source.asArchiveReadSource(),
+        snapshot = snapshot,
+        selectedPaths = selectedPaths,
+        treeUri = treeUri,
+        rootName = rootName,
+        skipUnsafePaths = skipUnsafePaths,
+        allowResourceBudgetOverride = allowResourceBudgetOverride,
+        progress = progress,
+    )
+
+    suspend fun extract(
+        source: ArchiveReadSource,
+        snapshot: ArchiveSnapshot,
+        selectedPaths: Collection<String>,
+        treeUri: Uri,
+        rootName: String,
+        skipUnsafePaths: Boolean = false,
+        allowResourceBudgetOverride: Boolean = false,
+        progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult {
         val resolver = contentResolver ?: throw IllegalStateException(
             "ArchiveExtractor requires a ContentResolver for SAF extraction",
@@ -57,6 +77,26 @@ internal class ArchiveExtractor @JvmOverloads constructor(
 
     suspend fun extractToWriter(
         source: File,
+        snapshot: ArchiveSnapshot,
+        selectedPaths: Collection<String>,
+        rootName: String,
+        writer: ArchiveOutputWriter,
+        skipUnsafePaths: Boolean = false,
+        allowResourceBudgetOverride: Boolean = false,
+        progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
+    ): ExtractionResult = extractToWriter(
+        source = source.asArchiveReadSource(),
+        snapshot = snapshot,
+        selectedPaths = selectedPaths,
+        rootName = rootName,
+        writer = writer,
+        skipUnsafePaths = skipUnsafePaths,
+        allowResourceBudgetOverride = allowResourceBudgetOverride,
+        progress = progress,
+    )
+
+    suspend fun extractToWriter(
+        source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
         selectedPaths: Collection<String>,
         rootName: String,
@@ -287,11 +327,11 @@ internal class ArchiveExtractor @JvmOverloads constructor(
     }
 
     private fun validateSnapshot(
-        source: File,
+        source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
         structureLimits: ArchiveStructureLimits,
     ) {
-        if (!source.isFile) {
+        if (!source.isRegularFile) {
             throw ArchiveExtractionException(
                 ArchiveFailureCode.SOURCE_NOT_FILE,
                 "Archive source is not a regular file",
@@ -442,7 +482,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
     }
 
     private fun preflightDirectoryMetadata(
-        source: File,
+        source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
         cancellationCheck: () -> Unit,
     ) {
@@ -551,9 +591,14 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         }
     }
 
-    private fun verifySourceIdentity(source: File, snapshot: ArchiveSnapshot) {
-        if (source.length() != snapshot.sourceLength ||
-            source.lastModified() != snapshot.sourceLastModifiedMillis
+    private fun verifySourceIdentity(source: ArchiveReadSource, snapshot: ArchiveSnapshot) {
+        val identity = try {
+            source.identity()
+        } catch (_: Exception) {
+            changed("Archive source cannot be inspected after scanning")
+        }
+        if (identity.length != snapshot.sourceLength ||
+            identity.lastModifiedMillis != snapshot.sourceLastModifiedMillis
         ) {
             changed("Archive source changed after scanning")
         }
