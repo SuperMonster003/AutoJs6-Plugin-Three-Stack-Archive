@@ -59,20 +59,28 @@ internal class ExplorerActionHostSessionClient(
     fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor =
         remote.openFile(targetId, relativePath) ?: error("Host returned no source descriptor")
 
-    fun prepareOutput(displayName: String): HostOutputTransaction {
+    fun prepareOutput(
+        displayName: String,
+        format: ArchiveFormat,
+    ): HostOutputTransaction {
         val result = remote.prepareOutput(
             displayName,
-            ArchiveCompressionPolicy.ZIP_MIME_TYPE,
+            format.primaryMimeType,
             ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME,
         ) ?: error("Host returned no output transaction")
-        return decodeOutput(result)
+        return decodeOutput(result, format)
     }
 
     fun openOutput(transactionId: String): ParcelFileDescriptor =
         remote.openOutput(transactionId) ?: error("Host returned no output descriptor")
 
-    fun commitOutput(transactionId: String): HostOutputTransaction =
-        decodeOutput(remote.commitOutput(transactionId) ?: error("Host returned no commit result"))
+    fun commitOutput(
+        transactionId: String,
+        format: ArchiveFormat,
+    ): HostOutputTransaction = decodeOutput(
+        remote.commitOutput(transactionId) ?: error("Host returned no commit result"),
+        format,
+    )
 
     fun abortOutput(transactionId: String) {
         remote.abortOutput(transactionId)
@@ -114,12 +122,16 @@ internal class ExplorerActionHostSessionClient(
         )
     }
 
-    private fun decodeOutput(bundle: Bundle): HostOutputTransaction {
+    private fun decodeOutput(
+        bundle: Bundle,
+        format: ArchiveFormat,
+    ): HostOutputTransaction {
         val id = bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID)
             ?.takeIf(::isCanonicalUuid)
             ?: error("Host output transaction ID is invalid")
         val displayName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
             bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME),
+            format,
         ) ?: error("Host output display name is invalid")
         val displayPath = bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH)
             ?.takeIf { it.length in 1..ExplorerActionProtocol.MAX_PARENT_DISPLAY_PATH_LENGTH }

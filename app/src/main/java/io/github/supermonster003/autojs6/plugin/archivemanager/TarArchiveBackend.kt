@@ -3,6 +3,7 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import com.github.luben.zstd.ZstdInputStream
+import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
@@ -48,7 +49,10 @@ internal abstract class TarArchiveBackendBase(
         require(format.isTarFamily)
     }
 
-    override val capabilities = TAR_READ_ONLY_CAPABILITIES
+    override val capabilities = tarCapabilities(container)
+
+    override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
+        TarArchiveCreator(format, capabilities, session)
 
     override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
         if (!container.hasOuterSignature(source)) {
@@ -113,20 +117,27 @@ internal abstract class TarArchiveBackendBase(
     }
 }
 
-private val TAR_READ_ONLY_CAPABILITIES = FormatCapabilities(
+private fun tarCapabilities(container: TarContainer) = FormatCapabilities(
     canDetect = true,
     canList = true,
     canPreview = true,
     canOpen = true,
     canExtract = true,
-    canCreate = false,
+    canCreate = true,
     canAdd = false,
     canDelete = false,
     canRename = false,
     password = ArchiveOptionMode.UNSUPPORTED,
     filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
     splitVolumes = ArchiveOptionMode.UNSUPPORTED,
-    compressionLevels = emptyList(),
+    compressionLevels = when (container) {
+        TarContainer.PLAIN -> listOf(0)
+        TarContainer.GZIP -> (0..9).toList()
+        TarContainer.XZ,
+        TarContainer.BZIP2,
+        TarContainer.ZSTD,
+        -> (1..9).toList()
+    },
     limitations = setOf(
         ArchiveFormatLimitation.PASSWORD_UNAVAILABLE,
         ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,

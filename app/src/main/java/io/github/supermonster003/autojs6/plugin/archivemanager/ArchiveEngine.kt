@@ -11,6 +11,7 @@ enum class ArchiveFormat(
     val id: String,
     val displayName: String,
     val primaryExtension: String,
+    val primaryMimeType: String,
     val extensions: Set<String>,
     val mimeTypes: Set<String>,
 ) {
@@ -18,6 +19,7 @@ enum class ArchiveFormat(
         id = "zip",
         displayName = "ZIP",
         primaryExtension = "zip",
+        primaryMimeType = "application/zip",
         extensions = setOf("zip", "jar", "aar", "war"),
         mimeTypes = setOf(
             "application/zip",
@@ -29,6 +31,7 @@ enum class ArchiveFormat(
         id = "tar",
         displayName = "TAR",
         primaryExtension = "tar",
+        primaryMimeType = "application/x-tar",
         extensions = setOf("tar"),
         mimeTypes = setOf(
             "application/x-tar",
@@ -39,6 +42,7 @@ enum class ArchiveFormat(
         id = "tar-gzip",
         displayName = "TAR.GZ",
         primaryExtension = "tar.gz",
+        primaryMimeType = "application/x-compressed-tar",
         extensions = setOf("tar.gz", "tgz"),
         mimeTypes = setOf("application/x-compressed-tar"),
     ),
@@ -46,6 +50,7 @@ enum class ArchiveFormat(
         id = "tar-xz",
         displayName = "TAR.XZ",
         primaryExtension = "tar.xz",
+        primaryMimeType = "application/x-xz-compressed-tar",
         extensions = setOf("tar.xz", "txz"),
         mimeTypes = setOf("application/x-xz-compressed-tar"),
     ),
@@ -53,6 +58,7 @@ enum class ArchiveFormat(
         id = "tar-bzip2",
         displayName = "TAR.BZ2",
         primaryExtension = "tar.bz2",
+        primaryMimeType = "application/x-bzip2-compressed-tar",
         extensions = setOf("tar.bz2", "tbz2"),
         mimeTypes = setOf(
             "application/x-bzip-compressed-tar",
@@ -63,6 +69,7 @@ enum class ArchiveFormat(
         id = "tar-zstd",
         displayName = "TAR.ZST",
         primaryExtension = "tar.zst",
+        primaryMimeType = "application/x-zstd-compressed-tar",
         extensions = setOf("tar.zst", "tzst"),
         mimeTypes = setOf("application/x-zstd-compressed-tar"),
     ),
@@ -97,6 +104,7 @@ enum class ArchiveFormat(
         require(id.isNotBlank())
         require(displayName.isNotBlank())
         require(primaryExtension in extensions)
+        require(primaryMimeType in mimeTypes)
         require(
             extensions.isNotEmpty() &&
                 extensions.all { it.isNotBlank() && it == it.lowercase(Locale.ROOT) },

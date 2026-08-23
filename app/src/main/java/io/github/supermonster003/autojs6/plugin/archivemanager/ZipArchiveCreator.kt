@@ -8,10 +8,7 @@ import net.lingala.zip4j.model.enums.CompressionLevel
 import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.autojs.plugin.explorer.api.ExplorerActionValues
-import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
-import java.util.ArrayDeque
-import java.util.HashSet
 
 internal class ZipArchiveCreator(
     remoteSession: org.autojs.plugin.explorer.api.IExplorerActionHostSession,
@@ -21,6 +18,7 @@ internal class ZipArchiveCreator(
     override val formatCapabilities = ZipArchiveBackend.capabilities
 
     private val session = ExplorerActionHostSessionClient(remoteSession)
+    private val sourceWalker = ArchiveSourceWalker(session)
 
     override fun create(
         request: ArchiveCompressionRequest,
@@ -28,13 +26,20 @@ internal class ZipArchiveCreator(
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): ArchiveCreationResult {
-        val outputName = ArchiveCompressionPolicy.normalizeOutputDisplayName(options.outputDisplayName)
+        val outputName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
+            options.outputDisplayName,
+            format,
+        )
             ?: throw IllegalArgumentException("ZIP output name is invalid")
-        val compressionLevel = ArchiveCompressionPolicy.requireCompressionLevel(options.compressionLevel)
+        val compressionLevel = ArchiveCompressionPolicy.requireCompressionLevel(
+            options.compressionLevel,
+            formatCapabilities.compressionLevels,
+            format,
+        )
         val passwordChars = options.password
             ?.takeIf(CharArray::isNotEmpty)
             ?.clone()
-        val transaction = session.prepareOutput(outputName)
+        val transaction = session.prepareOutput(outputName, format)
         try {
             val descriptor = session.openOutput(transaction.id)
             val counters = writeArchive(
@@ -46,7 +51,7 @@ internal class ZipArchiveCreator(
                 progress = progress,
             )
             checkCancelled()
-            val committed = session.commitOutput(transaction.id)
+            val committed = session.commitOutput(transaction.id, format)
             return ArchiveCreationResult(
                 outputDisplayName = committed.displayName,
                 outputDisplayPath = committed.displayPath,
@@ -72,45 +77,19 @@ internal class ZipArchiveCreator(
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): Counters {
-        val queue = ArrayDeque<WorkItem>()
-        targets.forEach { target ->
-            val rootEntryPath = ArchiveCompressionPolicy.requirePortableEntrySegment(target.displayName)
-            queue.addLast(
-                WorkItem.Source(
-                    target = target,
-                    relativePath = "",
-                    entryPath = rootEntryPath,
-                    kind = target.kind,
-                    lastModified = target.lastModified,
-                    readable = true,
-                    symbolicLink = false,
-                ),
-            )
-        }
-        val writtenNames = HashSet<String>()
         val counters = Counters()
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
             ZipOutputStream(BufferedOutputStream(rawOutput, BUFFER_SIZE), password).use { zipOutput ->
-                while (queue.isNotEmpty()) {
-                    checkCancelled()
-                    when (val item = queue.removeFirst()) {
-                        is WorkItem.Source -> processSource(
-                            item = item,
-                            queue = queue,
-                            zipOutput = zipOutput,
-                            writtenNames = writtenNames,
-                            counters = counters,
-                            compressionLevel = compressionLevel,
-                            encryptFiles = password != null,
-                            checkCancelled = checkCancelled,
-                            progress = progress,
-                        )
-                        is WorkItem.DirectoryPage -> processDirectoryPage(
-                            item = item,
-                            queue = queue,
-                            checkCancelled = checkCancelled,
-                        )
-                    }
+                sourceWalker.walk(targets, checkCancelled) { item ->
+                    processSource(
+                        item = item,
+                        zipOutput = zipOutput,
+                        counters = counters,
+                        compressionLevel = compressionLevel,
+                        encryptFiles = password != null,
+                        checkCancelled = checkCancelled,
+                        progress = progress,
+                    )
                 }
             }
         }
@@ -118,22 +97,17 @@ internal class ZipArchiveCreator(
     }
 
     private fun processSource(
-        item: WorkItem.Source,
-        queue: ArrayDeque<WorkItem>,
+        item: ArchiveSourceEntry,
         zipOutput: ZipOutputStream,
-        writtenNames: MutableSet<String>,
         counters: Counters,
         compressionLevel: Int,
         encryptFiles: Boolean,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ) {
-        require(item.readable) { "Source is not readable: ${item.entryPath}" }
-        require(!item.symbolicLink) { "Symbolic links are not followed: ${item.entryPath}" }
         when (item.kind) {
             ExplorerActionValues.TARGET_DIRECTORY -> {
-                val directoryEntryName = item.entryPath.trimEnd('/') + '/'
-                require(writtenNames.add(directoryEntryName)) { "Duplicate ZIP entry: $directoryEntryName" }
+                val directoryEntryName = item.archivePath.trimEnd('/') + '/'
                 zipOutput.putNextEntry(
                     zipParameters(
                         entryName = directoryEntryName,
@@ -144,42 +118,29 @@ internal class ZipArchiveCreator(
                 )
                 zipOutput.closeEntry()
                 counters.directories++
-                progress.report(item.entryPath, counters)
-                queue.addFirst(
-                    WorkItem.DirectoryPage(
-                        target = item.target,
-                        relativePath = item.relativePath,
-                        entryPath = item.entryPath,
-                        offset = 0,
-                    ),
-                )
+                progress.report(item.archivePath, counters)
             }
             ExplorerActionValues.TARGET_FILE -> {
-                require(writtenNames.add(item.entryPath)) { "Duplicate ZIP entry: ${item.entryPath}" }
                 zipOutput.putNextEntry(
                     zipParameters(
-                        entryName = item.entryPath,
+                        entryName = item.archivePath,
                         lastModified = item.lastModified,
                         compressionLevel = compressionLevel,
                         encryptFiles = encryptFiles,
                     ),
                 )
-                val sourceDescriptor = session.openFile(item.target.id, item.relativePath)
-                ParcelFileDescriptor.AutoCloseInputStream(sourceDescriptor).use { rawInput ->
-                    BufferedInputStream(rawInput, BUFFER_SIZE).use { input ->
-                        val buffer = ByteArray(BUFFER_SIZE)
-                        while (true) {
-                            checkCancelled()
-                            val count = input.read(buffer)
-                            if (count < 0) break
-                            zipOutput.write(buffer, 0, count)
-                            counters.bytesRead = Math.addExact(counters.bytesRead, count.toLong())
-                        }
-                    }
-                }
+                sourceWalker.copyFile(
+                    entry = item,
+                    output = zipOutput,
+                    expectedSize = item.size.takeIf { it >= 0L },
+                    checkCancelled = checkCancelled,
+                    onBytesWritten = { count ->
+                        counters.bytesRead = Math.addExact(counters.bytesRead, count.toLong())
+                    },
+                )
                 zipOutput.closeEntry()
                 counters.files++
-                progress.report(item.entryPath, counters)
+                progress.report(item.archivePath, counters)
             }
             else -> error("Host returned an unsupported source kind")
         }
@@ -202,31 +163,6 @@ internal class ZipArchiveCreator(
         }
     }
 
-    private fun processDirectoryPage(
-        item: WorkItem.DirectoryPage,
-        queue: ArrayDeque<WorkItem>,
-        checkCancelled: () -> Unit,
-    ) {
-        checkCancelled()
-        val page = session.listChildren(item.target.id, item.relativePath, item.offset)
-        if (!page.complete) {
-            queue.addFirst(item.copy(offset = page.nextOffset))
-        }
-        page.items.asReversed().forEach { child ->
-            queue.addFirst(
-                WorkItem.Source(
-                    target = item.target,
-                    relativePath = child.relativePath,
-                    entryPath = ArchiveCompressionPolicy.joinEntryPath(item.entryPath, child.displayName),
-                    kind = child.kind,
-                    lastModified = child.lastModified,
-                    readable = child.readable,
-                    symbolicLink = child.symbolicLink,
-                ),
-            )
-        }
-    }
-
     private fun ArchiveCreationProgressListener.report(entryPath: String, counters: Counters) {
         onProgress(
             ArchiveCreationProgress(
@@ -236,25 +172,6 @@ internal class ZipArchiveCreator(
                 sourceBytesRead = counters.bytesRead,
             ),
         )
-    }
-
-    private sealed interface WorkItem {
-        data class Source(
-            val target: ArchiveCompressionTarget,
-            val relativePath: String,
-            val entryPath: String,
-            val kind: Int,
-            val lastModified: Long,
-            val readable: Boolean,
-            val symbolicLink: Boolean,
-        ) : WorkItem
-
-        data class DirectoryPage(
-            val target: ArchiveCompressionTarget,
-            val relativePath: String,
-            val entryPath: String,
-            val offset: Int,
-        ) : WorkItem
     }
 
     private data class Counters(

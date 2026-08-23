@@ -15,7 +15,7 @@
     <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
     <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
-    <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP وTAR ويستخرجها وينشئ أرشيفات ZIP</string>
+    <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP وTAR ويستخرجها وينشئها</string>
     <string name="text_cancelled">تم الإلغاء</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
     <string name="text_extract_selected">استخراج المحدد</string>

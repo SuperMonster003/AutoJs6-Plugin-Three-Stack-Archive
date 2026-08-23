@@ -14,7 +14,7 @@
     <string name="error_extraction_failed">解壓縮失敗</string>
     <string name="error_no_selection">請至少選取一個項目</string>
     <string name="error_permission_missing">缺少壓縮檔讀取權限</string>
-    <string name="plugin_description">檔案管理器外掛程式. 瀏覽及解壓縮 ZIP 與 TAR 壓縮檔, 並建立 ZIP 壓縮檔</string>
+    <string name="plugin_description">檔案管理器外掛程式. 瀏覽、解壓縮及建立 ZIP 與 TAR 壓縮檔</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分輸出...</string>
     <string name="text_extract_selected">解壓縮所選項目</string>

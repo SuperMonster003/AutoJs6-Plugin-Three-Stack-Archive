@@ -31,10 +31,10 @@ Commons Compress and its three runtime dependencies were already part of the app
 
 - Component: `org.tukaani:xz:1.12`
 - Project: <https://tukaani.org/xz/java.html>
-- Purpose here: streamed XZ decoding for TAR.XZ/TXZ archives through Commons Compress
+- Purpose here: streamed XZ encoding and decoding for TAR.XZ/TXZ archives through Commons Compress
 - License: BSD Zero Clause License (0BSD); the exact upstream [`COPYING`](third_party/xz-java/COPYING) is retained in this repository and packaged with the application
 - Transitive dependencies: none in `releaseRuntimeClasspath`
-- Native code/ABI impact: none from XZ for Java; it is a pure Java library. The application now packages native libraries only for the separately documented Zstandard decoder.
+- Native code/ABI impact: none from XZ for Java; it is a pure Java library. The application now packages native libraries only for the separately documented Zstandard codec.
 
 ### Version and security review
 
@@ -46,7 +46,7 @@ Review date: 2026-08-23.
 - XZ for Java 1.10 and newer use 0BSD. The main sources are Java 8 compatible, so 1.12 remains compatible with the application's Android toolchain.
 - Future upgrades must review the upstream security and release pages, verify the Maven artifact hash, and rerun malformed-stream, external 7-Zip corpus, API 24 runtime, and host-session tests.
 
-Archive Manager verifies both the six-byte XZ container signature and the decompressed TAR structure before indexing. It enables concatenated-stream decoding, consumes the container footer so XZ integrity checks run, and caps XZ decoder memory at 262,144 KiB so an archive header cannot request unbounded dictionary memory. TAR entry paths, types, declared and actual sizes, source identity, output isolation, and cleanup remain enforced by the format-neutral application layer.
+Archive Manager verifies both the six-byte XZ container signature and the decompressed TAR structure before indexing. It enables concatenated-stream decoding, consumes the container footer so XZ integrity checks run, and caps XZ decoder memory at 262,144 KiB so an archive header cannot request unbounded dictionary memory. Creation maps the selected XZ preset to the encoder and writes through the same host transaction as the other formats. TAR entry paths, types, declared and actual sizes, source identity, output isolation, and cleanup remain enforced by the format-neutral application layer.
 
 ### Artifact and APK measurement
 
@@ -57,13 +57,13 @@ The resolved XZ for Java JAR is 168,792 bytes with SHA-256 `3E158A87BD73D8AFB4B6
 | Debug APK | 10,769,982 bytes | 11,318,244 bytes | +548,262 bytes |
 | R8/resource-shrunk Release APK | 1,826,951 bytes | 1,848,415 bytes | +21,464 bytes |
 
-The difference covers the complete compressed-TAR phase: the XZ decoder, GZIP/XZ adapters, format registration, tests excluded from production, and packaged 0BSD text. Release is the distribution-relevant figure because R8 removes unused encoder and platform-specific code.
+The difference was measured when only reading was enabled and covers that compressed-TAR phase: the XZ decoder, GZIP/XZ adapters, format registration, tests excluded from production, and packaged 0BSD text. Release is the distribution-relevant figure. The later writer reuses the same dependency, so it adds no Maven artifact or ABI; future size baselines should be remeasured from a release commit that includes both directions.
 
 ## zstd-jni 1.5.7-15
 
 - Component: `com.github.luben:zstd-jni:1.5.7-15`
 - Project: <https://github.com/luben/zstd-jni/tree/v1.5.7-15>
-- Purpose here: streamed Zstandard decoding for TAR.ZST/TZST archives, including concatenated frames and skippable frames
+- Purpose here: streamed Zstandard encoding and decoding for TAR.ZST/TZST archives, including concatenated and skippable input frames and checksummed output frames
 - Licenses: the Java/JNI bindings use BSD-2-Clause and the embedded Zstandard native library is dual-licensed under BSD-3-Clause or GPL-2.0; this project uses the BSD terms. The exact upstream binding [`LICENSE`](third_party/zstd-jni/LICENSE) and native-library [`LICENSE`](third_party/zstd-jni/LICENSE.zstd) are retained in this repository and packaged with the application.
 - Resolved runtime dependencies: none in `releaseRuntimeClasspath`
 - Native code/ABI impact: the Android AAR contributes `libzstd-jni-1.5.7-15.so` for `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`. `PluginInfo.supportedAbis` advertises the same complete set.
@@ -79,7 +79,7 @@ Review date: 2026-08-23.
 - zstd-jni resolves JNI entry points through original Java class and member names. The Release shrinker therefore keeps `com.github.luben.zstd.**` names and members instead of relying on a build that happens to work without the upstream-required rule.
 - Future upgrades must review upstream releases and advisories, verify Maven hashes, inspect every packaged ABI for NDK provenance, 16 KiB `LOAD` alignment and RELRO, run `zipalign -P 16` on final APKs, and rerun malformed-stream, external-corpus, API 24 runtime, and host-session tests.
 
-Archive Manager verifies a standard or skippable Zstandard frame signature and the decompressed TAR structure before indexing. It enables continuous-frame decoding, consumes the stream footer so checksum and truncation errors surface, and caps the permitted frame window at `2^28` bytes (256 MiB). TAR entry paths, types, declared and actual sizes, source identity, output isolation, and cleanup remain enforced by the format-neutral application layer. A magic-only or otherwise undersized frame is reported as a recognized but malformed archive rather than an unknown format.
+Archive Manager verifies a standard or skippable Zstandard frame signature and the decompressed TAR structure before indexing. It enables continuous-frame decoding, consumes the stream footer so checksum and truncation errors surface, and caps the permitted frame window at `2^28` bytes (256 MiB). Creation maps the selected level to `ZstdOutputStream` and enables a frame checksum before the TAR stream is closed and transactionally committed. TAR entry paths, types, declared and actual sizes, source identity, output isolation, and cleanup remain enforced by the format-neutral application layer. A magic-only or otherwise undersized frame is reported as a recognized but malformed archive rather than an unknown format.
 
 ### Artifact, ABI, and APK measurement
 

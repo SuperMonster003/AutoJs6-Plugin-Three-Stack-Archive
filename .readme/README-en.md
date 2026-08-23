@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>An AutoJs6 file-manager plugin for browsing and extracting ZIP/TAR archives and creating ZIP archives</p>
+  <p>An AutoJs6 file-manager plugin for browsing, extracting, and creating ZIP/TAR archives</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,7 +31,7 @@ The README is available in these languages:
 
 ### About
 
-Archive Manager brings ZIP/TAR browsing and extraction plus ZIP creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, and can compress one item or a same-parent selection. More formats, per-entry extraction, and in-archive editing remain staged in the Roadmap.
+Archive Manager brings ZIP/TAR browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, and can create ZIP or TAR-family archives from one item or a same-parent selection. More formats, per-entry extraction, and in-archive editing remain staged in the Roadmap.
 
 ### Available now
 
@@ -42,14 +42,15 @@ Archive Manager brings ZIP/TAR browsing and extraction plus ZIP creation into th
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
 - Browse, preview, and extract uncompressed TAR files; symbolic links, hard links, device nodes, and sparse entries are listed but never written as ordinary files.
-- Browse, preview, and extract TAR.GZ/TGZ and TAR.XZ/TXZ archives with the same internal paths, special-entry isolation, and integrity checks.
+- Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives with the same internal paths, special-entry isolation, and integrity checks.
 - Verify the actual ZIP/TAR structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
 - Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
 - Browse and extract ZIP files protected with ZipCrypto or AES, retry a wrong password in place, and optionally create AES-256 encrypted ZIP files whose names remain visible; encrypted creation requires matching password confirmation.
 - Override the ZIP filename encoding when automatic detection is wrong; browsing and extraction reuse the same selection.
 - Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
-- Create ZIP files with a configurable name and compression level; default to the target name for one item and the parent-folder name for multiple items.
+- Create ZIP, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST with a configurable name and format-specific compression levels; passwords remain a ZIP-only option.
+- Default to the target name for one item and the parent-folder name for multiple items; changing formats replaces the complete compound extension.
 - Write to a same-directory temporary file and commit atomically; automatically number conflicts without overwriting existing files.
 
 ### Current formats
@@ -57,13 +58,13 @@ Archive Manager brings ZIP/TAR browsing and extraction plus ZIP creation into th
 The current release recognizes these browsable and extractable extensions:
 
 ```text
-zip, jar, aar, war, tar, tar.gz, tgz, tar.xz, txz
+zip, jar, aar, war, tar, tar.gz, tgz, tar.xz, txz, tar.bz2, tbz2, tar.zst, tzst
 ```
 
 The current release can create these formats:
 
 ```text
-zip
+zip, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
 > Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, 7z, split volumes, filename encryption, separate archives, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
@@ -71,14 +72,14 @@ zip
 ### Usage
 
 1. Install the plugin and enable it in the AutoJs6 Plugin Center.
-2. Open the file menu for a ZIP, JAR, AAR, WAR, or TAR file.
+2. Open the file menu for a supported archive.
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
-5. To create a ZIP, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar.
+5. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the format and compression level.
 
 ### Permissions and data
 
-The plugin requests neither storage nor network permission. Native browsing uses a short-lived read-only archive session pinned to the host UID and removes staged input when the page closes or unbinds; extraction uses only the input URI temporarily granted by the host. ZIP creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. Passwords stay only in clearable memory buffers, are never written to Bundles, preferences, logs, or diagnostics, and are cleared when replaced, after a task, or when the page is destroyed. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, integrity checks, and failure cleanup remain.
+The plugin requests neither storage nor network permission. Native browsing uses a short-lived read-only archive session pinned to the host UID and removes staged input when the page closes or unbinds; extraction uses only the input URI temporarily granted by the host. Archive creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. Passwords stay only in clearable memory buffers, are never written to Bundles, preferences, logs, or diagnostics, and are cleared when replaced, after a task, or when the page is destroyed. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, source-size checks, output transactions, and failure cleanup remain.
 
 ### Roadmap
 
@@ -98,9 +99,10 @@ _Unreleased_
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Added` TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST creation with format-specific levels and complete compound-extension updates
 - `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation
 - `Added` Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only
-- `Added` Browse, preview, and extract TAR.GZ/TGZ and TAR.XZ/TXZ through the same native host paths; format detection verifies both the compressor signature and inner TAR structure
+- `Added` Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST through the same native host paths; format detection verifies both the compressor signature and inner TAR structure
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
@@ -109,11 +111,12 @@ _Unreleased_
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
-- `Improved` ZIP output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
+- `Improved` ZIP and TAR-family output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
 - `Improved` Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled
 - `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
 - `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path
-- `Dependency` Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ decoding without native ABIs
+- `Dependency` Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ reading and writing without native ABIs
+- `Dependency` Added BSD-licensed zstd-jni 1.5.7-15 for TAR.ZST/TZST reading and writing; all four Android ABIs passed 16 KiB ELF alignment and RELRO checks
 
 #### v1.0.1
 

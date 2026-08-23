@@ -42,6 +42,43 @@ class ArchiveCompressionPolicyTest {
                 fallbackStem = "Archive",
             ),
         )
+        assertEquals(
+            "Documents.tar.zst",
+            ArchiveCompressionPolicy.defaultOutputDisplayName(
+                targetDisplayNames = listOf("a.txt", "b.txt"),
+                parentDisplayPath = "/storage/emulated/0/Documents/",
+                fallbackStem = "Archive",
+                format = ArchiveFormat.TAR_ZSTD,
+            ),
+        )
+    }
+
+    @Test
+    fun switchingFormatsReplacesTheCompleteRegisteredSuffix() {
+        assertEquals(
+            "Documents.tar.xz",
+            ArchiveCompressionPolicy.outputDisplayNameForFormat(
+                "Documents.zip",
+                ArchiveFormat.ZIP,
+                ArchiveFormat.TAR_XZ,
+            ),
+        )
+        assertEquals(
+            "Documents.tar.bz2",
+            ArchiveCompressionPolicy.outputDisplayNameForFormat(
+                "Documents.TAR.GZ",
+                ArchiveFormat.TAR_GZIP,
+                ArchiveFormat.TAR_BZIP2,
+            ),
+        )
+        assertEquals(
+            "custom-name.tar",
+            ArchiveCompressionPolicy.outputDisplayNameForFormat(
+                "custom-name",
+                ArchiveFormat.ZIP,
+                ArchiveFormat.TAR,
+            ),
+        )
     }
 
     @Test
@@ -86,6 +123,21 @@ class ArchiveCompressionPolicyTest {
         }
         assertThrows(IllegalArgumentException::class.java) {
             ArchiveCompressionPolicy.requireCompressionLevel(10)
+        }
+        assertEquals(
+            0,
+            ArchiveCompressionPolicy.requireCompressionLevel(
+                0,
+                listOf(0),
+                ArchiveFormat.TAR,
+            ),
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            ArchiveCompressionPolicy.requireCompressionLevel(
+                0,
+                (1..9).toList(),
+                ArchiveFormat.TAR_BZIP2,
+            )
         }
     }
 

@@ -61,9 +61,23 @@ internal object ArchiveCompressionPolicy {
         return withExtension
     }
 
-    fun requireCompressionLevel(value: Int): Int {
-        require(value in MIN_COMPRESSION_LEVEL..MAX_COMPRESSION_LEVEL) {
-            "ZIP compression level must be between $MIN_COMPRESSION_LEVEL and $MAX_COMPRESSION_LEVEL"
+    fun outputDisplayNameForFormat(
+        value: String?,
+        previousFormat: ArchiveFormat,
+        nextFormat: ArchiveFormat,
+    ): String? {
+        val raw = value?.trim()?.takeIf(String::isNotEmpty) ?: return null
+        val stem = previousFormat.baseNameWithoutArchiveExtension(raw) ?: raw
+        return normalizeOutputDisplayName(stem, nextFormat)
+    }
+
+    fun requireCompressionLevel(
+        value: Int,
+        supportedLevels: List<Int> = (MIN_COMPRESSION_LEVEL..MAX_COMPRESSION_LEVEL).toList(),
+        format: ArchiveFormat = ArchiveFormat.ZIP,
+    ): Int {
+        require(value in supportedLevels) {
+            "${format.displayName} compression level $value is not supported"
         }
         return value
     }
@@ -82,10 +96,10 @@ internal object ArchiveCompressionPolicy {
 
     fun requirePortableEntrySegment(value: String): String {
         require(value.isNotBlank() && value != "." && value != "..") {
-            "Source name is not a portable ZIP entry segment"
+            "Source name is not a portable archive entry segment"
         }
         require(value.none(::isUnsafeEntryCharacter)) {
-            "Source name contains a character that cannot be represented safely in a ZIP path"
+            "Source name contains a character that cannot be represented safely in an archive path"
         }
         return value
     }
@@ -94,7 +108,7 @@ internal object ArchiveCompressionPolicy {
         val segment = requirePortableEntrySegment(child)
         val result = if (parent.isEmpty()) segment else "$parent/$segment"
         require(result.length <= ExplorerActionProtocol.MAX_SESSION_RELATIVE_PATH_LENGTH) {
-            "ZIP entry path is too long"
+            "Archive entry path is too long"
         }
         return result
     }
@@ -105,7 +119,6 @@ internal object ArchiveCompressionPolicy {
     private fun isUnsafeEntryCharacter(value: Char): Boolean =
         isUnsafeNameCharacter(value)
 
-    const val ZIP_MIME_TYPE = "application/zip"
     const val DEFAULT_COMPRESSION_LEVEL = 6
     private const val MIN_COMPRESSION_LEVEL = 0
     private const val MAX_COMPRESSION_LEVEL = 9

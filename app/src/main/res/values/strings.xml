@@ -21,7 +21,7 @@
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
-    <string name="plugin_description">File manager plugin. Browse and extract ZIP and TAR archives; create ZIP archives</string>
+    <string name="plugin_description">File manager plugin. Browse, extract, and create ZIP and TAR archives</string>
     <string name="text_cancelled">Cancelled</string>
     <string name="text_advanced_compression_pending">Split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
     <string name="text_apply_password">Apply</string>

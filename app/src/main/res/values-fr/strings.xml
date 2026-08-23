@@ -15,7 +15,7 @@
     <string name="error_no_selection">Sélectionnez au moins une entrée</string>
     <string name="error_permission_missing">L\'accès en lecture à l\'archive est manquant</string>
     <string name="error_with_reason">%1$s\nMotif : %2$s</string>
-    <string name="plugin_description">Plugin du gestionnaire de fichiers. Parcourt et extrait les archives ZIP et TAR; crée des archives ZIP</string>
+    <string name="plugin_description">Plugin du gestionnaire de fichiers. Parcourt, extrait et crée des archives ZIP et TAR</string>
     <string name="text_cancelled">Annulé</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Nettoyage de la sortie partielle...</string>
     <string name="text_extract_selected">Extraire la sélection</string>

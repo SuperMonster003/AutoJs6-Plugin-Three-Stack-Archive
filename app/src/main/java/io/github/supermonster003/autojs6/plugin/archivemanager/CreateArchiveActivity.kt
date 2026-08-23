@@ -101,7 +101,13 @@ class CreateArchiveActivity : AppCompatActivity() {
         )
         configureFormat(selectedFormat, levels)
         format.setOnItemClickListener { _, _, position, _ ->
+            val previousFormat = selectedFormat
             selectedFormat = creatableFormats[position]
+            ArchiveCompressionPolicy.outputDisplayNameForFormat(
+                value = outputName.text?.toString(),
+                previousFormat = previousFormat,
+                nextFormat = selectedFormat,
+            )?.let(outputName::setText)
             configureFormat(selectedFormat, levels)
         }
 
@@ -164,7 +170,12 @@ class CreateArchiveActivity : AppCompatActivity() {
         val passwordConfirmation = binding.passwordConfirmation.text?.let { editable ->
             CharArray(editable.length) { index -> editable[index] }
         } ?: CharArray(0)
-        if (!ArchiveCompressionPolicy.passwordConfirmationMatches(password, passwordConfirmation)) {
+        val passwordAvailable = archiveEngine.capabilities(selectedFormat).password !=
+            ArchiveOptionMode.UNSUPPORTED
+        if (
+            passwordAvailable &&
+            !ArchiveCompressionPolicy.passwordConfirmationMatches(password, passwordConfirmation)
+        ) {
             password.fill('\u0000')
             passwordConfirmation.fill('\u0000')
             binding.passwordConfirmationLayout.error = getString(
@@ -175,7 +186,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         binding.passwordConfirmationLayout.error = null
         passwordConfirmation.fill('\u0000')
-        val passwordForCreation = password.takeIf(CharArray::isNotEmpty)
+        val passwordForCreation = password.takeIf { passwordAvailable && it.isNotEmpty() }
         currentFocus?.let { focused ->
             getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
@@ -275,11 +286,17 @@ class CreateArchiveActivity : AppCompatActivity() {
         }.coerceAtLeast(0)
         this@CreateArchiveActivity.compressionLevel = supportedChoices[selectedIndex].level
         compressionLevel.setText(levelLabels[selectedIndex], false)
+        compressionLevel.isEnabled = supportedChoices.size > 1
         compressionLevel.setOnItemClickListener { _, _, position, _ ->
             this@CreateArchiveActivity.compressionLevel = supportedChoices[position].level
         }
 
         val passwordAvailable = capabilities.password != ArchiveOptionMode.UNSUPPORTED
+        if (!passwordAvailable) {
+            password.text?.clear()
+            passwordConfirmation.text?.clear()
+            passwordConfirmationLayout.error = null
+        }
         passwordLayout.helperText = if (passwordAvailable) {
             getString(R.string.text_zip_password_encryption_note)
         } else {
@@ -317,8 +334,8 @@ class CreateArchiveActivity : AppCompatActivity() {
         status.text = message
         outputNameLayout.isEnabled = !busy
         format.isEnabled = !busy
-        compressionLevel.isEnabled = !busy
         val capabilities = archiveEngine.capabilities(selectedFormat)
+        compressionLevel.isEnabled = !busy && capabilities.compressionLevels.size > 1
         val passwordAvailable = capabilities.password != ArchiveOptionMode.UNSUPPORTED
         passwordLayout.isEnabled = !busy && passwordAvailable
         password.isEnabled = !busy && passwordAvailable

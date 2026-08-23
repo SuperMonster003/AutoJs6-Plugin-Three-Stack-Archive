@@ -22,6 +22,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -50,6 +51,61 @@ class CreateArchiveActivityInstrumentationTest {
                 assertEquals(0, hostSession.prepareOutputCalls)
             }
         }
+    }
+
+    @Test
+    fun formatSelectionReplacesTheCompleteSuffixAndAppliesFormatCapabilities() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val formatView = activity.findViewById<android.widget.AutoCompleteTextView>(R.id.format)
+                val outputName = activity.findViewById<android.widget.EditText>(R.id.outputName)
+                val password = activity.findViewById<android.widget.EditText>(R.id.password)
+                val compressionLevel = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.compressionLevel,
+                )
+                val labels = (0 until formatView.adapter.count).map { index ->
+                    formatView.adapter.getItem(index).toString()
+                }
+                assertEquals(
+                    listOf("ZIP", "TAR", "TAR.GZ", "TAR.XZ", "TAR.BZ2", "TAR.ZST"),
+                    labels,
+                )
+                password.setText("transient-password")
+
+                selectFormat(formatView, labels.indexOf("TAR"))
+
+                assertEquals("report.txt.tar", outputName.text.toString())
+                assertEquals("", password.text.toString())
+                assertFalse(password.isEnabled)
+                assertFalse(compressionLevel.isEnabled)
+
+                selectFormat(formatView, labels.indexOf("TAR.ZST"))
+
+                assertEquals("report.txt.tar.zst", outputName.text.toString())
+                assertFalse(password.isEnabled)
+                assertTrue(compressionLevel.isEnabled)
+
+                selectFormat(formatView, labels.indexOf("ZIP"))
+
+                assertEquals("report.txt.zip", outputName.text.toString())
+                assertTrue(password.isEnabled)
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    private fun selectFormat(
+        view: android.widget.AutoCompleteTextView,
+        position: Int,
+    ) {
+        val adapter = view.adapter
+        view.onItemClickListener.onItemClick(
+            null,
+            adapter.getView(position, null, null),
+            position,
+            adapter.getItemId(position),
+        )
     }
 
     private fun compressionIntent(hostSession: IExplorerActionHostSession): Intent {

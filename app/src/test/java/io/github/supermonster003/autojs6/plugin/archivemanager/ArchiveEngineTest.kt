@@ -46,7 +46,7 @@ class ArchiveEngineTest {
             ),
             engine.readableFormats,
         )
-        assertEquals(listOf(ArchiveFormat.ZIP), engine.creatableFormats)
+        assertEquals(engine.readableFormats, engine.creatableFormats)
         assertEquals(
             engine.readableFormats.flatMap(ArchiveFormat::catalogExtensions).toSet(),
             ArchiveManagerPlugin.EXTENSIONS.toSet(),
@@ -59,7 +59,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `tar capabilities describe a read only archive backend`() {
+    fun `tar capabilities expose creation without claiming mutation or encryption`() {
         val engine = ArchiveEngine.DEFAULT
 
         listOf(
@@ -75,14 +75,25 @@ class ArchiveEngineTest {
             assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
             assertTrue(capabilities.supports(ArchiveOperation.OPEN))
             assertTrue(capabilities.supports(ArchiveOperation.EXTRACT))
-            assertFalse(capabilities.supports(ArchiveOperation.CREATE))
+            assertTrue(capabilities.supports(ArchiveOperation.CREATE))
             assertFalse(capabilities.supports(ArchiveOperation.ADD))
             assertFalse(capabilities.supports(ArchiveOperation.DELETE))
             assertFalse(capabilities.supports(ArchiveOperation.RENAME))
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.password)
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
-            assertTrue(capabilities.compressionLevels.isEmpty())
+            assertEquals(
+                when (format) {
+                    ArchiveFormat.TAR -> listOf(0)
+                    ArchiveFormat.TAR_GZIP -> (0..9).toList()
+                    ArchiveFormat.TAR_XZ,
+                    ArchiveFormat.TAR_BZIP2,
+                    ArchiveFormat.TAR_ZSTD,
+                    -> (1..9).toList()
+                    ArchiveFormat.ZIP -> error("ZIP is outside this assertion")
+                },
+                capabilities.compressionLevels,
+            )
             assertTrue(capabilities.filenameCharsetNames.isEmpty())
             assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
             assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
@@ -91,6 +102,11 @@ class ArchiveEngineTest {
 
     @Test
     fun `compressed tar formats retain compound suffixes and publish host leaf extensions`() {
+        assertEquals("application/x-tar", ArchiveFormat.TAR.primaryMimeType)
+        assertEquals("application/x-compressed-tar", ArchiveFormat.TAR_GZIP.primaryMimeType)
+        assertEquals("application/x-xz-compressed-tar", ArchiveFormat.TAR_XZ.primaryMimeType)
+        assertEquals("application/x-bzip2-compressed-tar", ArchiveFormat.TAR_BZIP2.primaryMimeType)
+        assertEquals("application/x-zstd-compressed-tar", ArchiveFormat.TAR_ZSTD.primaryMimeType)
         assertEquals(setOf("tar.gz", "tgz"), ArchiveFormat.TAR_GZIP.extensions)
         assertEquals(setOf("gz", "tgz"), ArchiveFormat.TAR_GZIP.catalogExtensions)
         assertEquals(setOf("tar.xz", "txz"), ArchiveFormat.TAR_XZ.extensions)
