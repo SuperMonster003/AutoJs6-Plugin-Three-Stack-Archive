@@ -92,6 +92,8 @@ class CreateArchiveActivity : AppCompatActivity() {
             ),
         )
         format.setText(formatLabels.first(), false)
+        format.setOnClickListener { format.showDropDown() }
+        compressionLevel.setOnClickListener { compressionLevel.showDropDown() }
 
         val levels = listOf(
             CompressionLevelChoice(R.string.text_compression_level_none, 0),
@@ -298,7 +300,7 @@ class CreateArchiveActivity : AppCompatActivity() {
             passwordConfirmationLayout.error = null
         }
         passwordLayout.helperText = if (passwordAvailable) {
-            getString(R.string.text_zip_password_encryption_note)
+            getString(R.string.text_password_encryption_note)
         } else {
             getString(R.string.text_encryption_unavailable_for_format, formatLabel(format))
         }
@@ -320,6 +322,7 @@ class CreateArchiveActivity : AppCompatActivity() {
 
     private fun formatLabel(format: ArchiveFormat): String = when (format) {
         ArchiveFormat.ZIP -> getString(R.string.text_format_zip)
+        ArchiveFormat.SEVEN_Z,
         ArchiveFormat.TAR,
         ArchiveFormat.TAR_GZIP,
         ArchiveFormat.TAR_XZ,

@@ -28,6 +28,10 @@ data class ArchiveSecurityLimits(
 enum class ArchiveCompressionMethod {
     STORED,
     DEFLATED,
+    DEFLATE64,
+    LZMA,
+    LZMA2,
+    BZIP2,
     OTHER,
 }
 

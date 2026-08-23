@@ -10,6 +10,9 @@ import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
+import org.apache.commons.compress.archivers.sevenz.SevenZMethod
+import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
@@ -24,6 +27,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
+import java.util.Date
 import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -117,6 +121,53 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
                 },
             ),
         ).forEach(::verifyCompressedTarRuntime)
+    }
+
+    @Test
+    fun sevenZSeekableChannelAndAesAreReadableOnTheDeviceRuntime() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val source = File(context.cacheDir, "runtime-${UUID.randomUUID()}.7z")
+        val expected = "seven-z-runtime-check".toByteArray()
+
+        try {
+            FileOutputStream(source).use { fileOutput ->
+                SevenZOutputFile(fileOutput.channel, TEST_PASSWORD.toCharArray()).use { output ->
+                    output.setContentCompression(SevenZMethod.LZMA2)
+                    output.putArchiveEntry(
+                        SevenZArchiveEntry().apply {
+                            name = "目录/hello.txt"
+                            lastModifiedDate = Date(1_700_000_000_000L)
+                        },
+                    )
+                    output.write(expected)
+                    output.closeArchiveEntry()
+                }
+            }
+
+            val locked = ArchiveScanner().scan(source)
+            val lockedEntry = locked.entries.single()
+            assertEquals(ArchiveFormat.SEVEN_Z, locked.format)
+            assertEquals("目录/hello.txt", lockedEntry.path)
+            assertTrue(lockedEntry.isEncrypted)
+            assertTrue(!lockedEntry.canExtract)
+
+            val unlocked = ArchiveScanner().scan(
+                source,
+                ArchiveReaderOptions(password = TEST_PASSWORD.toCharArray()),
+            )
+            val entry = unlocked.entries.single()
+            assertTrue(entry.canExtract)
+            ArchiveEngine.DEFAULT.openReader(
+                source = source,
+                format = unlocked.format,
+                options = unlocked.readerOptions,
+            ).use { reader ->
+                val liveEntry = requireNotNull(reader.entryAt(entry.ordinal))
+                assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
+            }
+        } finally {
+            source.delete()
+        }
     }
 
     @Test

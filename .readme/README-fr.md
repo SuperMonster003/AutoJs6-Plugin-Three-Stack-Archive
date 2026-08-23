@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>Plugin du gestionnaire de fichiers AutoJs6 pour parcourir, extraire et créer des archives ZIP/TAR</p>
+  <p>Plugin du gestionnaire de fichiers AutoJs6 pour parcourir, extraire et créer des archives ZIP, 7Z et de la famille TAR</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,11 +31,11 @@ Le README est disponible dans les langues suivantes:
 
 ### Présentation
 
-Archive Manager intègre la navigation, l'extraction et la création ZIP/TAR au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, prévisualise les entrées prises en charge et crée une archive ZIP ou TAR à partir d'un élément ou d'une sélection de même dossier parent. Davantage de formats, l'extraction par entrée et l'édition interne restent planifiés dans le Roadmap.
+Archive Manager intègre la navigation, l'extraction et la création des archives ZIP, 7Z et de la famille TAR au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, prévisualise les entrées prises en charge et crée un format pris en charge à partir d'un élément ou d'une sélection de même dossier parent. L'extraction par entrée et l'édition interne restent planifiées dans le Roadmap.
 
 ### Disponible actuellement
 
-- Ouvrir les archives des familles ZIP et TAR directement dans la liste native d'AutoJs6, avec le thème, le mode sombre et les couleurs dynamiques de l'hôte.
+- Ouvrir les archives des familles ZIP, 7Z et TAR directement dans la liste native d'AutoJs6, avec le thème, le mode sombre et les couleurs dynamiques de l'hôte.
 - Afficher le dossier externe, le nom de l'archive et le dossier interne dans la barre de chemin ; toucher un niveau pour y accéder et utiliser Retour pour remonter avant de quitter l'archive.
 - Ouvrir les documents, images, fichiers audio et vidéos pris en charge avec les visionneuses existantes de l'hôte.
 - Utiliser le raccourci « Extraire vers... » pour extraire toute l'archive sans ouvrir d'abord la vue de navigation.
@@ -43,14 +43,14 @@ Archive Manager intègre la navigation, l'extraction et la création ZIP/TAR au 
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
 - Parcourir, prévisualiser et extraire les TAR non compressés ; les liens symboliques ou physiques, les nœuds de périphérique et les entrées creuses restent listés sans être écrits comme des fichiers ordinaires.
 - Parcourir, prévisualiser et extraire les TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST avec les mêmes chemins internes, l'isolation des entrées spéciales et les contrôles d'intégrité.
-- Vérifier la structure ZIP/TAR réelle et unifier les capacités de prévisualisation, d'extraction et de création, en laissant désactivées les options non prises en charge.
+- Parcourir, prévisualiser et extraire les 7Z ordinaires ou solid, y compris les chaînes courantes de compression et de filtres ainsi que les entrées chiffrées dans le contenu ou l'en-tête ; un mot de passe absent ou erroné produit un diagnostic explicite.
+- Vérifier la structure ZIP/7Z/TAR réelle et unifier les capacités de prévisualisation, d'extraction et de création, en laissant désactivées les options non prises en charge.
 - Prendre en charge Zip64, les préambules auto-extractibles, les anciens encodages de noms et les séparateurs Windows.
 - Parcourir et extraire les ZIP protégés par ZipCrypto ou AES, réessayer un mot de passe erroné sur place et créer au choix des ZIP chiffrés en AES-256 dont les noms restent visibles ; la création chiffrée exige une confirmation identique du mot de passe.
 - Remplacer l'encodage des noms ZIP quand la détection automatique est incorrecte ; la navigation et l'extraction réutilisent le même choix.
 - Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.
 - Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.
-- Créer des ZIP, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec un nom et les niveaux propres au format; le mot de passe facultatif reste réservé à ZIP.
-- Utiliser par défaut le nom de la cible pour un élément et celui du dossier parent pour plusieurs; changer de format remplace toute l'extension composée.
+- Créer des ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec un nom configurable et seulement les niveaux et options de mot de passe réellement pris en charge par le format choisi.
 - Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; numéroter les conflits sans écraser les fichiers existants.
 
 ### Formats actuels
@@ -58,24 +58,24 @@ Archive Manager intègre la navigation, l'extraction et la création ZIP/TAR au 
 La version actuelle reconnaît les extensions consultables et extractibles suivantes:
 
 ```text
-zip, jar, aar, war, tar, tar.gz, tgz, tar.xz, txz, tar.bz2, tbz2, tar.zst, tzst
+zip, jar, aar, war, 7z, tar, tar.gz, tgz, tar.xz, txz, tar.bz2, tbz2, tar.zst, tzst
 ```
 
 La version actuelle peut créer les formats suivants:
 
 ```text
-zip, tar, tar.gz, tar.xz, tar.bz2, tar.zst
+zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, 7z, les volumes fractionnés, le chiffrement des noms, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
+> La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, la création de volumes fractionnés, le chiffrement des noms à la création, les archives séparées, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
 
 ### Utilisation
 
 1. Installez le plugin et activez-le dans le centre de plugins AutoJs6.
-2. Ouvrez le menu d'une archive prise en charge.
+2. Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR.
 3. Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.
 4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu puis sélectionnez un dossier avec le sélecteur système Android.
-5. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format et le niveau.
+5. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format et les réglages disponibles.
 
 ### Autorisations et données
 
@@ -99,8 +99,10 @@ _Non publié_
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
+- `Ajout` Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort
 - `Ajout` Création de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec niveaux propres au format et mise à jour complète des extensions composées
 - `Ajout` Navigation et extraction des ZIP chiffrés avec ZipCrypto/AES, nouvelle saisie sur place d'un mot de passe erroné et création facultative de ZIP AES-256 dont les noms restent visibles avec confirmation identique du mot de passe
+- `Ajout` Navigation, aperçu et extraction des 7Z ordinaires ou solid avec chaînes courantes de compression et de filtres, chiffrement AES du contenu et de l'en-tête ; un mot de passe absent ou erroné produit un diagnostic explicite
 - `Ajout` Navigation, aperçu et extraction des TAR non compressés dans la liste native avec validation de la somme de contrôle des en-têtes ; liens, nœuds de périphérique et entrées creuses restent en lecture seule
 - `Ajout` Navigation, aperçu et extraction des TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST par les mêmes chemins natifs ; la détection vérifie la signature du compresseur et la structure TAR interne
 - `Correction` La liste ZIP utilise les métadonnées et accepte les préambules auto-extractibles, les anciens encodages, les séparateurs Windows et davantage de méthodes lisibles
@@ -108,15 +110,16 @@ _Non publié_
 - `Correction` Les tailles inconnues, les URI DocumentsProvider valides et les droits d'écriture supplémentaires de l'hôte ne bloquent plus une archive valide
 - `Correction` Correction de la consultation et de l'extraction ZIP sous Android 7.x, qui appelaient des API réservées aux systèmes récents
 - `Correction` Les mots de passe erronés sont désormais classés de façon stable sous PASSWORD/WRONG_PASSWORD et les entrées AES v2 avec un CRC stocké nul ne sont plus signalées à tort comme endommagées
+- `Correction` Le dossier d'extraction par défaut des extensions composées telles que TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST retire désormais le suffixe complet au lieu de conserver `.tar`
 - `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
 - `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
 - `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material
-- `Amélioration` Les sorties ZIP et TAR passent par une session de l'hôte liée à l'UID, utilisent un fichier temporaire du même dossier et sont validées atomiquement sans autorisation de stockage ni écrasement
+- `Amélioration` Les sorties ZIP, 7Z et TAR passent par une session de l'hôte liée à l'UID, utilisent un fichier temporaire du même dossier et sont validées atomiquement sans autorisation de stockage ni écrasement
 - `Amélioration` Les capacités du format et de chaque entrée sont vérifiées uniformément pour la prévisualisation, l'extraction et la création afin de laisser les options indisponibles désactivées
 - `Amélioration` Les échecs indiquent le format, l'étape, un code stable et le motif ; les versions de débogage peuvent copier le diagnostic complet
 - `Dépendance` Ajout de Zip4j 2.11.5 sous licence Apache 2.0 pour les flux ZIP chiffrés, la création AES-256 et le chemin de compatibilité Android 7.x
 - `Dépendance` Ajout de XZ for Java 1.12 sous licence 0BSD pour lire et écrire TAR.XZ/TXZ en Java pur sans ABI native
-- `Dépendance` Ajout de zstd-jni 1.5.7-15 sous licence BSD pour lire et écrire TAR.ZST/TZST; les quatre ABI Android satisfont les contrôles d'alignement ELF 16 Kio et RELRO
+- `Dépendance` Ajout de zstd-jni 1.5.7-15 sous licence BSD pour lire et écrire TAR.ZST/TZST ; les quatre ABI Android passent les contrôles d'alignement ELF 16 Kio et RELRO
 
 #### v1.0.1
 

@@ -10,8 +10,10 @@ _Sin publicar_
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
+- `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente
 - `Añadido` Creación de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con niveles propios y actualización completa de extensiones compuestas
 - `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles y confirmación de contraseña coincidente
+- `Añadido` Exploración, vista previa y extracción de 7Z normales o solid con cadenas comunes de compresión y filtros, cifrado AES del contenido y de la cabecera; las contraseñas ausentes o erróneas reciben un diagnóstico explícito
 - `Añadido` Exploración, vista previa y extracción de TAR sin comprimir en la lista nativa con validación de la suma de comprobación de cabeceras; enlaces, nodos de dispositivo y entradas dispersas quedan solo para lectura
 - `Añadido` Exploración, vista previa y extracción de TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 y TAR.ZST/TZST por las mismas rutas nativas; la detección verifica la firma del compresor y la estructura TAR interna
 - `Corregido` La lista ZIP usa metadatos y admite preámbulos autoextraíbles, codificaciones antiguas, separadores Windows y más métodos legibles
@@ -23,7 +25,7 @@ _Sin publicar_
 - `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
 - `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
 - `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material
-- `Mejorado` Las salidas ZIP y TAR pasan por una sesión del host vinculada al UID, usan un archivo temporal del mismo directorio y se confirman atómicamente sin permiso de almacenamiento ni sobrescrituras
+- `Mejorado` Las salidas ZIP, 7Z y TAR pasan por una sesión del host vinculada al UID, usan un archivo temporal del mismo directorio y se confirman atómicamente sin permiso de almacenamiento ni sobrescrituras
 - `Mejorado` Las capacidades del formato y de cada entrada se comprueban de forma uniforme al previsualizar, extraer y crear, por lo que las opciones no disponibles permanecen desactivadas
 - `Mejorado` Los fallos identifican el formato, la etapa, un código estable y el motivo; las compilaciones de depuración permiten copiar el diagnóstico completo
 - `Dependencia` Se añadió Zip4j 2.11.5 con licencia Apache 2.0 para flujos ZIP cifrados, creación AES-256 y la ruta de compatibilidad con Android 7.x

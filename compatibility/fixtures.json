@@ -72,6 +72,113 @@
       ]
     },
     {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-lzma2-solid-unicode.7z",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -t7z <output> .\\empty.bin .\\plain.txt .\\资料 -m0=LZMA2 -mx=5 -ms=on",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "solid": true,
+      "sha256": "094c9ecd3800481b0d2dac228e72d8bb07a680150c59305e82f9c508a2f267a3",
+      "entries": [
+        {
+          "name": "empty.bin",
+          "method": "Copy",
+          "size": 0
+        },
+        {
+          "name": "plain.txt",
+          "method": "LZMA2",
+          "size": 27
+        },
+        {
+          "name": "资料/说明.md",
+          "method": "LZMA2",
+          "size": 48,
+          "encoding": "UTF-16LE header"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-aes256-solid-unicode.7z",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -t7z <output> .\\empty.bin .\\plain.txt .\\资料 -m0=LZMA2 -mx=5 -ms=on -parchive-secret -mhe=off",
+      "password": "archive-secret",
+      "encryptionMethod": "AES-256-SHA256 content",
+      "headerEncryption": false,
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "solid": true,
+      "sha256": "2dbf44e00c280129b6542c45f0cae2e6dc96aa225202a2f3355595e4225c2d50",
+      "entries": [
+        {
+          "name": "empty.bin",
+          "method": "Copy",
+          "size": 0
+        },
+        {
+          "name": "plain.txt",
+          "method": "LZMA2 + 7zAES",
+          "size": 27
+        },
+        {
+          "name": "资料/说明.md",
+          "method": "LZMA2 + 7zAES",
+          "size": 48,
+          "encoding": "UTF-16LE header"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-aes256-header-unicode.7z",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -t7z <output> .\\empty.bin .\\plain.txt .\\资料 -m0=LZMA2 -mx=5 -ms=on -parchive-secret -mhe=on",
+      "password": "archive-secret",
+      "encryptionMethod": "AES-256-SHA256 content and header",
+      "headerEncryption": true,
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "solid": true,
+      "sha256": "8c3b5edf2663302a5199ae81a5d4a307a8a10854fa3bcb48da9460f619c5faa3",
+      "entries": [
+        {
+          "name": "empty.bin",
+          "method": "Copy",
+          "size": 0
+        },
+        {
+          "name": "plain.txt",
+          "method": "LZMA2 + 7zAES",
+          "size": 27
+        },
+        {
+          "name": "资料/说明.md",
+          "method": "LZMA2 + 7zAES",
+          "size": 48,
+          "encoding": "encrypted UTF-16LE header"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-bcj-lzma2.7z",
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -t7z <output> .\\filter.exe -m0=BCJ -m1=LZMA2 -mx=5 -ms=off",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "solid": false,
+      "sha256": "1bcf2d38631441b91e47c23b8bc67704797e159d27537c7dc49d4d38dce98a1a",
+      "entries": [
+        {
+          "name": "filter.exe",
+          "method": "BCJ + LZMA2",
+          "size": 27
+        }
+      ]
+    },
+    {
       "file": "app/src/test/resources/archive-fixtures/7zip-22-ustar-unicode.tar",
       "producer": "7-Zip",
       "producerVersion": "22.00 x64",

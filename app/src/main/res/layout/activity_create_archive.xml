@@ -84,7 +84,7 @@
                 android:hint="@string/text_archive_format"
                 android:labelFor="@id/format">
 
-                <AutoCompleteTextView
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/format"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
                 android:hint="@string/text_compression_level"
                 android:labelFor="@id/compressionLevel">
 
-                <AutoCompleteTextView
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/compressionLevel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -6,7 +6,7 @@ This project includes third-party software in its Android application. The proje
 
 - Component: `org.apache.commons:commons-compress:1.28.0`
 - Project: <https://commons.apache.org/proper/commons-compress/>
-- Purpose here: ZIP directory metadata; TAR structure detection, listing, header-checksum validation, and entry streams; and GZIP/BZIP2 stream decoding for TAR.GZ/TGZ and TAR.BZ2/TBZ2
+- Purpose here: ZIP directory metadata; seekable 7Z structure detection, listing, entry streams, common compression/filter pipelines, AES-256-SHA256 reading and content-encrypted writing; TAR structure detection, listing, header-checksum validation, and entry streams; and GZIP/BZIP2 stream decoding for TAR.GZ/TGZ and TAR.BZ2/TBZ2
 - License: Apache License 2.0; the exact upstream [`LICENSE`](third_party/commons-compress/LICENSE) and [`NOTICE`](third_party/commons-compress/NOTICE) are retained in this repository
 - Resolved runtime dependencies: Commons Codec 1.19.0, Commons IO 2.20.0, and Commons Lang 3.18.0
 - Native code/ABI impact: none; these are Java libraries and add no native ABI
@@ -19,13 +19,15 @@ Review date: 2026-08-22.
 - Apache's report lists CVE-2024-25710 and CVE-2024-26308 as fixed in 1.26.0; 1.28.0 includes those fixes.
 - Commons Compress 1.28.0 resolves Commons Lang 3.18.0, whose release replaced the recursive `ClassUtils.getClass` path associated with CVE-2025-48924.
 - Commons IO 2.20.0 is outside the before-2.14.0 range affected by CVE-2024-47554.
-- Future upgrades must repeat the Apache security-report and NVD searches for Commons Compress and its resolved runtime dependencies, then rerun malformed TAR and Android runtime tests.
+- Future upgrades must repeat the Apache security-report and NVD searches for Commons Compress and its resolved runtime dependencies, then rerun malformed 7Z/TAR, password, memory-limit, writer, and Android runtime tests.
 
 Archive Manager instantiates `TarArchiveInputStream` directly after its own signature check. It validates visible header checksums, never follows TAR links, does not materialize device or sparse entries, and keeps path validation, source-identity checks, declared/actual size checks, output isolation, and cleanup outside the library.
 
+Archive Manager also builds `SevenZFile` and `SevenZOutputFile` on seekable channels backed by host-provided file descriptors. The reader caps Commons Compress decoder memory at 262,144 KiB, maps absent and wrong passwords to stable diagnostics, and still applies the application's source-identity, path, declared/actual size, CRC, and output-isolation checks. The writer creates non-solid output, maps level 0 to Copy and levels 1 through 9 to LZMA2, and can add AES-256 content encryption. Commons Compress writes filenames in the unencrypted 7Z header, so Archive Manager keeps filename-encryption creation disabled and explains that encrypted output names remain visible. Split volumes and in-archive mutation are not exposed.
+
 ### Packaging impact
 
-Commons Compress and its three runtime dependencies were already part of the application before the TAR backend. TAR.BZ2 support adds no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application.
+Commons Compress and its three runtime dependencies were already part of the application before the TAR and 7Z backends. TAR.BZ2 and 7Z support add no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application. The only 7Z packaging increase comes from application code, localized resources, and the upstream license text that was already packaged, not from another dependency or ABI.
 
 ## XZ for Java 1.12
 

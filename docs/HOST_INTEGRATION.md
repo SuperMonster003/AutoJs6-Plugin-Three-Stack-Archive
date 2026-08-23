@@ -92,7 +92,7 @@ abortOutput(transactionId)
 close()
 ```
 
-目录页大小最大为 128. 相对路径、目标 ID、显示名、MIME 和输出名称均有协议上限. ZIP 与 TAR 系列创建器通过共享的源遍历器分页深度遍历目标, 只在需要时打开单个输入描述符, 拒绝越界路径与符号链接, 并持续响应取消.
+目录页大小最大为 128. 相对路径、目标 ID、显示名、MIME 和输出名称均有协议上限. ZIP、7Z 与 TAR 系列创建器通过共享的源遍历器分页深度遍历目标, 只在需要时打开单个输入描述符, 拒绝越界路径与符号链接, 并持续响应取消.
 
 会话的权限边界如下:
 
@@ -138,11 +138,11 @@ session.openEntry(entryId)      # v6, 仅普通可读取条目
 session.close()
 ```
 
-当前 ZIP 与 TAR 族实现把输入描述符暂存到插件私有缓存, 只扫描目录元数据并建立索引. TAR 族包括 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST. 页大小最大为 128; 宿主会持续取页直到 `complete`, 同时验证条目数、ID、父子关系、名称、类型、大小和分页游标. 插件不会把缓存路径或真实档案内部路径暴露给宿主, 条目使用会话内不透明 ID.
+当前 ZIP、7Z 与 TAR 族实现把输入描述符暂存到插件私有缓存, 只扫描目录元数据并建立索引. 7Z 支持普通/solid、常见压缩与过滤器链以及 AES 内容/头部加密读取; TAR 族包括 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST. 页大小最大为 128; 宿主会持续取页直到 `complete`, 同时验证条目数、ID、父子关系、名称、类型、大小和分页游标. 插件不会把缓存路径或真实档案内部路径暴露给宿主, 条目使用会话内不透明 ID.
 
 v6 的 `openEntry` 追加在 v5 AIDL 方法之后, 因此 v5 的 `getInfo`、`listChildren` 和 `close` 事务编号保持不变. `canOpenEntries` 缺失或为 `false` 时, 宿主继续提供 v5 浏览但不显示预览入口, 也不会调用新方法.
 
-打开条目时, 插件根据不透明 ID 找回扫描快照中的普通文件, 重新打开对应后端并核对源文件身份、目录元数据、条目类型与声明大小; ZIP 继续核对压缩方法、加密状态和 CRC, TAR 继续核对可见头部校验和及条目元数据. 数据经可靠只读管道发送; 关闭会话会中止排队或进行中的管道. 宿主仅把支持现有主动作的文档、图片或媒体条目复制到自己的私有会话缓存, 并在发布缓存文件前核对准确字节数和可用空间. 文档沿用 8 MiB 限制, 图片和媒体目前分别使用 256 MiB 与 512 MiB 预览预算; 这些限制只影响预览, 不影响目录浏览.
+打开条目时, 插件根据不透明 ID 找回扫描快照中的普通文件, 重新打开对应后端并核对源文件身份、目录元数据、条目类型与声明大小; ZIP 继续核对压缩方法、加密状态和 CRC, 7Z 继续核对方法链、加密状态、声明大小和 CRC, TAR 继续核对可见头部校验和及条目元数据. 数据经可靠只读管道发送; 关闭会话会中止排队或进行中的管道. 宿主仅把支持现有主动作的文档、图片或媒体条目复制到自己的私有会话缓存, 并在发布缓存文件前核对准确字节数和可用空间. 文档沿用 8 MiB 限制, 图片和媒体目前分别使用 256 MiB 与 512 MiB 预览预算; 这些限制只影响预览, 不影响目录浏览.
 
 会话生命周期与权限边界如下:
 
@@ -155,7 +155,7 @@ v6 的 `openEntry` 追加在 v5 AIDL 方法之后, 因此 v5 的 `getInfo`、`li
 
 ## 当前档案输出事务
 
-插件当前可创建 ZIP、TAR、TAR.GZ、TAR.XZ、TAR.BZ2 与 TAR.ZST. 所有格式使用同一工作流:
+插件当前可创建 ZIP、7Z、TAR、TAR.GZ、TAR.XZ、TAR.BZ2 与 TAR.ZST. 所有格式使用同一工作流:
 
 1. 宿主在共同父目录预留最终名称;
 2. 宿主在同一目录创建隐藏的 `.autojs6-explorer-*.part` 暂存文件;
@@ -260,7 +260,7 @@ FormatCapabilities
 
 特别是“同时加密文件名”应按三态显示: 不支持时关闭且禁用; 可选时默认关闭; 格式强制时开启且禁用. 禁用控件旁必须展示原因, 不能仅用灰色暗示.
 
-当前注册 ZIP 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是扩展名别名. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. TAR writer 使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 所有后端均不声明尚未实现的添加/删除/重命名/文件名加密/分卷能力. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
+当前注册 ZIP、7Z 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是扩展名别名. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. TAR writer 使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 所有后端均不声明尚未实现的添加/删除/重命名/创建时文件名加密/分卷能力. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
 
 外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). 总样本矩阵只有在 Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链的对应样本均落地后才可标记完成.
 

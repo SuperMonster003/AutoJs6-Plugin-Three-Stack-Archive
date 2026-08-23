@@ -99,5 +99,5 @@
     <string name="text_filename_encoding_automatic">Automatic</string>
     <string name="text_filename_encoding_automatic_detected">Automatic (legacy fallback: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexing archive...</string>
-    <string name="text_zip_password_encryption_note">Non-empty ZIP passwords use AES-256. File names remain visible.</string>
+    <string name="text_password_encryption_note">A non-empty password uses AES-256 encryption. File names remain visible.</string>
 </resources>

@@ -10,8 +10,10 @@ _Unreleased_
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported
 - `Added` TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST creation with format-specific levels and complete compound-extension updates
 - `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation
+- `Added` Browse, preview, and extract ordinary or solid 7Z archives with common compression/filter pipelines, AES content encryption, and header encryption; missing and wrong passwords receive explicit diagnostics
 - `Added` Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only
 - `Added` Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST through the same native host paths; format detection verifies both the compressor signature and inner TAR structure
 - `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
@@ -23,7 +25,7 @@ _Unreleased_
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
-- `Improved` ZIP and TAR-family output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
+- `Improved` ZIP, 7Z, and TAR-family output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
 - `Improved` Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled
 - `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
 - `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path

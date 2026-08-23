@@ -214,7 +214,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 setBusy(false)
                 throw cancelled
             } catch (error: Throwable) {
-                if (stagedArchive == null) {
+                val passwordFailure = configurePasswordFailure(error)
+                if (stagedArchive == null || (passwordFailure && snapshot == null)) {
                     binding.filenameEncodingLayout.isVisible = false
                 } else {
                     configureFilenameEncoding(snapshot)
@@ -229,6 +230,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     },
                 )
                 setBusy(false)
+                if (passwordFailure) focusArchivePassword()
             }
         }
     }
@@ -374,10 +376,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
             } catch (error: Throwable) {
                 selectedPassword?.fill('\u0000')
                 selectedPassword = previous
-                configurePassword(snapshot)
+                val passwordFailure = configurePasswordFailure(error)
+                if (!passwordFailure) configurePassword(snapshot)
                 val diagnostic = ArchiveFailureDiagnostic.from(
                     error = error,
-                    formatHint = snapshot?.format ?: ArchiveFormat.ZIP,
+                    formatHint = snapshot?.format ?: ArchiveFormat.SEVEN_Z,
                     stageHint = ArchiveFailureStage.PASSWORD,
                 )
                 if (diagnostic.code == ArchiveFailureCode.WRONG_PASSWORD) {
@@ -414,6 +417,38 @@ class ArchiveManagerActivity : AppCompatActivity() {
         archivePasswordLayout.isEnabled = !isBusy
         archivePassword.isEnabled = !isBusy
         applyPasswordButton.isEnabled = !isBusy
+    }
+
+    private fun configurePasswordFailure(error: Throwable): Boolean {
+        val diagnostic = ArchiveFailureDiagnostic.from(
+            error = error,
+            formatHint = snapshot?.format ?: ArchiveFormat.SEVEN_Z,
+            stageHint = ArchiveFailureStage.PASSWORD,
+        )
+        if (diagnostic.code !in setOf(
+                ArchiveFailureCode.PASSWORD_REQUIRED,
+                ArchiveFailureCode.WRONG_PASSWORD,
+            )
+        ) {
+            return false
+        }
+        with(binding) {
+            passwordControls.isVisible = true
+            archivePasswordLayout.helperText = getString(
+                R.string.text_password_needed_for_encrypted_entries,
+            )
+            archivePasswordLayout.error = if (
+                diagnostic.code == ArchiveFailureCode.WRONG_PASSWORD
+            ) {
+                getString(R.string.error_password_incorrect)
+            } else {
+                null
+            }
+            archivePasswordLayout.isEnabled = !isBusy
+            archivePassword.isEnabled = !isBusy
+            applyPasswordButton.isEnabled = !isBusy
+        }
+        return true
     }
 
     private fun focusArchivePassword() {

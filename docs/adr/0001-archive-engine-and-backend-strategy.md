@@ -1,6 +1,6 @@
 # ADR 0001: 统一档案引擎与后端演进策略
 
-- 状态: 已接受统一架构、ZIP 加密后端与 TAR/TAR.GZ/TAR.XZ/TAR.BZ2/TAR.ZST 读写后端; 其他格式后端选型待原型数据
+- 状态: 已接受统一架构、ZIP 加密后端、7Z 读写后端与 TAR/TAR.GZ/TAR.XZ/TAR.BZ2/TAR.ZST 读写后端; 其他格式及未完成能力的后端选型待原型数据
 - 日期: 2026-08-23
 - 范围: 插件内部格式识别、列表、预览、解压、创建和未来档案修改
 
@@ -14,7 +14,7 @@
 - 格式识别容易退化为扩展名判断;
 - 更换后端时必须同时修改 Activity、宿主会话和安全校验代码.
 
-当前生产依赖包含 Apache Commons Compress 1.28.0、XZ for Java 1.12、zstd-jni 1.5.7-15 与 Zip4j 2.11.5. Commons Compress 负责 ZIP 目录元数据、TAR 头与条目流及 GZIP/XZ/BZIP2 压缩流适配; XZ for Java 提供纯 Java XZ 编解码器; zstd-jni 提供 Zstandard Android 流式编解码; Zip4j 接管 ZipCrypto/AES 条目数据、加密方法元数据、AES-256 输出, 并在 Android 7.x 代替会调用缺失 `FileTime` API 的 Commons ZIP 路径. ZIP 与 TAR 族均以 Android 运行时、宿主会话和外部工具样本覆盖.
+当前生产依赖包含 Apache Commons Compress 1.28.0、XZ for Java 1.12、zstd-jni 1.5.7-15 与 Zip4j 2.11.5. Commons Compress 负责 ZIP 目录元数据、7Z seekable reader/writer、TAR 头与条目流及 GZIP/XZ/BZIP2 压缩流适配; XZ for Java 提供纯 Java XZ 编解码器; zstd-jni 提供 Zstandard Android 流式编解码; Zip4j 接管 ZipCrypto/AES 条目数据、加密方法元数据、AES-256 输出, 并在 Android 7.x 代替会调用缺失 `FileTime` API 的 Commons ZIP 路径. ZIP、7Z 与 TAR 族均以 Android 运行时、宿主会话和外部工具样本覆盖.
 
 ## 决策
 
@@ -32,32 +32,32 @@
 
 UI、扫描器、预览流、解压器和宿主会话不得直接依赖 ZIP 类. ZIP 专用字符集探测、目录对象和流实现只存在于 `ZipArchiveBackend` 以下.
 
-### 2. 只注册已经通过能力验证的 ZIP 与 TAR 族后端
+### 2. 只注册已经通过能力验证的 ZIP、7Z 与 TAR 族后端
 
 当前能力表如下:
 
-| 能力 | ZIP 当前状态 | TAR 当前状态 |
-| --- | --- | --- |
-| 结构识别/列表/预览/打开/解压 | 支持; ZipCrypto/AES 条目在提供密码后可读取, 其他条目仍受具体压缩方法约束 | 支持 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST; 识别 POSIX/GNU/Ant/AIX 及校验和有效的 V7 头 |
-| 创建 | 支持; 压缩级别 0 至 9, 可选密码使用 AES-256 | 支持; TAR 为级别 0, GZIP 为 0 至 9, XZ/BZIP2/Zstandard 为 1 至 9, 不支持密码 |
-| 添加/删除/重命名 | 不支持; 必须先实现重建事务 | 不支持; 必须先实现重建事务 |
-| 密码 | 可选; 无密码仍可浏览加密条目的目录元数据 | 不支持 |
-| 文件名加密 | 不支持; ZIP AES-256 输出仍公开中央目录文件名 | 不支持 |
-| 分卷 | 不支持 | 不支持 |
+| 能力 | ZIP 当前状态 | 7Z 当前状态 | TAR 当前状态 |
+| --- | --- | --- | --- |
+| 结构识别/列表/预览/打开/解压 | 支持; ZipCrypto/AES 条目在提供密码后可读取, 其他条目仍受具体压缩方法约束 | 支持普通与 solid 档案、常见压缩/过滤器链及 AES 内容/头部加密读取; 头部加密必须先提供密码, 解码内存上限为 262,144 KiB | 支持 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST; 识别 POSIX/GNU/Ant/AIX 及校验和有效的 V7 头 |
+| 创建 | 支持; 压缩级别 0 至 9, 可选密码使用 AES-256 | 支持非 solid 输出; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 可选密码使用 AES-256 内容加密 | 支持; TAR 为级别 0, GZIP 为 0 至 9, XZ/BZIP2/Zstandard 为 1 至 9, 不支持密码 |
+| 添加/删除/重命名 | 不支持; 必须先实现重建事务 | 不支持; 必须先实现重建事务 | 不支持; 必须先实现重建事务 |
+| 密码 | 可选; 无密码仍可浏览加密条目的目录元数据 | 可选; 仅内容加密时无密码可列出目录, 头部加密时索引返回 `PASSWORD_REQUIRED` | 不支持 |
+| 文件名加密 | 不支持; ZIP AES-256 输出仍公开中央目录文件名 | 可读取头部加密输入, 但 writer 不创建加密头部, 因此创建选项保持不支持 | 不支持 |
+| 分卷 | 不支持 | 不支持; 未把多卷连接通道接入宿主文件会话 | 不支持 |
 
 TAR 普通文件可预览和解压, 目录可创建; 符号链接、硬链接、FIFO、设备节点、未知特殊类型及稀疏项保留在列表中并准确声明不可打开、不可解压. 首阶段不跟随链接, 也不把特殊项物化为普通文件.
 
-`jar`、`aar` 和 `war` 是 ZIP 后端的扩展名别名, 不是独立格式. `tar` 及 `tar.gz`/`tgz`、`tar.xz`/`txz`、`tar.bz2`/`tbz2`、`tar.zst`/`tzst` 各有独立格式标识, 但共用 TAR 条目模型、源遍历器和 writer. 动作目录和 Intent 初筛使用已注册的可列表格式生成, 创建菜单只使用已注册 writer 的格式, 避免文档、菜单和实际后端能力出现三份不同来源.
+`jar`、`aar` 和 `war` 是 ZIP 后端的扩展名别名, 不是独立格式. `7z` 使用独立格式标识和后端. `tar` 及 `tar.gz`/`tgz`、`tar.xz`/`txz`、`tar.bz2`/`tbz2`、`tar.zst`/`tzst` 各有独立格式标识, 但共用 TAR 条目模型、源遍历器和 writer. 动作目录和 Intent 初筛使用已注册的可列表格式生成, 创建菜单只使用已注册 writer 的格式, 避免文档、菜单和实际后端能力出现三份不同来源.
 
 Explorer Action 当前只接受不含句点的叶扩展名. 插件内部保留全部复合后缀, 对宿主目录发布 `gz`/`xz`/`bz2`/`zst` 叶扩展名, 收到 Activity 动作时核对完整文件名, 所有入口最终还会核对外层压缩签名和解压后的 TAR 结构. 这会让对应的独立压缩流在宿主中看到候选动作, 但插件不会把它们误识别为 TAR, 结构探测失败后也会清理暂存输入; 后续宿主协议若支持复合后缀, 可移除这一入口层折衷而无需改变后端.
 
-### 3. ZIP 与 TAR 族采用已验证后端, 其他格式仍按原型数据选择
+### 3. ZIP、7Z 与 TAR 族采用已验证后端, 其他格式仍按原型数据选择
 
 候选路线:
 
 | 路线 | 预期用途 | 必须回答的问题 |
 | --- | --- | --- |
-| Commons Compress + Zip4j | ZIP 加密/分卷及 tar 族的纯 Java 路线 | Android API 24 兼容性、AES/ZipCrypto/Zip64/分卷覆盖、7z 写入限制、APK 增量和许可证清单 |
+| Commons Compress + Zip4j | ZIP 加密、7Z 与 tar 族的 Java 路线 | Android API 24 兼容性、AES/ZipCrypto/Zip64、7Z solid/头部加密/过滤器/写入边界、APK 增量和许可证清单 |
 | libarchive | 多格式读取和 tar 族能力 | Android ABI 构建、seek/密码/分卷能力、JNI 取消、CVE 更新流程、压缩后的每 ABI 体积和许可证 |
 | 7-Zip SDK 或受维护封装 | 7z 固实档案、头部加密和过滤器 | Android ABI/许可证、线程取消、密码内存处理、分卷、包体积及维护成本 |
 
@@ -70,7 +70,11 @@ Explorer Action 当前只接受不含句点的叶扩展名. 插件内部保留�
 5. 证明输入流、临时文件、密码缓冲和原生资源在取消及进程异常后可清理;
 6. 对无法写入的格式返回只读能力, 不在 UI 中展示虚假修改动作.
 
-ZIP 加密原型已满足 API 24、真实 AES/ZipCrypto 样本、错误密码分类、无新增 ABI 和 Release 体积门禁, 因此 Zip4j 2.11.5 已进入生产依赖. 它不替换 Commons Compress: 非加密条目仍优先走 Commons, 只有加密数据流以及 Android 7.x 兼容路径交给 Zip4j. 其他格式的评估顺序仍优先使用无新增 ABI 的纯 Java 原型; 只有在 7z 固实档案、头部加密、分卷或性能目标无法可靠满足时, 才进入原生后端原型.
+ZIP 加密原型已满足 API 24、真实 AES/ZipCrypto 样本、错误密码分类、无新增 ABI 和 Release 体积门禁, 因此 Zip4j 2.11.5 已进入生产依赖. 它不替换 Commons Compress: 非加密条目仍优先走 Commons, 只有加密数据流以及 Android 7.x 兼容路径交给 Zip4j.
+
+7Z 复用既有 Commons Compress 1.28.0, 不新增 Maven 组件或 ABI. 官方 `SevenZFile`/`SevenZOutputFile` API 与 1.28.0 源码确认 reader 支持 seekable channel、solid 档案、AES-256-SHA256 及常见方法链, writer 的密码构造器会对条目内容加入 AES 层, 但仍把文件名写入未加密头部. 因此 reader 公布普通/solid/内容加密/头部加密能力, writer 只公布非 solid 与可选内容加密, 不公布创建文件名加密或分卷. reader 与 writer 都从宿主文件描述符构造自有 seekable channel, 不依赖 Android API 26 才提供的 `Path` 路线; reader 把 Commons 的最大内存限制固定为 262,144 KiB. solid 档案按随机条目打开时可能需要重放同一 solid block, 这是当前 Java 后端的性能边界, 不伪装为常数时间访问.
+
+创建 7Z 时, 级别 0 映射为 Copy, 级别 1 至 9 映射为对应 preset 的 LZMA2; 每个源项目独立写入, 因而输出不是 solid. 受控源遍历、Unicode 名称、空目录、修改时间、源大小复核、进度、取消、待提交输出和失败回滚与其他 writer 共用. 只有在需要创建加密头部、分卷、档案内修改或 Java 后端无法接受的 solid 随机读取性能时, 才启动 libarchive/原生 7-Zip 原型; 当前交付不为这些未完成能力引入额外原生后端.
 
 未压缩 TAR 复用既有 Commons Compress 1.28.0 生产依赖, 不新增 Maven 组件或 ABI. reader 会完整遍历头部、校验每个可见条目的头校验和并在按条目读取时重新核对快照元数据; 数据流仍经过统一源身份与实际大小校验. writer 使用 UTF-8 POSIX PAX 处理长路径和非 ASCII 名称, 只写普通文件与目录, 不跟随源符号链接, 并通过宿主待提交输出事务发布结果.
 
@@ -87,17 +91,17 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 正面影响:
 
 - 新格式只需注册后端和本地化显示名称, 主流程不再复制格式分支;
-- 文件扩展名错误时, 引擎仍可通过实际目录结构识别 ZIP;
+- 文件扩展名错误时, 引擎仍可通过实际结构识别 ZIP、7Z 与 TAR 族;
 - 格式和条目能力可以分别驱动宿主预览与创建表单;
 - 密码、文件名加密、分卷和修改能力分别声明, 不再把已支持的密码与仍不支持的文件名加密混为一个开关;
 - 安全校验继续基于中立快照, 更换底层库不会绕过源身份、大小和 CRC 校验.
 
 代价与未完成项:
 
-- ZIP 与 TAR 族已有创建 writer, 但全部后端仍未开放档案内添加、删除或重命名;
+- ZIP、7Z 与 TAR 族已有创建 writer, 但全部后端仍未开放档案内添加、删除或重命名;
 - TAR.ZST 为 APK 引入四个 Android ABI, 不支持这些 ABI 的设备不会发现该插件动作;
 - 宿主动作初筛尚未提供文件魔数探测合同, 错误扩展名只能在插件已经获得输入后进行结构识别;
-- ZIP 分卷和档案内容修改仍需要后端原型及事务合同;
+- ZIP/7Z 分卷、7Z 头部加密创建和档案内容修改仍需要后端能力及事务合同;
 - 其他格式的最终依赖选型需在取得候选项目一手资料与本地测量数据后继续更新本 ADR.
 
 ## 验证
@@ -106,10 +110,12 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - 单元测试验证改名为 `.bin` 的真实 ZIP 仍由结构探测识别;
 - 单元测试验证带 `.zip` 后缀的普通文本不会被识别为 ZIP;
 - 单元测试验证 reader 输出中立方法标识、条目能力和实际数据流;
+- 单元测试使用 7-Zip 22.00 夹具验证 solid LZMA2、BCJ + LZMA2、AES 内容加密、AES 头部加密、无密码/错误密码/正确密码、签名和截断诊断; 能力表不误报创建时文件名加密、分卷或档案内修改;
 - 单元测试验证 TAR 的 Unicode、空档案、V7 头、校验和损坏、截断数据、链接隔离、预览流和解压闭环;
 - 单元测试验证 GZIP/XZ/BZIP2/Zstandard 外层签名、内部 TAR 二次验证、改名识别、空档案、连接流、截断与损坏尾部、Unicode 预览及格式中立解压;
 - 现有扫描、预览、解压及创建回归测试继续通过;
-- Android 仪器测试通过统一 reader、writer 与宿主会话验证全部 TAR 族格式的设备运行链路, 包含 Unicode 路径、空目录、未知源大小、取消和源大小变化后的事务回滚.
+- Android 仪器测试通过统一 reader、writer 与宿主会话验证 7Z 及全部 TAR 族格式的设备运行链路, 包含 Unicode 路径、空目录、未知源大小、取消和源大小变化后的事务回滚.
 - 外部 7-Zip 22.00 AES-256/ZipCrypto 样本验证无密码浏览、正确密码读取和错误密码的 `PASSWORD/WRONG_PASSWORD` 诊断; AES-256 writer 产物由统一 reader 重新打开并校验.
 - 外部 7-Zip 22.00 生成的 TAR/TAR.GZ/TAR.XZ/TAR.BZ2 及 bsdtar 3.8.4/libzstd 1.5.7 生成的 TAR.ZST 样本以固定 SHA-256 验证 Unicode 目录、条目元数据和内容流.
 - 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建 TAR.ZST 与普通 TAR; bsdtar 3.8.4/libarchive 3.8.4 完整提取 TAR.ZST, 7-Zip 22.00 与 bsdtar 均验证普通 TAR, 创建产物还能由宿主原生档案页面重新打开并预览哈希一致的 Unicode 条目.
+- 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建普通与 AES-256 内容加密 7Z; 7-Zip 22.00 验证非 solid/LZMA2、正确与错误密码行为、完整提取、空目录和 Unicode 内容 SHA-256, 宿主原生档案页面重新打开普通产物并通过路径栏与预览器读取同一 Unicode 条目.

@@ -90,6 +90,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             failure = failure,
             stage = when (failure) {
                 ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureStage.FORMAT_DETECTION
+                ArchiveBackendFailure.PASSWORD_REQUIRED,
                 ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureStage.PASSWORD
                 ArchiveBackendFailure.INVALID_OPTIONS,
                 ArchiveBackendFailure.MALFORMED,
@@ -102,6 +103,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
                 ArchiveBackendFailure.WRONG_PASSWORD -> "ZIP password is incorrect"
                 ArchiveBackendFailure.UNSUPPORTED_METHOD ->
                     "ZIP contains an unsupported compression method"
+                ArchiveBackendFailure.PASSWORD_REQUIRED -> "ZIP password is required"
                 ArchiveBackendFailure.MALFORMED -> "ZIP directory metadata cannot be read"
             },
             cause = error,

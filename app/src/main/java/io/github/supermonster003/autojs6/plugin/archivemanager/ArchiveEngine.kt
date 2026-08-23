@@ -27,6 +27,14 @@ enum class ArchiveFormat(
             "application/java-archive",
         ),
     ),
+    SEVEN_Z(
+        id = "7z",
+        displayName = "7Z",
+        primaryExtension = "7z",
+        primaryMimeType = "application/x-7z-compressed",
+        extensions = setOf("7z"),
+        mimeTypes = setOf("application/x-7z-compressed"),
+    ),
     TAR(
         id = "tar",
         displayName = "TAR",
@@ -139,6 +147,7 @@ enum class ArchiveFormatLimitation {
     PASSWORD_UNAVAILABLE,
     FILENAME_ENCRYPTION_UNAVAILABLE,
     SPLIT_VOLUMES_UNAVAILABLE,
+    SOLID_CREATION_UNAVAILABLE,
     MUTATION_REQUIRES_REWRITE,
 }
 
@@ -304,6 +313,7 @@ internal enum class ArchiveBackendFailure {
     MALFORMED,
     INVALID_OPTIONS,
     UNSUPPORTED_METHOD,
+    PASSWORD_REQUIRED,
     WRONG_PASSWORD,
 }
 
@@ -373,6 +383,7 @@ internal class ArchiveEngine private constructor(
                     ArchiveBackendFailure.INVALID_OPTIONS ->
                         ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET
                     ArchiveBackendFailure.UNSUPPORTED_METHOD -> ArchiveFailureCode.UNSUPPORTED_METHOD
+                    ArchiveBackendFailure.PASSWORD_REQUIRED -> ArchiveFailureCode.PASSWORD_REQUIRED
                     ArchiveBackendFailure.WRONG_PASSWORD -> ArchiveFailureCode.WRONG_PASSWORD
                     ArchiveBackendFailure.MALFORMED -> ArchiveFailureCode.MALFORMED_ARCHIVE
                 },
@@ -455,6 +466,7 @@ internal class ArchiveEngine private constructor(
         val DEFAULT = ArchiveEngine(
             listOf(
                 ZipArchiveBackend,
+                SevenZArchiveBackend,
                 TarArchiveBackend,
                 TarGzipArchiveBackend,
                 TarXzArchiveBackend,

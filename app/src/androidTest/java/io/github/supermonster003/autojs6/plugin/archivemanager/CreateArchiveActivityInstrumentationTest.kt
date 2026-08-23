@@ -68,10 +68,17 @@ class CreateArchiveActivityInstrumentationTest {
                     formatView.adapter.getItem(index).toString()
                 }
                 assertEquals(
-                    listOf("ZIP", "TAR", "TAR.GZ", "TAR.XZ", "TAR.BZ2", "TAR.ZST"),
+                    listOf("ZIP", "7Z", "TAR", "TAR.GZ", "TAR.XZ", "TAR.BZ2", "TAR.ZST"),
                     labels,
                 )
                 password.setText("transient-password")
+
+                selectFormat(formatView, labels.indexOf("7Z"))
+
+                assertEquals("report.txt.7z", outputName.text.toString())
+                assertEquals("transient-password", password.text.toString())
+                assertTrue(password.isEnabled)
+                assertTrue(compressionLevel.isEnabled)
 
                 selectFormat(formatView, labels.indexOf("TAR"))
 
@@ -90,6 +97,28 @@ class CreateArchiveActivityInstrumentationTest {
 
                 assertEquals("report.txt.zip", outputName.text.toString())
                 assertTrue(password.isEnabled)
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    @Test
+    fun formatAndCompressionLevelOpenFromARealClick() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val formatView = activity.findViewById<android.widget.AutoCompleteTextView>(R.id.format)
+                val compressionLevel = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.compressionLevel,
+                )
+
+                assertTrue(formatView.performClick())
+                assertTrue(formatView.isPopupShowing)
+                formatView.dismissDropDown()
+
+                assertTrue(compressionLevel.performClick())
+                assertTrue(compressionLevel.isPopupShowing)
+                compressionLevel.dismissDropDown()
                 assertEquals(0, hostSession.prepareOutputCalls)
             }
         }

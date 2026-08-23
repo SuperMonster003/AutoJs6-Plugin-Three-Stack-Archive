@@ -1,0 +1,408 @@
+package io.github.supermonster003.autojs6.plugin.archivemanager
+
+import org.apache.commons.compress.MemoryLimitException
+import org.apache.commons.compress.PasswordRequiredException
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
+import org.apache.commons.compress.archivers.sevenz.SevenZFile
+import org.apache.commons.compress.archivers.sevenz.SevenZMethod
+import org.autojs.plugin.explorer.api.IExplorerActionHostSession
+import java.io.File
+import java.io.FileInputStream
+import java.io.FilterInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.RandomAccessFile
+
+internal object SevenZArchiveBackend : ArchiveBackend {
+    override val format = ArchiveFormat.SEVEN_Z
+
+    override val capabilities = FormatCapabilities(
+        canDetect = true,
+        canList = true,
+        canPreview = true,
+        canOpen = true,
+        canExtract = true,
+        canCreate = true,
+        canAdd = false,
+        canDelete = false,
+        canRename = false,
+        password = ArchiveOptionMode.OPTIONAL,
+        filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
+        splitVolumes = ArchiveOptionMode.UNSUPPORTED,
+        compressionLevels = (0..9).toList(),
+        limitations = setOf(
+            ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT,
+            ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
+            ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
+            ArchiveFormatLimitation.SOLID_CREATION_UNAVAILABLE,
+            ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
+        ),
+    )
+
+    override fun openReader(source: File, options: ArchiveReaderOptions): ArchiveReader {
+        if (!hasSignature(source)) {
+            throw ArchiveBackendException(
+                format = format,
+                failure = ArchiveBackendFailure.INVALID_SIGNATURE,
+                stage = ArchiveFailureStage.FORMAT_DETECTION,
+                message = "7Z signature is not present",
+            )
+        }
+
+        val password = options.passwordChars()
+        val resolvedOptions = ArchiveReaderOptions(password = password)
+        var archive: SevenZFile? = null
+        try {
+            archive = openArchive(source, password)
+            val entries = readEntries(archive, password != null)
+            return SevenZArchiveReader(
+                archive = archive,
+                entries = entries,
+                options = resolvedOptions,
+            )
+        } catch (error: Throwable) {
+            resolvedOptions.clearPassword()
+            archive?.let { opened ->
+                runCatching { opened.close() }.exceptionOrNull()?.let(error::addSuppressed)
+            }
+            if (error !is Exception && error !is LinkageError) throw error
+            throw mapOpenFailure(error, password != null)
+        } finally {
+            password?.fill('\u0000')
+        }
+    }
+
+    override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
+        SevenZArchiveCreator(session)
+
+    private fun openArchive(source: File, password: CharArray?): SevenZFile {
+        val channel = RandomAccessFile(source, READ_MODE).channel
+        return try {
+            SevenZFile.builder()
+                .setSeekableByteChannel(channel)
+                .setDefaultName(source.name)
+                .setMaxMemoryLimitKiB(DECODER_MEMORY_LIMIT_KIB)
+                .apply { if (password != null) setPassword(password) }
+                .get()
+        } catch (error: Throwable) {
+            runCatching { channel.close() }.exceptionOrNull()?.let(error::addSuppressed)
+            throw error
+        }
+    }
+
+    private fun readEntries(
+        archive: SevenZFile,
+        passwordProvided: Boolean,
+    ): List<ArchiveReaderEntry> {
+        val metadataEntries = archive.entries.toList()
+        return metadataEntries.mapIndexed { ordinal, metadata ->
+            val reached = try {
+                archive.nextEntry
+            } catch (error: Exception) {
+                if (error.findCause<PasswordRequiredException>() != null) throw error
+                return@mapIndexed metadata.toReaderEntry(
+                    ordinal,
+                    SevenZMethodInfo.unavailable(error),
+                    passwordProvided,
+                )
+            } catch (error: LinkageError) {
+                return@mapIndexed metadata.toReaderEntry(
+                    ordinal,
+                    SevenZMethodInfo.unavailable(error),
+                    passwordProvided,
+                )
+            }
+            if (reached == null) throw IOException("7Z stream map ended before its directory")
+            if (reached !== metadata) throw IOException("7Z directory and stream order differ")
+            val methodInfo = try {
+                SevenZMethodInfo.from(reached)
+            } catch (error: Exception) {
+                SevenZMethodInfo.unavailable(error)
+            } catch (error: LinkageError) {
+                SevenZMethodInfo.unavailable(error)
+            }
+            metadata.toReaderEntry(ordinal, methodInfo, passwordProvided)
+        }
+    }
+
+    private fun SevenZArchiveEntry.toReaderEntry(
+        ordinal: Int,
+        methodInfo: SevenZMethodInfo,
+        passwordProvided: Boolean,
+    ): ArchiveReaderEntry {
+        val unsupportedType = isAntiItem
+        val limitations = buildSet {
+            if (isDirectory) add(ArchiveEntryLimitation.DIRECTORY_HAS_NO_DATA)
+            if (methodInfo.encrypted) add(ArchiveEntryLimitation.ENCRYPTED)
+            if (!methodInfo.readable) add(ArchiveEntryLimitation.UNSUPPORTED_COMPRESSION_METHOD)
+            if (unsupportedType) add(ArchiveEntryLimitation.UNSUPPORTED_ENTRY_TYPE)
+            add(ArchiveEntryLimitation.MUTATION_UNAVAILABLE)
+        }
+        val readableFile = !isDirectory &&
+            !unsupportedType &&
+            methodInfo.readable &&
+            (!methodInfo.encrypted || passwordProvided)
+        return ArchiveReaderEntry(
+            ordinal = ordinal,
+            name = name ?: throw IOException("7Z entry has no name"),
+            isDirectory = isDirectory,
+            compressionMethod = methodInfo.compressionMethod,
+            compressionMethodId = methodInfo.methodId,
+            isEncrypted = methodInfo.encrypted,
+            encryptionMethod = ArchiveEncryptionMethod.AES.takeIf { methodInfo.encrypted },
+            capabilities = ArchiveEntryCapabilities(
+                canOpen = readableFile,
+                canExtract = isDirectory || readableFile,
+                canDelete = false,
+                canRename = false,
+                limitations = limitations,
+            ),
+            compressedSize = if (hasStream()) UNKNOWN_COMPRESSED_SIZE else 0L,
+            size = size,
+            crc = crcValue.takeIf { getHasCrc() },
+            time = if (getHasLastModifiedDate()) lastModifiedDate.time else null,
+            backendToken = this,
+        )
+    }
+
+    private fun mapOpenFailure(error: Throwable, passwordProvided: Boolean): ArchiveBackendException {
+        if (error is ArchiveBackendException) return error
+        val failure = when {
+            error.findCause<PasswordRequiredException>() != null ->
+                ArchiveBackendFailure.PASSWORD_REQUIRED
+            error.findCause<MemoryLimitException>() != null ->
+                ArchiveBackendFailure.UNSUPPORTED_METHOD
+            error is LinkageError -> ArchiveBackendFailure.UNSUPPORTED_METHOD
+            passwordProvided && error.looksLikePasswordFailure() ->
+                ArchiveBackendFailure.WRONG_PASSWORD
+            else -> ArchiveBackendFailure.MALFORMED
+        }
+        return ArchiveBackendException(
+            format = format,
+            failure = failure,
+            stage = when (failure) {
+                ArchiveBackendFailure.INVALID_SIGNATURE -> ArchiveFailureStage.FORMAT_DETECTION
+                ArchiveBackendFailure.PASSWORD_REQUIRED,
+                ArchiveBackendFailure.WRONG_PASSWORD,
+                -> ArchiveFailureStage.PASSWORD
+                ArchiveBackendFailure.INVALID_OPTIONS,
+                ArchiveBackendFailure.MALFORMED,
+                ArchiveBackendFailure.UNSUPPORTED_METHOD,
+                -> ArchiveFailureStage.INDEX
+            },
+            message = when (failure) {
+                ArchiveBackendFailure.INVALID_SIGNATURE -> "7Z signature is not present"
+                ArchiveBackendFailure.INVALID_OPTIONS -> "7Z reader options are invalid"
+                ArchiveBackendFailure.UNSUPPORTED_METHOD ->
+                    "7Z decoder memory requirement is not supported"
+                ArchiveBackendFailure.PASSWORD_REQUIRED -> "7Z password is required"
+                ArchiveBackendFailure.WRONG_PASSWORD -> "7Z password is incorrect"
+                ArchiveBackendFailure.MALFORMED -> "7Z directory metadata cannot be read"
+            },
+            cause = error,
+        )
+    }
+
+    private fun hasSignature(source: File): Boolean {
+        val signature = ByteArray(SIGNATURE_SIZE)
+        val length = FileInputStream(source).use { input ->
+            var total = 0
+            while (total < signature.size) {
+                val read = input.read(signature, total, signature.size - total)
+                if (read < 0) break
+                if (read == 0) continue
+                total += read
+            }
+            total
+        }
+        return SevenZFile.matches(signature, length)
+    }
+
+    private const val DECODER_MEMORY_LIMIT_KIB = 256 * 1_024
+    private const val READ_MODE = "r"
+    private const val SIGNATURE_SIZE = 6
+    private const val UNKNOWN_COMPRESSED_SIZE = -1L
+}
+
+private class SevenZArchiveReader(
+    private val archive: SevenZFile,
+    override val entries: List<ArchiveReaderEntry>,
+    override val options: ArchiveReaderOptions,
+) : ArchiveReader {
+    override val format = ArchiveFormat.SEVEN_Z
+    override val formatCapabilities = SevenZArchiveBackend.capabilities
+
+    override fun openEntry(entry: ArchiveReaderEntry): InputStream {
+        val sevenZEntry = entry.backendToken as? SevenZArchiveEntry
+            ?: throw IllegalArgumentException("Archive entry belongs to a different backend")
+        require(entries.getOrNull(entry.ordinal) === entry) {
+            "Archive entry does not belong to this reader"
+        }
+        if (entry.isDirectory) {
+            throw ArchiveExtractionException(
+                code = ArchiveFailureCode.UNKNOWN_SELECTION,
+                message = "7Z directory entries do not expose a data stream",
+                format = format,
+                stage = ArchiveFailureStage.ENTRY_DATA,
+            )
+        }
+        if (entry.isEncrypted && !options.hasPassword) {
+            throw ArchiveExtractionException(
+                code = ArchiveFailureCode.PASSWORD_REQUIRED,
+                message = "7Z entry requires a password",
+                format = format,
+                stage = ArchiveFailureStage.PASSWORD,
+            )
+        }
+        if (!entry.capabilities.canExtract) {
+            throw ArchiveExtractionException(
+                code = ArchiveFailureCode.UNSUPPORTED_METHOD,
+                message = "7Z entry data cannot be read by this backend",
+                format = format,
+                stage = ArchiveFailureStage.ENTRY_DATA,
+            )
+        }
+        val input = try {
+            archive.getInputStream(sevenZEntry)
+        } catch (error: Throwable) {
+            throw mapEntryFailure(error, entry.isEncrypted, options.hasPassword)
+        }
+        return SevenZEntryInputStream(
+            delegate = input,
+            encrypted = entry.isEncrypted,
+            passwordProvided = options.hasPassword,
+        )
+    }
+
+    override fun close() {
+        try {
+            archive.close()
+        } finally {
+            options.clearPassword()
+        }
+    }
+}
+
+private class SevenZEntryInputStream(
+    delegate: InputStream,
+    private val encrypted: Boolean,
+    private val passwordProvided: Boolean,
+) : FilterInputStream(delegate) {
+    override fun read(): Int = mapRead { super.read() }
+
+    override fun read(buffer: ByteArray, offset: Int, length: Int): Int =
+        mapRead { super.read(buffer, offset, length) }
+
+    override fun skip(byteCount: Long): Long = mapRead { super.skip(byteCount) }
+
+    override fun close() = mapRead { super.close() }
+
+    private inline fun <T> mapRead(block: () -> T): T = try {
+        block()
+    } catch (error: Throwable) {
+        throw mapEntryFailure(error, encrypted, passwordProvided)
+    }
+}
+
+private data class SevenZMethodInfo(
+    val compressionMethod: ArchiveCompressionMethod,
+    val methodId: String,
+    val encrypted: Boolean,
+    val readable: Boolean,
+) {
+    companion object {
+        fun from(entry: SevenZArchiveEntry): SevenZMethodInfo {
+            if (!entry.hasStream()) {
+                return SevenZMethodInfo(
+                    compressionMethod = ArchiveCompressionMethod.STORED,
+                    methodId = if (entry.isDirectory) "DIRECTORY" else "EMPTY_STREAM",
+                    encrypted = false,
+                    readable = true,
+                )
+            }
+            val methods = entry.contentMethods?.map { it.method }.orEmpty()
+            val compressionMethod = methods.firstNotNullOfOrNull { method ->
+                when (method) {
+                    SevenZMethod.COPY -> ArchiveCompressionMethod.STORED
+                    SevenZMethod.DEFLATE -> ArchiveCompressionMethod.DEFLATED
+                    SevenZMethod.DEFLATE64 -> ArchiveCompressionMethod.DEFLATE64
+                    SevenZMethod.LZMA -> ArchiveCompressionMethod.LZMA
+                    SevenZMethod.LZMA2 -> ArchiveCompressionMethod.LZMA2
+                    SevenZMethod.BZIP2 -> ArchiveCompressionMethod.BZIP2
+                    else -> null
+                }
+            } ?: ArchiveCompressionMethod.OTHER
+            return SevenZMethodInfo(
+                compressionMethod = compressionMethod,
+                methodId = methods.joinToString(METHOD_SEPARATOR, transform = SevenZMethod::name)
+                    .ifEmpty { "UNKNOWN" },
+                encrypted = SevenZMethod.AES256SHA256 in methods,
+                readable = true,
+            )
+        }
+
+        fun unavailable(error: Throwable): SevenZMethodInfo = SevenZMethodInfo(
+            compressionMethod = ArchiveCompressionMethod.OTHER,
+            methodId = error.findMethodFailureName(),
+            encrypted = false,
+            readable = false,
+        )
+
+        private const val METHOD_SEPARATOR = "+"
+    }
+}
+
+private fun mapEntryFailure(
+    error: Throwable,
+    encrypted: Boolean,
+    passwordProvided: Boolean,
+): IOException {
+    if (error is ArchiveException) return error
+    if (error.findCause<PasswordRequiredException>() != null) {
+        return ArchiveExtractionException(
+            code = ArchiveFailureCode.PASSWORD_REQUIRED,
+            message = "7Z entry requires a password",
+            cause = error,
+            format = ArchiveFormat.SEVEN_Z,
+            stage = ArchiveFailureStage.PASSWORD,
+        )
+    }
+    if (error.findCause<MemoryLimitException>() != null) {
+        return ArchiveExtractionException(
+            code = ArchiveFailureCode.UNSUPPORTED_METHOD,
+            message = "7Z decoder memory limit exceeded",
+            cause = error,
+            format = ArchiveFormat.SEVEN_Z,
+            stage = ArchiveFailureStage.ENTRY_DATA,
+        )
+    }
+    if (encrypted && passwordProvided && error.looksLikePasswordFailure()) {
+        return ArchiveExtractionException(
+            code = ArchiveFailureCode.WRONG_PASSWORD,
+            message = "7Z password is incorrect or encrypted data is damaged",
+            cause = error,
+            format = ArchiveFormat.SEVEN_Z,
+            stage = ArchiveFailureStage.PASSWORD,
+        )
+    }
+    return IOException("7Z entry data cannot be read", error)
+}
+
+private inline fun <reified T : Throwable> Throwable.findCause(): T? =
+    generateSequence(this) { it.cause }.filterIsInstance<T>().firstOrNull()
+
+private fun Throwable.looksLikePasswordFailure(): Boolean =
+    generateSequence(this) { it.cause }
+        .any { cause ->
+            cause.javaClass.simpleName == "CorruptedInputException" ||
+                cause.message.orEmpty().contains("password", ignoreCase = true) ||
+                cause.message.orEmpty().contains("checksum", ignoreCase = true) ||
+                cause.message.orEmpty().contains("crc", ignoreCase = true)
+        }
+
+private fun Throwable.findMethodFailureName(): String {
+    val type = generateSequence(this) { it.cause }.last().javaClass.simpleName
+        .takeIf(String::isNotBlank)
+        ?: "UNSUPPORTED"
+    return "UNSUPPORTED:$type"
+}

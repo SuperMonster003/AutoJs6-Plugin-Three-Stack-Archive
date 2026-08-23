@@ -99,5 +99,5 @@
     <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
     <string name="text_password_applied">Contraseña aplicada. Puedes cambiarla en cualquier momento.</string>
     <string name="text_password_needed_for_encrypted_entries">Introduce una contraseña para abrir y extraer entradas cifradas.</string>
-    <string name="text_zip_password_encryption_note">Las contraseñas ZIP no vacías usan AES-256. Los nombres de archivo siguen visibles.</string>
+    <string name="text_password_encryption_note">Una contraseña no vacía usa cifrado AES-256. Los nombres de archivo siguen visibles.</string>
 </resources>

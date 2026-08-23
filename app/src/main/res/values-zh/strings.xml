@@ -99,5 +99,5 @@
     <string name="text_filename_encoding_automatic">自动检测</string>
     <string name="text_filename_encoding_automatic_detected">自动检测 (传统名称回退: %1$s)</string>
     <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">正在重新索引压缩档案...</string>
-    <string name="text_zip_password_encryption_note">非空 ZIP 密码使用 AES-256 加密. 文件名仍然可见.</string>
+    <string name="text_password_encryption_note">非空密码使用 AES-256 加密. 文件名仍然可见.</string>
 </resources>

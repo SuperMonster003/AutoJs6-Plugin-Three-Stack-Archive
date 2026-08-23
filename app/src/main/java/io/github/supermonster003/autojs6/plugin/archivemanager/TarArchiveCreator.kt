@@ -186,7 +186,9 @@ internal class TarArchiveCreator(
             ArchiveFormat.TAR_XZ -> XZCompressorOutputStream(output, compressionLevel)
             ArchiveFormat.TAR_BZIP2 -> BZip2CompressorOutputStream(output, compressionLevel)
             ArchiveFormat.TAR_ZSTD -> ZstdOutputStream(output, compressionLevel).setChecksum(true)
-            ArchiveFormat.ZIP -> error("ZIP does not use the TAR writer")
+            ArchiveFormat.ZIP,
+            ArchiveFormat.SEVEN_Z,
+            -> error("${format.displayName} does not use the TAR writer")
         }
     } catch (error: LinkageError) {
         throw IOException("${format.displayName} encoder is unavailable on this runtime", error)

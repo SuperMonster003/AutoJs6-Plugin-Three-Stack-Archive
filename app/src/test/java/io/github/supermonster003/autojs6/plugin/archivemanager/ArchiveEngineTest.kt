@@ -38,6 +38,7 @@ class ArchiveEngineTest {
         assertEquals(
             listOf(
                 ArchiveFormat.ZIP,
+                ArchiveFormat.SEVEN_Z,
                 ArchiveFormat.TAR,
                 ArchiveFormat.TAR_GZIP,
                 ArchiveFormat.TAR_XZ,
@@ -90,7 +91,9 @@ class ArchiveEngineTest {
                     ArchiveFormat.TAR_BZIP2,
                     ArchiveFormat.TAR_ZSTD,
                     -> (1..9).toList()
-                    ArchiveFormat.ZIP -> error("ZIP is outside this assertion")
+                    ArchiveFormat.ZIP,
+                    ArchiveFormat.SEVEN_Z,
+                    -> error("Non-TAR format is outside this assertion")
                 },
                 capabilities.compressionLevels,
             )
@@ -98,6 +101,36 @@ class ArchiveEngineTest {
             assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
             assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
         }
+    }
+
+    @Test
+    fun `7z capabilities expose solid reading and non-solid creation without overclaiming`() {
+        val capabilities = ArchiveEngine.DEFAULT.capabilities(ArchiveFormat.SEVEN_Z)
+
+        assertTrue(capabilities.supports(ArchiveOperation.DETECT))
+        assertTrue(capabilities.supports(ArchiveOperation.LIST))
+        assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
+        assertTrue(capabilities.supports(ArchiveOperation.OPEN))
+        assertTrue(capabilities.supports(ArchiveOperation.EXTRACT))
+        assertTrue(capabilities.supports(ArchiveOperation.CREATE))
+        assertFalse(capabilities.supports(ArchiveOperation.ADD))
+        assertFalse(capabilities.supports(ArchiveOperation.DELETE))
+        assertFalse(capabilities.supports(ArchiveOperation.RENAME))
+        assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
+        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
+        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
+        assertEquals((0..9).toList(), capabilities.compressionLevels)
+        assertTrue(capabilities.filenameCharsetNames.isEmpty())
+        assertTrue(ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT in capabilities.limitations)
+        assertTrue(
+            ArchiveFormatLimitation.SOLID_CREATION_UNAVAILABLE in capabilities.limitations,
+        )
+        assertTrue(
+            ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE in capabilities.limitations,
+        )
+        assertEquals("application/x-7z-compressed", ArchiveFormat.SEVEN_Z.primaryMimeType)
+        assertEquals(setOf("7z"), ArchiveFormat.SEVEN_Z.extensions)
+        assertTrue(ArchiveFormat.SEVEN_Z.matchesFileName("ARCHIVE.7Z"))
     }
 
     @Test
