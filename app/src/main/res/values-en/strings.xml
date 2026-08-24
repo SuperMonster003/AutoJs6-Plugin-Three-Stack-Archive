@@ -13,7 +13,7 @@
     <string name="dialog_button_use_numbered_name">Use numbered name</string>
     <string name="dialog_title_archive_name_unavailable">Exact output name unavailable</string>
     <string name="dialog_message_archive_name_unavailable">The host could not reserve %1$s in %2$s. No archive data was written. Edit the name or retry with automatic numbering.</string>
-    <string name="dialog_message_skip_unsafe_paths">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
+    <string name="dialog_message_skip_unsafe_paths" tools:ignore="PluralsCandidate">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
     <string name="dialog_title_unsafe_paths">Unsafe paths</string>
     <string name="error_archive_invalid">The archive is invalid or unsupported</string>
     <string name="error_archive_missing_volumes">ZIP volumes are missing</string>
@@ -64,14 +64,22 @@
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_cleanup_unconfirmed">Compression failed, and cleanup of its temporary output could not be confirmed. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %1$s\nOriginal reason: %2$s</string>
+    <string name="error_separate_compression_partially_cancelled" tools:ignore="PluralsCandidate">Cancelled after creating %1$d of %2$d archives. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the remaining items.</string>
+    <string name="error_separate_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before creation stopped. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the failed and remaining items.\nFailed output: %3$s\nReason: %4$s</string>
+    <string name="error_separate_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before a later output failed, and cleanup of its temporary output could not be confirmed. Completed archives were kept. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %3$s\nOriginal reason: %4$s</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
-    <string name="text_advanced_compression_pending">Split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
+    <string name="text_advanced_compression_pending">Split volumes, filename encryption, and source deletion remain disabled until their transactional backends are available.</string>
     <string name="text_apply_password">Apply</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>
     <string name="text_archive_file_name">File name</string>
     <string name="text_archive_format">Format</string>
     <string name="text_archive_password">Archive password</string>
     <string name="text_compress_separately">Compress each item separately</string>
+    <string name="text_separate_archive_preview_count" tools:ignore="PluralsCandidate">%1$d archives will be created in this folder:</string>
+    <string name="text_separate_archive_preview_more">- and %1$d more</string>
+    <string name="text_separate_archive_conflict_note">Existing and repeated names are numbered automatically; nothing is overwritten.</string>
+    <string name="text_separate_archive_progress" tools:ignore="PluralsCandidate">Archive %1$d of %2$d: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives: %2$d files compressed and %3$d folders added.</string>
     <string name="text_compression_level">Compression level</string>
     <string name="text_compression_level_fast">Fast</string>
     <string name="text_compression_level_maximum">Maximum</string>

@@ -12,6 +12,7 @@ _Sin publicar_
 - `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
+- `Añadido` Creación de un archivo por elemento de una selección del mismo directorio padre, con vista previa de salidas, numeración automática de conflictos y conservación explícita de las salidas completadas tras un fallo o una cancelación posteriores
 - `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente
 - `Añadido` Creación de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con niveles propios y actualización completa de extensiones compuestas
 - `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles y confirmación de contraseña coincidente

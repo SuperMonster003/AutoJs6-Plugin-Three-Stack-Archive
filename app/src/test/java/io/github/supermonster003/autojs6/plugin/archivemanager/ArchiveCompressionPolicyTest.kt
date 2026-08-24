@@ -54,6 +54,33 @@ class ArchiveCompressionPolicyTest {
     }
 
     @Test
+    fun separateOutputPreviewUsesEachTargetNameAndSelectedCompleteSuffix() {
+        assertEquals(
+            listOf("report.txt.tar.gz", "photos.tar.gz", "notes.md.tar.gz"),
+            ArchiveCreationPlanner.separateOutputDisplayNames(
+                targetDisplayNames = listOf("report.txt", "photos", "notes.md"),
+                parentDisplayPath = "/storage/emulated/0/Documents",
+                fallbackStem = "Archive",
+                format = ArchiveFormat.TAR_GZIP,
+            ),
+        )
+    }
+
+    @Test
+    fun defaultNameTruncatesAValidLongTargetInsteadOfLosingItsIdentity() {
+        val name = ArchiveCompressionPolicy.defaultOutputDisplayName(
+            targetDisplayNames = listOf("a".repeat(ExplorerActionProtocol.MAX_TARGET_DISPLAY_NAME_LENGTH)),
+            parentDisplayPath = "/Documents",
+            fallbackStem = "Archive",
+            format = ArchiveFormat.TAR_ZSTD,
+        )
+
+        assertEquals(ExplorerActionProtocol.MAX_OUTPUT_DISPLAY_NAME_LENGTH, name.length)
+        assertEquals(true, name.startsWith("a"))
+        assertEquals(true, name.endsWith(".tar.zst"))
+    }
+
+    @Test
     fun switchingFormatsReplacesTheCompleteRegisteredSuffix() {
         assertEquals(
             "Documents.tar.xz",

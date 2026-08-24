@@ -57,6 +57,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Cambiar la codificación de nombres ZIP cuando la detección automática sea incorrecta; la exploración y la extracción reutilizan la misma selección.
 - Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.
 - Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.
+- Crear un archivo por elemento de una selección con el mismo directorio padre; el formulario muestra la cantidad de salidas y los nombres derivados, y numera los nombres existentes o repetidos sin sobrescribir. Cada salida se confirma por separado; una cancelación o un fallo conserva e informa las salidas completadas y bloquea un reintento ambiguo de todo el lote.
 - Crear ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con nombre configurable y solo los niveles y opciones de contraseña que admita el formato elegido.
 - Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; elegir numeración automática o probar el nombre exacto y preguntar antes de reintentar con un número, sin sobrescribir archivos existentes. Tras reservar el nombre, se analiza una instantánea acotada del origen antes de abrir la salida temporal; el formulario distingue análisis, compresión y confirmación, y muestra el total de archivos, los bytes leídos y los tamaños desconocidos. Un fallo cancela la transacción; si el host no puede confirmar la limpieza de la salida temporal, el formulario muestra la ruta prevista e impide otro intento.
 
@@ -74,7 +75,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, la creación de volúmenes divididos, el cifrado de nombres al crear, los archivos separados, la eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
+> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, la creación de volúmenes divididos, el cifrado de nombres al crear, la eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
@@ -84,7 +85,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
 5. Para extraer un ámbito concreto, elige «Extracción selectiva...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
 6. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
-7. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato, los ajustes disponibles y si un nombre exacto no disponible se numera automáticamente o se confirma antes de reintentar.
+7. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior. Para crear un archivo por elemento, activa «Comprimir cada elemento por separado», revisa la vista previa y crea; este modo siempre resuelve los conflictos con numeración automática segura.
 
 ### Permisos y datos
 
@@ -114,6 +115,7 @@ _Sin publicar_
 - `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
+- `Añadido` Creación de un archivo por elemento de una selección del mismo directorio padre, con vista previa de salidas, numeración automática de conflictos y conservación explícita de las salidas completadas tras un fallo o una cancelación posteriores
 - `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente
 - `Añadido` Creación de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con niveles propios y actualización completa de extensiones compuestas
 - `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles y confirmación de contraseña coincidente

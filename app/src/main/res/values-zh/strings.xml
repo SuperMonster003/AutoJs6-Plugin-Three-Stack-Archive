@@ -25,6 +25,9 @@
     <string name="error_cleanup_residual_outputs">清理失败. 以下输出位置可能仍然存在:\n%1$s</string>
     <string name="error_compression_failed">压缩失败</string>
     <string name="error_compression_cleanup_unconfirmed">压缩失败, 且无法确认临时输出已清理. 为避免继续写入, 当前宿主会话已关闭. 既有档案未被覆盖.\n预定输出: %1$s\n原始原因: %2$s</string>
+    <string name="error_separate_compression_partially_cancelled">已创建 %1$d/%2$d 个压缩档案后取消. 已完成的压缩档案会保留; 为防止产生重复输出, 本次会话现已关闭. 请为其余项目重新打开"压缩".</string>
+    <string name="error_separate_compression_partial_failure">已创建 %1$d/%2$d 个压缩档案后停止. 已完成的压缩档案会保留; 为防止产生重复输出, 本次会话现已关闭. 请为失败及其余项目重新打开"压缩".\n失败的输出: %3$s\n原因: %4$s</string>
+    <string name="error_separate_compression_cleanup_unconfirmed">已创建 %1$d/%2$d 个压缩档案, 随后的输出失败且无法确认其临时输出已清理. 已完成的压缩档案会保留. 为避免继续写入, 当前宿主会话已关闭. 既有档案未被覆盖.\n预定输出: %3$s\n原始原因: %4$s</string>
     <string name="error_compression_request_invalid">压缩请求或宿主会话无效</string>
     <string name="error_extraction_failed">解压失败</string>
     <string name="error_no_selection">请至少选择一个条目</string>
@@ -36,7 +39,7 @@
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="plugin_description">文件管理器插件. 浏览、解压和创建 ZIP 与 TAR 档案</string>
     <string name="text_cancelled">已取消</string>
-    <string name="text_advanced_compression_pending">分卷、文件名加密、单独压缩及删除源文件将在相应的事务后端可用后开放.</string>
+    <string name="text_advanced_compression_pending">分卷、文件名加密及删除源文件将在相应的事务后端可用后开放.</string>
     <string name="text_apply_password">应用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在应用密码...</string>
     <string name="text_archive_file_name">文件名</string>
@@ -44,6 +47,11 @@
     <string name="text_archive_password">压缩档案密码</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分输出...</string>
     <string name="text_compress_separately">单独压缩每个文件和文件夹</string>
+    <string name="text_separate_archive_preview_count">将在此文件夹中创建 %1$d 个压缩档案:</string>
+    <string name="text_separate_archive_preview_more">- 以及另外 %1$d 个</string>
+    <string name="text_separate_archive_conflict_note">既有名称和本批次中的重复名称会自动编号; 不会覆盖任何项目.</string>
+    <string name="text_separate_archive_progress">第 %1$d/%2$d 个压缩档案: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created">已创建 %1$d 个压缩档案: 压缩了 %2$d 个文件并添加了 %3$d 个文件夹.</string>
     <string name="text_compression_level">压缩级别</string>
     <string name="text_compression_level_fast">快速</string>
     <string name="text_compression_level_maximum">最高</string>

@@ -183,6 +183,181 @@ class CreateArchiveActivityInstrumentationTest {
     }
 
     @Test
+    fun separateModePreviewsEveryRequestedNameAndKeepsAutomaticNumbering() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(multipleCompressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val separate = activity.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                    R.id.separateArchives,
+                )
+                val preview = activity.findViewById<android.widget.TextView>(
+                    R.id.separateArchivesPreview,
+                )
+                val outputNameLayout = activity.findViewById<TextInputLayout>(R.id.outputNameLayout)
+                val policy = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.creationConflictPolicy,
+                )
+                val policyDetails = activity.findViewById<android.widget.TextView>(
+                    R.id.creationConflictPolicyDetails,
+                )
+
+                assertTrue(separate.isEnabled)
+                assertFalse(separate.isChecked)
+                assertFalse(preview.isShown)
+                assertEquals("Documents.zip", activity.findViewById<android.widget.EditText>(
+                    R.id.outputName,
+                ).text.toString())
+                selectDropdown(policy, 1)
+
+                separate.performClick()
+
+                assertTrue(separate.isChecked)
+                assertEquals(android.view.View.GONE, outputNameLayout.visibility)
+                assertFalse(policy.isEnabled)
+                assertEquals(
+                    activity.getString(R.string.text_conflict_policy_auto_rename),
+                    policy.text.toString(),
+                )
+                assertEquals(
+                    activity.getString(R.string.text_separate_archive_conflict_note),
+                    policyDetails.text.toString(),
+                )
+                assertTrue(preview.isShown)
+                val previewText = preview.text.toString()
+                assertTrue(previewText.contains(activity.getString(
+                    R.string.text_separate_archive_preview_count,
+                    3,
+                )))
+                assertTrue(previewText.contains("report.txt.zip"))
+                assertTrue(previewText.contains("photos.zip"))
+                assertTrue(previewText.contains("notes.md.zip"))
+                assertTrue(previewText.contains(
+                    activity.getString(R.string.text_separate_archive_conflict_note),
+                ))
+                assertFalse(previewText.contains('\u2026'))
+
+                val formatView = activity.findViewById<android.widget.AutoCompleteTextView>(R.id.format)
+                selectFormat(formatView, 1)
+                assertTrue(preview.text.toString().contains("report.txt.7z"))
+                selectFormat(formatView, 0)
+            }
+
+            scenario.recreate()
+
+            scenario.onActivity { activity ->
+                val separate = activity.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                    R.id.separateArchives,
+                )
+                val policy = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.creationConflictPolicy,
+                )
+                assertTrue(separate.isChecked)
+                assertTrue(activity.findViewById<android.view.View>(
+                    R.id.separateArchivesPreview,
+                ).isShown)
+
+                separate.performClick()
+
+                assertFalse(separate.isChecked)
+                assertTrue(activity.findViewById<android.view.View>(R.id.outputNameLayout).isShown)
+                assertTrue(policy.isEnabled)
+                assertEquals(
+                    activity.getString(R.string.text_conflict_policy_ask),
+                    policy.text.toString(),
+                )
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    @Test
+    fun batchProgressIncludesTheCurrentOutputOrdinalAndName() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(multipleCompressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.renderCreationBatchProgress(
+                    ArchiveCreationBatchProgress(
+                        archiveIndex = 2,
+                        totalArchives = 3,
+                        requestedOutputDisplayName = "photos.zip",
+                        sourceDisplayName = "photos",
+                        creation = ArchiveCreationProgress(
+                            phase = ArchiveCreationPhase.COMMITTING,
+                            currentEntry = null,
+                            completedFiles = 4L,
+                            completedDirectories = 1L,
+                            sourceBytesRead = 20L,
+                            totalFiles = 4L,
+                            totalDirectories = 1L,
+                            knownSourceBytes = 20L,
+                            unknownSizeFiles = 0L,
+                        ),
+                    ),
+                )
+
+                assertEquals(
+                    activity.getString(
+                        R.string.text_separate_archive_progress,
+                        2,
+                        3,
+                        "photos.zip",
+                        activity.getString(R.string.text_committing_archive),
+                    ),
+                    activity.findViewById<android.widget.TextView>(R.id.status).text.toString(),
+                )
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    @Test
+    fun partialBatchFailureClosesTheSessionAndDisablesBlindRetry() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(multipleCompressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val operationFailure = IOException("synthetic later failure")
+                activity.renderPartialCreationFailure(
+                    ArchiveCreationPartialFailureException(
+                        completedOutputs = listOf(
+                            ArchiveCreationResult(
+                                outputDisplayName = "report.txt.zip",
+                                outputDisplayPath = "/Documents/report.txt.zip",
+                                filesCompressed = 1L,
+                                directoriesAdded = 0L,
+                                sourceBytesRead = 6L,
+                            ),
+                        ),
+                        totalOutputs = 3,
+                        failedOutputIndex = 2,
+                        failedRequestedOutputDisplayName = "photos.zip",
+                        failedSourceDisplayName = "photos",
+                        operationFailure = operationFailure,
+                    ),
+                )
+
+                assertEquals(
+                    activity.getString(
+                        R.string.error_separate_compression_partial_failure,
+                        1,
+                        3,
+                        "photos.zip",
+                        "synthetic later failure",
+                    ),
+                    activity.findViewById<android.widget.TextView>(R.id.status).text.toString(),
+                )
+                assertFalse(activity.findViewById<android.view.View>(R.id.createButton).isEnabled)
+                assertFalse(activity.findViewById<android.view.View>(R.id.separateArchives).isEnabled)
+                assertEquals(
+                    activity.getString(android.R.string.ok),
+                    activity.findViewById<android.widget.Button>(R.id.cancelButton).text.toString(),
+                )
+                assertEquals(1, hostSession.closeCalls)
+                assertFalse(activity.isFinishing)
+            }
+        }
+    }
+
+    @Test
     fun askRetriesWithAutomaticNumberingWithoutReadingSources() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val hostSession = RecordingHostSession(rejectExactName = true)
@@ -436,27 +611,53 @@ class CreateArchiveActivityInstrumentationTest {
         )
     }
 
-    private fun compressionIntent(hostSession: IExplorerActionHostSession): Intent {
+    private fun compressionIntent(hostSession: IExplorerActionHostSession): Intent =
+        compressionIntent(hostSession, listOf("report.txt"))
+
+    private fun multipleCompressionIntent(hostSession: IExplorerActionHostSession): Intent =
+        compressionIntent(hostSession, listOf("report.txt", "photos", "notes.md"))
+
+    private fun compressionIntent(
+        hostSession: IExplorerActionHostSession,
+        targetNames: List<String>,
+    ): Intent {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val parentUri = Uri.parse("content://archive-manager-test/Documents")
-        val targetUri = Uri.parse("content://archive-manager-test/Documents/report.txt")
-        val target = Bundle().apply {
-            putString(ExplorerActionTargetKeys.ID, "target-1")
-            putParcelable(ExplorerActionTargetKeys.URI, targetUri)
-            putString(ExplorerActionTargetKeys.DISPLAY_NAME, "report.txt")
-            putInt(ExplorerActionTargetKeys.KIND, ExplorerActionValues.TARGET_FILE)
-            putString(ExplorerActionTargetKeys.MIME_TYPE, "text/plain")
-            putLong(ExplorerActionTargetKeys.SIZE, 6L)
-            putLong(ExplorerActionTargetKeys.LAST_MODIFIED, 1_700_000_000_000L)
+        val targetUris = targetNames.map { name ->
+            Uri.parse("content://archive-manager-test/Documents/$name")
+        }
+        val targets = targetNames.mapIndexedTo(arrayListOf()) { index, name ->
+            Bundle().apply {
+                putString(ExplorerActionTargetKeys.ID, "target-${index + 1}")
+                putParcelable(ExplorerActionTargetKeys.URI, targetUris[index])
+                putString(ExplorerActionTargetKeys.DISPLAY_NAME, name)
+                putInt(ExplorerActionTargetKeys.KIND, ExplorerActionValues.TARGET_FILE)
+                putString(ExplorerActionTargetKeys.MIME_TYPE, "text/plain")
+                putLong(ExplorerActionTargetKeys.SIZE, 6L + index)
+                putLong(ExplorerActionTargetKeys.LAST_MODIFIED, 1_700_000_000_000L + index)
+            }
         }
         val session = Bundle().apply {
             putBinder(ExplorerActionHostSessionKeys.BINDER, hostSession.asBinder())
         }
+        val clip = ClipData(
+            ClipDescription("Compression target", arrayOf("text/plain")),
+            ClipData.Item(targetUris.first()),
+        ).apply {
+            targetUris.drop(1).forEach { uri -> addItem(ClipData.Item(uri)) }
+        }
         return Intent(ExplorerActionPluginActions.EXECUTE)
             .setClass(context, CreateArchiveActivity::class.java)
-            .setDataAndType(targetUri, "text/plain")
+            .setDataAndType(targetUris.first(), "text/plain")
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID)
+            .putExtra(
+                ExplorerActionIntentExtras.ACTION_ID,
+                if (targetNames.size == 1) {
+                    ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID
+                } else {
+                    ArchiveManagerPlugin.ACTION_COMPRESS_MULTIPLE_ID
+                },
+            )
             .putExtra(ExplorerActionIntentExtras.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
             .putExtra(ExplorerActionIntentExtras.REQUEST_ID, REQUEST_ID)
             .putExtra(ExplorerActionIntentExtras.PARENT_URI, parentUri)
@@ -465,13 +666,10 @@ class CreateArchiveActivityInstrumentationTest {
                 ExplorerActionIntentExtras.SOURCE_SURFACE,
                 ExplorerActionIntentValues.SOURCE_SURFACE_MAIN,
             )
-            .putParcelableArrayListExtra(ExplorerActionIntentExtras.TARGETS, arrayListOf(target))
+            .putParcelableArrayListExtra(ExplorerActionIntentExtras.TARGETS, targets)
             .putExtra(ExplorerActionIntentExtras.HOST_SESSION, session)
             .apply {
-                clipData = ClipData(
-                    ClipDescription("Compression target", arrayOf("text/plain")),
-                    ClipData.Item(targetUri),
-                )
+                clipData = clip
             }
     }
 
@@ -481,6 +679,8 @@ class CreateArchiveActivityInstrumentationTest {
         var prepareOutputCalls = 0
             private set
         var sourceAccessCalls = 0
+            private set
+        var closeCalls = 0
             private set
         val conflictPolicies = CopyOnWriteArrayList<Int>()
         val exactNameAttempt = CountDownLatch(1)
@@ -520,7 +720,9 @@ class CreateArchiveActivityInstrumentationTest {
 
         override fun abortOutput(transactionId: String) = Unit
 
-        override fun close() = Unit
+        override fun close() {
+            closeCalls++
+        }
     }
 
     private class RollbackFailingHostSession : IExplorerActionHostSession.Stub() {

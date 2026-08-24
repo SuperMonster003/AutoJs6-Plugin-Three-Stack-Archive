@@ -37,8 +37,8 @@ internal object ArchiveCompressionPolicy {
             .trimEnd('.')
             .takeIf { it.isNotBlank() }
             ?: fallbackStem
-        return normalizeOutputDisplayName(sanitizedStem, format)
-            ?: normalizeOutputDisplayName(fallbackStem, format)
+        return defaultNameCandidate(sanitizedStem, format)
+            ?: defaultNameCandidate(fallbackStem, format)
             ?: "$FALLBACK_OUTPUT_STEM.${format.primaryExtension}"
     }
 
@@ -118,6 +118,36 @@ internal object ArchiveCompressionPolicy {
 
     private fun isUnsafeEntryCharacter(value: Char): Boolean =
         isUnsafeNameCharacter(value)
+
+    private fun defaultNameCandidate(
+        value: String,
+        format: ArchiveFormat,
+    ): String? = normalizeOutputDisplayName(value, format)
+        ?: truncateDefaultStem(value, format)?.let { boundedStem ->
+            normalizeOutputDisplayName(boundedStem, format)
+        }
+
+    private fun truncateDefaultStem(value: String, format: ArchiveFormat): String? {
+        val extension = ".${format.primaryExtension}"
+        val stem = if (value.lowercase(Locale.ROOT).endsWith(extension)) {
+            value.dropLast(extension.length)
+        } else {
+            value
+        }
+        val maxStemLength = ExplorerActionProtocol.MAX_OUTPUT_DISPLAY_NAME_LENGTH - extension.length
+        if (maxStemLength < 1) return null
+        val truncated = stem.take(maxStemLength).let { candidate ->
+            if (candidate.lastOrNull()?.let(Character::isHighSurrogate) == true) {
+                candidate.dropLast(1)
+            } else {
+                candidate
+            }
+        }
+        return truncated
+            .trim()
+            .trimEnd('.')
+            .takeIf { candidate -> candidate.any { it != '.' && !it.isWhitespace() } }
+    }
 
     const val DEFAULT_COMPRESSION_LEVEL = 6
     private const val MIN_COMPRESSION_LEVEL = 0

@@ -215,6 +215,19 @@
                 android:text="@string/text_compress_separately"
                 app:showText="false" />
 
+            <TextView
+                android:id="@+id/separateArchivesPreview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="4dp"
+                android:textAppearance="?attr/textAppearanceCaption"
+                android:visibility="gone"
+                tools:text="3 archives will be created in this folder.&#10;- report.txt.zip&#10;- photos.zip&#10;- notes.md.zip&#10;Existing and repeated names are numbered automatically; nothing is overwritten."
+                tools:visibility="visible" />
+
             <com.google.android.material.materialswitch.MaterialSwitch
                 android:id="@+id/deleteSources"
                 android:layout_width="match_parent"
@@ -246,7 +259,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:ellipsize="middle"
-                android:maxLines="3"
+                android:maxLines="4"
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:visibility="gone"
                 tools:text="Compressing Documents/report.pdf"

@@ -32,6 +32,7 @@ class CreateArchiveActivity : AppCompatActivity() {
     private var selectedFormat = ArchiveFormat.ZIP
     private var compressionLevel = ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
     private var selectedConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME
+    private var createSeparateArchives = false
     private var unavailableNameDialog: androidx.appcompat.app.AlertDialog? = null
     private var sessionClosed = false
     private var terminalFailureMessage: String? = null
@@ -47,6 +48,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                 ArchiveCreationConflictPolicy.entries.firstOrNull { it.name == stored }
             }
             ?: ArchiveCreationConflictPolicy.AUTO_RENAME
+        createSeparateArchives = savedInstanceState?.getBoolean(STATE_SEPARATE_ARCHIVES) == true
         terminalFailureMessage = savedInstanceState?.getString(STATE_TERMINAL_FAILURE)
 
         val resolvedRequest = ArchiveCompressionIntentPolicy.resolve(intent)
@@ -65,6 +67,7 @@ class CreateArchiveActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(STATE_CONFLICT_POLICY, selectedConflictPolicy.name)
+        outState.putBoolean(STATE_SEPARATE_ARCHIVES, createSeparateArchives)
         terminalFailureMessage?.let { outState.putString(STATE_TERMINAL_FAILURE, it) }
         super.onSaveInstanceState(outState)
     }
@@ -148,7 +151,16 @@ class CreateArchiveActivity : AppCompatActivity() {
                 nextFormat = selectedFormat,
             )?.let(outputName::setText)
             configureFormat(selectedFormat, levels)
+            renderCreationModeControls()
         }
+
+        createSeparateArchives = createSeparateArchives && request.targets.size > 1
+        separateArchives.isChecked = createSeparateArchives
+        separateArchives.setOnCheckedChangeListener { _, checked ->
+            createSeparateArchives = checked && request.targets.size > 1
+            renderCreationModeControls()
+        }
+        renderCreationModeControls()
 
         createButton.setOnClickListener { createArchive() }
         cancelButton.setOnClickListener {
@@ -195,17 +207,28 @@ class CreateArchiveActivity : AppCompatActivity() {
         if (terminalFailureMessage != null) return
         val resolvedRequest = request ?: return
         if (operationJob?.isActive == true) return
-        val outputDisplayName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
-            binding.outputName.text?.toString(),
-            selectedFormat,
-        )
+        val creationFormat = selectedFormat
+        val separateArchives = createSeparateArchives && resolvedRequest.targets.size > 1
+        val outputDisplayName = if (separateArchives) {
+            ArchiveCreationPlanner.separateOutputDisplayNames(
+                targetDisplayNames = resolvedRequest.targets.map(ArchiveCompressionTarget::displayName),
+                parentDisplayPath = resolvedRequest.parentDisplayPath,
+                fallbackStem = getString(R.string.text_default_archive_name),
+                format = creationFormat,
+            ).first()
+        } else {
+            ArchiveCompressionPolicy.normalizeOutputDisplayName(
+                binding.outputName.text?.toString(),
+                creationFormat,
+            )
+        }
         if (outputDisplayName == null) {
             binding.outputNameLayout.error = getString(R.string.error_archive_file_name_invalid)
             binding.outputName.requestFocus()
             return
         }
         binding.outputNameLayout.error = null
-        binding.outputName.setText(outputDisplayName)
+        if (!separateArchives) binding.outputName.setText(outputDisplayName)
         val password = binding.password.text?.let { editable ->
             CharArray(editable.length) { index -> editable[index] }
         } ?: CharArray(0)
@@ -232,6 +255,22 @@ class CreateArchiveActivity : AppCompatActivity() {
         currentFocus?.let { focused ->
             getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
+        val plan = ArchiveCreationPlanner.plan(
+            request = resolvedRequest,
+            format = creationFormat,
+            options = ArchiveCreationOptions(
+                outputDisplayName = outputDisplayName,
+                compressionLevel = compressionLevel,
+                password = passwordForCreation,
+                conflictPolicy = if (separateArchives) {
+                    ArchiveCreationConflictPolicy.AUTO_RENAME
+                } else {
+                    conflictPolicy
+                },
+            ),
+            separateArchives = separateArchives,
+            fallbackStem = getString(R.string.text_default_archive_name),
+        )
         setBusy(true, getString(R.string.text_preparing_compression))
         val attemptId = ++creationAttemptId
 
@@ -242,24 +281,22 @@ class CreateArchiveActivity : AppCompatActivity() {
                     val cancellationContext = currentCoroutineContext()
                     var lastUiUpdateNanos = 0L
                     var lastUiPhase: ArchiveCreationPhase? = null
-                    archiveEngine.createWriter(selectedFormat, resolvedRequest.hostSession).create(
-                        request = resolvedRequest,
-                        options = ArchiveCreationOptions(
-                            outputDisplayName = outputDisplayName,
-                            compressionLevel = compressionLevel,
-                            password = passwordForCreation,
-                            conflictPolicy = conflictPolicy,
+                    ArchiveCreationBatchExecutor.execute(
+                        writer = archiveEngine.createWriter(
+                            creationFormat,
+                            resolvedRequest.hostSession,
                         ),
+                        plan = plan,
                         checkCancelled = { cancellationContext.ensureActive() },
-                        progress = ArchiveCreationProgressListener { update ->
+                        progress = ArchiveCreationBatchProgressListener { update ->
                             val now = System.nanoTime()
-                            val phaseChanged = update.phase != lastUiPhase
+                            val phaseChanged = update.creation.phase != lastUiPhase
                             if (
                                 phaseChanged ||
                                 now - lastUiUpdateNanos >= UI_PROGRESS_INTERVAL_NANOS
                             ) {
                                 lastUiUpdateNanos = now
-                                lastUiPhase = update.phase
+                                lastUiPhase = update.creation.phase
                                 runOnUiThread {
                                     if (
                                         !isFinishing &&
@@ -268,22 +305,34 @@ class CreateArchiveActivity : AppCompatActivity() {
                                         operationJob?.isActive == true &&
                                         terminalFailureMessage == null
                                     ) {
-                                        renderCreationProgress(update)
+                                        renderCreationBatchProgress(update)
                                     }
                                 }
                             }
                         },
                     )
                 }
-                val message = resources.getQuantityString(
-                    R.plurals.text_archive_created,
-                    result.filesCompressed.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
-                    result.outputDisplayName,
-                    result.filesCompressed,
-                )
+                val message = if (plan.separateArchives) {
+                    getString(
+                        R.string.text_separate_archives_created,
+                        result.outputs.size,
+                        result.filesCompressed,
+                        result.directoriesAdded,
+                    )
+                } else {
+                    val output = result.outputs.single()
+                    resources.getQuantityString(
+                        R.plurals.text_archive_created,
+                        output.filesCompressed.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+                        output.outputDisplayName,
+                        output.filesCompressed,
+                    )
+                }
                 Toast.makeText(this@CreateArchiveActivity, message, Toast.LENGTH_LONG).show()
                 closeHostSession()
                 finish()
+            } catch (error: ArchiveCreationPartialFailureException) {
+                if (!isFinishing && !isDestroyed) renderPartialCreationFailure(error)
             } catch (_: CancellationException) {
                 if (!isFinishing && !isDestroyed) {
                     setBusy(false, getString(R.string.text_cancelled))
@@ -328,12 +377,32 @@ class CreateArchiveActivity : AppCompatActivity() {
     }
 
     internal fun renderCreationProgress(update: ArchiveCreationProgress) {
-        binding.status.text = when (update.phase) {
+        binding.status.text = creationProgressText(update)
+    }
+
+    internal fun renderCreationBatchProgress(update: ArchiveCreationBatchProgress) {
+        val progressText = creationProgressText(update.creation)
+        binding.status.text = if (update.totalArchives == 1) {
+            progressText
+        } else {
+            getString(
+                R.string.text_separate_archive_progress,
+                update.archiveIndex,
+                update.totalArchives,
+                ArchivePathPolicy.unsafeSourceNameForDisplay(
+                    update.requestedOutputDisplayName,
+                ),
+                progressText,
+            )
+        }
+    }
+
+    private fun creationProgressText(update: ArchiveCreationProgress): String =
+        when (update.phase) {
             ArchiveCreationPhase.SCANNING -> renderScanningProgress(update)
             ArchiveCreationPhase.COMPRESSING -> renderCompressingProgress(update)
             ArchiveCreationPhase.COMMITTING -> getString(R.string.text_committing_archive)
         }
-    }
 
     private fun renderScanningProgress(update: ArchiveCreationProgress): String {
         val currentEntry = update.currentEntry ?: return getString(
@@ -380,17 +449,107 @@ class CreateArchiveActivity : AppCompatActivity() {
 
     private fun Long.toQuantityRuleInt(): Int = coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
-    private fun selectConflictPolicy(policy: ArchiveCreationConflictPolicy) = with(binding) {
+    internal fun renderPartialCreationFailure(error: ArchiveCreationPartialFailureException) {
+        val operationFailure = error.operationFailure
+        val message = when (operationFailure) {
+            is CancellationException -> getString(
+                R.string.error_separate_compression_partially_cancelled,
+                error.completedOutputs.size,
+                error.totalOutputs,
+            )
+            is ArchiveCreationRollbackException -> getString(
+                R.string.error_separate_compression_cleanup_unconfirmed,
+                error.completedOutputs.size,
+                error.totalOutputs,
+                ArchivePathPolicy.unsafeSourceNameForDisplay(
+                    operationFailure.pendingOutputDisplayPath,
+                ),
+                userFacingReason(operationFailure.operationFailure),
+            )
+            else -> {
+                val failedName = if (operationFailure is ArchiveCreationOutputException) {
+                    operationFailure.outputDisplayName
+                } else {
+                    error.failedRequestedOutputDisplayName
+                }
+                getString(
+                    R.string.error_separate_compression_partial_failure,
+                    error.completedOutputs.size,
+                    error.totalOutputs,
+                    ArchivePathPolicy.unsafeSourceNameForDisplay(failedName),
+                    userFacingReason(operationFailure),
+                )
+            }
+        }
+        terminalFailureMessage = message
+        closeHostSession()
+        renderTerminalFailure(message)
+    }
+
+    private fun selectConflictPolicy(policy: ArchiveCreationConflictPolicy) {
         selectedConflictPolicy = policy
+        if (!createSeparateArchives) renderSelectedConflictPolicy()
+    }
+
+    private fun renderSelectedConflictPolicy() = with(binding) {
+        val policy = if (createSeparateArchives) {
+            ArchiveCreationConflictPolicy.AUTO_RENAME
+        } else {
+            selectedConflictPolicy
+        }
         creationConflictPolicy.setText(conflictPolicyLabel(policy), false)
         creationConflictPolicyDetails.setText(
-            when (policy) {
-                ArchiveCreationConflictPolicy.AUTO_RENAME ->
-                    R.string.text_creation_conflict_policy_auto_rename_details
-                ArchiveCreationConflictPolicy.ASK ->
-                    R.string.text_creation_conflict_policy_ask_details
+            if (createSeparateArchives) {
+                R.string.text_separate_archive_conflict_note
+            } else {
+                when (policy) {
+                    ArchiveCreationConflictPolicy.AUTO_RENAME ->
+                        R.string.text_creation_conflict_policy_auto_rename_details
+                    ArchiveCreationConflictPolicy.ASK ->
+                        R.string.text_creation_conflict_policy_ask_details
+                }
             },
         )
+    }
+
+    private fun renderCreationModeControls(
+        busy: Boolean = operationJob?.isActive == true,
+    ) = with(binding) {
+        val resolvedRequest = request
+        val supportsSeparateArchives = (resolvedRequest?.targets?.size ?: 0) > 1
+        if (!supportsSeparateArchives && createSeparateArchives) {
+            createSeparateArchives = false
+            separateArchives.isChecked = false
+        }
+        separateArchives.isEnabled = !busy && supportsSeparateArchives
+        outputNameLayout.isVisible = !createSeparateArchives
+        outputNameLayout.isEnabled = !busy && !createSeparateArchives
+        creationConflictPolicyLayout.isEnabled = !busy && !createSeparateArchives
+        creationConflictPolicy.isEnabled = !busy && !createSeparateArchives
+        separateArchivesPreview.isVisible = createSeparateArchives
+        if (createSeparateArchives && resolvedRequest != null) {
+            val names = ArchiveCreationPlanner.separateOutputDisplayNames(
+                targetDisplayNames = resolvedRequest.targets.map(
+                    ArchiveCompressionTarget::displayName,
+                ),
+                parentDisplayPath = resolvedRequest.parentDisplayPath,
+                fallbackStem = getString(R.string.text_default_archive_name),
+                format = selectedFormat,
+            )
+            val shownNames = names.take(MAX_SEPARATE_ARCHIVE_PREVIEW_NAMES)
+            separateArchivesPreview.text = buildList {
+                add(getString(R.string.text_separate_archive_preview_count, names.size))
+                shownNames.forEach { name ->
+                    add("- ${ArchivePathPolicy.unsafeSourceNameForDisplay(name)}")
+                }
+                val remaining = names.size - shownNames.size
+                if (remaining > 0) {
+                    add(getString(R.string.text_separate_archive_preview_more, remaining))
+                }
+                add(getString(R.string.text_separate_archive_conflict_note))
+            }.joinToString("\n")
+        }
+        renderSelectedConflictPolicy()
     }
 
     private fun conflictPolicyLabel(policy: ArchiveCreationConflictPolicy): String = getString(
@@ -509,9 +668,6 @@ class CreateArchiveActivity : AppCompatActivity() {
         progress.isVisible = busy
         status.isVisible = true
         status.text = message
-        outputNameLayout.isEnabled = !busy
-        creationConflictPolicyLayout.isEnabled = !busy
-        creationConflictPolicy.isEnabled = !busy
         format.isEnabled = !busy
         val capabilities = archiveEngine.capabilities(selectedFormat)
         compressionLevel.isEnabled = !busy && capabilities.compressionLevels.size > 1
@@ -525,6 +681,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED
         splitVolumeLayout.isEnabled = !busy && splitVolumesAvailable
         splitVolume.isEnabled = !busy && splitVolumesAvailable
+        renderCreationModeControls(busy)
         createButton.isEnabled = !busy
         cancelButton.isEnabled = true
         cancelButton.text = getString(R.string.dialog_button_cancel)
@@ -547,6 +704,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         encryptFileNames.isEnabled = false
         splitVolumeLayout.isEnabled = false
         splitVolume.isEnabled = false
+        separateArchives.isEnabled = false
         createButton.isEnabled = false
         cancelButton.text = getString(android.R.string.ok)
     }
@@ -575,7 +733,9 @@ class CreateArchiveActivity : AppCompatActivity() {
     private companion object {
         val UI_PROGRESS_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(100)
         const val MAX_ERROR_REASON_LENGTH = 500
+        const val MAX_SEPARATE_ARCHIVE_PREVIEW_NAMES = 5
         const val STATE_CONFLICT_POLICY = "creation_conflict_policy"
+        const val STATE_SEPARATE_ARCHIVES = "separate_archives"
         const val STATE_TERMINAL_FAILURE = "terminal_creation_failure"
     }
 }
