@@ -57,11 +57,15 @@
     <string name="error_archive_file_name_invalid">올바른 압축 파일 이름을 입력하세요</string>
     <string name="error_compression_failed">압축에 실패했습니다</string>
     <string name="error_compression_cleanup_unconfirmed">압축에 실패했으며 임시 출력 정리를 확인할 수 없습니다. 추가 쓰기를 막기 위해 호스트 세션을 닫았습니다. 기존 압축 파일은 덮어쓰지 않았습니다.\n예정 출력: %1$s\n원래 이유: %2$s</string>
+    <string name="error_split_compression_partial_failure">ZIP 볼륨 파일 %2$d개 중 %1$d개를 커밋한 후 게시가 중지되었습니다. 마지막 .zip 볼륨은 커밋되지 않았으므로 불완전한 세트를 열 수 없습니다. 추가 쓰기를 막기 위해 호스트 세션을 닫았습니다.\n실패한 출력: %3$s\n이유: %4$s</string>
+    <string name="error_split_compression_cleanup_unconfirmed">ZIP 볼륨 파일 %2$d개 중 %1$d개를 커밋한 후 게시가 중지되었으며, 대기 중인 출력 %3$d개의 정리를 확인할 수 없습니다. 마지막 .zip 볼륨은 커밋되지 않았습니다. 추가 쓰기를 막기 위해 호스트 세션을 닫았습니다.\n확인이 필요한 첫 출력: %4$s\n원래 이유: %5$s</string>
+    <string name="error_split_compression_cache_cleanup">ZIP 볼륨을 임시로 만들었지만 비공개 캐시 복사본의 정리를 확인할 수 없습니다. 커밋된 볼륨은 없습니다. 추가 쓰기를 막기 위해 호스트 세션을 닫았습니다.</string>
     <string name="error_separate_compression_partially_cancelled">압축 파일 %2$d개 중 %1$d개를 만든 후 취소했습니다. 완료된 압축 파일은 유지됩니다. 중복 출력을 막기 위해 이 세션을 닫았습니다. 나머지 항목에서 압축을 다시 여세요.</string>
+    <string name="error_separate_compression_completed_before_split_failure">다음 분할 ZIP이 중지되기 전에 개별 압축 파일 %2$d개 중 %1$d개가 이미 완료되어 유지되었습니다.</string>
     <string name="error_separate_compression_partial_failure">압축 파일 %2$d개 중 %1$d개를 만든 후 작업이 중지되었습니다. 완료된 압축 파일은 유지됩니다. 중복 출력을 막기 위해 이 세션을 닫았습니다. 실패한 항목과 나머지 항목에서 압축을 다시 여세요.\n실패한 출력: %3$s\n이유: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">압축 파일 %2$d개 중 %1$d개를 만든 후 다음 출력이 실패했으며 임시 출력 정리를 확인할 수 없습니다. 완료된 압축 파일은 유지됩니다. 추가 쓰기를 막기 위해 호스트 세션을 닫았습니다. 기존 압축 파일은 덮어쓰지 않았습니다.\n예정 출력: %3$s\n원래 이유: %4$s</string>
     <string name="error_compression_request_invalid">압축 요청 또는 호스트 세션이 올바르지 않습니다</string>
-    <string name="text_advanced_compression_pending">분할 압축, 파일 이름 암호화 및 원본 삭제는 안전한 트랜잭션 백엔드가 제공될 때까지 비활성화됩니다.</string>
+    <string name="text_advanced_compression_pending">파일 이름 암호화 및 원본 삭제는 안전한 트랜잭션 백엔드가 제공될 때까지 비활성화됩니다.</string>
     <string name="text_archive_file_name">파일 이름</string>
     <string name="text_archive_format">형식</string>
     <string name="text_compress_separately">각 항목을 개별적으로 압축</string>
@@ -70,6 +74,7 @@
     <string name="text_separate_archive_conflict_note">기존 이름과 이 작업에서 중복되는 이름에는 자동으로 번호가 붙으며, 아무 항목도 덮어쓰지 않습니다.</string>
     <string name="text_separate_archive_progress">압축 파일 %1$d/%2$d: %3$s\n%4$s</string>
     <string name="text_separate_archives_created">압축 파일 %1$d개를 만들었습니다: 파일 %2$d개를 압축하고 폴더 %3$d개를 추가했습니다.</string>
+    <string name="text_separate_split_archives_created">압축 파일 %1$d개를 ZIP 볼륨 파일 %2$d개로 만들고 파일 %3$d개를 압축했습니다.</string>
     <string name="text_compression_level">압축 수준</string>
     <string name="text_compression_level_fast">빠름</string>
     <string name="text_compression_level_maximum">최대</string>
@@ -93,6 +98,9 @@
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">압축 풀기 준비 중...</string>
     <string name="text_split_unavailable_for_format">%1$s에서는 분할 출력을 사용할 수 없습니다.</string>
     <string name="text_split_volume">분할 크기 (MiB)</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">출력이 선택한 크기를 초과하면 ZIP은 .z01, .z02, ... 및 마지막 .zip 파일을 만듭니다. 더 작은 출력은 하나의 .zip 파일로 유지됩니다. 사전 설정을 선택하거나 %1$d부터 %2$d까지의 정수를 입력하세요.</string>
+    <string name="text_split_archive_created">%1$s을(를) ZIP 볼륨 파일 %2$d개로 만들고 파일 %3$d개를 압축했습니다.</string>
     <string name="text_encryption_unavailable_for_format">%1$s에서는 비밀번호와 파일 이름 암호화를 사용할 수 없습니다.</string>
     <string name="error_diagnostic_details">%1$s\n형식: %2$s\n단계: %3$s\n코드: %4$s\n이유: %5$s</string>
     <string name="error_reason_cache_space">이 압축 파일을 열 캐시 공간이 부족합니다.</string>
@@ -126,6 +134,7 @@
     <string name="error_password_incorrect">압축 파일 비밀번호가 올바르지 않습니다</string>
     <string name="error_password_required">압축 파일 비밀번호를 입력하세요</string>
     <string name="error_password_confirmation_mismatch">비밀번호가 일치하지 않습니다</string>
+    <string name="error_split_volume_invalid">%1$d에서 %2$d MiB 사이의 정수를 입력하거나 없음을 선택하세요</string>
     <string name="text_apply_password">적용</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">비밀번호 적용 중...</string>
     <string name="text_archive_password">압축 파일 비밀번호</string>

@@ -189,7 +189,13 @@ internal data class ArchiveCreationOptions(
     val compressionLevel: Int,
     val password: CharArray? = null,
     val conflictPolicy: ArchiveCreationConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME,
-)
+    /** Null creates one ordinary output; otherwise this is the maximum size of each ZIP volume. */
+    val splitVolumeSizeBytes: Long? = null,
+) {
+    init {
+        splitVolumeSizeBytes?.let(ArchiveSplitVolumePolicy::requireVolumeSizeBytes)
+    }
+}
 
 internal enum class ArchiveCreationConflictPolicy {
     AUTO_RENAME,
@@ -198,8 +204,8 @@ internal enum class ArchiveCreationConflictPolicy {
 
 internal class ArchiveOutputNameUnavailableException(
     val requestedDisplayName: String,
-    cause: IllegalArgumentException,
-) : IllegalStateException("The exact archive output name is unavailable", cause)
+    val hostFailure: IllegalArgumentException,
+) : IllegalStateException("The exact archive output name is unavailable", hostFailure)
 
 internal enum class ArchiveCreationPhase {
     SCANNING,
@@ -241,13 +247,29 @@ internal data class ArchiveCreationProgress(
     }
 }
 
+internal data class CreatedArchiveOutput(
+    val displayName: String,
+    val displayPath: String,
+)
+
 internal data class ArchiveCreationResult(
     val outputDisplayName: String,
     val outputDisplayPath: String,
     val filesCompressed: Long,
     val directoriesAdded: Long,
     val sourceBytesRead: Long,
-)
+    /** Ordered physical outputs. Split ZIP parts precede the terminal `.zip` volume. */
+    val createdOutputs: List<CreatedArchiveOutput> = listOf(
+        CreatedArchiveOutput(outputDisplayName, outputDisplayPath),
+    ),
+) {
+    init {
+        require(createdOutputs.isNotEmpty())
+        require(createdOutputs.map(CreatedArchiveOutput::displayName).distinct().size == createdOutputs.size)
+        require(createdOutputs.last().displayName == outputDisplayName)
+        require(createdOutputs.last().displayPath == outputDisplayPath)
+    }
+}
 
 internal fun interface ArchiveCreationProgressListener {
     fun onProgress(progress: ArchiveCreationProgress)

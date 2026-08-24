@@ -32,9 +32,10 @@ internal data class ArchiveCreationPlan(
             require(jobs.size == 1)
         }
         require(jobs.all { job ->
-            ArchiveCompressionPolicy.normalizeOutputDisplayName(
-                job.options.outputDisplayName,
-                format,
+            ArchiveCompressionPolicy.normalizeCreationOutputDisplayName(
+                value = job.options.outputDisplayName,
+                format = format,
+                splitVolumeSizeBytes = job.options.splitVolumeSizeBytes,
             ) == job.options.outputDisplayName
         })
     }
@@ -79,7 +80,17 @@ internal object ArchiveCreationPlanner {
                             parentDisplayPath = request.parentDisplayPath,
                             fallbackStem = fallbackStem,
                             format = format,
-                        ),
+                        ).let { derivedName ->
+                            if (options.splitVolumeSizeBytes == null) {
+                                derivedName
+                            } else {
+                                requireNotNull(
+                                    ArchiveCompressionPolicy.fitSplitZipOutputDisplayName(
+                                        derivedName,
+                                    ),
+                                )
+                            }
+                        },
                         conflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME,
                     ),
                 )
@@ -92,13 +103,19 @@ internal object ArchiveCreationPlanner {
         parentDisplayPath: String,
         fallbackStem: String,
         format: ArchiveFormat,
+        splitVolumeSizeBytes: Long? = null,
     ): List<String> = targetDisplayNames.map { targetDisplayName ->
-        ArchiveCompressionPolicy.defaultOutputDisplayName(
+        val derivedName = ArchiveCompressionPolicy.defaultOutputDisplayName(
             targetDisplayNames = listOf(targetDisplayName),
             parentDisplayPath = parentDisplayPath,
             fallbackStem = fallbackStem,
             format = format,
         )
+        if (splitVolumeSizeBytes == null) {
+            derivedName
+        } else {
+            requireNotNull(ArchiveCompressionPolicy.fitSplitZipOutputDisplayName(derivedName))
+        }
     }
 }
 
@@ -130,6 +147,9 @@ internal data class ArchiveCreationBatchResult(
     val filesCompressed: Long = outputs.sumSaturated(ArchiveCreationResult::filesCompressed)
     val directoriesAdded: Long = outputs.sumSaturated(ArchiveCreationResult::directoriesAdded)
     val sourceBytesRead: Long = outputs.sumSaturated(ArchiveCreationResult::sourceBytesRead)
+    val physicalOutputsCreated: Long = outputs.sumSaturated { result ->
+        result.createdOutputs.size.toLong()
+    }
 }
 
 /**

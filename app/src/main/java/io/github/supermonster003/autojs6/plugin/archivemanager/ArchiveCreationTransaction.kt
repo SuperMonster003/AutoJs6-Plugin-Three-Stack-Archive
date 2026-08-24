@@ -58,6 +58,52 @@ internal class ArchiveCreationRollbackException(
     }
 }
 
+/** A split archive stopped after one or more physical volumes were already committed. */
+internal class ArchiveCreationPartialOutputException(
+    val committedOutputs: List<HostOutputTransaction>,
+    val totalOutputs: Int,
+    val failedOutputDisplayName: String,
+    val operationFailure: Throwable,
+    format: ArchiveFormat,
+) : ArchiveException(
+    code = ArchiveFailureCode.OUTPUT_FAILURE,
+    message = "Archive creation stopped after committing part of its physical outputs",
+    cause = operationFailure,
+    format = format,
+    stage = ArchiveFailureStage.OUTPUT,
+) {
+    init {
+        require(committedOutputs.isNotEmpty())
+        require(committedOutputs.size < totalOutputs)
+        require(failedOutputDisplayName.isNotBlank())
+    }
+}
+
+/** Cleanup could not be confirmed for one or more pending outputs in a split-output group. */
+internal class ArchiveCreationOutputGroupRollbackException(
+    val committedOutputs: List<HostOutputTransaction>,
+    val residualOutputs: List<HostOutputTransaction>,
+    val totalOutputs: Int,
+    val operationFailure: Throwable,
+    val rollbackFailures: List<Throwable>,
+    format: ArchiveFormat,
+) : ArchiveException(
+    code = ArchiveFailureCode.OUTPUT_FAILURE,
+    message = "Archive creation failed and split-output cleanup could not be confirmed",
+    cause = operationFailure,
+    format = format,
+    stage = ArchiveFailureStage.CLEANUP,
+) {
+    init {
+        require(residualOutputs.isNotEmpty())
+        require(rollbackFailures.size == residualOutputs.size)
+        require(totalOutputs >= committedOutputs.size + residualOutputs.size)
+        rollbackFailures.forEach { failure ->
+            if (failure !== operationFailure) addSuppressed(failure)
+        }
+    }
+}
+
 /** A host source could not be opened, read, or verified while creating an archive. */
 internal class ArchiveCreationSourceException(
     val sourceArchivePath: String,
@@ -154,7 +200,7 @@ internal fun <Preparation, T> ExplorerActionHostSessionClient.writeArchiveOutput
     }
 }
 
-private inline fun <T> runCreationOutputOperation(
+internal inline fun <T> runCreationOutputOperation(
     operation: ArchiveCreationOutputOperation,
     outputDisplayName: String,
     format: ArchiveFormat,
@@ -165,7 +211,7 @@ private inline fun <T> runCreationOutputOperation(
     throw mapCreationOutputFailure(operation, outputDisplayName, format, error)
 }
 
-private fun mapCreationOutputFailure(
+internal fun mapCreationOutputFailure(
     operation: ArchiveCreationOutputOperation,
     outputDisplayName: String,
     format: ArchiveFormat,

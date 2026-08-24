@@ -85,6 +85,29 @@ internal class ExplorerActionHostSessionClient(
         return decodeOutput(result, format)
     }
 
+    /** Reserves one exact physical output, including non-terminal split parts such as `.z01`. */
+    fun prepareExactOutput(
+        displayName: String,
+        mimeType: String,
+    ): HostOutputTransaction {
+        val validatedName = ArchiveCompressionPolicy.validateOutputDisplayName(displayName)
+            ?: throw IllegalArgumentException("Host output display name is invalid")
+        require(
+            mimeType.length <= ExplorerActionProtocol.MAX_OUTPUT_MIME_TYPE_LENGTH &&
+                mimeType.matches(OUTPUT_MIME_TYPE_PATTERN),
+        ) { "Host output MIME type is invalid" }
+        val result = try {
+            remote.prepareOutput(
+                validatedName,
+                mimeType,
+                ExplorerActionHostSessionValues.OUTPUT_CONFLICT_FAIL,
+            )
+        } catch (error: IllegalArgumentException) {
+            throw ArchiveOutputNameUnavailableException(validatedName, error)
+        } ?: error("Host returned no output transaction")
+        return decodeExactOutput(result, validatedName)
+    }
+
     fun openOutput(transactionId: String): ParcelFileDescriptor =
         remote.openOutput(transactionId) ?: error("Host returned no output descriptor")
 
@@ -94,6 +117,14 @@ internal class ExplorerActionHostSessionClient(
     ): HostOutputTransaction = decodeOutput(
         remote.commitOutput(transactionId) ?: error("Host returned no commit result"),
         format,
+    )
+
+    fun commitExactOutput(
+        transactionId: String,
+        expectedDisplayName: String,
+    ): HostOutputTransaction = decodeExactOutput(
+        remote.commitOutput(transactionId) ?: error("Host returned no commit result"),
+        expectedDisplayName,
     )
 
     fun abortOutput(transactionId: String) {
@@ -140,12 +171,29 @@ internal class ExplorerActionHostSessionClient(
         bundle: Bundle,
         format: ArchiveFormat,
     ): HostOutputTransaction {
+        val decoded = decodeRawOutput(bundle)
+        require(
+            ArchiveCompressionPolicy.normalizeOutputDisplayName(decoded.displayName, format) ==
+                decoded.displayName,
+        ) { "Host output display name does not match the archive format" }
+        return decoded
+    }
+
+    private fun decodeExactOutput(
+        bundle: Bundle,
+        expectedDisplayName: String,
+    ): HostOutputTransaction = decodeRawOutput(bundle).also { decoded ->
+        require(decoded.displayName == expectedDisplayName) {
+            "Host changed an exactly reserved output name"
+        }
+    }
+
+    private fun decodeRawOutput(bundle: Bundle): HostOutputTransaction {
         val id = bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID)
             ?.takeIf(::isCanonicalUuid)
             ?: error("Host output transaction ID is invalid")
-        val displayName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
+        val displayName = ArchiveCompressionPolicy.validateOutputDisplayName(
             bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME),
-            format,
         ) ?: error("Host output display name is invalid")
         val displayPath = bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH)
             ?.takeIf { it.length in 1..ExplorerActionProtocol.MAX_PARENT_DISPLAY_PATH_LENGTH }
@@ -164,5 +212,6 @@ internal class ExplorerActionHostSessionClient(
 
     private companion object {
         const val SIZE_UNKNOWN = -1L
+        val OUTPUT_MIME_TYPE_PATTERN = Regex("^[a-z0-9!#$&^_.+-]+/[a-z0-9!#$&^_.+-]+$")
     }
 }

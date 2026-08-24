@@ -2,6 +2,7 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import net.lingala.zip4j.exception.ZipException as Zip4jException
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.IllegalCharsetNameException
@@ -23,13 +24,12 @@ internal object ZipArchiveBackend : ArchiveBackend {
         canRename = false,
         password = ArchiveOptionMode.OPTIONAL,
         filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
-        splitVolumes = ArchiveOptionMode.UNSUPPORTED,
+        splitVolumes = ArchiveOptionMode.OPTIONAL,
         compressionLevels = (0..9).toList(),
         filenameCharsetNames = ZipArchiveAccess.supportedFilenameCharsetNames(),
         limitations = setOf(
             ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT,
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
-            ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
             ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
         ),
     )
@@ -75,8 +75,10 @@ internal object ZipArchiveBackend : ArchiveBackend {
         }
     }
 
-    override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
-        ZipArchiveCreator(session)
+    override fun createWriter(
+        session: IExplorerActionHostSession,
+        cacheDirectory: File?,
+    ): ArchiveWriter = ZipArchiveCreator(session, cacheDirectory)
 
     private fun mapOpenFailure(source: ArchiveReadSource, error: Throwable): ArchiveBackendException {
         if (error is ArchiveBackendException) return error

@@ -29,7 +29,11 @@
     <string name="error_cleanup_residual_outputs">Cleanup failed. The following output locations may remain:\n%1$s</string>
     <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_cleanup_unconfirmed">Compression failed, and cleanup of its temporary output could not be confirmed. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %1$s\nOriginal reason: %2$s</string>
+    <string name="error_split_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d ZIP volume files before publishing stopped. The final .zip volume was not committed, so the incomplete set cannot be opened. This host session is now closed to prevent another write.\nFailed output: %3$s\nReason: %4$s</string>
+    <string name="error_split_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">ZIP publishing stopped after %1$d of %2$d volume files were committed, and cleanup could not be confirmed for %3$d pending outputs. The final .zip volume was not committed. This host session is now closed to prevent another write.\nFirst output needing attention: %4$s\nOriginal reason: %5$s</string>
+    <string name="error_split_compression_cache_cleanup">The ZIP volumes were staged, but cleanup of their private cache copy could not be confirmed. No volume was committed. The host session has been closed to prevent another write.</string>
     <string name="error_separate_compression_partially_cancelled" tools:ignore="PluralsCandidate">Cancelled after creating %1$d of %2$d archives. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the remaining items.</string>
+    <string name="error_separate_compression_completed_before_split_failure" tools:ignore="PluralsCandidate">Before the next split ZIP stopped, %1$d of %2$d separate archives had already been completed and were kept.</string>
     <string name="error_separate_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before creation stopped. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the failed and remaining items.\nFailed output: %3$s\nReason: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before a later output failed, and cleanup of its temporary output could not be confirmed. Completed archives were kept. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %3$s\nOriginal reason: %4$s</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
@@ -41,11 +45,12 @@
     <string name="error_password_incorrect">The archive password is incorrect</string>
     <string name="error_password_required">Enter the archive password</string>
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
+    <string name="error_split_volume_invalid">Enter a whole volume size from %1$d to %2$d MiB, or choose None</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
     <string name="plugin_description">File manager plugin. Browse, extract, and create ZIP and TAR archives</string>
     <string name="text_cancelled">Cancelled</string>
-    <string name="text_advanced_compression_pending">Split volumes, filename encryption, and source deletion remain disabled until their transactional backends are available.</string>
+    <string name="text_advanced_compression_pending">Filename encryption and source deletion remain disabled until their transactional backends are available.</string>
     <string name="text_apply_password">Apply</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>
     <string name="text_archive_file_name">File name</string>
@@ -75,6 +80,7 @@
     <string name="text_separate_archive_conflict_note">Existing and repeated names are numbered automatically; nothing is overwritten.</string>
     <string name="text_separate_archive_progress" tools:ignore="PluralsCandidate">Archive %1$d of %2$d: %3$s\n%4$s</string>
     <string name="text_separate_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives: %2$d files compressed and %3$d folders added.</string>
+    <string name="text_separate_split_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives in %2$d ZIP volume files, with %3$d files compressed.</string>
     <string name="text_compression_level">Compression level</string>
     <string name="text_compression_level_fast">Fast</string>
     <string name="text_compression_level_maximum">Maximum</string>
@@ -141,6 +147,9 @@
     <string name="text_size_details">%1$s, compressed %2$s, CRC %3$s</string>
     <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
     <string name="text_split_volume">Split volume (MiB)</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">When output exceeds the selected size, ZIP creates .z01, .z02, ... and a final .zip file; smaller output remains one .zip file. Choose a preset or enter a whole number from %1$d to %2$d.</string>
+    <string name="text_split_archive_created" tools:ignore="PluralsCandidate">Created %1$s in %2$d ZIP volume files, with %3$d files compressed.</string>
     <string name="text_unknown">Unknown</string>
     <string name="text_unsafe_path_read_only">Unsafe original path; preview only. It is excluded from extraction.</string>
     <string name="text_unsafe_paths_folder">Unsafe paths</string>

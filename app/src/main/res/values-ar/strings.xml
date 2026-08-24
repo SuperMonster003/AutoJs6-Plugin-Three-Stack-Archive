@@ -57,11 +57,15 @@
     <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
     <string name="error_compression_failed">فشل الضغط</string>
     <string name="error_compression_cleanup_unconfirmed">فشل الضغط وتعذر تأكيد تنظيف الإخراج المؤقت. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %1$s\nالسبب الأصلي: %2$s</string>
+    <string name="error_split_compression_partial_failure">توقف نشر ZIP بعد اعتماد %1$d من أصل %2$d من ملفات الأجزاء. لم يُعتمد جزء .zip الأخير، ولذلك لا يمكن فتح المجموعة غير المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
+    <string name="error_split_compression_cleanup_unconfirmed">توقف نشر ZIP بعد اعتماد %1$d من أصل %2$d من ملفات الأجزاء، وتعذر تأكيد تنظيف %3$d من المخرجات المعلقة. لم يُعتمد جزء .zip الأخير. أُغلقت جلسة المضيف لمنع كتابة أخرى.\nأول إخراج يحتاج إلى مراجعة: %4$s\nالسبب الأصلي: %5$s</string>
+    <string name="error_split_compression_cache_cleanup">جُهزت أجزاء ZIP، لكن تعذر تأكيد تنظيف نسختها في ذاكرة التخزين المؤقت الخاصة. لم يُعتمد أي جزء. أُغلقت جلسة المضيف لمنع كتابة أخرى.</string>
     <string name="error_separate_compression_partially_cancelled">أُلغي الإجراء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعناصر المتبقية.</string>
+    <string name="error_separate_compression_completed_before_split_failure">قبل توقف ملف ZIP المجزأ التالي، كان قد اكتمل وحُفظ %1$d من أصل %2$d من الأرشيفات المنفصلة.</string>
     <string name="error_separate_compression_partial_failure">توقف الإنشاء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعنصر الذي فشل والعناصر المتبقية.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">تم إنشاء %1$d من أصل %2$d أرشيفات قبل فشل إخراج لاحق، وتعذر تأكيد تنظيف إخراجه المؤقت. تم الاحتفاظ بالأرشيفات المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %3$s\nالسبب الأصلي: %4$s</string>
     <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>
-    <string name="text_advanced_compression_pending">تظل الأجزاء وتشفير أسماء الملفات وحذف المصدر معطلة حتى تتوفر الواجهات الخلفية الآمنة الخاصة بها.</string>
+    <string name="text_advanced_compression_pending">يظل تشفير أسماء الملفات وحذف المصدر معطلين حتى تتوفر الواجهات الخلفية الآمنة الخاصة بهما.</string>
     <string name="text_archive_file_name">اسم الملف</string>
     <string name="text_archive_format">التنسيق</string>
     <string name="text_compress_separately">ضغط كل عنصر في أرشيف منفصل</string>
@@ -70,6 +74,7 @@
     <string name="text_separate_archive_conflict_note">تُرقّم الأسماء الموجودة والمتكررة تلقائيًا، ولا تتم الكتابة فوق أي عنصر.</string>
     <string name="text_separate_archive_progress">الأرشيف %1$d من %2$d: %3$s\n%4$s</string>
     <string name="text_separate_archives_created">تم إنشاء %1$d أرشيفات: ضُغط %2$d ملفات وأُضيف %3$d مجلدات.</string>
+    <string name="text_separate_split_archives_created">تم إنشاء %1$d أرشيفات في %2$d من ملفات أجزاء ZIP، وضُغط %3$d ملفات.</string>
     <string name="text_compression_level">مستوى الضغط</string>
     <string name="text_compression_level_fast">سريع</string>
     <string name="text_compression_level_maximum">أقصى</string>
@@ -93,6 +98,9 @@
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">جار تحضير الاستخراج...</string>
     <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
     <string name="text_split_volume">حجم الجزء (MiB)</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">عندما يتجاوز الناتج الحجم المحدد، ينشئ ZIP ملفات .z01 و.z02 و... وملف .zip أخيرًا؛ أما الناتج الأصغر فيبقى ملف .zip واحدًا. اختر قيمة مسبقة أو أدخل عددًا صحيحًا من %1$d إلى %2$d.</string>
+    <string name="text_split_archive_created">تم إنشاء %1$s في %2$d من ملفات أجزاء ZIP، وضُغط %3$d ملفات.</string>
     <string name="text_encryption_unavailable_for_format">كلمة المرور وتشفير أسماء الملفات غير متاحين لتنسيق %1$s.</string>
     <string name="error_diagnostic_details">%1$s\nالتنسيق: %2$s\nالمرحلة: %3$s\nالرمز: %4$s\nالسبب: %5$s</string>
     <string name="error_reason_cache_space">لا توجد مساحة تخزين مؤقت كافية لفتح هذا الأرشيف.</string>
@@ -126,6 +134,7 @@
     <string name="error_password_incorrect">كلمة مرور الأرشيف غير صحيحة</string>
     <string name="error_password_required">أدخل كلمة مرور الأرشيف</string>
     <string name="error_password_confirmation_mismatch">كلمتا المرور غير متطابقتين</string>
+    <string name="error_split_volume_invalid">أدخل حجمًا صحيحًا من %1$d إلى %2$d MiB، أو اختر بلا</string>
     <string name="text_apply_password">تطبيق</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">جار تطبيق كلمة المرور...</string>
     <string name="text_archive_password">كلمة مرور الأرشيف</string>

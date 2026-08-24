@@ -11,6 +11,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream
 import org.tukaani.xz.MemoryLimitException
 import java.io.BufferedInputStream
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 
@@ -49,7 +50,10 @@ internal abstract class TarArchiveBackendBase(
 
     override val capabilities = tarCapabilities(container)
 
-    override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
+    override fun createWriter(
+        session: IExplorerActionHostSession,
+        cacheDirectory: File?,
+    ): ArchiveWriter =
         TarArchiveCreator(format, capabilities, session)
 
     override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {

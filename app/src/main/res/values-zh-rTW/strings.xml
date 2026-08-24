@@ -55,11 +55,15 @@
     <string name="error_archive_file_name_invalid">請輸入有效的壓縮檔名稱</string>
     <string name="error_compression_failed">壓縮失敗</string>
     <string name="error_compression_cleanup_unconfirmed">壓縮失敗, 且無法確認暫存輸出已清理. 為避免繼續寫入, 目前的主機工作階段已關閉. 現有檔案未被覆寫.\n預定輸出: %1$s\n原始原因: %2$s</string>
+    <string name="error_split_compression_partial_failure">已提交 %1$d/%2$d 個 ZIP 分割檔後發布停止. 最終 .zip 分割檔未提交, 因此無法開啟這組不完整的分割檔. 目前的主機工作階段已關閉, 以防止再次寫入.\n失敗的輸出: %3$s\n原因: %4$s</string>
+    <string name="error_split_compression_cleanup_unconfirmed">ZIP 發布在提交 %1$d/%2$d 個分割檔後停止, 且無法確認 %3$d 個待處理輸出已清理. 最終 .zip 分割檔未提交. 目前的主機工作階段已關閉, 以防止再次寫入.\n第一個需要處理的輸出: %4$s\n原始原因: %5$s</string>
+    <string name="error_split_compression_cache_cleanup">ZIP 分割檔已暫存, 但無法確認其私人快取副本已清理. 沒有分割檔被提交. 目前的主機工作階段已關閉, 以防止再次寫入.</string>
     <string name="error_separate_compression_partially_cancelled">已建立 %1$d/%2$d 個壓縮檔案後取消. 已完成的壓縮檔案會保留; 為防止產生重複輸出, 本次工作階段現已關閉. 請為其餘項目重新開啟「壓縮」.</string>
+    <string name="error_separate_compression_completed_before_split_failure">下一個 ZIP 分割檔停止前, 已完成並保留 %1$d/%2$d 個單獨壓縮檔案.</string>
     <string name="error_separate_compression_partial_failure">已建立 %1$d/%2$d 個壓縮檔案後停止. 已完成的壓縮檔案會保留; 為防止產生重複輸出, 本次工作階段現已關閉. 請為失敗及其餘項目重新開啟「壓縮」.\n失敗的輸出: %3$s\n原因: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">已建立 %1$d/%2$d 個壓縮檔案, 後續輸出失敗且無法確認其暫存輸出已清理. 已完成的壓縮檔案會保留. 為避免繼續寫入, 目前的主機工作階段已關閉. 現有檔案未被覆寫.\n預定輸出: %3$s\n原始原因: %4$s</string>
     <string name="error_compression_request_invalid">壓縮請求或主程式工作階段無效</string>
-    <string name="text_advanced_compression_pending">分割檔、檔名加密及刪除來源項目會在相應的交易式後端可用後開放.</string>
+    <string name="text_advanced_compression_pending">檔名加密及刪除來源項目會在相應的交易式後端可用後開放.</string>
     <string name="text_archive_file_name">檔名</string>
     <string name="text_archive_format">格式</string>
     <string name="text_compress_separately">個別壓縮每個檔案和資料夾</string>
@@ -68,6 +72,7 @@
     <string name="text_separate_archive_conflict_note">現有名稱與本批次中的重複名稱會自動編號; 不會覆寫任何項目.</string>
     <string name="text_separate_archive_progress">第 %1$d/%2$d 個壓縮檔案: %3$s\n%4$s</string>
     <string name="text_separate_archives_created">已建立 %1$d 個壓縮檔案: 壓縮了 %2$d 個檔案並加入了 %3$d 個資料夾.</string>
+    <string name="text_separate_split_archives_created">已建立 %1$d 個壓縮檔案, 共 %2$d 個 ZIP 分割檔, 壓縮了 %3$d 個檔案.</string>
     <string name="text_compression_level">壓縮等級</string>
     <string name="text_compression_level_fast">快速</string>
     <string name="text_compression_level_maximum">最高</string>
@@ -91,6 +96,9 @@
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在準備解壓縮...</string>
     <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分割檔輸出.</string>
     <string name="text_split_volume">分割檔大小 (MiB)</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">當輸出超過所選大小時, ZIP 會建立 .z01、.z02、... 以及最終 .zip 分割檔; 較小的輸出仍為單一 .zip 檔案. 請選擇預設值, 或輸入 %1$d 至 %2$d 的整數.</string>
+    <string name="text_split_archive_created">已將 %1$s 建立為 %2$d 個 ZIP 分割檔, 共壓縮 %3$d 個檔案.</string>
     <string name="text_encryption_unavailable_for_format">%1$s 目前尚未支援密碼和檔名加密.</string>
     <string name="error_diagnostic_details">%1$s\n格式: %2$s\n階段: %3$s\n代碼: %4$s\n原因: %5$s</string>
     <string name="error_reason_cache_space">快取空間不足, 無法開啟此壓縮檔.</string>
@@ -124,6 +132,7 @@
     <string name="error_password_incorrect">壓縮檔密碼不正確</string>
     <string name="error_password_required">請輸入壓縮檔密碼</string>
     <string name="error_password_confirmation_mismatch">兩次輸入的密碼不一致</string>
+    <string name="error_split_volume_invalid">請輸入 %1$d 至 %2$d MiB 的整數分割檔大小, 或選擇「無」</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="text_apply_password">套用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在套用密碼...</string>

@@ -57,11 +57,15 @@
     <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
     <string name="error_compression_failed">Error de compresión</string>
     <string name="error_compression_cleanup_unconfirmed">La compresión falló y no se pudo confirmar la limpieza de la salida temporal. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %1$s\nMotivo original: %2$s</string>
+    <string name="error_split_compression_partial_failure">La publicación ZIP se detuvo después de confirmar %1$d de %2$d archivos de volumen. El volumen .zip final no se confirmó, por lo que el conjunto incompleto no se puede abrir. La sesión del host se cerró para impedir otra escritura.\nSalida fallida: %3$s\nMotivo: %4$s</string>
+    <string name="error_split_compression_cleanup_unconfirmed">La publicación ZIP se detuvo después de confirmar %1$d de %2$d archivos de volumen y no se pudo confirmar la limpieza de %3$d salidas pendientes. El volumen .zip final no se confirmó. La sesión del host se cerró para impedir otra escritura.\nPrimera salida que requiere atención: %4$s\nMotivo original: %5$s</string>
+    <string name="error_split_compression_cache_cleanup">Los volúmenes ZIP se prepararon, pero no se pudo confirmar la limpieza de su copia de caché privada. No se confirmó ningún volumen. La sesión del host se cerró para impedir otra escritura.</string>
     <string name="error_separate_compression_partially_cancelled">Se canceló después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para los elementos restantes.</string>
+    <string name="error_separate_compression_completed_before_split_failure">Antes de que se detuviera el siguiente ZIP dividido, ya se habían completado y conservado %1$d de %2$d archivos independientes.</string>
     <string name="error_separate_compression_partial_failure">La creación se detuvo después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para el elemento fallido y los restantes.\nSalida fallida: %3$s\nMotivo: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">Se crearon %1$d de %2$d archivos antes de que fallara una salida posterior y no se pudo confirmar la limpieza de su salida temporal. Los archivos completados se conservaron. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %3$s\nMotivo original: %4$s</string>
     <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>
-    <string name="text_advanced_compression_pending">Los volúmenes divididos, el cifrado de nombres y la eliminación de fuentes permanecen desactivados hasta que estén disponibles sus sistemas transaccionales.</string>
+    <string name="text_advanced_compression_pending">El cifrado de nombres y la eliminación de fuentes permanecen desactivados hasta que estén disponibles sus sistemas transaccionales.</string>
     <string name="text_archive_file_name">Nombre del archivo</string>
     <string name="text_archive_format">Formato</string>
     <string name="text_compress_separately">Comprimir cada elemento por separado</string>
@@ -70,6 +74,7 @@
     <string name="text_separate_archive_conflict_note">Los nombres existentes y repetidos se numeran automáticamente; no se sobrescribe ningún elemento.</string>
     <string name="text_separate_archive_progress">Archivo %1$d de %2$d: %3$s\n%4$s</string>
     <string name="text_separate_archives_created">Se crearon %1$d archivos: %2$d archivos comprimidos y %3$d carpetas añadidas.</string>
+    <string name="text_separate_split_archives_created">Se crearon %1$d archivos en %2$d archivos de volumen ZIP y se comprimieron %3$d archivos.</string>
     <string name="text_compression_level">Nivel de compresión</string>
     <string name="text_compression_level_fast">Rápido</string>
     <string name="text_compression_level_maximum">Máximo</string>
@@ -93,6 +98,9 @@
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparando la extracción...</string>
     <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
     <string name="text_split_volume">Tamaño del volumen (MiB)</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">Si el resultado supera el tamaño elegido, ZIP crea .z01, .z02, ... y un archivo .zip final; un resultado menor permanece como un único .zip. Elige un valor predefinido o escribe un entero entre %1$d y %2$d.</string>
+    <string name="text_split_archive_created">Se creó %1$s en %2$d archivos de volumen ZIP y se comprimieron %3$d archivos.</string>
     <string name="text_encryption_unavailable_for_format">La contraseña y el cifrado de nombres no están disponibles para %1$s.</string>
     <string name="error_diagnostic_details">%1$s\nFormato: %2$s\nEtapa: %3$s\nCódigo: %4$s\nMotivo: %5$s</string>
     <string name="error_reason_cache_space">No hay suficiente espacio de caché para abrir este archivo.</string>
@@ -126,6 +134,7 @@
     <string name="error_password_incorrect">La contraseña del archivo es incorrecta</string>
     <string name="error_password_required">Introduce la contraseña del archivo</string>
     <string name="error_password_confirmation_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_split_volume_invalid">Introduce un tamaño entero entre %1$d y %2$d MiB, o elige Ninguno</string>
     <string name="text_apply_password">Aplicar</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Aplicando contraseña...</string>
     <string name="text_archive_password">Contraseña del archivo</string>

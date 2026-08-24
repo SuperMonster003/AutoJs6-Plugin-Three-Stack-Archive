@@ -6,6 +6,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.compress.archivers.sevenz.SevenZMethod
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
+import java.io.File
 import java.io.FilterInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -69,7 +70,10 @@ internal object SevenZArchiveBackend : ArchiveBackend {
         }
     }
 
-    override fun createWriter(session: IExplorerActionHostSession): ArchiveWriter =
+    override fun createWriter(
+        session: IExplorerActionHostSession,
+        cacheDirectory: File?,
+    ): ArchiveWriter =
         SevenZArchiveCreator(session)
 
     private fun openArchive(source: ArchiveReadSource, password: CharArray?): SevenZFile {

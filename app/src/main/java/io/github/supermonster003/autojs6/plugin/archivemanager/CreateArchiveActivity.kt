@@ -33,6 +33,9 @@ class CreateArchiveActivity : AppCompatActivity() {
     private var compressionLevel = ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
     private var selectedConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME
     private var createSeparateArchives = false
+    private var selectedSplitVolumeSizeMiB: Long? = null
+    private var splitVolumeChoices: List<SplitVolumeChoice> = emptyList()
+    private var renderingSplitVolume = false
     private var unavailableNameDialog: androidx.appcompat.app.AlertDialog? = null
     private var sessionClosed = false
     private var terminalFailureMessage: String? = null
@@ -49,6 +52,13 @@ class CreateArchiveActivity : AppCompatActivity() {
             }
             ?: ArchiveCreationConflictPolicy.AUTO_RENAME
         createSeparateArchives = savedInstanceState?.getBoolean(STATE_SEPARATE_ARCHIVES) == true
+        selectedSplitVolumeSizeMiB = savedInstanceState
+            ?.takeIf { it.containsKey(STATE_SPLIT_VOLUME_SIZE_MIB) }
+            ?.getLong(STATE_SPLIT_VOLUME_SIZE_MIB)
+            ?.takeIf { sizeMiB ->
+                sizeMiB in ArchiveSplitVolumePolicy.MIN_SIZE_MIB..
+                    ArchiveSplitVolumePolicy.MAX_SIZE_MIB
+            }
         terminalFailureMessage = savedInstanceState?.getString(STATE_TERMINAL_FAILURE)
 
         val resolvedRequest = ArchiveCompressionIntentPolicy.resolve(intent)
@@ -68,6 +78,9 @@ class CreateArchiveActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(STATE_CONFLICT_POLICY, selectedConflictPolicy.name)
         outState.putBoolean(STATE_SEPARATE_ARCHIVES, createSeparateArchives)
+        selectedSplitVolumeSizeMiB?.let {
+            outState.putLong(STATE_SPLIT_VOLUME_SIZE_MIB, it)
+        }
         terminalFailureMessage?.let { outState.putString(STATE_TERMINAL_FAILURE, it) }
         super.onSaveInstanceState(outState)
     }
@@ -141,6 +154,7 @@ class CreateArchiveActivity : AppCompatActivity() {
             CompressionLevelChoice(R.string.text_compression_level_normal, 6),
             CompressionLevelChoice(R.string.text_compression_level_maximum, 9),
         )
+        setupSplitVolumeInput()
         configureFormat(selectedFormat, levels)
         format.setOnItemClickListener { _, _, position, _ ->
             val previousFormat = selectedFormat
@@ -209,17 +223,30 @@ class CreateArchiveActivity : AppCompatActivity() {
         if (operationJob?.isActive == true) return
         val creationFormat = selectedFormat
         val separateArchives = createSeparateArchives && resolvedRequest.targets.size > 1
+        val splitSelection = resolveSplitVolumeSelection(creationFormat)
+        if (!splitSelection.valid) {
+            binding.splitVolumeLayout.error = getString(
+                R.string.error_split_volume_invalid,
+                ArchiveSplitVolumePolicy.MIN_SIZE_MIB,
+                ArchiveSplitVolumePolicy.MAX_SIZE_MIB,
+            )
+            binding.splitVolume.requestFocus()
+            return
+        }
+        val splitVolumeSizeBytes = splitSelection.sizeBytes
         val outputDisplayName = if (separateArchives) {
             ArchiveCreationPlanner.separateOutputDisplayNames(
                 targetDisplayNames = resolvedRequest.targets.map(ArchiveCompressionTarget::displayName),
                 parentDisplayPath = resolvedRequest.parentDisplayPath,
                 fallbackStem = getString(R.string.text_default_archive_name),
                 format = creationFormat,
+                splitVolumeSizeBytes = splitVolumeSizeBytes,
             ).first()
         } else {
-            ArchiveCompressionPolicy.normalizeOutputDisplayName(
-                binding.outputName.text?.toString(),
-                creationFormat,
+            ArchiveCompressionPolicy.normalizeCreationOutputDisplayName(
+                value = binding.outputName.text?.toString(),
+                format = creationFormat,
+                splitVolumeSizeBytes = splitVolumeSizeBytes,
             )
         }
         if (outputDisplayName == null) {
@@ -267,6 +294,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                 } else {
                     conflictPolicy
                 },
+                splitVolumeSizeBytes = splitVolumeSizeBytes,
             ),
             separateArchives = separateArchives,
             fallbackStem = getString(R.string.text_default_archive_name),
@@ -285,6 +313,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                         writer = archiveEngine.createWriter(
                             creationFormat,
                             resolvedRequest.hostSession,
+                            cacheDir,
                         ),
                         plan = plan,
                         checkCancelled = { cancellationContext.ensureActive() },
@@ -313,26 +342,58 @@ class CreateArchiveActivity : AppCompatActivity() {
                     )
                 }
                 val message = if (plan.separateArchives) {
-                    getString(
-                        R.string.text_separate_archives_created,
-                        result.outputs.size,
-                        result.filesCompressed,
-                        result.directoriesAdded,
-                    )
+                    if (
+                        splitVolumeSizeBytes == null ||
+                        result.physicalOutputsCreated == result.outputs.size.toLong()
+                    ) {
+                        getString(
+                            R.string.text_separate_archives_created,
+                            result.outputs.size,
+                            result.filesCompressed,
+                            result.directoriesAdded,
+                        )
+                    } else {
+                        getString(
+                            R.string.text_separate_split_archives_created,
+                            result.outputs.size,
+                            result.physicalOutputsCreated,
+                            result.filesCompressed,
+                        )
+                    }
                 } else {
                     val output = result.outputs.single()
-                    resources.getQuantityString(
-                        R.plurals.text_archive_created,
-                        output.filesCompressed.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
-                        output.outputDisplayName,
-                        output.filesCompressed,
-                    )
+                    if (splitVolumeSizeBytes == null || output.createdOutputs.size == 1) {
+                        resources.getQuantityString(
+                            R.plurals.text_archive_created,
+                            output.filesCompressed.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+                            output.outputDisplayName,
+                            output.filesCompressed,
+                        )
+                    } else {
+                        getString(
+                            R.string.text_split_archive_created,
+                            output.outputDisplayName,
+                            output.createdOutputs.size,
+                            output.filesCompressed,
+                        )
+                    }
                 }
                 Toast.makeText(this@CreateArchiveActivity, message, Toast.LENGTH_LONG).show()
                 closeHostSession()
                 finish()
             } catch (error: ArchiveCreationPartialFailureException) {
                 if (!isFinishing && !isDestroyed) renderPartialCreationFailure(error)
+            } catch (error: ArchiveCreationPartialOutputException) {
+                if (!isFinishing && !isDestroyed) renderPartialOutputFailure(error)
+            } catch (error: ArchiveCreationOutputGroupRollbackException) {
+                if (!isFinishing && !isDestroyed) renderOutputGroupCleanupFailure(error)
+            } catch (error: ArchiveCreationCacheCleanupException) {
+                if (!isFinishing && !isDestroyed) {
+                    val message = getString(R.string.error_split_compression_cache_cleanup)
+                    terminalFailureMessage = message
+                    closeHostSession()
+                    renderTerminalFailure(message)
+                }
             } catch (_: CancellationException) {
                 if (!isFinishing && !isDestroyed) {
                     setBusy(false, getString(R.string.text_cancelled))
@@ -457,6 +518,28 @@ class CreateArchiveActivity : AppCompatActivity() {
                 error.completedOutputs.size,
                 error.totalOutputs,
             )
+            is ArchiveCreationPartialOutputException -> buildString {
+                append(
+                    getString(
+                        R.string.error_separate_compression_completed_before_split_failure,
+                        error.completedOutputs.size,
+                        error.totalOutputs,
+                    ),
+                )
+                append("\n\n")
+                append(partialOutputFailureMessage(operationFailure))
+            }
+            is ArchiveCreationOutputGroupRollbackException -> buildString {
+                append(
+                    getString(
+                        R.string.error_separate_compression_completed_before_split_failure,
+                        error.completedOutputs.size,
+                        error.totalOutputs,
+                    ),
+                )
+                append("\n\n")
+                append(outputGroupCleanupFailureMessage(operationFailure))
+            }
             is ArchiveCreationRollbackException -> getString(
                 R.string.error_separate_compression_cleanup_unconfirmed,
                 error.completedOutputs.size,
@@ -486,9 +569,163 @@ class CreateArchiveActivity : AppCompatActivity() {
         renderTerminalFailure(message)
     }
 
+    internal fun renderPartialOutputFailure(error: ArchiveCreationPartialOutputException) {
+        val message = partialOutputFailureMessage(error)
+        terminalFailureMessage = message
+        closeHostSession()
+        renderTerminalFailure(message)
+    }
+
+    private fun partialOutputFailureMessage(error: ArchiveCreationPartialOutputException): String =
+        getString(
+            R.string.error_split_compression_partial_failure,
+            error.committedOutputs.size,
+            error.totalOutputs,
+            ArchivePathPolicy.unsafeSourceNameForDisplay(error.failedOutputDisplayName),
+            userFacingReason(error.operationFailure),
+        )
+
+    internal fun renderOutputGroupCleanupFailure(
+        error: ArchiveCreationOutputGroupRollbackException,
+    ) {
+        val message = outputGroupCleanupFailureMessage(error)
+        terminalFailureMessage = message
+        closeHostSession()
+        renderTerminalFailure(message)
+    }
+
+    private fun outputGroupCleanupFailureMessage(
+        error: ArchiveCreationOutputGroupRollbackException,
+    ): String = getString(
+            R.string.error_split_compression_cleanup_unconfirmed,
+            error.committedOutputs.size,
+            error.totalOutputs,
+            error.residualOutputs.size,
+            ArchivePathPolicy.unsafeSourceNameForDisplay(error.residualOutputs.first().displayPath),
+            userFacingReason(error.operationFailure),
+        )
+
     private fun selectConflictPolicy(policy: ArchiveCreationConflictPolicy) {
         selectedConflictPolicy = policy
         if (!createSeparateArchives) renderSelectedConflictPolicy()
+    }
+
+    private fun setupSplitVolumeInput() = with(binding) {
+        splitVolumeChoices = buildList {
+            add(SplitVolumeChoice(getString(R.string.text_none), null))
+            ArchiveSplitVolumePolicy.presetSizesMiB.forEach { sizeMiB ->
+                add(
+                    SplitVolumeChoice(
+                        label = getString(R.string.text_split_volume_mib, sizeMiB),
+                        sizeMiB = sizeMiB,
+                    ),
+                )
+            }
+        }
+        splitVolume.setAdapter(
+            ArrayAdapter(
+                this@CreateArchiveActivity,
+                android.R.layout.simple_list_item_1,
+                splitVolumeChoices.map(SplitVolumeChoice::label),
+            ),
+        )
+        splitVolume.setOnClickListener {
+            if (splitVolume.isEnabled) splitVolume.showDropDown()
+        }
+        splitVolume.setOnItemClickListener { _, _, position, _ ->
+            selectedSplitVolumeSizeMiB = splitVolumeChoices[position].sizeMiB
+            splitVolumeLayout.error = null
+            fitOutputNameForSplitSelection()
+            renderCreationModeControls()
+        }
+        splitVolume.doAfterTextChanged { editable ->
+            if (renderingSplitVolume) return@doAfterTextChanged
+            splitVolumeLayout.error = null
+            val parsed = parseSplitVolumeSelection(editable?.toString().orEmpty())
+            if (parsed.valid) {
+                selectedSplitVolumeSizeMiB = parsed.sizeMiB
+                fitOutputNameForSplitSelection()
+                renderCreationModeControls()
+            }
+        }
+    }
+
+    private fun resolveSplitVolumeSelection(format: ArchiveFormat): SplitVolumeSelection {
+        if (archiveEngine.capabilities(format).splitVolumes == ArchiveOptionMode.UNSUPPORTED) {
+            return SplitVolumeSelection(valid = true, sizeBytes = null)
+        }
+        val parsed = parseSplitVolumeSelection(binding.splitVolume.text?.toString().orEmpty())
+        if (!parsed.valid) return SplitVolumeSelection(valid = false, sizeBytes = null)
+        selectedSplitVolumeSizeMiB = parsed.sizeMiB
+        return SplitVolumeSelection(
+            valid = true,
+            sizeBytes = parsed.sizeMiB?.let(ArchiveSplitVolumePolicy::bytesFromMiB),
+        )
+    }
+
+    private fun parseSplitVolumeSelection(value: String): ParsedSplitVolumeSelection {
+        val normalized = value.trim()
+        splitVolumeChoices.firstOrNull { choice -> choice.label == normalized }?.let { choice ->
+            return ParsedSplitVolumeSelection(valid = true, sizeMiB = choice.sizeMiB)
+        }
+        val customSizeMiB = ArchiveSplitVolumePolicy.parseCustomSizeMiB(normalized)
+        return ParsedSplitVolumeSelection(
+            valid = customSizeMiB != null,
+            sizeMiB = customSizeMiB,
+        )
+    }
+
+    private fun renderSplitVolumeControl(
+        format: ArchiveFormat,
+        busy: Boolean = operationJob?.isActive == true,
+    ) = with(binding) {
+        val available = archiveEngine.capabilities(format).splitVolumes !=
+            ArchiveOptionMode.UNSUPPORTED
+        splitVolumeLayout.helperText = if (available) {
+            getString(
+                R.string.text_split_volume_helper,
+                ArchiveSplitVolumePolicy.MIN_SIZE_MIB,
+                ArchiveSplitVolumePolicy.MAX_SIZE_MIB,
+            )
+        } else {
+            getString(R.string.text_split_unavailable_for_format, formatLabel(format))
+        }
+        splitVolumeLayout.error = null
+        splitVolumeLayout.isEnabled = available && !busy
+        splitVolume.isEnabled = available && !busy
+
+        val displayedValue = if (!available || selectedSplitVolumeSizeMiB == null) {
+            splitVolumeChoices.first().label
+        } else {
+            val selectedSizeMiB = requireNotNull(selectedSplitVolumeSizeMiB)
+            splitVolumeChoices.firstOrNull { choice -> choice.sizeMiB == selectedSizeMiB }
+                ?.label
+                ?: selectedSizeMiB.toString()
+        }
+        renderingSplitVolume = true
+        try {
+            splitVolume.setText(displayedValue, false)
+        } finally {
+            renderingSplitVolume = false
+        }
+        if (available) fitOutputNameForSplitSelection()
+    }
+
+    private fun fitOutputNameForSplitSelection() {
+        if (
+            selectedFormat != ArchiveFormat.ZIP ||
+            selectedSplitVolumeSizeMiB == null ||
+            !::binding.isInitialized
+        ) {
+            return
+        }
+        ArchiveCompressionPolicy.fitSplitZipOutputDisplayName(
+            binding.outputName.text?.toString(),
+        )?.let { fittedName ->
+            if (fittedName != binding.outputName.text?.toString()) {
+                binding.outputName.setText(fittedName)
+            }
+        }
     }
 
     private fun renderSelectedConflictPolicy() = with(binding) {
@@ -535,6 +772,10 @@ class CreateArchiveActivity : AppCompatActivity() {
                 parentDisplayPath = resolvedRequest.parentDisplayPath,
                 fallbackStem = getString(R.string.text_default_archive_name),
                 format = selectedFormat,
+                splitVolumeSizeBytes = selectedSplitVolumeSizeMiB
+                    ?.takeIf { archiveEngine.capabilities(selectedFormat).splitVolumes !=
+                        ArchiveOptionMode.UNSUPPORTED }
+                    ?.let(ArchiveSplitVolumePolicy::bytesFromMiB),
             )
             val shownNames = names.take(MAX_SEPARATE_ARCHIVE_PREVIEW_NAMES)
             separateArchivesPreview.text = buildList {
@@ -643,14 +884,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         passwordConfirmation.isEnabled = passwordAvailable
         encryptFileNames.isChecked = capabilities.filenameEncryption == ArchiveOptionMode.REQUIRED
         encryptFileNames.isEnabled = capabilities.filenameEncryption == ArchiveOptionMode.OPTIONAL
-        val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED
-        splitVolumeLayout.helperText = if (splitVolumesAvailable) {
-            null
-        } else {
-            getString(R.string.text_split_unavailable_for_format, formatLabel(format))
-        }
-        splitVolumeLayout.isEnabled = splitVolumesAvailable
-        splitVolume.isEnabled = splitVolumesAvailable
+        renderSplitVolumeControl(format)
     }
 
     private fun formatLabel(format: ArchiveFormat): String = when (format) {
@@ -678,9 +912,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         passwordConfirmation.isEnabled = !busy && passwordAvailable
         encryptFileNames.isEnabled = !busy &&
             capabilities.filenameEncryption == ArchiveOptionMode.OPTIONAL
-        val splitVolumesAvailable = capabilities.splitVolumes != ArchiveOptionMode.UNSUPPORTED
-        splitVolumeLayout.isEnabled = !busy && splitVolumesAvailable
-        splitVolume.isEnabled = !busy && splitVolumesAvailable
+        renderSplitVolumeControl(selectedFormat, busy)
         renderCreationModeControls(busy)
         createButton.isEnabled = !busy
         cancelButton.isEnabled = true
@@ -736,6 +968,22 @@ class CreateArchiveActivity : AppCompatActivity() {
         const val MAX_SEPARATE_ARCHIVE_PREVIEW_NAMES = 5
         const val STATE_CONFLICT_POLICY = "creation_conflict_policy"
         const val STATE_SEPARATE_ARCHIVES = "separate_archives"
+        const val STATE_SPLIT_VOLUME_SIZE_MIB = "split_volume_size_mib"
         const val STATE_TERMINAL_FAILURE = "terminal_creation_failure"
     }
+
+    private data class SplitVolumeChoice(
+        val label: String,
+        val sizeMiB: Long?,
+    )
+
+    private data class SplitVolumeSelection(
+        val valid: Boolean,
+        val sizeBytes: Long?,
+    )
+
+    private data class ParsedSplitVolumeSelection(
+        val valid: Boolean,
+        val sizeMiB: Long?,
+    )
 }

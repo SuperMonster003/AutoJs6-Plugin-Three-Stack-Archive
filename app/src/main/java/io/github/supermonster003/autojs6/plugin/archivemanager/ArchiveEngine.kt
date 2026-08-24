@@ -332,7 +332,10 @@ internal interface ArchiveBackend {
 
     fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader
 
-    fun createWriter(session: IExplorerActionHostSession): ArchiveWriter? = null
+    fun createWriter(
+        session: IExplorerActionHostSession,
+        cacheDirectory: File?,
+    ): ArchiveWriter? = null
 }
 
 data class DetectedArchiveFormat(
@@ -464,10 +467,11 @@ internal class ArchiveEngine private constructor(
     fun createWriter(
         format: ArchiveFormat,
         session: IExplorerActionHostSession,
+        cacheDirectory: File? = null,
     ): ArchiveWriter {
         val backend = backend(format)
         check(backend.capabilities.canCreate) { "${format.displayName} creation is not supported" }
-        return backend.createWriter(session)
+        return backend.createWriter(session, cacheDirectory)
             ?: error("${format.displayName} backend does not provide an archive writer")
     }
 

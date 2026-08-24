@@ -57,11 +57,15 @@
     <string name="error_archive_file_name_invalid">Saisissez un nom de fichier d\'archive valide</string>
     <string name="error_compression_failed">Échec de la compression</string>
     <string name="error_compression_cleanup_unconfirmed">Échec de la compression; impossible de confirmer le nettoyage de la sortie temporaire. La session hôte a été fermée pour empêcher une nouvelle écriture. Aucune archive existante n’a été remplacée.\nSortie prévue : %1$s\nMotif initial : %2$s</string>
+    <string name="error_split_compression_partial_failure">La publication ZIP s’est arrêtée après la validation de %1$d fichiers de volume sur %2$d. Le volume .zip final n’a pas été validé; cet ensemble incomplet ne peut donc pas être ouvert. La session hôte a été fermée pour empêcher une nouvelle écriture.\nSortie en échec : %3$s\nMotif : %4$s</string>
+    <string name="error_split_compression_cleanup_unconfirmed">La publication ZIP s’est arrêtée après la validation de %1$d fichiers de volume sur %2$d, et le nettoyage de %3$d sorties en attente n’a pas pu être confirmé. Le volume .zip final n’a pas été validé. La session hôte a été fermée pour empêcher une nouvelle écriture.\nPremière sortie à vérifier : %4$s\nMotif initial : %5$s</string>
+    <string name="error_split_compression_cache_cleanup">Les volumes ZIP ont été préparés, mais le nettoyage de leur copie en cache privé n’a pas pu être confirmé. Aucun volume n’a été validé. La session hôte a été fermée pour empêcher une nouvelle écriture.</string>
     <string name="error_separate_compression_partially_cancelled">Opération annulée après la création de %1$d archives sur %2$d. Les archives terminées ont été conservées et cette session a été fermée pour éviter des sorties en double. Rouvrez Compresser pour les éléments restants.</string>
+    <string name="error_separate_compression_completed_before_split_failure">Avant l’arrêt de l’archive ZIP fractionnée suivante, %1$d archives distinctes sur %2$d avaient déjà été terminées et conservées.</string>
     <string name="error_separate_compression_partial_failure">La création s’est arrêtée après %1$d archives sur %2$d. Les archives terminées ont été conservées et cette session a été fermée pour éviter des sorties en double. Rouvrez Compresser pour l’élément en échec et les éléments restants.\nSortie en échec : %3$s\nMotif : %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">%1$d archives sur %2$d ont été créées avant l’échec d’une sortie ultérieure, dont le nettoyage temporaire n’a pas pu être confirmé. Les archives terminées ont été conservées. La session hôte a été fermée pour empêcher une nouvelle écriture. Aucune archive existante n’a été remplacée.\nSortie prévue : %3$s\nMotif initial : %4$s</string>
     <string name="error_compression_request_invalid">La demande de compression ou la session de l\'hôte est invalide</string>
-    <string name="text_advanced_compression_pending">Les volumes fractionnés, le chiffrement des noms et la suppression des sources restent désactivés jusqu\'à la disponibilité de leurs systèmes transactionnels.</string>
+    <string name="text_advanced_compression_pending">Le chiffrement des noms et la suppression des sources restent désactivés jusqu\'à la disponibilité de leurs systèmes transactionnels.</string>
     <string name="text_archive_file_name">Nom du fichier</string>
     <string name="text_archive_format">Format</string>
     <string name="text_compress_separately">Compresser chaque élément séparément</string>
@@ -70,6 +74,7 @@
     <string name="text_separate_archive_conflict_note">Les noms existants ou répétés sont numérotés automatiquement; aucun élément n’est remplacé.</string>
     <string name="text_separate_archive_progress">Archive %1$d sur %2$d : %3$s\n%4$s</string>
     <string name="text_separate_archives_created">%1$d archives créées : %2$d fichiers compressés et %3$d dossiers ajoutés.</string>
+    <string name="text_separate_split_archives_created">%1$d archives créées dans %2$d fichiers de volume ZIP; %3$d fichiers ont été compressés.</string>
     <string name="text_compression_level">Niveau de compression</string>
     <string name="text_compression_level_fast">Rapide</string>
     <string name="text_compression_level_maximum">Maximum</string>
@@ -93,6 +98,9 @@
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Préparation de l’extraction...</string>
     <string name="text_split_unavailable_for_format">La sortie fractionnée n\'est pas disponible pour %1$s.</string>
     <string name="text_split_volume">Taille du volume (MiB)</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">Si la sortie dépasse la taille choisie, ZIP crée .z01, .z02, ... et un fichier .zip final ; une sortie plus petite reste un seul fichier .zip. Choisissez une valeur prédéfinie ou saisissez un entier de %1$d à %2$d.</string>
+    <string name="text_split_archive_created">%1$s a été créé dans %2$d fichiers de volume ZIP; %3$d fichiers ont été compressés.</string>
     <string name="text_encryption_unavailable_for_format">Le mot de passe et le chiffrement des noms ne sont pas disponibles pour %1$s.</string>
     <string name="error_diagnostic_details">%1$s\nFormat: %2$s\nÉtape: %3$s\nCode: %4$s\nMotif: %5$s</string>
     <string name="error_reason_cache_space">L\'espace de cache est insuffisant pour ouvrir cette archive.</string>
@@ -126,6 +134,7 @@
     <string name="error_password_incorrect">Le mot de passe de l\'archive est incorrect</string>
     <string name="error_password_required">Saisissez le mot de passe de l\'archive</string>
     <string name="error_password_confirmation_mismatch">Les mots de passe ne correspondent pas</string>
+    <string name="error_split_volume_invalid">Saisissez une taille entière comprise entre %1$d et %2$d MiB, ou choisissez Aucun</string>
     <string name="text_apply_password">Appliquer</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Application du mot de passe...</string>
     <string name="text_archive_password">Mot de passe de l\'archive</string>

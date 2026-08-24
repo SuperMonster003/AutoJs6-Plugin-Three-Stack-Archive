@@ -31,7 +31,7 @@ class ArchiveEngineTest {
         assertFalse(capabilities.supports(ArchiveOperation.RENAME))
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
-        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
+        assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.splitVolumes)
         assertEquals((0..9).toList(), capabilities.compressionLevels)
         assertTrue(Charset.forName("GB18030").name() in capabilities.filenameCharsetNames)
         assertTrue(Charset.forName("IBM437").name() in capabilities.filenameCharsetNames)
@@ -57,6 +57,7 @@ class ArchiveEngineTest {
             ArchiveManagerPlugin.MIME_TYPES.toSet(),
         )
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
+        assertFalse(ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations)
     }
 
     @Test

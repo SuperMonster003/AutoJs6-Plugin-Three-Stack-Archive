@@ -9,9 +9,12 @@ import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import java.io.BufferedOutputStream
+import java.io.File
+import java.io.OutputStream
 
 internal class ZipArchiveCreator(
     remoteSession: org.autojs.plugin.explorer.api.IExplorerActionHostSession,
+    private val cacheDirectory: File? = null,
 ) : ArchiveWriter {
 
     override val format = ArchiveFormat.ZIP
@@ -26,9 +29,11 @@ internal class ZipArchiveCreator(
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): ArchiveCreationResult {
-        val outputName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
-            options.outputDisplayName,
-            format,
+        val splitVolumeSizeBytes = options.splitVolumeSizeBytes
+        val outputName = ArchiveCompressionPolicy.normalizeCreationOutputDisplayName(
+            value = options.outputDisplayName,
+            format = format,
+            splitVolumeSizeBytes = splitVolumeSizeBytes,
         )
             ?: throw IllegalArgumentException("ZIP output name is invalid")
         val compressionLevel = ArchiveCompressionPolicy.requireCompressionLevel(
@@ -39,75 +44,198 @@ internal class ZipArchiveCreator(
         var passwordChars: CharArray? = null
         try {
             checkCancelled()
-            val completed = session.writeArchiveOutput(
-                outputDisplayName = outputName,
-                format = format,
-                conflictPolicy = options.conflictPolicy,
-                prepareAfterReservation = {
-                    progress.reportScanStarted()
-                    sourceWalker.scan(request.targets, checkCancelled, progress::reportScan)
-                },
-                write = { descriptor, manifest ->
-                    passwordChars = options.password
-                        ?.takeIf(CharArray::isNotEmpty)
-                        ?.clone()
-                    writeArchive(
-                        descriptor = descriptor,
-                        manifest = manifest,
-                        compressionLevel = compressionLevel,
-                        password = passwordChars,
-                        checkCancelled = checkCancelled,
-                        progress = progress,
-                    ).also { checkCancelled() }
-                },
-                beforeCommit = { manifest, counters ->
-                    checkCancelled()
-                    progress.reportCommitting(manifest, counters)
-                    checkCancelled()
-                },
-            )
-            val counters = completed.value
-            val committed = completed.transaction
-            return ArchiveCreationResult(
-                outputDisplayName = committed.displayName,
-                outputDisplayPath = committed.displayPath,
-                filesCompressed = counters.files,
-                directoriesAdded = counters.directories,
-                sourceBytesRead = counters.bytesRead,
-            )
+            passwordChars = options.password
+                ?.takeIf(CharArray::isNotEmpty)
+                ?.clone()
+            return if (splitVolumeSizeBytes == null) {
+                createSingleOutput(
+                    request = request,
+                    options = options,
+                    outputName = outputName,
+                    compressionLevel = compressionLevel,
+                    password = passwordChars,
+                    checkCancelled = checkCancelled,
+                    progress = progress,
+                )
+            } else {
+                createSplitOutput(
+                    request = request,
+                    options = options,
+                    outputName = outputName,
+                    compressionLevel = compressionLevel,
+                    password = passwordChars,
+                    splitVolumeSizeBytes = splitVolumeSizeBytes,
+                    checkCancelled = checkCancelled,
+                    progress = progress,
+                )
+            }
         } finally {
             passwordChars?.fill('\u0000')
         }
     }
 
+    private fun createSingleOutput(
+        request: ArchiveCompressionRequest,
+        options: ArchiveCreationOptions,
+        outputName: String,
+        compressionLevel: Int,
+        password: CharArray?,
+        checkCancelled: () -> Unit,
+        progress: ArchiveCreationProgressListener,
+    ): ArchiveCreationResult {
+        val completed = session.writeArchiveOutput(
+            outputDisplayName = outputName,
+            format = format,
+            conflictPolicy = options.conflictPolicy,
+            prepareAfterReservation = {
+                progress.reportScanStarted()
+                sourceWalker.scan(request.targets, checkCancelled, progress::reportScan)
+            },
+            write = { descriptor, manifest ->
+                ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
+                    writeArchive(
+                        output = BufferedOutputStream(rawOutput, BUFFER_SIZE),
+                        manifest = manifest,
+                        compressionLevel = compressionLevel,
+                        password = password,
+                        checkCancelled = checkCancelled,
+                        progress = progress,
+                    )
+                }.also { checkCancelled() }
+            },
+            beforeCommit = { manifest, counters ->
+                checkCancelled()
+                progress.reportCommitting(manifest, counters)
+                checkCancelled()
+            },
+        )
+        val counters = completed.value
+        val committed = completed.transaction
+        return ArchiveCreationResult(
+            outputDisplayName = committed.displayName,
+            outputDisplayPath = committed.displayPath,
+            filesCompressed = counters.files,
+            directoriesAdded = counters.directories,
+            sourceBytesRead = counters.bytesRead,
+        )
+    }
+
+    private fun createSplitOutput(
+        request: ArchiveCompressionRequest,
+        options: ArchiveCreationOptions,
+        outputName: String,
+        compressionLevel: Int,
+        password: CharArray?,
+        splitVolumeSizeBytes: Long,
+        checkCancelled: () -> Unit,
+        progress: ArchiveCreationProgressListener,
+    ): ArchiveCreationResult {
+        val resolvedCacheDirectory = requireNotNull(cacheDirectory) {
+            "ZIP split creation requires a private cache directory"
+        }
+        val publisher = ZipSplitOutputPublisher(
+            session = session,
+            requestedTerminalDisplayName = outputName,
+            conflictPolicy = options.conflictPolicy,
+            splitVolumeSizeBytes = splitVolumeSizeBytes,
+        )
+        publisher.reserveTerminalBeforeSourceAccess()
+        var workspace: ZipSplitArchiveWorkspace? = null
+        try {
+            progress.reportScanStarted()
+            val manifest = sourceWalker.scan(request.targets, checkCancelled, progress::reportScan)
+            val activeWorkspace = ZipSplitArchiveWorkspace.create(
+                cacheDirectory = resolvedCacheDirectory,
+                splitVolumeSizeBytes = splitVolumeSizeBytes,
+            )
+            workspace = activeWorkspace
+            val counters = activeWorkspace.openSplitOutput().use { splitOutput ->
+                writeArchive(
+                    output = splitOutput,
+                    manifest = manifest,
+                    compressionLevel = compressionLevel,
+                    password = password,
+                    checkCancelled = checkCancelled,
+                    progress = progress,
+                    checkOutputCapacity = activeWorkspace::ensureCapacity,
+                )
+            }
+            checkCancelled()
+            val volumes = activeWorkspace.collectVolumes()
+            val terminalDisplayName = publisher.reserveCompleteGroup(volumes)
+            publisher.writePendingVolumes(volumes, terminalDisplayName, checkCancelled)
+
+            // Remove the private plaintext/encrypted staging copy before publishing any host file.
+            activeWorkspace.close()
+            workspace = null
+
+            checkCancelled()
+            progress.reportCommitting(manifest, counters)
+            val committed = publisher.commitVolumes(
+                volumes = volumes,
+                terminalDisplayName = terminalDisplayName,
+                checkCancelled = checkCancelled,
+            )
+            val terminal = committed.last()
+            return ArchiveCreationResult(
+                outputDisplayName = terminal.displayName,
+                outputDisplayPath = terminal.displayPath,
+                filesCompressed = counters.files,
+                directoriesAdded = counters.directories,
+                sourceBytesRead = counters.bytesRead,
+                createdOutputs = committed.map { output ->
+                    CreatedArchiveOutput(output.displayName, output.displayPath)
+                },
+            )
+        } catch (error: Throwable) {
+            val workspaceFailure = runCatching { workspace?.close() }.exceptionOrNull()
+            val effectiveFailure = if (workspaceFailure == null) {
+                error
+            } else {
+                workspaceFailure.apply {
+                    if (this !== error) addSuppressed(error)
+                }
+            }
+            if (
+                error is ArchiveCreationPartialOutputException ||
+                error is ArchiveCreationOutputGroupRollbackException
+            ) {
+                if (workspaceFailure != null) error.addSuppressed(workspaceFailure)
+                throw error
+            }
+            publisher.abortAndRethrow(effectiveFailure)
+        }
+    }
+
     private fun writeArchive(
-        descriptor: ParcelFileDescriptor,
+        output: OutputStream,
         manifest: ArchiveSourceManifest,
         compressionLevel: Int,
         password: CharArray?,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        checkOutputCapacity: () -> Unit = { },
     ): ArchiveCreationCounters {
         val counters = ArchiveCreationCounters()
         progress.reportCompression(manifest, counters, currentEntry = null)
-        ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
-            ZipOutputStream(BufferedOutputStream(rawOutput, BUFFER_SIZE), password).use { zipOutput ->
-                manifest.entries.forEach { item ->
-                    checkCancelled()
-                    progress.reportCompression(manifest, counters, item.archivePath)
-                    processSource(
-                        item = item,
-                        manifest = manifest,
-                        zipOutput = zipOutput,
-                        counters = counters,
-                        compressionLevel = compressionLevel,
-                        encryptFiles = password != null,
-                        checkCancelled = checkCancelled,
-                        progress = progress,
-                    )
-                }
+        ZipOutputStream(output, password).use { zipOutput ->
+            manifest.entries.forEach { item ->
+                checkCancelled()
+                progress.reportCompression(manifest, counters, item.archivePath)
+                processSource(
+                    item = item,
+                    manifest = manifest,
+                    zipOutput = zipOutput,
+                    counters = counters,
+                    compressionLevel = compressionLevel,
+                    encryptFiles = password != null,
+                    checkCancelled = checkCancelled,
+                    progress = progress,
+                    checkOutputCapacity = checkOutputCapacity,
+                )
             }
         }
+        checkOutputCapacity()
         return counters
     }
 
@@ -120,6 +248,7 @@ internal class ZipArchiveCreator(
         encryptFiles: Boolean,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        checkOutputCapacity: () -> Unit,
     ) {
         when (item.kind) {
             ExplorerActionValues.TARGET_DIRECTORY -> {
@@ -134,6 +263,7 @@ internal class ZipArchiveCreator(
                 )
                 zipOutput.closeEntry()
                 counters.directories++
+                checkOutputCapacity()
                 progress.reportCompression(manifest, counters, item.archivePath)
             }
             ExplorerActionValues.TARGET_FILE -> {
@@ -152,11 +282,13 @@ internal class ZipArchiveCreator(
                     checkCancelled = checkCancelled,
                     onBytesWritten = { count ->
                         counters.bytesRead = Math.addExact(counters.bytesRead, count.toLong())
+                        checkOutputCapacity()
                         progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
                 zipOutput.closeEntry()
                 counters.files++
+                checkOutputCapacity()
                 progress.reportCompression(manifest, counters, item.archivePath)
             }
             else -> error("Host returned an unsupported source kind")

@@ -131,6 +131,115 @@ class CreateArchiveActivityInstrumentationTest {
     }
 
     @Test
+    fun zipSplitVolumePresetsFitNamesAndSurviveFormatChangesAndRecreation() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val splitVolume = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.splitVolume,
+                )
+                val splitLayout = activity.findViewById<TextInputLayout>(R.id.splitVolumeLayout)
+                val outputName = activity.findViewById<android.widget.EditText>(R.id.outputName)
+                val labels = (0 until splitVolume.adapter.count).map { index ->
+                    splitVolume.adapter.getItem(index).toString()
+                }
+                assertEquals(
+                    listOf(
+                        activity.getString(R.string.text_none),
+                        activity.getString(R.string.text_split_volume_mib, 10L),
+                        activity.getString(R.string.text_split_volume_mib, 50L),
+                        activity.getString(R.string.text_split_volume_mib, 100L),
+                        activity.getString(R.string.text_split_volume_mib, 500L),
+                        activity.getString(R.string.text_split_volume_mib, 1_024L),
+                        activity.getString(R.string.text_split_volume_mib, 4_096L),
+                    ),
+                    labels,
+                )
+                assertTrue(splitVolume.isEnabled)
+                assertEquals(activity.getString(R.string.text_none), splitVolume.text.toString())
+                assertEquals(
+                    activity.getString(
+                        R.string.text_split_volume_helper,
+                        ArchiveSplitVolumePolicy.MIN_SIZE_MIB,
+                        ArchiveSplitVolumePolicy.MAX_SIZE_MIB,
+                    ),
+                    splitLayout.helperText?.toString(),
+                )
+                outputName.setText("a".repeat(251) + ".zip")
+
+                splitVolume.setText(labels[3], false)
+                selectDropdown(splitVolume, 3)
+
+                assertEquals(labels[3], splitVolume.text.toString())
+                assertEquals(
+                    ArchiveSplitVolumePolicy.MAX_TERMINAL_DISPLAY_NAME_LENGTH,
+                    outputName.text.length,
+                )
+                val format = activity.findViewById<android.widget.AutoCompleteTextView>(R.id.format)
+                selectFormat(format, 1)
+                assertFalse(splitVolume.isEnabled)
+                assertEquals(activity.getString(R.string.text_none), splitVolume.text.toString())
+                assertEquals(
+                    activity.getString(R.string.text_split_unavailable_for_format, "7Z"),
+                    splitLayout.helperText?.toString(),
+                )
+
+                selectFormat(format, 0)
+                assertTrue(splitVolume.isEnabled)
+                assertEquals(labels[3], splitVolume.text.toString())
+            }
+
+            scenario.recreate()
+
+            scenario.onActivity { activity ->
+                assertEquals(
+                    activity.getString(R.string.text_split_volume_mib, 100L),
+                    activity.findViewById<android.widget.AutoCompleteTextView>(
+                        R.id.splitVolume,
+                    ).text.toString(),
+                )
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    @Test
+    fun customSplitVolumeRestoresAndInvalidValueBlocksCreation() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.findViewById<android.widget.AutoCompleteTextView>(R.id.splitVolume)
+                    .setText("257")
+            }
+
+            scenario.recreate()
+
+            scenario.onActivity { activity ->
+                val splitVolume = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.splitVolume,
+                )
+                assertEquals("257", splitVolume.text.toString())
+
+                splitVolume.setText("0")
+                activity.findViewById<android.view.View>(R.id.createButton).performClick()
+
+                assertEquals(
+                    activity.getString(
+                        R.string.error_split_volume_invalid,
+                        ArchiveSplitVolumePolicy.MIN_SIZE_MIB,
+                        ArchiveSplitVolumePolicy.MAX_SIZE_MIB,
+                    ),
+                    activity.findViewById<TextInputLayout>(R.id.splitVolumeLayout)
+                        .error
+                        ?.toString(),
+                )
+                assertFalse(activity.isFinishing)
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    @Test
     fun creationConflictPolicyDefaultsToAutoRenameAndSurvivesRecreation() {
         val hostSession = RecordingHostSession()
         ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
