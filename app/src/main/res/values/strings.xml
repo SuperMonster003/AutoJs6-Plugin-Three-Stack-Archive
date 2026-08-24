@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Open archive</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Selective extraction...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>
     <string name="app_name">Archive Manager</string>
@@ -70,7 +71,10 @@
     <string name="text_default_archive_name">Archive</string>
     <string name="text_delete_sources_after_compression">Delete source items after compression</string>
     <string name="text_encrypt_file_names">Encrypt file names</string>
-    <string name="text_extract_selected">Extract selected</string>
+    <string name="dialog_title_extraction_scope">Extraction range</string>
+    <string name="text_extraction_scope_entire_archive">Entire archive</string>
+    <string name="text_extraction_scope_current_directory">Current folder: %1$s</string>
+    <string name="text_extraction_scope_current_selection">Current selection</string>
     <string name="text_extraction_budget">Extraction budget</string>
     <string name="text_extraction_current_item">Current item: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

@@ -31,7 +31,7 @@ El README está disponible en los siguientes idiomas:
 
 ### Acerca del proyecto
 
-Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y formatos de la familia TAR en el gestor de archivos de AutoJs6. La versión actual explora los archivos en la lista nativa del host con rutas externas e internas, muestra vistas previas de las entradas compatibles y crea un formato compatible desde un elemento o una selección con el mismo directorio padre. La extracción por entrada y la edición interna siguen en el Roadmap.
+Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y formatos de la familia TAR en el gestor de archivos de AutoJs6. La versión actual explora los archivos en la lista nativa del host con rutas externas e internas, muestra vistas previas de las entradas compatibles, extrae todo el archivo, la carpeta interna actual o la selección marcada desde la página de gestión y crea un formato compatible desde un elemento o una selección con el mismo directorio padre. La extracción por entrada dentro de la página nativa del anfitrión y la edición interna siguen en el Roadmap.
 
 ### Disponible ahora
 
@@ -39,6 +39,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Mostrar el directorio externo, el nombre del archivo y el directorio interno en la barra de ruta; tocar un nivel para ir a él y usar Atrás para subir antes de salir del archivo.
 - Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.
 - Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.
+- Elige «Extracción selectiva...» para abrir la página de gestión y extraer todo el archivo, la carpeta interna actual o la selección marcada; «Extraer en...» sigue siendo el acceso para el archivo completo.
 - Explorar carpetas, buscar y ordenar el contenido del archivo.
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
 - Explorar archivos normales mediante el descriptor posicionable de solo lectura del host y canales con posición independiente, sin copiar todo el archivo; las tuberías, las fuentes escribibles o no posicionables, Android 7 y los lectores que requieren un archivo local legible por el proceso (actualmente ZIP cifrado) recurren a la caché privada, que se elimina al cerrar.
@@ -80,7 +81,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR.
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
-5. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato y los ajustes disponibles.
+5. Para extraer un ámbito concreto, elige «Extracción selectiva...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
+6. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato y los ajustes disponibles.
 
 ### Permisos y datos
 
@@ -92,7 +94,7 @@ Los nombres no seguros solo se muestran como texto de solo lectura detrás de id
 
 ### Roadmap
 
-Las tareas y criterios para más formatos, volúmenes divididos, extracción por entrada, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
+Las tareas y criterios para más formatos, volúmenes divididos, extracción por entrada dentro de la página nativa del anfitrión, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -106,6 +108,7 @@ _Sin publicar_
 - `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
 - `Añadido` Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
+- `Añadido` Extracción selectiva... abre la página de gestión con los ámbitos de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
 - `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente

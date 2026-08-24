@@ -51,19 +51,25 @@ class PluginContractInstrumentationTest {
             it.getString(ExplorerActionCatalogKeys.ID)
         }
         val openAction = actionsById[ArchiveManagerPlugin.ACTION_OPEN_ID]
+        val selectiveExtractAction = actionsById[ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID]
         val extractToAction = actionsById[ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID]
         val compressSingleAction = actionsById[ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID]
         val compressMultipleAction = actionsById[ArchiveManagerPlugin.ACTION_COMPRESS_MULTIPLE_ID]
 
         assertEquals(ExplorerActionProtocol.VERSION, catalog.getInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION))
-        assertEquals(4, actionsById.size)
+        assertEquals(5, actionsById.size)
         assertNotNull(openAction)
+        assertNotNull(selectiveExtractAction)
         assertNotNull(extractToAction)
         assertNotNull(compressSingleAction)
         assertNotNull(compressMultipleAction)
         assertEquals(
             ArchiveManagerPlugin.OPEN_LABEL_RESOURCE_NAME,
             openAction?.getString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME),
+        )
+        assertEquals(
+            ArchiveManagerPlugin.SELECTIVE_EXTRACT_LABEL_RESOURCE_NAME,
+            selectiveExtractAction?.getString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME),
         )
         assertEquals(
             ArchiveManagerPlugin.EXTRACT_TO_LABEL_RESOURCE_NAME,
@@ -74,6 +80,10 @@ class PluginContractInstrumentationTest {
             openAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
         )
         assertEquals(
+            ArchiveManagerPlugin.SELECTIVE_EXTRACT_ACTION_PRIORITY,
+            selectiveExtractAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
+        )
+        assertEquals(
             ArchiveManagerPlugin.EXTRACT_TO_ACTION_PRIORITY,
             extractToAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
         )
@@ -82,6 +92,11 @@ class PluginContractInstrumentationTest {
             requireNotNull(openAction),
             ExplorerActionValues.PLACEMENT_PRIMARY,
             ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+        )
+        assertCommonReadOnlyFileAction(
+            requireNotNull(selectiveExtractAction),
+            ExplorerActionValues.PLACEMENT_OVERFLOW,
+            ExplorerActionValues.PRESENTATION_ACTIVITY,
         )
         assertCommonReadOnlyFileAction(
             requireNotNull(extractToAction),

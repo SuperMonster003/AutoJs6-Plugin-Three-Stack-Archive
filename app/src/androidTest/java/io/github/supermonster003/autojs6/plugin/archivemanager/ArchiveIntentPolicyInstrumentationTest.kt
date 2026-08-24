@@ -54,6 +54,19 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
+    fun selectiveExtractionUsesTheManagementPageWithoutStartingTheShortcut() {
+        val resolved = ArchiveIntentPolicy.resolve(
+            Intent(validIntent()).putExtra(
+                ExplorerActionIntentExtras.ACTION_ID,
+                ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID,
+            ),
+        )
+
+        assertNotNull(resolved)
+        assertEquals(ArchiveRequestedAction.SELECTIVE_EXTRACT, resolved?.requestedAction)
+    }
+
+    @Test
     fun actionIdProtocolSurfaceAndRequestIdAreMandatory() {
         assertNull(ArchiveIntentPolicy.resolve(Intent(validIntent()).setAction(Intent.ACTION_VIEW)))
         assertNull(

@@ -26,6 +26,7 @@ internal data class ArchiveOpenRequest(
 
 internal enum class ArchiveRequestedAction {
     OPEN,
+    SELECTIVE_EXTRACT,
     EXTRACT_TO,
 }
 
@@ -42,6 +43,7 @@ internal object ArchiveIntentPolicy {
         if (intent.action != ExplorerActionPluginActions.EXECUTE) return null
         val requestedAction = when (intent.getStringExtra(ExplorerActionIntentExtras.ACTION_ID)) {
             ArchiveManagerPlugin.ACTION_OPEN_ID -> ArchiveRequestedAction.OPEN
+            ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID -> ArchiveRequestedAction.SELECTIVE_EXTRACT
             ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID -> ArchiveRequestedAction.EXTRACT_TO
             else -> return null
         }

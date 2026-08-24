@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Abrir archivo comprimido</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Extracción selectiva...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
     <string name="app_name">Gestor de archivos comprimidos</string>
@@ -24,7 +25,10 @@
     <string name="plugin_description">Complemento del gestor de archivos. Explora, extrae y crea archivos ZIP y TAR</string>
     <string name="text_cancelled">Cancelado</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
-    <string name="text_extract_selected">Extraer selección</string>
+    <string name="dialog_title_extraction_scope">Ámbito de extracción</string>
+    <string name="text_extraction_scope_entire_archive">Archivo completo</string>
+    <string name="text_extraction_scope_current_directory">Carpeta actual: %1$s</string>
+    <string name="text_extraction_scope_current_selection">Selección actual</string>
     <string name="text_extracting">Extrayendo %1$d de %2$d</string>
     <string name="text_extraction_current_item">Elemento actual: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

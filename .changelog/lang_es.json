@@ -12,6 +12,7 @@
         "Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes",
         "Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host",
         "Acceso Extraer en... para elegir destino y extraer todo el archivo",
+        "Extracción selectiva... abre la página de gestión con los ámbitos de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo",
         "Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre",
         "Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos",
         "Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente",

@@ -14,6 +14,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionValues
 internal object ArchiveManagerPlugin {
     const val ID = "archive-manager"
     const val ACTION_OPEN_ID = "open-archive"
+    const val ACTION_SELECTIVE_EXTRACT_ID = "selective-extract"
     const val ACTION_EXTRACT_TO_ID = "extract-to"
     const val ACTION_COMPRESS_SINGLE_ID = "compress"
     const val ACTION_COMPRESS_MULTIPLE_ID = "compress-selection"
@@ -21,6 +22,8 @@ internal object ArchiveManagerPlugin {
     const val REQUIRED_HOST_VERSION = 5276L
     const val OPEN_LABEL_RESOURCE_NAME = "action_open_archive"
     const val OPEN_LABEL_FALLBACK = "Open archive"
+    const val SELECTIVE_EXTRACT_LABEL_RESOURCE_NAME = "action_selective_extract"
+    const val SELECTIVE_EXTRACT_LABEL_FALLBACK = "Selective extraction..."
     const val EXTRACT_TO_LABEL_RESOURCE_NAME = "action_extract_to"
     const val EXTRACT_TO_LABEL_FALLBACK = "Extract to..."
     const val COMPRESS_LABEL_RESOURCE_NAME = "action_compress"
@@ -30,6 +33,7 @@ internal object ArchiveManagerPlugin {
     const val CREATE_ACTIVITY_CLASS_NAME =
         "io.github.supermonster003.autojs6.plugin.archivemanager.CreateArchiveActivity"
     const val OPEN_ACTION_PRIORITY = 80
+    const val SELECTIVE_EXTRACT_ACTION_PRIORITY = 75
     const val EXTRACT_TO_ACTION_PRIORITY = 70
     const val COMPRESS_ACTION_PRIORITY = 60
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
@@ -82,6 +86,12 @@ internal fun archiveManagerActionCatalog(): Bundle {
             priority = ArchiveManagerPlugin.OPEN_ACTION_PRIORITY,
             placement = ExplorerActionValues.PLACEMENT_PRIMARY,
             presentation = ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+        ),
+        archiveManagerAction(
+            id = ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID,
+            labelResourceName = ArchiveManagerPlugin.SELECTIVE_EXTRACT_LABEL_RESOURCE_NAME,
+            labelFallback = ArchiveManagerPlugin.SELECTIVE_EXTRACT_LABEL_FALLBACK,
+            priority = ArchiveManagerPlugin.SELECTIVE_EXTRACT_ACTION_PRIORITY,
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID,

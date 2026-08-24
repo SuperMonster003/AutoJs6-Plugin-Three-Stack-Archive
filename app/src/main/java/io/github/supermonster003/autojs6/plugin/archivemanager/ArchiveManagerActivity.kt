@@ -166,7 +166,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             renderEntries()
         }
         selectAllButton.setOnClickListener { selectAllVisibleEntries() }
-        extractButton.setOnClickListener { chooseExtractionDestination() }
+        extractButton.setOnClickListener { showExtractionScopeDialog() }
         cancelButton.setOnClickListener { operationJob?.cancel() }
         filenameEncodingInput.setOnItemClickListener { _, _, position, _ ->
             filenameCharsetChoices.getOrNull(position)?.let(::selectFilenameCharset)
@@ -575,7 +575,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 R.string.text_selected_count,
                 result.selectionCount,
             )
-            binding.extractButton.isEnabled = result.selectionCount > 0
+            binding.extractButton.isEnabled = true
         }
     }
 
@@ -894,17 +894,51 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private fun formatWholeNumber(value: Long): String =
         NumberFormat.getIntegerInstance(Locale.getDefault()).format(value)
 
+    internal fun showExtractionScopeDialog(): androidx.appcompat.app.AlertDialog? {
+        val archive = snapshot ?: return null
+        val archiveIndex = index ?: return null
+        val options = ArchiveExtractionScopeResolver.options(
+            currentDirectory = currentDirectory,
+            selectedPaths = selectedPaths,
+            currentDirectoryCanExtract = !archive.isIsolatedPath(currentDirectory),
+        )
+        val currentPath = "/${archiveIndex.displayPath(currentDirectory)}"
+        val labels = options.map { option ->
+            when (option.scope) {
+                ArchiveExtractionScope.ENTIRE_ARCHIVE ->
+                    getString(R.string.text_extraction_scope_entire_archive)
+                ArchiveExtractionScope.CURRENT_DIRECTORY -> getString(
+                    R.string.text_extraction_scope_current_directory,
+                    ArchivePathPolicy.unsafeSourceNameForDisplay(currentPath),
+                )
+                ArchiveExtractionScope.CURRENT_SELECTION ->
+                    getString(R.string.text_extraction_scope_current_selection)
+            }
+        }.toTypedArray()
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_extraction_scope)
+            .setItems(labels) { _, position ->
+                options.getOrNull(position)?.let { option ->
+                    chooseExtractionDestination(option.requestedPaths)
+                }
+            }
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .show()
+    }
+
     private fun chooseExtractionDestination(
+        requestedPaths: Collection<String>,
         skipUnsafePathsConfirmed: Boolean = false,
         resourceBudgetConfirmed: Boolean = false,
     ) {
         val archive = snapshot
         val archiveIndex = index
-        if (archive == null || archiveIndex == null || selectedPaths.isEmpty()) {
+        val extractionPaths = requestedPaths.toCollection(LinkedHashSet())
+        if (archive == null || archiveIndex == null || extractionPaths.isEmpty()) {
             Toast.makeText(this, R.string.error_no_selection, Toast.LENGTH_SHORT).show()
             return
         }
-        pendingExtractionPaths = selectedPaths.toSet()
+        pendingExtractionPaths = extractionPaths
         val selection = try {
             ArchiveSelection.resolve(archive, pendingExtractionPaths, archiveIndex)
         } catch (error: Throwable) {
@@ -950,6 +984,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 }
                 .setPositiveButton(R.string.dialog_button_skip_unsafe) { _, _ ->
                     chooseExtractionDestination(
+                        requestedPaths = extractionPaths,
                         skipUnsafePathsConfirmed = true,
                         resourceBudgetConfirmed = resourceBudgetConfirmed,
                     )
@@ -971,6 +1006,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 }
                 .setPositiveButton(R.string.dialog_button_continue_anyway) { _, _ ->
                     chooseExtractionDestination(
+                        requestedPaths = extractionPaths,
                         skipUnsafePathsConfirmed = skipUnsafePathsConfirmed,
                         resourceBudgetConfirmed = true,
                     )
@@ -996,7 +1032,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         pendingAllowResourceBudgetOverride = false
         selectedPaths += ArchivePathPolicy.ROOT_PATH
         renderEntries()
-        chooseExtractionDestination()
+        chooseExtractionDestination(setOf(ArchivePathPolicy.ROOT_PATH))
     }
 
     private fun resumeRequestedActionAfterScan() {
@@ -1004,7 +1040,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
             pendingOutputTreeUri = null
             extractTo(treeUri)
         } ?: if (pendingExtractionPaths.isNotEmpty()) {
-            chooseExtractionDestination()
+            chooseExtractionDestination(
+                requestedPaths = pendingExtractionPaths,
+                skipUnsafePathsConfirmed = pendingSkipUnsafePaths,
+                resourceBudgetConfirmed = pendingAllowResourceBudgetOverride,
+            )
         } else {
             request?.let(::startDirectExtractionIfRequested)
         }
@@ -1132,7 +1172,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.applyPasswordButton.isEnabled = !busy
         binding.upButton.isEnabled = !busy && currentDirectory.isNotEmpty()
         binding.selectAllButton.isEnabled = !busy && snapshot != null
-        binding.extractButton.isEnabled = !busy && snapshot != null && selectedPaths.isNotEmpty()
+        binding.extractButton.isEnabled = !busy && snapshot != null
         if (busy) binding.diagnosticCopyButton.isVisible = false
         if (status != null) {
             binding.message.text = status

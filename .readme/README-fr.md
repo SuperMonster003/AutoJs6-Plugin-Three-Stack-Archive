@@ -31,7 +31,7 @@ Le README est disponible dans les langues suivantes:
 
 ### Présentation
 
-Archive Manager intègre la navigation, l'extraction et la création des archives ZIP, 7Z et de la famille TAR au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, prévisualise les entrées prises en charge et crée un format pris en charge à partir d'un élément ou d'une sélection de même dossier parent. L'extraction par entrée et l'édition interne restent planifiées dans le Roadmap.
+Archive Manager intègre la navigation, l'extraction et la création des archives ZIP, 7Z et de la famille TAR au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, prévisualise les entrées prises en charge, extrait toute l'archive, le dossier interne actuel ou la sélection cochée depuis la page de gestion et crée un format pris en charge à partir d'un élément ou d'une sélection de même dossier parent. L'extraction par entrée dans la page native de l'hôte et l'édition interne restent planifiées dans le Roadmap.
 
 ### Disponible actuellement
 
@@ -39,6 +39,7 @@ Archive Manager intègre la navigation, l'extraction et la création des archive
 - Afficher le dossier externe, le nom de l'archive et le dossier interne dans la barre de chemin ; toucher un niveau pour y accéder et utiliser Retour pour remonter avant de quitter l'archive.
 - Ouvrir les documents, images, fichiers audio et vidéos pris en charge avec les visionneuses existantes de l'hôte.
 - Utiliser le raccourci « Extraire vers... » pour extraire toute l'archive sans ouvrir d'abord la vue de navigation.
+- Choisir « Extraction sélective... » pour ouvrir la page de gestion et extraire toute l'archive, le dossier interne actuel ou la sélection cochée; « Extraire vers... » reste le raccourci pour l'archive entière.
 - Parcourir les dossiers, rechercher et trier le contenu de l'archive.
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
 - Parcourir les archives ordinaires via le descripteur repositionnable en lecture seule de l'hôte et des canaux à position indépendante, sans copie intégrale ; les tubes, les sources inscriptibles ou non repositionnables, Android 7 et les lecteurs exigeant un fichier local lisible par le processus (actuellement les ZIP chiffrés) utilisent le cache privé, supprimé à la fermeture.
@@ -80,7 +81,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR.
 3. Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.
 4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu puis sélectionnez un dossier avec le sélecteur système Android.
-5. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format et les réglages disponibles.
+5. Pour extraire une portée précise, choisissez « Extraction sélective... », parcourez la page de gestion ou cochez des entrées, touchez « Extraire vers... », choisissez la portée puis le dossier de sortie.
+6. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format et les réglages disponibles.
 
 ### Autorisations et données
 
@@ -92,7 +94,7 @@ Les noms non sûrs ne sont exposés que comme texte d'affichage en lecture seule
 
 ### Roadmap
 
-Les tâches et critères pour davantage de formats, les volumes fractionnés, l'extraction par entrée, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
+Les tâches et critères pour davantage de formats, les volumes fractionnés, l'extraction par entrée dans la page native de l'hôte, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -106,6 +108,7 @@ _Non publié_
 - `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
 - `Ajout` Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
+- `Ajout` Extraction sélective... ouvre la page de gestion avec les portées archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
 - `Ajout` Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">開啟壓縮檔</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">選擇性解壓縮...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解壓縮到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>
     <string name="app_name">壓縮檔管理器</string>
@@ -23,7 +24,10 @@
     <string name="plugin_description">檔案管理器外掛程式. 瀏覽、解壓縮及建立 ZIP 與 TAR 壓縮檔</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">正在清理部分輸出...</string>
-    <string name="text_extract_selected">解壓縮所選項目</string>
+    <string name="dialog_title_extraction_scope">解壓縮範圍</string>
+    <string name="text_extraction_scope_entire_archive">整個壓縮檔</string>
+    <string name="text_extraction_scope_current_directory">目前資料夾: %1$s</string>
+    <string name="text_extraction_scope_current_selection">目前選取項目</string>
     <string name="text_extracting">正在解壓縮第 %1$d 項, 共 %2$d 項</string>
     <string name="text_extraction_current_item">目前項目: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

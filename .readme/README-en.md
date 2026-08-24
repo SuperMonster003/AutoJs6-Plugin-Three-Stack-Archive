@@ -31,7 +31,7 @@ The README is available in these languages:
 
 ### About
 
-Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, and creates a supported format from one item or a same-parent selection. Per-entry extraction and in-archive editing remain staged in the Roadmap.
+Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, extracts the entire archive, current internal folder, or current checkbox selection from the management page, and creates a supported format from one item or a same-parent selection. Per-entry extraction inside the native host page and in-archive editing remain staged in the Roadmap.
 
 ### Available now
 
@@ -39,6 +39,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
 - Preview supported document, image, audio, and video entries with the host's existing viewers.
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
+- Choose Selective extraction... to open the management page and extract the entire archive, current internal folder, or current checkbox selection; Extract to... remains the whole-archive shortcut.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
 - Browse ordinary archives directly through the host's seekable read-only descriptor with independent positional channels and no whole-file copy; pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache, which is removed on close.
@@ -80,7 +81,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
-5. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format and available settings.
+5. For a specific range, choose Selective extraction..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
+6. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format and available settings.
 
 ### Permissions and data
 
@@ -92,7 +94,7 @@ Unsafe names are exposed only as read-only display text behind opaque IDs; they 
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for more formats, split volumes, per-entry extraction, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for more formats, split volumes, per-entry extraction inside the native host page, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
@@ -106,6 +108,7 @@ _Unreleased_
 - `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
 - `Added` Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
+- `Added` Selective extraction... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection ranges while preserving the direct whole-archive shortcut
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
 - `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported

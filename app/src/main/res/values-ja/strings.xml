@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">アーカイブを開く</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">選択して展開...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">展開先...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">圧縮...</string>
     <string name="app_name">アーカイブマネージャー</string>
@@ -24,7 +25,10 @@
     <string name="plugin_description">ファイルマネージャープラグイン. ZIP/TAR の閲覧、展開、作成</string>
     <string name="text_cancelled">キャンセルしました</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
-    <string name="text_extract_selected">選択項目を展開</string>
+    <string name="dialog_title_extraction_scope">展開範囲</string>
+    <string name="text_extraction_scope_entire_archive">アーカイブ全体</string>
+    <string name="text_extraction_scope_current_directory">現在のフォルダー: %1$s</string>
+    <string name="text_extraction_scope_current_selection">現在の選択項目</string>
     <string name="text_extracting">%2$d 件中 %1$d 件目を展開中</string>
     <string name="text_extraction_current_item">現在の項目: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

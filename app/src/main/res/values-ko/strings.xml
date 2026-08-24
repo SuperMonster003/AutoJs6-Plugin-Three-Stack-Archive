@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">압축 파일 열기</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">선택하여 압축 풀기...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">압축 풀기...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">압축...</string>
     <string name="app_name">압축 파일 관리자</string>
@@ -24,7 +25,10 @@
     <string name="plugin_description">파일 관리자 플러그인. ZIP/TAR 압축 파일 탐색, 풀기 및 만들기</string>
     <string name="text_cancelled">취소됨</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">일부 출력을 정리하는 중...</string>
-    <string name="text_extract_selected">선택 항목 압축 풀기</string>
+    <string name="dialog_title_extraction_scope">압축 해제 범위</string>
+    <string name="text_extraction_scope_entire_archive">전체 압축 파일</string>
+    <string name="text_extraction_scope_current_directory">현재 폴더: %1$s</string>
+    <string name="text_extraction_scope_current_selection">현재 선택 항목</string>
     <string name="text_extracting">%2$d개 중 %1$d개 압축 푸는 중</string>
     <string name="text_extraction_current_item">현재 항목: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

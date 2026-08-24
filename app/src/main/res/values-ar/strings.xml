@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">فتح الأرشيف</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">استخراج انتقائي...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">استخراج إلى...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">ضغط...</string>
     <string name="app_name">مدير الأرشيف</string>
@@ -24,7 +25,10 @@
     <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP وTAR ويستخرجها وينشئها</string>
     <string name="text_cancelled">تم الإلغاء</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
-    <string name="text_extract_selected">استخراج المحدد</string>
+    <string name="dialog_title_extraction_scope">نطاق الاستخراج</string>
+    <string name="text_extraction_scope_entire_archive">الأرشيف بالكامل</string>
+    <string name="text_extraction_scope_current_directory">المجلد الحالي: %1$s</string>
+    <string name="text_extraction_scope_current_selection">التحديد الحالي</string>
     <string name="text_extracting">جار استخراج %1$d من %2$d</string>
     <string name="text_extraction_current_item">العنصر الحالي: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

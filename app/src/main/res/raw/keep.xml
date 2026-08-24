@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@raw/plugin_instruction,@string/action_extract_to,@string/action_open_archive" />
+    tools:keep="@raw/plugin_instruction,@string/action_extract_to,@string/action_open_archive,@string/action_selective_extract" />

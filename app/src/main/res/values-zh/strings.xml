@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">打开压缩档案</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">选择性解压...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解压到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">压缩...</string>
     <string name="app_name">压缩档案管理器</string>
@@ -46,7 +47,10 @@
     <string name="text_default_archive_name">压缩档案</string>
     <string name="text_delete_sources_after_compression">压缩后删除源文件</string>
     <string name="text_encrypt_file_names">同时加密文件名</string>
-    <string name="text_extract_selected">解压所选项</string>
+    <string name="dialog_title_extraction_scope">解压范围</string>
+    <string name="text_extraction_scope_entire_archive">整个档案</string>
+    <string name="text_extraction_scope_current_directory">当前目录: %1$s</string>
+    <string name="text_extraction_scope_current_selection">当前选择</string>
     <string name="text_extracting">正在解压第 %1$d 项, 共 %2$d 项</string>
     <string name="text_extraction_current_item">当前项目: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>

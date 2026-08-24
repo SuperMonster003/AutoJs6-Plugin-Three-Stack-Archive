@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Открыть архив</string>
+    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Выборочное извлечение...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
     <string name="app_name">Менеджер архивов</string>
@@ -24,7 +25,10 @@
     <string name="plugin_description">Плагин файлового менеджера. Просматривает, извлекает и создаёт ZIP- и TAR-архивы</string>
     <string name="text_cancelled">Отменено</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
-    <string name="text_extract_selected">Извлечь выбранное</string>
+    <string name="dialog_title_extraction_scope">Область извлечения</string>
+    <string name="text_extraction_scope_entire_archive">Весь архив</string>
+    <string name="text_extraction_scope_current_directory">Текущая папка: %1$s</string>
+    <string name="text_extraction_scope_current_selection">Текущее выделение</string>
     <string name="text_extracting">Извлечение %1$d из %2$d</string>
     <string name="text_extraction_current_item">Текущий элемент: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
