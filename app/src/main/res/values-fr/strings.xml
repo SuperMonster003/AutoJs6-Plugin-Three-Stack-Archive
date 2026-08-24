@@ -56,6 +56,7 @@
     <string name="text_unsupported_entry_type">Le type d\'entrée %1$s ne peut pas être extrait</string>
     <string name="error_archive_file_name_invalid">Saisissez un nom de fichier d\'archive valide</string>
     <string name="error_compression_failed">Échec de la compression</string>
+    <string name="error_compression_cleanup_unconfirmed">Échec de la compression; impossible de confirmer le nettoyage de la sortie temporaire. La session hôte a été fermée pour empêcher une nouvelle écriture. Aucune archive existante n’a été remplacée.\nSortie prévue : %1$s\nMotif initial : %2$s</string>
     <string name="error_compression_request_invalid">La demande de compression ou la session de l\'hôte est invalide</string>
     <string name="text_advanced_compression_pending">Les volumes fractionnés, le chiffrement des noms, les archives séparées et la suppression des sources restent désactivés jusqu\'à la disponibilité de leurs systèmes transactionnels.</string>
     <string name="text_archive_file_name">Nom du fichier</string>

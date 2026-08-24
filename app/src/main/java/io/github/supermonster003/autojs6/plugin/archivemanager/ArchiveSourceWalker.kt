@@ -3,10 +3,10 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import android.os.ParcelFileDescriptor
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import java.io.BufferedInputStream
-import java.io.IOException
 import java.io.OutputStream
 import java.util.ArrayDeque
 import java.util.HashSet
+import java.util.concurrent.CancellationException
 
 internal data class ArchiveSourceEntry(
     val targetId: String,
@@ -61,12 +61,24 @@ internal class ArchiveSourceWalker(
             when (val item = queue.removeFirst()) {
                 is WorkItem.Source -> {
                     val entry = item.entry
-                    if (!item.readable) throw IOException("Source is not readable: ${entry.archivePath}")
+                    if (!item.readable) {
+                        throw ArchiveCreationSourceException(
+                            sourceArchivePath = entry.archivePath,
+                            message = "Archive source is not readable: ${entry.archivePath}",
+                        )
+                    }
                     if (item.symbolicLink) {
-                        throw IOException("Symbolic links are not followed: ${entry.archivePath}")
+                        throw ArchiveValidationException(
+                            code = ArchiveFailureCode.UNSUPPORTED_METHOD,
+                            message = "Symbolic links cannot be compressed: ${entry.archivePath}",
+                            stage = ArchiveFailureStage.INPUT,
+                        )
                     }
                     if (!visitedPaths.add(entry.archivePath)) {
-                        throw IOException("Duplicate archive source path: ${entry.archivePath}")
+                        throw ArchiveValidationException(
+                            code = ArchiveFailureCode.DUPLICATE_PATH,
+                            message = "Duplicate archive source path: ${entry.archivePath}",
+                        )
                     }
                     visit(entry)
                     if (entry.isDirectory) {
@@ -92,11 +104,11 @@ internal class ArchiveSourceWalker(
     ): Long {
         require(!entry.isDirectory) { "Directories do not have source data" }
         var total = 0L
-        openFile(entry).use { input ->
+        useFile(entry) { input ->
             val buffer = ByteArray(BUFFER_SIZE)
             while (true) {
                 checkCancelled()
-                val count = input.read(buffer)
+                val count = readFile(entry, input, buffer)
                 if (count < 0) break
                 total = Math.addExact(total, count.toLong())
             }
@@ -114,15 +126,15 @@ internal class ArchiveSourceWalker(
         require(!entry.isDirectory) { "Directories do not have source data" }
         require(expectedSize == null || expectedSize >= 0L) { "Expected size cannot be negative" }
         var total = 0L
-        openFile(entry).use { input ->
+        useFile(entry) { input ->
             val buffer = ByteArray(BUFFER_SIZE)
             while (true) {
                 checkCancelled()
-                val count = input.read(buffer)
+                val count = readFile(entry, input, buffer)
                 if (count < 0) break
                 val nextTotal = Math.addExact(total, count.toLong())
                 if (expectedSize != null && nextTotal > expectedSize) {
-                    throw IOException("Source size changed while reading: ${entry.archivePath}")
+                    sourceChanged(entry)
                 }
                 output.write(buffer, 0, count)
                 total = nextTotal
@@ -130,7 +142,7 @@ internal class ArchiveSourceWalker(
             }
         }
         if (expectedSize != null && total != expectedSize) {
-            throw IOException("Source size changed while reading: ${entry.archivePath}")
+            sourceChanged(entry)
         }
         return total
     }
@@ -152,7 +164,10 @@ internal class ArchiveSourceWalker(
                 "${item.relativePath}/${child.displayName}"
             }
             if (child.relativePath != expectedRelativePath) {
-                throw IOException("Host child path escapes the requested directory")
+                throw ArchiveValidationException(
+                    code = ArchiveFailureCode.INVALID_PATH,
+                    message = "Host child path escapes the requested directory",
+                )
             }
             queue.addFirst(
                 WorkItem.Source(
@@ -174,12 +189,73 @@ internal class ArchiveSourceWalker(
         }
     }
 
-    private fun openFile(entry: ArchiveSourceEntry) = BufferedInputStream(
-        ParcelFileDescriptor.AutoCloseInputStream(
-            session.openFile(entry.targetId, entry.relativePath),
-        ),
-        BUFFER_SIZE,
-    )
+    private fun openFile(entry: ArchiveSourceEntry): BufferedInputStream = try {
+        BufferedInputStream(
+            ParcelFileDescriptor.AutoCloseInputStream(
+                session.openFile(entry.targetId, entry.relativePath),
+            ),
+            BUFFER_SIZE,
+        )
+    } catch (error: Throwable) {
+        throw mapSourceFailure(entry, "opened", error)
+    }
+
+    private fun readFile(
+        entry: ArchiveSourceEntry,
+        input: BufferedInputStream,
+        buffer: ByteArray,
+    ): Int = try {
+        input.read(buffer)
+    } catch (error: Throwable) {
+        throw mapSourceFailure(entry, "read", error)
+    }
+
+    private inline fun <T> useFile(
+        entry: ArchiveSourceEntry,
+        block: (BufferedInputStream) -> T,
+    ): T {
+        val input = openFile(entry)
+        var operationFailure: Throwable? = null
+        try {
+            return block(input)
+        } catch (error: Throwable) {
+            operationFailure = error
+            throw error
+        } finally {
+            try {
+                input.close()
+            } catch (closeFailure: Throwable) {
+                val mapped = mapSourceFailure(entry, "closed", closeFailure)
+                if (operationFailure == null) {
+                    throw mapped
+                }
+                if (mapped !== operationFailure) operationFailure.addSuppressed(mapped)
+            }
+        }
+    }
+
+    private fun mapSourceFailure(
+        entry: ArchiveSourceEntry,
+        operation: String,
+        error: Throwable,
+    ): Throwable = when (error) {
+        is CancellationException,
+        is ArchiveException,
+        is Error,
+        -> error
+        else -> ArchiveCreationSourceException(
+            sourceArchivePath = entry.archivePath,
+            message = "Archive source could not be $operation: ${entry.archivePath}",
+            cause = error,
+        )
+    }
+
+    private fun sourceChanged(entry: ArchiveSourceEntry): Nothing =
+        throw ArchiveCreationSourceException(
+            sourceArchivePath = entry.archivePath,
+            message = "Archive source size changed while reading: ${entry.archivePath}",
+            code = ArchiveFailureCode.SOURCE_CHANGED,
+        )
 
     private sealed interface WorkItem {
         data class Source(

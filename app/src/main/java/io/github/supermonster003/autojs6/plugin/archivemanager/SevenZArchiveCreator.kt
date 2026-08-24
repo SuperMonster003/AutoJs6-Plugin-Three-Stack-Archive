@@ -35,20 +35,25 @@ internal class SevenZArchiveCreator(
             formatCapabilities.compressionLevels,
             format,
         )
-        val transaction = session.prepareOutput(outputName, format, options.conflictPolicy)
-        val password = options.password?.takeIf(CharArray::isNotEmpty)?.clone()
+        var password: CharArray? = null
         try {
-            val descriptor = session.openOutput(transaction.id)
-            val counters = writeArchive(
-                descriptor = descriptor,
-                targets = request.targets,
-                compressionLevel = compressionLevel,
-                password = password,
-                checkCancelled = checkCancelled,
-                progress = progress,
-            )
-            checkCancelled()
-            val committed = session.commitOutput(transaction.id, format)
+            val completed = session.writeArchiveOutput(
+                outputDisplayName = outputName,
+                format = format,
+                conflictPolicy = options.conflictPolicy,
+            ) { descriptor ->
+                password = options.password?.takeIf(CharArray::isNotEmpty)?.clone()
+                writeArchive(
+                    descriptor = descriptor,
+                    targets = request.targets,
+                    compressionLevel = compressionLevel,
+                    password = password,
+                    checkCancelled = checkCancelled,
+                    progress = progress,
+                ).also { checkCancelled() }
+            }
+            val counters = completed.value
+            val committed = completed.transaction
             return ArchiveCreationResult(
                 outputDisplayName = committed.displayName,
                 outputDisplayPath = committed.displayPath,
@@ -56,11 +61,6 @@ internal class SevenZArchiveCreator(
                 directoriesAdded = counters.directories,
                 sourceBytesRead = counters.bytesRead,
             )
-        } catch (error: Throwable) {
-            runCatching { session.abortOutput(transaction.id) }
-                .exceptionOrNull()
-                ?.let(error::addSuppressed)
-            throw error
         } finally {
             password?.fill('\u0000')
         }

@@ -56,6 +56,7 @@
     <string name="text_unsupported_entry_type">يتعذر استخراج نوع الإدخال %1$s</string>
     <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
     <string name="error_compression_failed">فشل الضغط</string>
+    <string name="error_compression_cleanup_unconfirmed">فشل الضغط وتعذر تأكيد تنظيف الإخراج المؤقت. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %1$s\nالسبب الأصلي: %2$s</string>
     <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>
     <string name="text_advanced_compression_pending">تظل الأجزاء وتشفير أسماء الملفات والأرشيفات المنفصلة وحذف المصدر معطلة حتى تتوفر الواجهات الخلفية الآمنة الخاصة بها.</string>
     <string name="text_archive_file_name">اسم الملف</string>

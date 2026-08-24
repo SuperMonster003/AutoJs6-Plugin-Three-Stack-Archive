@@ -56,6 +56,7 @@
     <string name="text_unsupported_entry_type">エントリ形式 %1$s は展開できません</string>
     <string name="error_archive_file_name_invalid">有効なアーカイブファイル名を入力してください</string>
     <string name="error_compression_failed">圧縮に失敗しました</string>
+    <string name="error_compression_cleanup_unconfirmed">圧縮に失敗し、一時出力のクリーンアップを確認できませんでした。追加の書き込みを防ぐため、ホストセッションを閉じました。既存のアーカイブは上書きされていません。\n予定されていた出力: %1$s\n元の理由: %2$s</string>
     <string name="error_compression_request_invalid">圧縮要求またはホストセッションが無効です</string>
     <string name="text_advanced_compression_pending">分割、ファイル名暗号化、個別圧縮、元項目の削除は、安全なトランザクション処理が利用可能になるまで無効です.</string>
     <string name="text_archive_file_name">ファイル名</string>

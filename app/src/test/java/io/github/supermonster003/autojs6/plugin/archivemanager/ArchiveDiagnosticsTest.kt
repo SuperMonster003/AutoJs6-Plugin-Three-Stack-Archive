@@ -81,6 +81,7 @@ class ArchiveDiagnosticsTest {
     @Test
     fun `failure codes map to stable user facing stages`() {
         assertEquals(ArchiveFailureStage.INPUT, ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE.defaultStage)
+        assertEquals(ArchiveFailureStage.INPUT, ArchiveFailureCode.SOURCE_UNREADABLE.defaultStage)
         assertEquals(ArchiveFailureStage.FORMAT_DETECTION, ArchiveFailureCode.INVALID_SIGNATURE.defaultStage)
         assertEquals(ArchiveFailureStage.INDEX, ArchiveFailureCode.MISSING_VOLUME.defaultStage)
         assertEquals(ArchiveFailureStage.INDEX, ArchiveFailureCode.UNSUPPORTED_FILENAME_CHARSET.defaultStage)

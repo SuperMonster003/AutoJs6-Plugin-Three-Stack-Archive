@@ -168,7 +168,9 @@
 - [ ] (插件) 宿主提供待提交输出只读重开后, 逐条验证目录、声明大小、实际数据和 CRC, 关闭验证描述符后才调用 `commitOutput`.
 - [ ] (插件/API) 补齐扫描/压缩/校验/提交/删除源五阶段状态, 输出提交前重新打开验证.
 - [x] (测试) 自动化覆盖 ZIP、7Z 与全部 TAR writer 的文件/目录混合多选、Unicode、空目录、嵌套目录、未知大小、同名自动编号、取消及源大小变化回滚; 另验证全部 writer 在询问模式无法预留精确名称时统一使用宿主失败策略, 且不会遍历源、打开输出或错误中止不存在的事务. 模拟器产物已由外部 `unzip`、7-Zip 或 bsdtar 按格式验证.
-- [ ] (测试) 补齐不可读文件/空间不足/分卷/插件或宿主进程重建/临时文件过期回收.
+- [x] (插件/测试) ZIP、7Z 与全部 TAR writer 共用同一个预留/打开/写入/提交/中止状态机. 自动化逐格式覆盖普通预留失败、输出打开失败、不可写输出、提交失败、源描述符打开失败及目录子项不可读; 已预留事务在提交前失败时统一中止, 预留本身失败时不会错误中止不存在的事务. 源不可读使用 `INPUT/SOURCE_UNREADABLE`, 输出边界使用 `OUTPUT/OUTPUT_FAILURE`.
+- [x] (插件/测试) 若原始操作失败后宿主 `abortOutput` 也失败, 同时保留原始失败与回滚失败并归类为 `CLEANUP/OUTPUT_FAILURE`, 不再把清理问题隐藏在 suppressed exception 中. 创建表单会清空密码、关闭宿主会话、显示经过安全处理的预定输出路径并进入不可重试状态; 该状态跨 Activity 重建保持.
+- [ ] (设备/宿主/API) 补齐真实存储空间耗尽、分卷、插件或宿主进程死亡/重建、提交结果不确定和隐藏临时文件过期回收. 当前 v6 没有查询事务状态或恢复/枚举遗留事务的协议, 且宿主不会公开临时文件身份, 插件不得伪造已清理结论.
 
 验收条件: 所有表单组合都由统一能力模型驱动; 任何失败都不会同时丢失源文件和既有输出文件.
 
@@ -228,6 +230,7 @@
 - [x] (验证) M4 解压冲突策略阶段的 134 项 JVM 测试与 55 项仪器测试全部通过; 自动化覆盖询问/跳过/覆盖/自动重命名、兼容冲突的“应用到全部”、扩展名前编号、类型不一致时禁用覆盖或安全重命名、策略跨 Activity 重建恢复、跳过后的真实进度总量、完成计数、无决定时封闭失败和真实 SAF 根回滚. 完整 Android 套件只在 `emulator-5554` 运行. Lint 为 0 errors、38 warnings, 且警告仅来自依赖/Gradle 配置、图标形状和复数建议; Release/R8 APK 为 4,036,155 bytes, SHA-256 为 `6EB2FCB4A96AE8ED00A311888EDD1395D371CF1A92DE48A4D6692CD53841928B`, v2 签名与 `zipalign -P 16` 复核通过. Release 清单不含 Debug 测试 provider 或 debuggable 标记, APK 仍只包含四个 zstd-jni ABI, 每个 ELF 均有 3 个 `LOAD` 段且对齐为 `0x4000` 并含 `GNU_RELRO`; 全程只操作 `emulator-5554`, 未操作实体设备.
 
 - [x] (验证) M5 压缩输出名称冲突策略阶段的 134 项 JVM 测试与 58 项仪器测试全部通过; 新增 3 项仪器用例覆盖自动编号默认值、询问策略跨 Activity 重建恢复、精确名称失败对话框与明确编号重试, 并验证 ZIP、7Z 和全部 TAR writer 均在宿主预留失败后保持零源遍历、零输出打开和零错误中止. Explorer Action v6 审计确认公共协议只有失败/自动编号, 因而未伪造不安全覆盖. Lint 为 0 errors、38 warnings, 且警告仍只来自依赖/Gradle 配置、图标形状和复数建议; Release/R8 APK 为 4,046,427 bytes, SHA-256 为 `82ED2788ACAEF54E710A97FCB8DC37E5F8B66F4A6EDFEB2AF98132D7A600CBB4`, v2 签名与 `zipalign -P 16` 复核通过. Release 清单不含 Debug 测试 provider、testOnly 或 debuggable 标记, APK 仍只包含四个 zstd-jni ABI, 条目哈希与 Release 中间产物一致, 每个 ELF 均有 3 个 `LOAD` 段且对齐为 `0x4000` 并含 `GNU_RELRO`; 完整 Android 套件只通过显式 `adb -s emulator-5554` 运行, 未操作实体设备或其他模拟器.
+- [x] (验证) M5 压缩创建失败与回滚矩阵阶段的 134 项 JVM 测试与 66 项仪器测试全部通过; 新增 8 项仪器用例对 ZIP、7Z 和全部 TAR writer 逐格式注入输出预留/打开/写入/提交失败、源打开失败、目录子项不可读及 abort 二次失败, 并验证回滚失败表单关闭会话、清空密码、禁用重试且跨 Activity 重建保持. Lint 为 0 errors、38 warnings, 且警告仍只来自依赖/Gradle 配置、图标形状和复数建议; Release/R8 APK 为 4,050,243 bytes, SHA-256 为 `C81A20561386545499401881B9A5F74D9407B35F0EFB691D9D3307182DEA55C9`, v2 签名与 `zipalign -P 16` 复核通过. Release 清单不含 Debug 测试 provider、testOnly 或 debuggable 标记, APK 仍只包含四个 zstd-jni ABI, 条目哈希与 Release 中间产物一致, 每个 ELF 均有 3 个 `LOAD` 段且对齐为 `0x4000` 并含 `GNU_RELRO`; 完整 Android 套件只通过显式 `adb -s emulator-5554` 运行, 未操作实体设备或其他模拟器.
 
 - [ ] (CI) 每次提交运行单元测试/Android Lint/Debug/Release 构建和格式样本测试.
 - [ ] (CI) 发布前在支持的最低/最高 Android API/至少一台低内存设备和一台大屏设备执行冒烟测试.

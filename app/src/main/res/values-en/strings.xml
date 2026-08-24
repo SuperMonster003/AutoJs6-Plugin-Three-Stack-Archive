@@ -63,6 +63,7 @@
     <string name="text_unsupported_entry_type">Entry type %1$s cannot be extracted</string>
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
     <string name="error_compression_failed">Compression failed</string>
+    <string name="error_compression_cleanup_unconfirmed">Compression failed, and cleanup of its temporary output could not be confirmed. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %1$s\nOriginal reason: %2$s</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
     <string name="text_advanced_compression_pending">Split volumes, filename encryption, separate archives, and source deletion remain disabled until their transactional backends are available.</string>
     <string name="text_apply_password">Apply</string>

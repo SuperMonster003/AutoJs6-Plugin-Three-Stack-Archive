@@ -54,6 +54,7 @@
     <string name="text_unsupported_entry_type">無法解壓縮項目類型 %1$s</string>
     <string name="error_archive_file_name_invalid">請輸入有效的壓縮檔名稱</string>
     <string name="error_compression_failed">壓縮失敗</string>
+    <string name="error_compression_cleanup_unconfirmed">壓縮失敗, 且無法確認暫存輸出已清理. 為避免繼續寫入, 目前的主機工作階段已關閉. 現有檔案未被覆寫.\n預定輸出: %1$s\n原始原因: %2$s</string>
     <string name="error_compression_request_invalid">壓縮請求或主程式工作階段無效</string>
     <string name="text_advanced_compression_pending">分割檔、檔名加密、個別壓縮及刪除來源項目會在相應的交易式後端可用後開放.</string>
     <string name="text_archive_file_name">檔名</string>

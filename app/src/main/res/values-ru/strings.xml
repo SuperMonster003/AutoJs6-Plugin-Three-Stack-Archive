@@ -56,6 +56,7 @@
     <string name="text_unsupported_entry_type">Тип записи %1$s не поддерживает извлечение</string>
     <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>
     <string name="error_compression_failed">Не удалось создать архив</string>
+    <string name="error_compression_cleanup_unconfirmed">Не удалось создать архив и подтвердить очистку временного вывода. Сеанс хоста закрыт, чтобы предотвратить повторную запись. Существующий архив не перезаписан.\nПланируемый вывод: %1$s\nИсходная причина: %2$s</string>
     <string name="error_compression_request_invalid">Недопустимый запрос на сжатие или сеанс хоста</string>
     <string name="text_advanced_compression_pending">Многотомные архивы, шифрование имён, отдельные архивы и удаление исходников отключены до появления безопасной транзакционной реализации.</string>
     <string name="text_archive_file_name">Имя файла</string>

@@ -28,6 +28,7 @@
     <string name="error_cleanup_failed">Cleanup failed; partial output may remain</string>
     <string name="error_cleanup_residual_outputs">Cleanup failed. The following output locations may remain:\n%1$s</string>
     <string name="error_compression_failed">Compression failed</string>
+    <string name="error_compression_cleanup_unconfirmed">Compression failed, and cleanup of its temporary output could not be confirmed. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %1$s\nOriginal reason: %2$s</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
     <string name="error_custom_budget_invalid">Enter non-negative whole numbers within the supported range</string>
     <string name="error_custom_budget_total_less_single">The total-size budget must be zero (unlimited) or at least the single-entry budget</string>

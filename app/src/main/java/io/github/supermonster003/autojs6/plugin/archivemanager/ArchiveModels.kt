@@ -222,6 +222,7 @@ internal fun interface ArchiveCreationProgressListener {
 
 enum class ArchiveFailureCode {
     SOURCE_NOT_FILE,
+    SOURCE_UNREADABLE,
     SOURCE_CHANGED,
     CACHE_SPACE_UNAVAILABLE,
     INVALID_SIGNATURE,
@@ -264,6 +265,7 @@ enum class ArchiveFailureStage {
 internal val ArchiveFailureCode.defaultStage: ArchiveFailureStage
     get() = when (this) {
         ArchiveFailureCode.SOURCE_NOT_FILE,
+        ArchiveFailureCode.SOURCE_UNREADABLE,
         ArchiveFailureCode.SOURCE_CHANGED,
         ArchiveFailureCode.CACHE_SPACE_UNAVAILABLE,
         -> ArchiveFailureStage.INPUT

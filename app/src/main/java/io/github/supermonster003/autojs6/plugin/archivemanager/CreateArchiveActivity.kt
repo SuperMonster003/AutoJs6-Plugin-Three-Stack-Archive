@@ -33,6 +33,7 @@ class CreateArchiveActivity : AppCompatActivity() {
     private var selectedConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME
     private var unavailableNameDialog: androidx.appcompat.app.AlertDialog? = null
     private var sessionClosed = false
+    private var terminalFailureMessage: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +46,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                 ArchiveCreationConflictPolicy.entries.firstOrNull { it.name == stored }
             }
             ?: ArchiveCreationConflictPolicy.AUTO_RENAME
+        terminalFailureMessage = savedInstanceState?.getString(STATE_TERMINAL_FAILURE)
 
         val resolvedRequest = ArchiveCompressionIntentPolicy.resolve(intent)
         if (resolvedRequest == null) {
@@ -54,10 +56,15 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         request = resolvedRequest
         setupViews(resolvedRequest)
+        terminalFailureMessage?.let { message ->
+            closeHostSession()
+            renderTerminalFailure(message)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(STATE_CONFLICT_POLICY, selectedConflictPolicy.name)
+        terminalFailureMessage?.let { outState.putString(STATE_TERMINAL_FAILURE, it) }
         super.onSaveInstanceState(outState)
     }
 
@@ -184,6 +191,7 @@ class CreateArchiveActivity : AppCompatActivity() {
     private fun createArchive(
         conflictPolicy: ArchiveCreationConflictPolicy = selectedConflictPolicy,
     ) {
+        if (terminalFailureMessage != null) return
         val resolvedRequest = request ?: return
         if (operationJob?.isActive == true) return
         val outputDisplayName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
@@ -285,6 +293,19 @@ class CreateArchiveActivity : AppCompatActivity() {
                 if (!isFinishing && !isDestroyed) {
                     unavailableName = error
                     setBusy(false, getString(R.string.dialog_title_archive_name_unavailable))
+                }
+            } catch (error: ArchiveCreationRollbackException) {
+                if (!isFinishing && !isDestroyed) {
+                    val message = getString(
+                        R.string.error_compression_cleanup_unconfirmed,
+                        ArchivePathPolicy.unsafeSourceNameForDisplay(
+                            error.pendingOutputDisplayPath,
+                        ),
+                        userFacingReason(error.operationFailure),
+                    )
+                    terminalFailureMessage = message
+                    closeHostSession()
+                    renderTerminalFailure(message)
                 }
             } catch (error: Throwable) {
                 if (!isFinishing && !isDestroyed) {
@@ -455,6 +476,27 @@ class CreateArchiveActivity : AppCompatActivity() {
         cancelButton.text = getString(R.string.dialog_button_cancel)
     }
 
+    private fun renderTerminalFailure(message: String) = with(binding) {
+        setBusy(false, message)
+        password.text?.clear()
+        passwordConfirmation.text?.clear()
+        passwordConfirmationLayout.error = null
+        outputNameLayout.isEnabled = false
+        creationConflictPolicyLayout.isEnabled = false
+        creationConflictPolicy.isEnabled = false
+        format.isEnabled = false
+        compressionLevel.isEnabled = false
+        passwordLayout.isEnabled = false
+        password.isEnabled = false
+        passwordConfirmationLayout.isEnabled = false
+        passwordConfirmation.isEnabled = false
+        encryptFileNames.isEnabled = false
+        splitVolumeLayout.isEnabled = false
+        splitVolume.isEnabled = false
+        createButton.isEnabled = false
+        cancelButton.text = getString(android.R.string.ok)
+    }
+
     private fun userFacingReason(error: Throwable): String {
         val root = generateSequence(error) { it.cause }.last()
         return root.message
@@ -480,5 +522,6 @@ class CreateArchiveActivity : AppCompatActivity() {
         val UI_PROGRESS_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(100)
         const val MAX_ERROR_REASON_LENGTH = 500
         const val STATE_CONFLICT_POLICY = "creation_conflict_policy"
+        const val STATE_TERMINAL_FAILURE = "terminal_creation_failure"
     }
 }

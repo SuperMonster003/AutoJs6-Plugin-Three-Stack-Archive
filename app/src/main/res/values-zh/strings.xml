@@ -24,6 +24,7 @@
     <string name="error_cleanup_failed">清理失败; 可能残留部分输出</string>
     <string name="error_cleanup_residual_outputs">清理失败. 以下输出位置可能仍然存在:\n%1$s</string>
     <string name="error_compression_failed">压缩失败</string>
+    <string name="error_compression_cleanup_unconfirmed">压缩失败, 且无法确认临时输出已清理. 为避免继续写入, 当前宿主会话已关闭. 既有档案未被覆盖.\n预定输出: %1$s\n原始原因: %2$s</string>
     <string name="error_compression_request_invalid">压缩请求或宿主会话无效</string>
     <string name="error_extraction_failed">解压失败</string>
     <string name="error_no_selection">请至少选择一个条目</string>

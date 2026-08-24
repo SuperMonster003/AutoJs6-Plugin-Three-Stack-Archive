@@ -51,31 +51,28 @@ internal class TarArchiveCreator(
             "${format.displayName} does not support password encryption"
         }
 
-        val transaction = session.prepareOutput(outputName, format, options.conflictPolicy)
-        try {
-            val descriptor = session.openOutput(transaction.id)
-            val counters = writeArchive(
+        val completed = session.writeArchiveOutput(
+            outputDisplayName = outputName,
+            format = format,
+            conflictPolicy = options.conflictPolicy,
+        ) { descriptor ->
+            writeArchive(
                 descriptor = descriptor,
                 targets = request.targets,
                 compressionLevel = compressionLevel,
                 checkCancelled = checkCancelled,
                 progress = progress,
-            )
-            checkCancelled()
-            val committed = session.commitOutput(transaction.id, format)
-            return ArchiveCreationResult(
-                outputDisplayName = committed.displayName,
-                outputDisplayPath = committed.displayPath,
-                filesCompressed = counters.files,
-                directoriesAdded = counters.directories,
-                sourceBytesRead = counters.bytesRead,
-            )
-        } catch (error: Throwable) {
-            runCatching { session.abortOutput(transaction.id) }
-                .exceptionOrNull()
-                ?.let(error::addSuppressed)
-            throw error
+            ).also { checkCancelled() }
         }
+        val counters = completed.value
+        val committed = completed.transaction
+        return ArchiveCreationResult(
+            outputDisplayName = committed.displayName,
+            outputDisplayPath = committed.displayPath,
+            filesCompressed = counters.files,
+            directoriesAdded = counters.directories,
+            sourceBytesRead = counters.bytesRead,
+        )
     }
 
     private fun writeArchive(

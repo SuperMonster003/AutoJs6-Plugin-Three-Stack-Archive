@@ -26,6 +26,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.IOException
+import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -233,6 +235,66 @@ class CreateArchiveActivityInstrumentationTest {
         }
     }
 
+    @Test
+    fun rollbackFailureClosesTheSessionAndRemainsTerminalAfterRecreation() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val hostSession = RollbackFailingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.findViewById<android.widget.EditText>(R.id.password)
+                    .setText("must-be-cleared")
+                activity.findViewById<android.widget.EditText>(R.id.passwordConfirmation)
+                    .setText("must-be-cleared")
+                activity.findViewById<android.view.View>(R.id.createButton).performClick()
+            }
+
+            assertTrue(hostSession.abortAttempt.await(5, TimeUnit.SECONDS))
+            instrumentation.waitForIdleSync()
+            lateinit var expectedMessage: String
+            scenario.onActivity { activity ->
+                expectedMessage = activity.getString(
+                    R.string.error_compression_cleanup_unconfirmed,
+                    "/Documents/report.txt.zip",
+                    "simulated output open failure",
+                )
+                assertEquals(
+                    expectedMessage,
+                    activity.findViewById<android.widget.TextView>(R.id.status).text.toString(),
+                )
+                assertFalse(activity.findViewById<android.view.View>(R.id.createButton).isEnabled)
+                assertEquals(
+                    activity.getString(android.R.string.ok),
+                    activity.findViewById<android.widget.Button>(R.id.cancelButton).text.toString(),
+                )
+                assertEquals(
+                    "",
+                    activity.findViewById<android.widget.EditText>(R.id.password).text.toString(),
+                )
+                assertFalse(activity.isFinishing)
+            }
+            assertEquals(1, hostSession.prepareOutputCalls)
+            assertEquals(1, hostSession.abortCalls)
+            assertEquals(1, hostSession.closeCalls)
+
+            scenario.recreate()
+
+            scenario.onActivity { activity ->
+                assertEquals(
+                    expectedMessage,
+                    activity.findViewById<android.widget.TextView>(R.id.status).text.toString(),
+                )
+                assertFalse(activity.findViewById<android.view.View>(R.id.createButton).isEnabled)
+                assertEquals(
+                    activity.getString(android.R.string.ok),
+                    activity.findViewById<android.widget.Button>(R.id.cancelButton).text.toString(),
+                )
+            }
+            assertEquals(1, hostSession.prepareOutputCalls)
+            assertEquals(1, hostSession.abortCalls)
+            assertEquals(2, hostSession.closeCalls)
+        }
+    }
+
     private fun selectFormat(
         view: android.widget.AutoCompleteTextView,
         position: Int,
@@ -336,6 +398,69 @@ class CreateArchiveActivityInstrumentationTest {
         override fun abortOutput(transactionId: String) = Unit
 
         override fun close() = Unit
+    }
+
+    private class RollbackFailingHostSession : IExplorerActionHostSession.Stub() {
+        private val transactionId = UUID.randomUUID().toString()
+        var prepareOutputCalls = 0
+            private set
+        var abortCalls = 0
+            private set
+        var closeCalls = 0
+            private set
+        val abortAttempt = CountDownLatch(1)
+
+        override fun listChildren(
+            targetId: String,
+            relativePath: String,
+            offset: Int,
+            limit: Int,
+        ): Bundle = error("Directory access is not expected")
+
+        override fun openFile(
+            targetId: String,
+            relativePath: String,
+        ): ParcelFileDescriptor = error("Source access is not expected")
+
+        override fun prepareOutput(
+            displayName: String,
+            mimeType: String,
+            conflictPolicy: Int,
+        ): Bundle {
+            prepareOutputCalls++
+            assertEquals("report.txt.zip", displayName)
+            assertEquals(ArchiveFormat.ZIP.primaryMimeType, mimeType)
+            assertEquals(
+                ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME,
+                conflictPolicy,
+            )
+            return Bundle().apply {
+                putString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID, transactionId)
+                putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME, displayName)
+                putString(
+                    ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH,
+                    "/Documents/report.txt.zip",
+                )
+            }
+        }
+
+        override fun openOutput(transactionId: String): ParcelFileDescriptor {
+            assertEquals(this.transactionId, transactionId)
+            throw IOException("simulated output open failure")
+        }
+
+        override fun commitOutput(transactionId: String): Bundle = error("Commit is not expected")
+
+        override fun abortOutput(transactionId: String) {
+            assertEquals(this.transactionId, transactionId)
+            abortCalls++
+            abortAttempt.countDown()
+            throw SecurityException("simulated output cleanup denial")
+        }
+
+        override fun close() {
+            closeCalls++
+        }
     }
 
     private companion object {

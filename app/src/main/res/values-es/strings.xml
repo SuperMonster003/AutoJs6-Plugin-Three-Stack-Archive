@@ -56,6 +56,7 @@
     <string name="text_unsupported_entry_type">No se puede extraer el tipo de entrada %1$s</string>
     <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
     <string name="error_compression_failed">Error de compresión</string>
+    <string name="error_compression_cleanup_unconfirmed">La compresión falló y no se pudo confirmar la limpieza de la salida temporal. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %1$s\nMotivo original: %2$s</string>
     <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>
     <string name="text_advanced_compression_pending">Los volúmenes divididos, el cifrado de nombres, los archivos separados y la eliminación de fuentes permanecen desactivados hasta que estén disponibles sus sistemas transaccionales.</string>
     <string name="text_archive_file_name">Nombre del archivo</string>
