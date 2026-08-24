@@ -25,12 +25,28 @@
         <item quantity="other">تم تحديد %1$d عنصر</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="zero">جار ضغط %1$s\nتمت معالجة %2$d ملفات، تمت قراءة %3$s</item>
-        <item quantity="one">جار ضغط %1$s\nتمت معالجة %2$d ملف، تمت قراءة %3$s</item>
-        <item quantity="two">جار ضغط %1$s\nتمت معالجة %2$d ملفين، تمت قراءة %3$s</item>
-        <item quantity="few">جار ضغط %1$s\nتمت معالجة %2$d ملفات، تمت قراءة %3$s</item>
-        <item quantity="many">جار ضغط %1$s\nتمت معالجة %2$d ملفا، تمت قراءة %3$s</item>
-        <item quantity="other">جار ضغط %1$s\nتمت معالجة %2$d ملف، تمت قراءة %3$s</item>
+        <item quantity="zero">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
+        <item quantity="one">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
+        <item quantity="two">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
+        <item quantity="few">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
+        <item quantity="many">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
+        <item quantity="other">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="zero">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
+        <item quantity="one">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
+        <item quantity="two">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
+        <item quantity="few">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
+        <item quantity="many">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
+        <item quantity="other">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="zero">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="one">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="two">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="few">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="many">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="other">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="zero">تم استخراج %1$d ملف إلى %2$s</item>

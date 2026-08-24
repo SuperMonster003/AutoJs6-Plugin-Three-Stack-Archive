@@ -19,10 +19,22 @@
         <item quantity="other">Выбрано %1$d элемента</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="one">Сжатие %1$s\nФайл: %2$d, прочитано: %3$s</item>
-        <item quantity="few">Сжатие %1$s\nФайла: %2$d, прочитано: %3$s</item>
-        <item quantity="many">Сжатие %1$s\nФайлов: %2$d, прочитано: %3$s</item>
-        <item quantity="other">Сжатие %1$s\nФайла: %2$d, прочитано: %3$s</item>
+        <item quantity="one">Сжатие %1$s\nФайл: %2$d/%3$d, прочитано: %4$s/%5$s</item>
+        <item quantity="few">Сжатие %1$s\nФайла: %2$d/%3$d, прочитано: %4$s/%5$s</item>
+        <item quantity="many">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s/%5$s</item>
+        <item quantity="other">Сжатие %1$s\nФайла: %2$d/%3$d, прочитано: %4$s/%5$s</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="one">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s; файлов с неизвестным размером: %5$d</item>
+        <item quantity="few">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s; файлов с неизвестным размером: %5$d</item>
+        <item quantity="many">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s; файлов с неизвестным размером: %5$d</item>
+        <item quantity="other">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s; файлов с неизвестным размером: %5$d</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Сканирование %1$s\nНайден %2$d файл; папок: %3$d</item>
+        <item quantity="few">Сканирование %1$s\nНайдено %2$d файла; папок: %3$d</item>
+        <item quantity="many">Сканирование %1$s\nНайдено %2$d файлов; папок: %3$d</item>
+        <item quantity="other">Сканирование %1$s\nНайдено %2$d файла; папок: %3$d</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Извлечен %1$d файл, каталог: %2$s</item>

@@ -16,9 +16,19 @@
         <item quantity="other">%1$d éléments sélectionnés</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="one">Compression de %1$s\n%2$d fichier, %3$s lu</item>
-        <item quantity="many">Compression de %1$s\n%2$d fichiers, %3$s lus</item>
-        <item quantity="other">Compression de %1$s\n%2$d fichiers, %3$s lus</item>
+        <item quantity="one">Compression de %1$s\n%2$d/%3$d fichier, %4$s/%5$s lus</item>
+        <item quantity="many">Compression de %1$s\n%2$d/%3$d fichiers, %4$s/%5$s lus</item>
+        <item quantity="other">Compression de %1$s\n%2$d/%3$d fichiers, %4$s/%5$s lus</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="one">Compression de %1$s\nFichiers : %2$d/%3$d, %4$s lus ; taille inconnue : %5$d</item>
+        <item quantity="many">Compression de %1$s\nFichiers : %2$d/%3$d, %4$s lus ; tailles inconnues : %5$d</item>
+        <item quantity="other">Compression de %1$s\nFichiers : %2$d/%3$d, %4$s lus ; tailles inconnues : %5$d</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Analyse de %1$s\n%2$d fichier trouvé ; dossiers : %3$d</item>
+        <item quantity="many">Analyse de %1$s\n%2$d fichiers trouvés ; dossiers : %3$d</item>
+        <item quantity="other">Analyse de %1$s\n%2$d fichiers trouvés ; dossiers : %3$d</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">%1$d fichier extrait vers %2$s</item>

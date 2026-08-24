@@ -201,12 +201,45 @@ internal class ArchiveOutputNameUnavailableException(
     cause: IllegalArgumentException,
 ) : IllegalStateException("The exact archive output name is unavailable", cause)
 
+internal enum class ArchiveCreationPhase {
+    SCANNING,
+    COMPRESSING,
+    COMMITTING,
+}
+
+/**
+ * A format-neutral creation update.
+ *
+ * During [ArchiveCreationPhase.SCANNING], completed counts mean discovered source entries. Once
+ * scanning finishes, total counts and source-size metadata remain fixed for the rest of the task.
+ * Unknown-sized files are reported separately so the UI never presents a partial byte total as an
+ * exact value.
+ */
 internal data class ArchiveCreationProgress(
-    val currentEntry: String,
+    val phase: ArchiveCreationPhase,
+    val currentEntry: String?,
     val completedFiles: Long,
     val completedDirectories: Long,
     val sourceBytesRead: Long,
-)
+    val totalFiles: Long,
+    val totalDirectories: Long,
+    val knownSourceBytes: Long,
+    val unknownSizeFiles: Long,
+) {
+    init {
+        require(completedFiles >= 0L)
+        require(completedDirectories >= 0L)
+        require(sourceBytesRead >= 0L)
+        require(totalFiles >= 0L)
+        require(totalDirectories >= 0L)
+        require(knownSourceBytes >= 0L)
+        require(unknownSizeFiles in 0L..totalFiles)
+        if (phase != ArchiveCreationPhase.SCANNING) {
+            require(completedFiles <= totalFiles)
+            require(completedDirectories <= totalDirectories)
+        }
+    }
+}
 
 internal data class ArchiveCreationResult(
     val outputDisplayName: String,

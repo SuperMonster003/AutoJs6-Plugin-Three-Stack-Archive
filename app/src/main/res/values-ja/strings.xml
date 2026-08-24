@@ -80,6 +80,8 @@
     <string name="text_password">パスワード</string>
     <string name="text_confirm_password">パスワードの確認</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">圧縮を準備中...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">圧縮元をスキャン中...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">アーカイブを確定中...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">展開を準備中...</string>
     <string name="text_split_unavailable_for_format">%1$s では分割出力を利用できません.</string>
     <string name="text_split_volume">分割サイズ (MiB)</string>

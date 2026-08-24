@@ -13,8 +13,16 @@
         <item quantity="other">%1$d selected items</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="one">Compressing %1$s\n%2$d file, %3$s read</item>
-        <item quantity="other">Compressing %1$s\n%2$d files, %3$s read</item>
+        <item quantity="one">Compressing %1$s\n%2$d/%3$d file, %4$s/%5$s read</item>
+        <item quantity="other">Compressing %1$s\n%2$d/%3$d files, %4$s/%5$s read</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="one">Compressing %1$s\nFiles: %2$d/%3$d, %4$s read; %5$d file has unknown size</item>
+        <item quantity="other">Compressing %1$s\nFiles: %2$d/%3$d, %4$s read; %5$d files have unknown sizes</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Scanning %1$s\n%2$d file found; folders: %3$d</item>
+        <item quantity="other">Scanning %1$s\n%2$d files found; folders: %3$d</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Extracted %1$d file to %2$s</item>

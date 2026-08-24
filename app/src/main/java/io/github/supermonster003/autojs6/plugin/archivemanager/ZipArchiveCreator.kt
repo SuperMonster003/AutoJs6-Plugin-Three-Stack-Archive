@@ -38,23 +38,34 @@ internal class ZipArchiveCreator(
         )
         var passwordChars: CharArray? = null
         try {
+            checkCancelled()
             val completed = session.writeArchiveOutput(
                 outputDisplayName = outputName,
                 format = format,
                 conflictPolicy = options.conflictPolicy,
-            ) { descriptor ->
-                passwordChars = options.password
-                    ?.takeIf(CharArray::isNotEmpty)
-                    ?.clone()
-                writeArchive(
-                    descriptor = descriptor,
-                    targets = request.targets,
-                    compressionLevel = compressionLevel,
-                    password = passwordChars,
-                    checkCancelled = checkCancelled,
-                    progress = progress,
-                ).also { checkCancelled() }
-            }
+                prepareAfterReservation = {
+                    progress.reportScanStarted()
+                    sourceWalker.scan(request.targets, checkCancelled, progress::reportScan)
+                },
+                write = { descriptor, manifest ->
+                    passwordChars = options.password
+                        ?.takeIf(CharArray::isNotEmpty)
+                        ?.clone()
+                    writeArchive(
+                        descriptor = descriptor,
+                        manifest = manifest,
+                        compressionLevel = compressionLevel,
+                        password = passwordChars,
+                        checkCancelled = checkCancelled,
+                        progress = progress,
+                    ).also { checkCancelled() }
+                },
+                beforeCommit = { manifest, counters ->
+                    checkCancelled()
+                    progress.reportCommitting(manifest, counters)
+                    checkCancelled()
+                },
+            )
             val counters = completed.value
             val committed = completed.transaction
             return ArchiveCreationResult(
@@ -71,18 +82,22 @@ internal class ZipArchiveCreator(
 
     private fun writeArchive(
         descriptor: ParcelFileDescriptor,
-        targets: List<ArchiveCompressionTarget>,
+        manifest: ArchiveSourceManifest,
         compressionLevel: Int,
         password: CharArray?,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
-    ): Counters {
-        val counters = Counters()
+    ): ArchiveCreationCounters {
+        val counters = ArchiveCreationCounters()
+        progress.reportCompression(manifest, counters, currentEntry = null)
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
             ZipOutputStream(BufferedOutputStream(rawOutput, BUFFER_SIZE), password).use { zipOutput ->
-                sourceWalker.walk(targets, checkCancelled) { item ->
+                manifest.entries.forEach { item ->
+                    checkCancelled()
+                    progress.reportCompression(manifest, counters, item.archivePath)
                     processSource(
                         item = item,
+                        manifest = manifest,
                         zipOutput = zipOutput,
                         counters = counters,
                         compressionLevel = compressionLevel,
@@ -98,8 +113,9 @@ internal class ZipArchiveCreator(
 
     private fun processSource(
         item: ArchiveSourceEntry,
+        manifest: ArchiveSourceManifest,
         zipOutput: ZipOutputStream,
-        counters: Counters,
+        counters: ArchiveCreationCounters,
         compressionLevel: Int,
         encryptFiles: Boolean,
         checkCancelled: () -> Unit,
@@ -118,7 +134,7 @@ internal class ZipArchiveCreator(
                 )
                 zipOutput.closeEntry()
                 counters.directories++
-                progress.report(item.archivePath, counters)
+                progress.reportCompression(manifest, counters, item.archivePath)
             }
             ExplorerActionValues.TARGET_FILE -> {
                 zipOutput.putNextEntry(
@@ -136,11 +152,12 @@ internal class ZipArchiveCreator(
                     checkCancelled = checkCancelled,
                     onBytesWritten = { count ->
                         counters.bytesRead = Math.addExact(counters.bytesRead, count.toLong())
+                        progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
                 zipOutput.closeEntry()
                 counters.files++
-                progress.report(item.archivePath, counters)
+                progress.reportCompression(manifest, counters, item.archivePath)
             }
             else -> error("Host returned an unsupported source kind")
         }
@@ -162,23 +179,6 @@ internal class ZipArchiveCreator(
             aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
         }
     }
-
-    private fun ArchiveCreationProgressListener.report(entryPath: String, counters: Counters) {
-        onProgress(
-            ArchiveCreationProgress(
-                currentEntry = entryPath,
-                completedFiles = counters.files,
-                completedDirectories = counters.directories,
-                sourceBytesRead = counters.bytesRead,
-            ),
-        )
-    }
-
-    private data class Counters(
-        var files: Long = 0,
-        var directories: Long = 0,
-        var bytesRead: Long = 0L,
-    )
 
     private companion object {
         const val BUFFER_SIZE = 64 * 1024

@@ -90,11 +90,13 @@ internal data class CommittedArchiveOutput<T>(
  * Once preparation succeeds, every non-committed path asks the host to abort exactly once. A
  * failed abort becomes a typed cleanup failure instead of disappearing in a suppressed exception.
  */
-internal fun <T> ExplorerActionHostSessionClient.writeArchiveOutput(
+internal fun <Preparation, T> ExplorerActionHostSessionClient.writeArchiveOutput(
     outputDisplayName: String,
     format: ArchiveFormat,
     conflictPolicy: ArchiveCreationConflictPolicy,
-    write: (ParcelFileDescriptor) -> T,
+    prepareAfterReservation: () -> Preparation,
+    write: (ParcelFileDescriptor, Preparation) -> T,
+    beforeCommit: (Preparation, T) -> Unit,
 ): CommittedArchiveOutput<T> {
     val prepared = try {
         prepareOutput(outputDisplayName, format, conflictPolicy)
@@ -110,6 +112,10 @@ internal fun <T> ExplorerActionHostSessionClient.writeArchiveOutput(
     }
 
     try {
+        // Source planning deliberately follows output-name reservation. In ASK mode this preserves
+        // the contract that an unavailable exact name fails without touching any source target.
+        // It still precedes opening the output descriptor, so planning never writes archive bytes.
+        val preparation = prepareAfterReservation()
         val descriptor = runCreationOutputOperation(
             operation = ArchiveCreationOutputOperation.OPEN,
             outputDisplayName = prepared.displayName,
@@ -122,8 +128,9 @@ internal fun <T> ExplorerActionHostSessionClient.writeArchiveOutput(
             outputDisplayName = prepared.displayName,
             format = format,
         ) {
-            descriptor.use(write)
+            descriptor.use { write(it, preparation) }
         }
+        beforeCommit(preparation, value)
         val committed = runCreationOutputOperation(
             operation = ArchiveCreationOutputOperation.COMMIT,
             outputDisplayName = prepared.displayName,

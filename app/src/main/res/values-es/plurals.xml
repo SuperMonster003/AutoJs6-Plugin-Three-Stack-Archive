@@ -16,9 +16,19 @@
         <item quantity="other">%1$d elementos seleccionados</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="one">Comprimiendo %1$s\n%2$d archivo, %3$s leído</item>
-        <item quantity="many">Comprimiendo %1$s\n%2$d archivos, %3$s leídos</item>
-        <item quantity="other">Comprimiendo %1$s\n%2$d archivos, %3$s leídos</item>
+        <item quantity="one">Comprimiendo %1$s\n%2$d/%3$d archivo, %4$s/%5$s leídos</item>
+        <item quantity="many">Comprimiendo %1$s\n%2$d/%3$d archivos, %4$s/%5$s leídos</item>
+        <item quantity="other">Comprimiendo %1$s\n%2$d/%3$d archivos, %4$s/%5$s leídos</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="one">Comprimiendo %1$s\nArchivos: %2$d/%3$d, %4$s leídos; %5$d archivo con tamaño desconocido</item>
+        <item quantity="many">Comprimiendo %1$s\nArchivos: %2$d/%3$d, %4$s leídos; %5$d archivos con tamaño desconocido</item>
+        <item quantity="other">Comprimiendo %1$s\nArchivos: %2$d/%3$d, %4$s leídos; %5$d archivos con tamaño desconocido</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Analizando %1$s\n%2$d archivo encontrado; carpetas: %3$d</item>
+        <item quantity="many">Analizando %1$s\n%2$d archivos encontrados; carpetas: %3$d</item>
+        <item quantity="other">Analizando %1$s\n%2$d archivos encontrados; carpetas: %3$d</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Se extrajo %1$d archivo en %2$s</item>

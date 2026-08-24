@@ -80,6 +80,8 @@
     <string name="text_password">Contraseña</string>
     <string name="text_confirm_password">Confirmar contraseña</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Analizando los elementos de origen...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Confirmando el archivo...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparando la extracción...</string>
     <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
     <string name="text_split_volume">Tamaño del volumen (MiB)</string>

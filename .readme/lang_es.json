@@ -31,7 +31,7 @@
     "Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.",
     "Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.",
     "Crear ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con nombre configurable y solo los niveles y opciones de contraseña que admita el formato elegido.",
-    "Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; elegir numeración automática o probar el nombre exacto y preguntar antes de reintentar con un número, sin sobrescribir archivos existentes. Un fallo cancela la transacción; si el host no puede confirmar la limpieza de la salida temporal, el formulario muestra la ruta prevista e impide otro intento."
+    "Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; elegir numeración automática o probar el nombre exacto y preguntar antes de reintentar con un número, sin sobrescribir archivos existentes. Tras reservar el nombre, se analiza una instantánea acotada del origen antes de abrir la salida temporal; el formulario distingue análisis, compresión y confirmación, y muestra el total de archivos, los bytes leídos y los tamaños desconocidos. Un fallo cancela la transacción; si el host no puede confirmar la limpieza de la salida temporal, el formulario muestra la ruta prevista e impide otro intento."
   ],
   "h3_supported_formats": "Formatos actuales",
   "p_supported_formats": "La versión actual reconoce estas extensiones explorables y extraíbles",

@@ -92,6 +92,8 @@
     <string name="text_password_applied">Password applied. You can update it at any time.</string>
     <string name="text_password_needed_for_encrypted_entries">Enter a password to open and extract encrypted entries.</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparing compression...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Scanning source items...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Committing archive...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparing extraction...</string>
     <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
     <string name="text_split_volume">Split volume (MiB)</string>

@@ -31,7 +31,7 @@
     "Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.",
     "Offer Compress... for ordinary files, folders, and same-parent multi-selections.",
     "Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST with a configurable name and only the compression levels and password options supported by the selected format.",
-    "Write to a same-directory temporary file and commit atomically; choose automatic numbering or try the exact name and decide before a numbered retry, without overwriting existing files. Failed creation aborts the transaction; if the host cannot confirm temporary-output cleanup, the form shows the intended path and prevents another attempt."
+    "Write to a same-directory temporary file and commit atomically; choose automatic numbering or try the exact name and decide before a numbered retry, without overwriting existing files. After name reservation, the sources are scanned into a bounded snapshot before temporary output is opened; the form distinguishes scanning, compression, and commit while showing total files, bytes read, and unknown-size files. Failed creation aborts the transaction; if the host cannot confirm temporary-output cleanup, the form shows the intended path and prevents another attempt."
   ],
   "h3_supported_formats": "Current formats",
   "p_supported_formats": "The current release recognizes these browsable and extractable extensions",

@@ -80,6 +80,8 @@
     <string name="text_password">Пароль</string>
     <string name="text_confirm_password">Подтвердите пароль</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Сканирование исходных элементов...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Фиксация архива...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Подготовка к извлечению...</string>
     <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
     <string name="text_split_volume">Размер тома (MiB)</string>

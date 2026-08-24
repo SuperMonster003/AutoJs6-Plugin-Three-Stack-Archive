@@ -31,7 +31,7 @@
     "Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.",
     "Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.",
     "Créer des ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec un nom configurable et seulement les niveaux et options de mot de passe réellement pris en charge par le format choisi.",
-    "Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; choisir la numérotation automatique ou essayer le nom exact et demander avant de réessayer avec un numéro, sans écraser les fichiers existants. Un échec annule la transaction ; si l'hôte ne peut pas confirmer le nettoyage de la sortie temporaire, le formulaire affiche le chemin prévu et interdit une nouvelle tentative."
+    "Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; choisir la numérotation automatique ou essayer le nom exact et demander avant de réessayer avec un numéro, sans écraser les fichiers existants. Après réservation du nom, un instantané source borné est analysé avant l'ouverture de la sortie temporaire ; le formulaire distingue analyse, compression et validation, avec le total des fichiers, les octets lus et les tailles inconnues. Un échec annule la transaction ; si l'hôte ne peut pas confirmer le nettoyage de la sortie temporaire, le formulaire affiche le chemin prévu et interdit une nouvelle tentative."
   ],
   "h3_supported_formats": "Formats actuels",
   "p_supported_formats": "La version actuelle reconnaît les extensions consultables et extractibles suivantes",

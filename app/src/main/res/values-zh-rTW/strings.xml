@@ -78,6 +78,8 @@
     <string name="text_password">密碼</string>
     <string name="text_confirm_password">確認密碼</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在準備壓縮...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">正在掃描來源項目...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">正在提交壓縮檔案...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在準備解壓縮...</string>
     <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分割檔輸出.</string>
     <string name="text_split_volume">分割檔大小 (MiB)</string>

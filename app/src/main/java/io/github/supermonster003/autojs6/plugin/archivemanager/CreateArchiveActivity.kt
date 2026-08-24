@@ -27,6 +27,7 @@ class CreateArchiveActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateArchiveBinding
     private var request: ArchiveCompressionRequest? = null
     private var operationJob: Job? = null
+    private var creationAttemptId = 0L
     private val archiveEngine = ArchiveEngine.DEFAULT
     private var selectedFormat = ArchiveFormat.ZIP
     private var compressionLevel = ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
@@ -232,6 +233,7 @@ class CreateArchiveActivity : AppCompatActivity() {
             getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
         setBusy(true, getString(R.string.text_preparing_compression))
+        val attemptId = ++creationAttemptId
 
         operationJob = lifecycleScope.launch {
             var unavailableName: ArchiveOutputNameUnavailableException? = null
@@ -239,6 +241,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                 val result = withContext(Dispatchers.IO) {
                     val cancellationContext = currentCoroutineContext()
                     var lastUiUpdateNanos = 0L
+                    var lastUiPhase: ArchiveCreationPhase? = null
                     archiveEngine.createWriter(selectedFormat, resolvedRequest.hostSession).create(
                         request = resolvedRequest,
                         options = ArchiveCreationOptions(
@@ -250,26 +253,22 @@ class CreateArchiveActivity : AppCompatActivity() {
                         checkCancelled = { cancellationContext.ensureActive() },
                         progress = ArchiveCreationProgressListener { update ->
                             val now = System.nanoTime()
+                            val phaseChanged = update.phase != lastUiPhase
                             if (
-                                now - lastUiUpdateNanos >= UI_PROGRESS_INTERVAL_NANOS ||
-                                update.completedFiles == 0L
+                                phaseChanged ||
+                                now - lastUiUpdateNanos >= UI_PROGRESS_INTERVAL_NANOS
                             ) {
                                 lastUiUpdateNanos = now
+                                lastUiPhase = update.phase
                                 runOnUiThread {
-                                    if (!isFinishing && !isDestroyed) {
-                                        val completedFilesForRules = update.completedFiles
-                                            .coerceAtMost(Int.MAX_VALUE.toLong())
-                                            .toInt()
-                                        binding.status.text = resources.getQuantityString(
-                                            R.plurals.text_compressing_progress,
-                                            completedFilesForRules,
-                                            update.currentEntry,
-                                            update.completedFiles,
-                                            Formatter.formatShortFileSize(
-                                                this@CreateArchiveActivity,
-                                                update.sourceBytesRead,
-                                            ),
-                                        )
+                                    if (
+                                        !isFinishing &&
+                                        !isDestroyed &&
+                                        attemptId == creationAttemptId &&
+                                        operationJob?.isActive == true &&
+                                        terminalFailureMessage == null
+                                    ) {
+                                        renderCreationProgress(update)
                                     }
                                 }
                             }
@@ -320,11 +319,66 @@ class CreateArchiveActivity : AppCompatActivity() {
                 }
             } finally {
                 password.fill('\u0000')
-                operationJob = null
+                if (attemptId == creationAttemptId) {
+                    operationJob = null
+                }
             }
             unavailableName?.let(::showUnavailableNameDialog)
         }
     }
+
+    internal fun renderCreationProgress(update: ArchiveCreationProgress) {
+        binding.status.text = when (update.phase) {
+            ArchiveCreationPhase.SCANNING -> renderScanningProgress(update)
+            ArchiveCreationPhase.COMPRESSING -> renderCompressingProgress(update)
+            ArchiveCreationPhase.COMMITTING -> getString(R.string.text_committing_archive)
+        }
+    }
+
+    private fun renderScanningProgress(update: ArchiveCreationProgress): String {
+        val currentEntry = update.currentEntry ?: return getString(
+            R.string.text_scanning_compression_sources,
+        )
+        val filesForRules = update.completedFiles.toQuantityRuleInt()
+        return resources.getQuantityString(
+            R.plurals.text_scanning_compression_progress,
+            filesForRules,
+            ArchivePathPolicy.unsafeSourceNameForDisplay(currentEntry),
+            update.completedFiles,
+            update.completedDirectories,
+        )
+    }
+
+    private fun renderCompressingProgress(update: ArchiveCreationProgress): String {
+        val currentEntry = update.currentEntry ?: return getString(
+            R.string.text_preparing_compression,
+        )
+        val safeCurrentEntry = ArchivePathPolicy.unsafeSourceNameForDisplay(currentEntry)
+        val bytesRead = Formatter.formatShortFileSize(this, update.sourceBytesRead)
+        return if (update.unknownSizeFiles == 0L) {
+            resources.getQuantityString(
+                R.plurals.text_compressing_progress,
+                update.totalFiles.toQuantityRuleInt(),
+                safeCurrentEntry,
+                update.completedFiles,
+                update.totalFiles,
+                bytesRead,
+                Formatter.formatShortFileSize(this, update.knownSourceBytes),
+            )
+        } else {
+            resources.getQuantityString(
+                R.plurals.text_compressing_progress_unknown_sizes,
+                update.unknownSizeFiles.toQuantityRuleInt(),
+                safeCurrentEntry,
+                update.completedFiles,
+                update.totalFiles,
+                bytesRead,
+                update.unknownSizeFiles,
+            )
+        }
+    }
+
+    private fun Long.toQuantityRuleInt(): Int = coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
 
     private fun selectConflictPolicy(policy: ArchiveCreationConflictPolicy) = with(binding) {
         selectedConflictPolicy = policy

@@ -10,7 +10,13 @@
         <item quantity="other">已選取 %1$d 個項目</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="other">正在壓縮 %1$s\n已處理 %2$d 個檔案, 已讀取 %3$s</item>
+        <item quantity="other">正在壓縮 %1$s\n檔案 %2$d/%3$d, 已讀取 %4$s/%5$s</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="other">正在壓縮 %1$s\n檔案 %2$d/%3$d, 已讀取 %4$s, %5$d 個檔案大小不明</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="other">正在掃描 %1$s\n已找到 %2$d 個檔案和 %3$d 個資料夾</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">已解壓縮 %1$d 個檔案至 %2$s</item>

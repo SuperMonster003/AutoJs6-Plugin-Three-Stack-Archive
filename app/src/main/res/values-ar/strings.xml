@@ -80,6 +80,8 @@
     <string name="text_password">كلمة المرور</string>
     <string name="text_confirm_password">تأكيد كلمة المرور</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">جار التحضير للضغط...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">جار فحص عناصر المصدر...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">جار اعتماد الأرشيف...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">جار تحضير الاستخراج...</string>
     <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
     <string name="text_split_volume">حجم الجزء (MiB)</string>

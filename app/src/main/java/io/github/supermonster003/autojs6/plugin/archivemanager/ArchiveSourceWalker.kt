@@ -5,6 +5,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionValues
 import java.io.BufferedInputStream
 import java.io.OutputStream
 import java.util.ArrayDeque
+import java.util.Collections
 import java.util.HashSet
 import java.util.concurrent.CancellationException
 
@@ -20,6 +21,33 @@ internal data class ArchiveSourceEntry(
         get() = kind == ExplorerActionValues.TARGET_DIRECTORY
 }
 
+/** A bounded, immutable snapshot of the host source tree used by one creation transaction. */
+internal class ArchiveSourceManifest(
+    entries: List<ArchiveSourceEntry>,
+    val fileCount: Long,
+    val directoryCount: Long,
+    val knownSourceBytes: Long,
+    val unknownSizeFileCount: Long,
+) {
+    val entries: List<ArchiveSourceEntry> = Collections.unmodifiableList(ArrayList(entries))
+
+    init {
+        require(fileCount >= 0L)
+        require(directoryCount >= 0L)
+        require(knownSourceBytes >= 0L)
+        require(unknownSizeFileCount in 0L..fileCount)
+        require(entries.size.toLong() == fileCount + directoryCount)
+    }
+}
+
+internal data class ArchiveSourceScanProgress(
+    val currentEntry: String,
+    val discoveredFiles: Long,
+    val discoveredDirectories: Long,
+    val knownSourceBytes: Long,
+    val unknownSizeFiles: Long,
+)
+
 /**
  * Traverses the host-owned source tree without following symbolic links.
  *
@@ -28,13 +56,22 @@ internal data class ArchiveSourceEntry(
  */
 internal class ArchiveSourceWalker(
     private val session: ExplorerActionHostSessionClient,
+    private val maxEntries: Int = ArchiveStructureLimits.DEFAULT.maxEntries,
+    private val maxDepth: Int = ArchiveStructureLimits.DEFAULT.maxDepth,
+    private val maxPathCharacters: Long = MAX_MANIFEST_PATH_CHARACTERS,
 ) {
 
-    fun walk(
+    init {
+        require(maxEntries in 1..ArchiveStructureLimits.DEFAULT.maxEntries)
+        require(maxDepth in 1..ArchiveStructureLimits.DEFAULT.maxDepth)
+        require(maxPathCharacters in 1L..MAX_MANIFEST_PATH_CHARACTERS)
+    }
+
+    fun scan(
         targets: List<ArchiveCompressionTarget>,
         checkCancelled: () -> Unit,
-        visit: (ArchiveSourceEntry) -> Unit,
-    ) {
+        onProgress: (ArchiveSourceScanProgress) -> Unit,
+    ): ArchiveSourceManifest {
         val queue = ArrayDeque<WorkItem>()
         targets.forEach { target ->
             queue.addLast(
@@ -42,9 +79,7 @@ internal class ArchiveSourceWalker(
                     entry = ArchiveSourceEntry(
                         targetId = target.id,
                         relativePath = "",
-                        archivePath = ArchiveCompressionPolicy.requirePortableEntrySegment(
-                            target.displayName,
-                        ),
+                        archivePath = portableEntrySegment(target.displayName),
                         kind = target.kind,
                         size = target.size,
                         lastModified = target.lastModified,
@@ -56,6 +91,12 @@ internal class ArchiveSourceWalker(
         }
 
         val visitedPaths = HashSet<String>()
+        val entries = ArrayList<ArchiveSourceEntry>()
+        var files = 0L
+        var directories = 0L
+        var knownSourceBytes = 0L
+        var unknownSizeFiles = 0L
+        var pathCharacters = 0L
         while (queue.isNotEmpty()) {
             checkCancelled()
             when (val item = queue.removeFirst()) {
@@ -78,9 +119,38 @@ internal class ArchiveSourceWalker(
                         throw ArchiveValidationException(
                             code = ArchiveFailureCode.DUPLICATE_PATH,
                             message = "Duplicate archive source path: ${entry.archivePath}",
+                            stage = ArchiveFailureStage.INPUT,
                         )
                     }
-                    visit(entry)
+                    if (entries.size >= maxEntries) {
+                        throw ArchiveValidationException(
+                            code = ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+                            message = "Archive source contains more than $maxEntries entries",
+                            stage = ArchiveFailureStage.INPUT,
+                        )
+                    }
+                    requireSupportedDepth(entry.archivePath)
+                    pathCharacters = addPathCharacters(pathCharacters, entry.archivePath.length)
+                    entries += entry
+                    if (entry.isDirectory) {
+                        directories++
+                    } else {
+                        files++
+                        if (entry.size >= 0L) {
+                            knownSourceBytes = addKnownSourceBytes(knownSourceBytes, entry.size)
+                        } else {
+                            unknownSizeFiles++
+                        }
+                    }
+                    onProgress(
+                        ArchiveSourceScanProgress(
+                            currentEntry = entry.archivePath,
+                            discoveredFiles = files,
+                            discoveredDirectories = directories,
+                            knownSourceBytes = knownSourceBytes,
+                            unknownSizeFiles = unknownSizeFiles,
+                        ),
+                    )
                     if (entry.isDirectory) {
                         queue.addFirst(
                             WorkItem.DirectoryPage(
@@ -96,6 +166,13 @@ internal class ArchiveSourceWalker(
                 is WorkItem.DirectoryPage -> enqueueDirectoryPage(item, queue, checkCancelled)
             }
         }
+        return ArchiveSourceManifest(
+            entries = entries,
+            fileCount = files,
+            directoryCount = directories,
+            knownSourceBytes = knownSourceBytes,
+            unknownSizeFileCount = unknownSizeFiles,
+        )
     }
 
     fun measureFile(
@@ -153,7 +230,11 @@ internal class ArchiveSourceWalker(
         checkCancelled: () -> Unit,
     ) {
         checkCancelled()
-        val page = session.listChildren(item.targetId, item.relativePath, item.offset)
+        val page = try {
+            session.listChildren(item.targetId, item.relativePath, item.offset)
+        } catch (error: Throwable) {
+            throw mapSourceMetadataFailure(item.archivePath, error)
+        }
         if (!page.complete) {
             queue.addFirst(item.copy(offset = page.nextOffset))
         }
@@ -167,17 +248,17 @@ internal class ArchiveSourceWalker(
                 throw ArchiveValidationException(
                     code = ArchiveFailureCode.INVALID_PATH,
                     message = "Host child path escapes the requested directory",
+                    stage = ArchiveFailureStage.INPUT,
                 )
             }
+            val archivePath = portableEntryPath(item.archivePath, child.displayName)
+            requireSupportedDepth(archivePath)
             queue.addFirst(
                 WorkItem.Source(
                     entry = ArchiveSourceEntry(
                         targetId = item.targetId,
                         relativePath = child.relativePath,
-                        archivePath = ArchiveCompressionPolicy.joinEntryPath(
-                            item.archivePath,
-                            child.displayName,
-                        ),
+                        archivePath = archivePath,
                         kind = child.kind,
                         size = child.size,
                         lastModified = child.lastModified,
@@ -188,6 +269,80 @@ internal class ArchiveSourceWalker(
             )
         }
     }
+
+    private fun portableEntrySegment(displayName: String): String = try {
+        ArchiveCompressionPolicy.requirePortableEntrySegment(displayName)
+    } catch (error: IllegalArgumentException) {
+        throw ArchiveValidationException(
+            code = ArchiveFailureCode.INVALID_PATH,
+            message = "Archive source name cannot be represented as a portable entry path",
+            cause = error,
+            stage = ArchiveFailureStage.INPUT,
+        )
+    }
+
+    private fun portableEntryPath(parent: String, displayName: String): String = try {
+        ArchiveCompressionPolicy.joinEntryPath(parent, displayName)
+    } catch (error: IllegalArgumentException) {
+        val code = if (error.message == "Archive entry path is too long") {
+            ArchiveFailureCode.PATH_LIMIT_EXCEEDED
+        } else {
+            ArchiveFailureCode.INVALID_PATH
+        }
+        throw ArchiveValidationException(
+            code = code,
+            message = "Archive source path cannot be represented safely",
+            cause = error,
+            stage = ArchiveFailureStage.INPUT,
+        )
+    }
+
+    private fun requireSupportedDepth(archivePath: String) {
+        val depth = archivePath.count { it == '/' } + 1
+        if (depth > maxDepth) {
+            throw ArchiveValidationException(
+                code = ArchiveFailureCode.DEPTH_LIMIT_EXCEEDED,
+                message = "Archive source exceeds the supported path depth",
+                stage = ArchiveFailureStage.INPUT,
+            )
+        }
+    }
+
+    private fun addKnownSourceBytes(current: Long, size: Long): Long = try {
+        Math.addExact(current, size)
+    } catch (error: ArithmeticException) {
+        throw ArchiveValidationException(
+            code = ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
+            message = "Archive source size exceeds the supported range",
+            cause = error,
+            stage = ArchiveFailureStage.INPUT,
+        )
+    }
+
+    private fun addPathCharacters(current: Long, pathLength: Int): Long {
+        val total = Math.addExact(current, pathLength.toLong())
+        if (total > maxPathCharacters) {
+            throw ArchiveValidationException(
+                code = ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
+                message = "Archive source paths exceed the supported in-memory range",
+                stage = ArchiveFailureStage.INPUT,
+            )
+        }
+        return total
+    }
+
+    private fun mapSourceMetadataFailure(archivePath: String, error: Throwable): Throwable =
+        when (error) {
+            is CancellationException,
+            is ArchiveException,
+            is Error,
+            -> error
+            else -> ArchiveCreationSourceException(
+                sourceArchivePath = archivePath,
+                message = "Archive source directory could not be read: $archivePath",
+                cause = error,
+            )
+        }
 
     private fun openFile(entry: ArchiveSourceEntry): BufferedInputStream = try {
         BufferedInputStream(
@@ -274,5 +429,6 @@ internal class ArchiveSourceWalker(
 
     private companion object {
         const val BUFFER_SIZE = 64 * 1_024
+        const val MAX_MANIFEST_PATH_CHARACTERS = 16L * 1_024L * 1_024L
     }
 }

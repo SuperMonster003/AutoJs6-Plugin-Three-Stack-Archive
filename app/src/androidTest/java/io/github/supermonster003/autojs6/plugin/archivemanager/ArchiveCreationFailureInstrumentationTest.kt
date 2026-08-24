@@ -20,6 +20,7 @@ import org.junit.runner.RunWith
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import java.util.concurrent.CancellationException
 
 @RunWith(AndroidJUnit4::class)
 class ArchiveCreationFailureInstrumentationTest {
@@ -122,9 +123,101 @@ class ArchiveCreationFailureInstrumentationTest {
             assertEquals(format.displayName, null, sourceError.cause)
             assertEquals(format.displayName, 0, session.sourceOpenCalls)
             assertTrue(format.displayName, session.listCalls > 0)
+            assertEquals(format.displayName, 0, session.outputOpenCalls)
             assertEquals(format.displayName, 0, session.commitCalls)
             assertEquals(format.displayName, 1, session.abortCalls)
             assertFalse(format.displayName, session.outputFile.exists())
+        }
+    }
+
+    @Test
+    fun everyWriterCancelsScanningBeforeOpeningOutputAndRollsBackTheReservation() {
+        val cacheDirectory = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
+        ArchiveEngine.DEFAULT.creatableFormats.forEach { format ->
+            val session = FailureHostSession(cacheDirectory, format, FailureMode.CANCEL_SCAN)
+            try {
+                val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+                org.junit.Assert.assertThrows(CancellationException::class.java) {
+                    writer.create(
+                        request = request(session, FailureMode.CANCEL_SCAN),
+                        options = ArchiveCreationOptions(
+                            outputDisplayName = session.outputDisplayName,
+                            compressionLevel = writer.formatCapabilities.compressionLevels.first(),
+                        ),
+                        checkCancelled = {
+                            if (session.listCalls > 0) {
+                                throw CancellationException("cancel source scan")
+                            }
+                        },
+                        progress = ArchiveCreationProgressListener {},
+                    )
+                }
+                assertEquals(format.displayName, 1, session.prepareCalls)
+                assertEquals(format.displayName, 1, session.listCalls)
+                assertEquals(format.displayName, 0, session.outputOpenCalls)
+                assertEquals(format.displayName, 0, session.sourceOpenCalls)
+                assertEquals(format.displayName, 0, session.commitCalls)
+                assertEquals(format.displayName, 1, session.abortCalls)
+                assertFalse(format.displayName, session.outputFile.exists())
+            } finally {
+                session.cleanup()
+            }
+        }
+    }
+
+    @Test
+    fun everyWriterUsesOneScannedManifestAndReportsMonotonicCreationPhases() {
+        val cacheDirectory = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
+        ArchiveEngine.DEFAULT.creatableFormats.forEach { format ->
+            val session = FailureHostSession(cacheDirectory, format, FailureMode.SUCCESS)
+            val updates = mutableListOf<ArchiveCreationProgress>()
+            try {
+                val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+                val result = writer.create(
+                    request = request(session, FailureMode.SUCCESS),
+                    options = ArchiveCreationOptions(
+                        outputDisplayName = session.outputDisplayName,
+                        compressionLevel = writer.formatCapabilities.compressionLevels.first(),
+                    ),
+                    checkCancelled = {},
+                    progress = ArchiveCreationProgressListener(updates::add),
+                )
+
+                assertEquals(format.displayName, 1L, result.filesCompressed)
+                assertEquals(format.displayName, 1L, result.directoriesAdded)
+                assertEquals(format.displayName, SOURCE_BYTES.size.toLong(), result.sourceBytesRead)
+                assertEquals(format.displayName, 1, session.listCalls)
+                assertTrue(
+                    format.displayName,
+                    session.operationLog.indexOf("list") < session.operationLog.indexOf("open-output"),
+                )
+                assertTrue(
+                    format.displayName,
+                    session.operationLog.indexOf("open-output") < session.operationLog.indexOf("open-source"),
+                )
+                assertEquals(
+                    format.displayName,
+                    listOf(
+                        ArchiveCreationPhase.SCANNING,
+                        ArchiveCreationPhase.COMPRESSING,
+                        ArchiveCreationPhase.COMMITTING,
+                    ),
+                    updates.map(ArchiveCreationProgress::phase).distinct(),
+                )
+                updates.filter { it.phase != ArchiveCreationPhase.SCANNING }.forEach { update ->
+                    assertEquals(format.displayName, 1L, update.totalFiles)
+                    assertEquals(format.displayName, 1L, update.totalDirectories)
+                    assertEquals(format.displayName, SOURCE_BYTES.size.toLong(), update.knownSourceBytes)
+                    assertEquals(format.displayName, 0L, update.unknownSizeFiles)
+                }
+                val committing = updates.last()
+                assertEquals(format.displayName, ArchiveCreationPhase.COMMITTING, committing.phase)
+                assertEquals(format.displayName, 1L, committing.completedFiles)
+                assertEquals(format.displayName, 1L, committing.completedDirectories)
+                assertEquals(format.displayName, SOURCE_BYTES.size.toLong(), committing.sourceBytesRead)
+            } finally {
+                session.cleanup()
+            }
         }
     }
 
@@ -165,6 +258,9 @@ class ArchiveCreationFailureInstrumentationTest {
         FailureMode.SOURCE_OPEN,
         FailureMode.UNREADABLE_CHILD,
         -> ArchiveCreationSourceException::class.java
+        FailureMode.CANCEL_SCAN,
+        FailureMode.SUCCESS,
+        -> error("Success and cancellation modes use dedicated test paths")
     }
 
     private fun Throwable.requireOutputFailure(
@@ -183,7 +279,9 @@ class ArchiveCreationFailureInstrumentationTest {
         session: IExplorerActionHostSession,
         mode: FailureMode,
     ): ArchiveCompressionRequest {
-        val directory = mode == FailureMode.UNREADABLE_CHILD
+        val directory = mode == FailureMode.UNREADABLE_CHILD ||
+            mode == FailureMode.CANCEL_SCAN ||
+            mode == FailureMode.SUCCESS
         return ArchiveCompressionRequest(
             requestId = UUID.randomUUID().toString(),
             parentUri = Uri.parse("content://host/root"),
@@ -215,6 +313,8 @@ class ArchiveCreationFailureInstrumentationTest {
         ROLLBACK,
         SOURCE_OPEN,
         UNREADABLE_CHILD,
+        CANCEL_SCAN,
+        SUCCESS,
     }
 
     private class FailureHostSession(
@@ -244,6 +344,7 @@ class ArchiveCreationFailureInstrumentationTest {
             private set
         var committed = false
             private set
+        val operationLog = mutableListOf<String>()
 
         override fun listChildren(
             targetId: String,
@@ -252,7 +353,12 @@ class ArchiveCreationFailureInstrumentationTest {
             limit: Int,
         ): Bundle {
             listCalls++
-            check(mode == FailureMode.UNREADABLE_CHILD)
+            operationLog += "list"
+            check(
+                mode == FailureMode.UNREADABLE_CHILD ||
+                    mode == FailureMode.CANCEL_SCAN ||
+                    mode == FailureMode.SUCCESS,
+            )
             check(targetId == "folder" && relativePath.isEmpty())
             val allItems = listOf(
                 Bundle().apply {
@@ -262,7 +368,10 @@ class ArchiveCreationFailureInstrumentationTest {
                     putString(ExplorerActionHostSessionKeys.MIME_TYPE, "text/plain")
                     putLong(ExplorerActionHostSessionKeys.SIZE, SOURCE_BYTES.size.toLong())
                     putLong(ExplorerActionHostSessionKeys.LAST_MODIFIED, 1_700_000_000_000L)
-                    putBoolean(ExplorerActionHostSessionKeys.READABLE, false)
+                    putBoolean(
+                        ExplorerActionHostSessionKeys.READABLE,
+                        mode != FailureMode.UNREADABLE_CHILD,
+                    )
                     putBoolean(ExplorerActionHostSessionKeys.SYMBOLIC_LINK, false)
                 },
             )
@@ -276,7 +385,12 @@ class ArchiveCreationFailureInstrumentationTest {
 
         override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor {
             sourceOpenCalls++
-            check(targetId == "source" && relativePath.isEmpty())
+            operationLog += "open-source"
+            if (mode == FailureMode.SUCCESS) {
+                check(targetId == "folder" && relativePath == "blocked.txt")
+            } else {
+                check(targetId == "source" && relativePath.isEmpty())
+            }
             if (mode == FailureMode.SOURCE_OPEN) {
                 throw IOException("simulated source permission failure")
             }
@@ -289,6 +403,7 @@ class ArchiveCreationFailureInstrumentationTest {
             conflictPolicy: Int,
         ): Bundle {
             prepareCalls++
+            operationLog += "prepare"
             assertEquals(outputDisplayName, displayName)
             assertEquals(format.primaryMimeType, mimeType)
             assertEquals(ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME, conflictPolicy)
@@ -301,6 +416,7 @@ class ArchiveCreationFailureInstrumentationTest {
 
         override fun openOutput(transactionId: String): ParcelFileDescriptor {
             outputOpenCalls++
+            operationLog += "open-output"
             assertEquals(this.transactionId, transactionId)
             if (mode == FailureMode.OPEN || mode == FailureMode.ROLLBACK) {
                 throw IOException("simulated output open failure")
@@ -315,6 +431,7 @@ class ArchiveCreationFailureInstrumentationTest {
 
         override fun commitOutput(transactionId: String): Bundle {
             commitCalls++
+            operationLog += "commit"
             assertEquals(this.transactionId, transactionId)
             if (mode == FailureMode.COMMIT) {
                 throw IOException("simulated output commit failure")
@@ -325,6 +442,7 @@ class ArchiveCreationFailureInstrumentationTest {
 
         override fun abortOutput(transactionId: String) {
             abortCalls++
+            operationLog += "abort"
             assertEquals(this.transactionId, transactionId)
             if (mode == FailureMode.ROLLBACK) {
                 throw SecurityException("simulated output cleanup denial")

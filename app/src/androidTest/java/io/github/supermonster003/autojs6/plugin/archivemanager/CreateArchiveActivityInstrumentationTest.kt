@@ -295,6 +295,129 @@ class CreateArchiveActivityInstrumentationTest {
         }
     }
 
+    @Test
+    fun creationProgressRendersScanningExactUnknownAndCommitPhases() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val status = activity.findViewById<android.widget.TextView>(R.id.status)
+
+                activity.renderCreationProgress(
+                    ArchiveCreationProgress(
+                        phase = ArchiveCreationPhase.SCANNING,
+                        currentEntry = null,
+                        completedFiles = 0L,
+                        completedDirectories = 0L,
+                        sourceBytesRead = 0L,
+                        totalFiles = 0L,
+                        totalDirectories = 0L,
+                        knownSourceBytes = 0L,
+                        unknownSizeFiles = 0L,
+                    ),
+                )
+                assertEquals(
+                    activity.getString(R.string.text_scanning_compression_sources),
+                    status.text.toString(),
+                )
+
+                activity.renderCreationProgress(
+                    ArchiveCreationProgress(
+                        phase = ArchiveCreationPhase.SCANNING,
+                        currentEntry = "folder/report.txt",
+                        completedFiles = 2L,
+                        completedDirectories = 1L,
+                        sourceBytesRead = 0L,
+                        totalFiles = 2L,
+                        totalDirectories = 1L,
+                        knownSourceBytes = 8L,
+                        unknownSizeFiles = 0L,
+                    ),
+                )
+                assertEquals(
+                    activity.resources.getQuantityString(
+                        R.plurals.text_scanning_compression_progress,
+                        2,
+                        "folder/report.txt",
+                        2L,
+                        1L,
+                    ),
+                    status.text.toString(),
+                )
+
+                activity.renderCreationProgress(
+                    ArchiveCreationProgress(
+                        phase = ArchiveCreationPhase.COMPRESSING,
+                        currentEntry = "folder/report.txt",
+                        completedFiles = 1L,
+                        completedDirectories = 1L,
+                        sourceBytesRead = 4L,
+                        totalFiles = 2L,
+                        totalDirectories = 1L,
+                        knownSourceBytes = 8L,
+                        unknownSizeFiles = 0L,
+                    ),
+                )
+                assertEquals(
+                    activity.resources.getQuantityString(
+                        R.plurals.text_compressing_progress,
+                        2,
+                        "folder/report.txt",
+                        1L,
+                        2L,
+                        android.text.format.Formatter.formatShortFileSize(activity, 4L),
+                        android.text.format.Formatter.formatShortFileSize(activity, 8L),
+                    ),
+                    status.text.toString(),
+                )
+
+                activity.renderCreationProgress(
+                    ArchiveCreationProgress(
+                        phase = ArchiveCreationPhase.COMPRESSING,
+                        currentEntry = "folder/stream.bin",
+                        completedFiles = 1L,
+                        completedDirectories = 1L,
+                        sourceBytesRead = 7L,
+                        totalFiles = 2L,
+                        totalDirectories = 1L,
+                        knownSourceBytes = 4L,
+                        unknownSizeFiles = 1L,
+                    ),
+                )
+                assertEquals(
+                    activity.resources.getQuantityString(
+                        R.plurals.text_compressing_progress_unknown_sizes,
+                        1,
+                        "folder/stream.bin",
+                        1L,
+                        2L,
+                        android.text.format.Formatter.formatShortFileSize(activity, 7L),
+                        1L,
+                    ),
+                    status.text.toString(),
+                )
+
+                activity.renderCreationProgress(
+                    ArchiveCreationProgress(
+                        phase = ArchiveCreationPhase.COMMITTING,
+                        currentEntry = null,
+                        completedFiles = 2L,
+                        completedDirectories = 1L,
+                        sourceBytesRead = 8L,
+                        totalFiles = 2L,
+                        totalDirectories = 1L,
+                        knownSourceBytes = 8L,
+                        unknownSizeFiles = 0L,
+                    ),
+                )
+                assertEquals(
+                    activity.getString(R.string.text_committing_archive),
+                    status.text.toString(),
+                )
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
     private fun selectFormat(
         view: android.widget.AutoCompleteTextView,
         position: Int,

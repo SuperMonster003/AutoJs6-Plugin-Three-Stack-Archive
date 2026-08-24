@@ -51,19 +51,30 @@ internal class TarArchiveCreator(
             "${format.displayName} does not support password encryption"
         }
 
+        checkCancelled()
         val completed = session.writeArchiveOutput(
             outputDisplayName = outputName,
             format = format,
             conflictPolicy = options.conflictPolicy,
-        ) { descriptor ->
-            writeArchive(
-                descriptor = descriptor,
-                targets = request.targets,
-                compressionLevel = compressionLevel,
-                checkCancelled = checkCancelled,
-                progress = progress,
-            ).also { checkCancelled() }
-        }
+            prepareAfterReservation = {
+                progress.reportScanStarted()
+                sourceWalker.scan(request.targets, checkCancelled, progress::reportScan)
+            },
+            write = { descriptor, manifest ->
+                writeArchive(
+                    descriptor = descriptor,
+                    manifest = manifest,
+                    compressionLevel = compressionLevel,
+                    checkCancelled = checkCancelled,
+                    progress = progress,
+                ).also { checkCancelled() }
+            },
+            beforeCommit = { manifest, counters ->
+                checkCancelled()
+                progress.reportCommitting(manifest, counters)
+                checkCancelled()
+            },
+        )
         val counters = completed.value
         val committed = completed.transaction
         return ArchiveCreationResult(
@@ -77,12 +88,13 @@ internal class TarArchiveCreator(
 
     private fun writeArchive(
         descriptor: ParcelFileDescriptor,
-        targets: List<ArchiveCompressionTarget>,
+        manifest: ArchiveSourceManifest,
         compressionLevel: Int,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
-    ): Counters {
-        val counters = Counters()
+    ): ArchiveCreationCounters {
+        val counters = ArchiveCreationCounters()
+        progress.reportCompression(manifest, counters, currentEntry = null)
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
             BufferedOutputStream(rawOutput, BUFFER_SIZE).use { bufferedOutput ->
                 val containerOutput = compressedOutput(bufferedOutput, compressionLevel)
@@ -90,8 +102,17 @@ internal class TarArchiveCreator(
                     tarOutput.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
                     tarOutput.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX)
                     tarOutput.setAddPaxHeadersForNonAsciiNames(true)
-                    sourceWalker.walk(targets, checkCancelled) { item ->
-                        writeEntry(item, tarOutput, counters, checkCancelled, progress)
+                    manifest.entries.forEach { item ->
+                        checkCancelled()
+                        progress.reportCompression(manifest, counters, item.archivePath)
+                        writeEntry(
+                            item,
+                            manifest,
+                            tarOutput,
+                            counters,
+                            checkCancelled,
+                            progress,
+                        )
                     }
                 }
             }
@@ -101,8 +122,9 @@ internal class TarArchiveCreator(
 
     private fun writeEntry(
         item: ArchiveSourceEntry,
+        manifest: ArchiveSourceManifest,
         output: TarArchiveOutputStream,
-        counters: Counters,
+        counters: ArchiveCreationCounters,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ) {
@@ -119,7 +141,7 @@ internal class TarArchiveCreator(
                 output.putArchiveEntry(entry)
                 output.closeArchiveEntry()
                 counters.directories++
-                progress.report(item.archivePath, counters)
+                progress.reportCompression(manifest, counters, item.archivePath)
             }
 
             ExplorerActionValues.TARGET_FILE -> {
@@ -143,11 +165,12 @@ internal class TarArchiveCreator(
                     checkCancelled = checkCancelled,
                     onBytesWritten = { count ->
                         counters.bytesRead = Math.addExact(counters.bytesRead, count.toLong())
+                        progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
                 output.closeArchiveEntry()
                 counters.files++
-                progress.report(item.archivePath, counters)
+                progress.reportCompression(manifest, counters, item.archivePath)
             }
 
             else -> error("Host returned an unsupported source kind")
@@ -190,23 +213,6 @@ internal class TarArchiveCreator(
     } catch (error: LinkageError) {
         throw IOException("${format.displayName} encoder is unavailable on this runtime", error)
     }
-
-    private fun ArchiveCreationProgressListener.report(entryPath: String, counters: Counters) {
-        onProgress(
-            ArchiveCreationProgress(
-                currentEntry = entryPath,
-                completedFiles = counters.files,
-                completedDirectories = counters.directories,
-                sourceBytesRead = counters.bytesRead,
-            ),
-        )
-    }
-
-    private data class Counters(
-        var files: Long = 0,
-        var directories: Long = 0,
-        var bytesRead: Long = 0L,
-    )
 
     private companion object {
         const val BUFFER_SIZE = 64 * 1_024

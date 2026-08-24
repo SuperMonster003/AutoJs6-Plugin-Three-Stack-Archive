@@ -37,21 +37,32 @@ internal class SevenZArchiveCreator(
         )
         var password: CharArray? = null
         try {
+            checkCancelled()
             val completed = session.writeArchiveOutput(
                 outputDisplayName = outputName,
                 format = format,
                 conflictPolicy = options.conflictPolicy,
-            ) { descriptor ->
-                password = options.password?.takeIf(CharArray::isNotEmpty)?.clone()
-                writeArchive(
-                    descriptor = descriptor,
-                    targets = request.targets,
-                    compressionLevel = compressionLevel,
-                    password = password,
-                    checkCancelled = checkCancelled,
-                    progress = progress,
-                ).also { checkCancelled() }
-            }
+                prepareAfterReservation = {
+                    progress.reportScanStarted()
+                    sourceWalker.scan(request.targets, checkCancelled, progress::reportScan)
+                },
+                write = { descriptor, manifest ->
+                    password = options.password?.takeIf(CharArray::isNotEmpty)?.clone()
+                    writeArchive(
+                        descriptor = descriptor,
+                        manifest = manifest,
+                        compressionLevel = compressionLevel,
+                        password = password,
+                        checkCancelled = checkCancelled,
+                        progress = progress,
+                    ).also { checkCancelled() }
+                },
+                beforeCommit = { manifest, counters ->
+                    checkCancelled()
+                    progress.reportCommitting(manifest, counters)
+                    checkCancelled()
+                },
+            )
             val counters = completed.value
             val committed = completed.transaction
             return ArchiveCreationResult(
@@ -68,19 +79,22 @@ internal class SevenZArchiveCreator(
 
     private fun writeArchive(
         descriptor: ParcelFileDescriptor,
-        targets: List<ArchiveCompressionTarget>,
+        manifest: ArchiveSourceManifest,
         compressionLevel: Int,
         password: CharArray?,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
-    ): Counters {
-        val counters = Counters()
+    ): ArchiveCreationCounters {
+        val counters = ArchiveCreationCounters()
+        progress.reportCompression(manifest, counters, currentEntry = null)
         try {
             ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
                 SevenZOutputFile(rawOutput.channel, password).use { archive ->
                     configureCompression(archive, compressionLevel)
-                    sourceWalker.walk(targets, checkCancelled) { item ->
-                        writeEntry(item, archive, counters, checkCancelled, progress)
+                    manifest.entries.forEach { item ->
+                        checkCancelled()
+                        progress.reportCompression(manifest, counters, item.archivePath)
+                        writeEntry(item, manifest, archive, counters, checkCancelled, progress)
                     }
                 }
             }
@@ -107,8 +121,9 @@ internal class SevenZArchiveCreator(
 
     private fun writeEntry(
         item: ArchiveSourceEntry,
+        manifest: ArchiveSourceManifest,
         output: SevenZOutputFile,
-        counters: Counters,
+        counters: ArchiveCreationCounters,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ) {
@@ -131,6 +146,7 @@ internal class SevenZArchiveCreator(
                     checkCancelled = checkCancelled,
                     onBytesWritten = { count ->
                         counters.bytesRead = Math.addExact(counters.bytesRead, count.toLong())
+                        progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
                 output.closeArchiveEntry()
@@ -138,14 +154,7 @@ internal class SevenZArchiveCreator(
             }
             else -> error("Host returned an unsupported source kind")
         }
-        progress.onProgress(
-            ArchiveCreationProgress(
-                currentEntry = item.archivePath,
-                completedFiles = counters.files,
-                completedDirectories = counters.directories,
-                sourceBytesRead = counters.bytesRead,
-            ),
-        )
+        progress.reportCompression(manifest, counters, item.archivePath)
     }
 
     private class SevenZArchiveOutputStream(
@@ -159,9 +168,4 @@ internal class SevenZArchiveCreator(
         override fun close() = Unit
     }
 
-    private data class Counters(
-        var files: Long = 0L,
-        var directories: Long = 0L,
-        var bytesRead: Long = 0L,
-    )
 }

@@ -80,6 +80,8 @@
     <string name="text_password">Mot de passe</string>
     <string name="text_confirm_password">Confirmer le mot de passe</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Préparation de la compression...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Analyse des éléments source...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Validation de l’archive...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Préparation de l’extraction...</string>
     <string name="text_split_unavailable_for_format">La sortie fractionnée n\'est pas disponible pour %1$s.</string>
     <string name="text_split_volume">Taille du volume (MiB)</string>

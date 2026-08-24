@@ -10,7 +10,13 @@
         <item quantity="other">%1$d 項目を選択</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="other">%1$s を圧縮中\n%2$d ファイル、%3$s 読み取り済み</item>
+        <item quantity="other">%1$s を圧縮中\n%2$d/%3$d ファイル、%4$s/%5$s 読み取り済み</item>
+    </plurals>
+    <plurals name="text_compressing_progress_unknown_sizes">
+        <item quantity="other">%1$s を圧縮中\n%2$d/%3$d ファイル、%4$s 読み取り済み、サイズ不明 %5$d 件</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="other">%1$s をスキャン中\n%2$d ファイル、%3$d フォルダーを検出</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">%1$d ファイルを %2$s に展開しました</item>

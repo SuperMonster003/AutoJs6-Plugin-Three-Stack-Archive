@@ -83,6 +83,8 @@
     <string name="text_password_needed_for_encrypted_entries">输入密码后可打开和解压加密条目.</string>
     <string name="text_parent_directory">上级目录</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在准备压缩...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">正在扫描源项目...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">正在提交压缩档案...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在准备解压...</string>
     <string name="text_search_hint">搜索压缩包</string>
     <string name="text_select_entry">选择条目</string>

@@ -80,6 +80,8 @@
     <string name="text_password">비밀번호</string>
     <string name="text_confirm_password">비밀번호 확인</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">압축 준비 중...</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">원본 항목 검사 중...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">압축 파일 확정 중...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">압축 풀기 준비 중...</string>
     <string name="text_split_unavailable_for_format">%1$s에서는 분할 출력을 사용할 수 없습니다.</string>
     <string name="text_split_volume">분할 크기 (MiB)</string>
