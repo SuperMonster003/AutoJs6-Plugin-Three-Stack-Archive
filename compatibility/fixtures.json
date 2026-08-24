@@ -330,6 +330,183 @@
           "encoding": "UTF-8"
         }
       ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/bandizip-7.46-deflate-unicode.zip",
+      "producer": "Bandizip",
+      "producerVersion": "7.46 Beta x64",
+      "platform": "Windows 11",
+      "command": "bz c -y -fmt:zip -l:6 <output> ascii.txt .\\目录\\文件.txt",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "61ef38cc532dc9112a85e427a02fd5cc1e9d6b9ec1830039311359ac5b165b0c",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104,
+          "crc32": "B390A13F"
+        },
+        {
+          "name": "目录/文件.txt",
+          "method": "Deflate",
+          "size": 87,
+          "crc32": "F8C08370"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/winrar-6.10-deflate-unicode.zip",
+      "producer": "WinRAR",
+      "producerVersion": "6.10 x64",
+      "platform": "Windows 11",
+      "command": "WinRAR.exe a -afzip -m3 -ep1 -tsc- -tsa- -cfg- -inul -y <output> ascii.txt .\\目录\\文件.txt",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "sha256": "487938029f4282fdfe731d790592f18c6f5ebc93aff7c6309dee2cf5fa419e00",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104,
+          "crc32": "B390A13F"
+        },
+        {
+          "name": "文件.txt",
+          "method": "Deflate",
+          "size": 87,
+          "crc32": "F8C08370"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/winrar-6.10-rar4-unicode.rar",
+      "producer": "WinRAR",
+      "producerVersion": "6.10 x64",
+      "platform": "Windows 11",
+      "command": "Rar.exe a -ma4 -m3 -ep1 -tsc- -tsa- -cfg- -inul -y <output> ascii.txt .\\目录\\文件.txt",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "expectedPluginCapability": "unsupported",
+      "sha256": "a12fc3e2f14a946ecb983efb3a4c808909ef22f9e150d0d2ace61e0dd95047ea",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "size": 104,
+          "crc32": "B390A13F"
+        },
+        {
+          "name": "文件.txt",
+          "size": 87,
+          "crc32": "F8C08370"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/winrar-6.10-rar5-unicode.rar",
+      "producer": "WinRAR",
+      "producerVersion": "6.10 x64",
+      "platform": "Windows 11",
+      "command": "Rar.exe a -ma5 -m3 -ep1 -tsc- -tsa- -cfg- -inul -y <output> ascii.txt .\\目录\\文件.txt",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "expectedPluginCapability": "unsupported",
+      "sha256": "c009be6f80980f6bba3856125f5e107d93fbd30fcaa87b22d0d6a78c67026599",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "size": 104,
+          "crc32": "B390A13F"
+        },
+        {
+          "name": "文件.txt",
+          "size": 87,
+          "crc32": "F8C08370"
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/winrar-6.10-rar5-aes-unicode.rar",
+      "producer": "WinRAR",
+      "producerVersion": "6.10 x64",
+      "platform": "Windows 11",
+      "command": "Rar.exe a -ma5 -m3 -ep1 -tsc- -tsa- -cfg- -inul -y -pArchiveManager-Test-2026 <output> ascii.txt .\\目录\\文件.txt",
+      "password": "ArchiveManager-Test-2026",
+      "encryptionMethod": "RAR5 AES-256 content",
+      "headerEncryption": false,
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "expectedPluginCapability": "unsupported",
+      "sha256": "05cdd95a68d8a5a1afac7b9961d0323e7a1a9fa6224418f388ba0cba918d7f7f",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "size": 87
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/winrar-6.10-rar5-header-aes-unicode.rar",
+      "producer": "WinRAR",
+      "producerVersion": "6.10 x64",
+      "platform": "Windows 11",
+      "command": "Rar.exe a -ma5 -m3 -ep1 -tsc- -tsa- -cfg- -inul -y -hpArchiveManager-Test-2026 <output> ascii.txt .\\目录\\文件.txt",
+      "password": "ArchiveManager-Test-2026",
+      "encryptionMethod": "RAR5 AES-256 content and header",
+      "headerEncryption": true,
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "expectedPluginCapability": "unsupported",
+      "sha256": "d27f8ddc47eca0777cdbe00819bb69f740f60b1dc1d757af5e6656b779177007",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "size": 104
+        },
+        {
+          "name": "文件.txt",
+          "size": 87
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/winrar-6.10-store-split.part1.rar",
+      "companionVolumes": [
+        {
+          "file": "app/src/test/resources/archive-fixtures/winrar-6.10-store-split.part2.rar",
+          "volumeIndex": 1,
+          "size": 32768,
+          "sha256": "b37407973e424a0a73c769d0bd18042b4590c8c56404cddc8e27fdb16a99fd70"
+        },
+        {
+          "file": "app/src/test/resources/archive-fixtures/winrar-6.10-store-split.part3.rar",
+          "volumeIndex": 2,
+          "size": 4937,
+          "sha256": "247b812e643695b62e2ca0640ef82a00e695db7ae3e33029ef484b310da92f18"
+        }
+      ],
+      "producer": "WinRAR",
+      "producerVersion": "6.10 x64",
+      "platform": "Windows 11",
+      "command": "Rar.exe a -ma5 -m0 -ep1 -tsc- -tsa- -cfg- -inul -y -v32k <output.rar> 资料.bin",
+      "sourceDescription": "70,000 deterministic bytes where byte[i] = (i * 31 + i / 251 + 17) & 0xFF",
+      "sourceSha256": "030ed3574b4b1765d225a5472fc85f33d447fde24968f38e499d57165110c851",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "expectedPluginCapability": "unsupported",
+      "split": true,
+      "volumeSize": 32768,
+      "volumeIndex": 0,
+      "volumes": 3,
+      "size": 32768,
+      "totalPhysicalSize": 70473,
+      "sha256": "404bc4db3a217e9d7eaaa03ac483fd6502289680bfc2af404bc74d572116bae4",
+      "entries": [
+        {
+          "name": "资料.bin",
+          "method": "Store",
+          "size": 70000,
+          "crc32": "ED90C665",
+          "volumeIndex": 0
+        }
+      ]
     }
   ]
 }

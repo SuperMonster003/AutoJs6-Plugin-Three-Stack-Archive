@@ -2,23 +2,31 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.ParcelFileDescriptor
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
+import org.apache.commons.compress.archivers.sevenz.AndroidSevenZEncryption
 import org.apache.commons.compress.archivers.sevenz.SevenZMethod
 import org.apache.commons.compress.archivers.sevenz.SevenZMethodConfiguration
 import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import org.tukaani.xz.LZMA2Options
+import java.io.File
 import java.io.IOException
 import java.util.Date
 
 internal class SevenZArchiveCreator(
     remoteSession: IExplorerActionHostSession,
+    cacheDirectory: File?,
 ) : ArchiveWriter {
     override val format = ArchiveFormat.SEVEN_Z
     override val formatCapabilities = SevenZArchiveBackend.capabilities
 
     private val session = ExplorerActionHostSessionClient(remoteSession)
     private val sourceWalker = ArchiveSourceWalker(session)
+    private val verifier = CreatedArchiveVerifier(
+        requireNotNull(cacheDirectory) {
+            "7Z creation requires a private cache directory for output verification"
+        },
+    )
 
     override fun create(
         request: ArchiveCompressionRequest,
@@ -57,6 +65,18 @@ internal class SevenZArchiveCreator(
                         progress = progress,
                     ).also { checkCancelled() }
                 },
+                verify = { descriptor, manifest, counters ->
+                    checkCancelled()
+                    progress.reportVerifying(manifest, counters)
+                    verifier.verifyPendingOutput(
+                        descriptor = descriptor,
+                        format = format,
+                        manifest = manifest,
+                        counters = counters,
+                        password = password,
+                        checkCancelled = checkCancelled,
+                    )
+                },
                 beforeCommit = { manifest, counters ->
                     checkCancelled()
                     progress.reportCommitting(manifest, counters)
@@ -85,16 +105,24 @@ internal class SevenZArchiveCreator(
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): ArchiveCreationCounters {
-        val counters = ArchiveCreationCounters()
+        val counters = ArchiveCreationCounters(manifest.entries.size)
         progress.reportCompression(manifest, counters, currentEntry = null)
         try {
             ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
-                SevenZOutputFile(rawOutput.channel, password).use { archive ->
-                    configureCompression(archive, compressionLevel)
-                    manifest.entries.forEach { item ->
+                SevenZOutputFile(rawOutput.channel).use { archive ->
+                    configureCompression(archive, compressionLevel, password)
+                    manifest.entries.forEachIndexed { entryIndex, item ->
                         checkCancelled()
                         progress.reportCompression(manifest, counters, item.archivePath)
-                        writeEntry(item, manifest, archive, counters, checkCancelled, progress)
+                        writeEntry(
+                            entryIndex,
+                            item,
+                            manifest,
+                            archive,
+                            counters,
+                            checkCancelled,
+                            progress,
+                        )
                     }
                 }
             }
@@ -104,22 +132,28 @@ internal class SevenZArchiveCreator(
         return counters
     }
 
-    private fun configureCompression(output: SevenZOutputFile, compressionLevel: Int) {
-        if (compressionLevel == 0) {
-            output.setContentCompression(SevenZMethod.COPY)
+    private fun configureCompression(
+        output: SevenZOutputFile,
+        compressionLevel: Int,
+        password: CharArray?,
+    ) {
+        val compression = if (compressionLevel == 0) {
+            SevenZMethodConfiguration(SevenZMethod.COPY)
         } else {
-            output.setContentMethods(
-                listOf(
-                    SevenZMethodConfiguration(
-                        SevenZMethod.LZMA2,
-                        LZMA2Options(compressionLevel),
-                    ),
-                ),
+            SevenZMethodConfiguration(
+                SevenZMethod.LZMA2,
+                LZMA2Options(compressionLevel),
             )
+        }
+        if (password == null) {
+            output.setContentMethods(listOf(compression))
+        } else {
+            AndroidSevenZEncryption.configure(output, password, compression)
         }
     }
 
     private fun writeEntry(
+        entryIndex: Int,
         item: ArchiveSourceEntry,
         manifest: ArchiveSourceManifest,
         output: SevenZOutputFile,
@@ -139,7 +173,7 @@ internal class SevenZArchiveCreator(
                 counters.directories++
             }
             ExplorerActionValues.TARGET_FILE -> {
-                sourceWalker.copyFile(
+                val fingerprint = sourceWalker.copyFileWithFingerprint(
                     entry = item,
                     output = SevenZArchiveOutputStream(output),
                     expectedSize = item.size.takeIf { it >= 0L },
@@ -149,6 +183,7 @@ internal class SevenZArchiveCreator(
                         progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
+                counters.recordSourceFingerprint(entryIndex, fingerprint)
                 output.closeArchiveEntry()
                 counters.files++
             }

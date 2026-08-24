@@ -14,6 +14,7 @@ import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import java.io.BufferedOutputStream
+import java.io.File
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -22,6 +23,7 @@ internal class TarArchiveCreator(
     override val format: ArchiveFormat,
     override val formatCapabilities: FormatCapabilities,
     remoteSession: IExplorerActionHostSession,
+    cacheDirectory: File?,
 ) : ArchiveWriter {
 
     init {
@@ -31,6 +33,11 @@ internal class TarArchiveCreator(
 
     private val session = ExplorerActionHostSessionClient(remoteSession)
     private val sourceWalker = ArchiveSourceWalker(session)
+    private val verifier = CreatedArchiveVerifier(
+        requireNotNull(cacheDirectory) {
+            "${format.displayName} creation requires a private cache directory for output verification"
+        },
+    )
 
     override fun create(
         request: ArchiveCompressionRequest,
@@ -69,6 +76,18 @@ internal class TarArchiveCreator(
                     progress = progress,
                 ).also { checkCancelled() }
             },
+            verify = { descriptor, manifest, counters ->
+                checkCancelled()
+                progress.reportVerifying(manifest, counters)
+                verifier.verifyPendingOutput(
+                    descriptor = descriptor,
+                    format = format,
+                    manifest = manifest,
+                    counters = counters,
+                    password = null,
+                    checkCancelled = checkCancelled,
+                )
+            },
             beforeCommit = { manifest, counters ->
                 checkCancelled()
                 progress.reportCommitting(manifest, counters)
@@ -93,7 +112,7 @@ internal class TarArchiveCreator(
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
     ): ArchiveCreationCounters {
-        val counters = ArchiveCreationCounters()
+        val counters = ArchiveCreationCounters(manifest.entries.size)
         progress.reportCompression(manifest, counters, currentEntry = null)
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
             BufferedOutputStream(rawOutput, BUFFER_SIZE).use { bufferedOutput ->
@@ -102,10 +121,11 @@ internal class TarArchiveCreator(
                     tarOutput.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
                     tarOutput.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX)
                     tarOutput.setAddPaxHeadersForNonAsciiNames(true)
-                    manifest.entries.forEach { item ->
+                    manifest.entries.forEachIndexed { entryIndex, item ->
                         checkCancelled()
                         progress.reportCompression(manifest, counters, item.archivePath)
                         writeEntry(
+                            entryIndex,
                             item,
                             manifest,
                             tarOutput,
@@ -121,6 +141,7 @@ internal class TarArchiveCreator(
     }
 
     private fun writeEntry(
+        entryIndex: Int,
         item: ArchiveSourceEntry,
         manifest: ArchiveSourceManifest,
         output: TarArchiveOutputStream,
@@ -158,7 +179,7 @@ internal class TarArchiveCreator(
                     mode = TarArchiveEntry.DEFAULT_FILE_MODE,
                 )
                 output.putArchiveEntry(entry)
-                sourceWalker.copyFile(
+                val fingerprint = sourceWalker.copyFileWithFingerprint(
                     entry = item,
                     output = output,
                     expectedSize = size,
@@ -168,6 +189,7 @@ internal class TarArchiveCreator(
                         progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
+                counters.recordSourceFingerprint(entryIndex, fingerprint)
                 output.closeArchiveEntry()
                 counters.files++
                 progress.reportCompression(manifest, counters, item.archivePath)

@@ -54,7 +54,7 @@ internal abstract class TarArchiveBackendBase(
         session: IExplorerActionHostSession,
         cacheDirectory: File?,
     ): ArchiveWriter =
-        TarArchiveCreator(format, capabilities, session)
+        TarArchiveCreator(format, capabilities, session, cacheDirectory)
 
     override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {
         if (!container.hasOuterSignature(source)) {

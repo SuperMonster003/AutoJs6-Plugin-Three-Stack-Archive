@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.pm.ApplicationInfo
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -66,6 +67,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var customResourceBudget = ArchiveResourceBudget.COMPATIBLE
     private var selectedConflictPolicy = ArchiveExtractionConflictPolicy.ASK
     private var lastFailureDiagnostic: ArchiveFailureDiagnostic? = null
+    private var usesCompactHeader = false
+    private var usesUltraCompactLayout = false
+    private var isCompactSearchExpanded = false
+    private var renderedSelectionCount = 0
 
     private val outputTreeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree(),
@@ -102,8 +107,22 @@ class ArchiveManagerActivity : AppCompatActivity() {
             return
         }
         request = resolvedRequest
+        usesCompactHeader = shouldUseCompactHeader(resources.configuration)
+        usesUltraCompactLayout = shouldUseUltraCompactLayout(resources.configuration)
         setupViews()
+        updateHeaderPresentation()
         loadArchive(resolvedRequest)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        usesCompactHeader = shouldUseCompactHeader(newConfig)
+        usesUltraCompactLayout = shouldUseUltraCompactLayout(newConfig)
+        isCompactSearchExpanded = false
+        updateHeaderPresentation()
+        updateResourceBudgetInput()
+        updateConflictPolicyInput()
+        binding.root.post { binding.root.requestApplyInsets() }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -170,7 +189,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
         )
         entryList.layoutManager = LinearLayoutManager(this@ArchiveManagerActivity)
         entryList.adapter = adapter
-        searchInput.doAfterTextChanged { renderEntries() }
+        searchInput.doAfterTextChanged {
+            updateSearchPresentation()
+            renderEntries()
+        }
         upButton.setOnClickListener {
             currentDirectory = currentDirectory.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
             renderEntries()
@@ -207,6 +229,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
         extractionConflictPolicyInput.setOnClickListener {
             extractionConflictPolicyInput.showDropDown()
         }
+        compactBudgetButton.setOnClickListener { showCompactResourceBudgetDialog() }
+        compactConflictButton.setOnClickListener { showCompactConflictPolicyDialog() }
+        compactEncodingButton.setOnClickListener { showCompactFilenameEncodingDialog() }
+        compactSearchButton.setOnClickListener { toggleCompactSearch() }
         updateConflictPolicyInput()
         applyPasswordButton.setOnClickListener { applyPassword() }
         archivePassword.setOnEditorActionListener { _, _, _ ->
@@ -217,7 +243,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         filenameEncodingLayout.isVisible = false
         passwordControls.isVisible = false
         diagnosticCopyButton.isVisible = false
-        selectedCount.text = getString(R.string.text_selected_count, 0)
+        updateSelectionPresentation(0)
 
         onBackPressedDispatcher.addCallback(
             this@ArchiveManagerActivity,
@@ -236,6 +262,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
             binding.searchInput.setText("")
             return
         }
+        if (usesUltraCompactLayout && isCompactSearchExpanded) {
+            isCompactSearchExpanded = false
+            updateSearchPresentation()
+            return
+        }
         if (currentDirectory.isNotEmpty()) {
             currentDirectory = currentDirectory.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
             renderEntries()
@@ -246,6 +277,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private fun loadArchive(request: ArchiveOpenRequest) {
         binding.archiveName.text = request.displayName
+        updateHeaderPresentation()
         setBusy(true, getString(R.string.text_loading_archive), cancellable = true)
         operationJob = lifecycleScope.launch {
             try {
@@ -257,10 +289,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         reportedSize = request.reportedSize,
                     ) { copied ->
                         postUiUpdate {
-                            binding.archiveSummary.text = getString(
-                                R.string.text_loading_progress,
-                                formatBytes(copied),
-                                formatBytes(request.reportedSize),
+                            updateArchiveSummary(
+                                getString(
+                                    R.string.text_loading_progress,
+                                    formatBytes(copied),
+                                    formatBytes(request.reportedSize),
+                                ),
                             )
                         }
                     }.also { stagedArchive = it }
@@ -355,11 +389,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
             currentDirectory = ArchivePathPolicy.ROOT_PATH
         }
         selectedPaths.retainAll { scannedIndex.node(it) != null }
-        binding.archiveSummary.text = resources.getQuantityString(
-            R.plurals.text_archive_summary,
-            scanned.entries.size,
-            scanned.entries.size,
-            formatBytes(scanned.totalUncompressedBytes),
+        updateArchiveSummary(
+            resources.getQuantityString(
+                R.plurals.text_archive_summary,
+                scanned.entries.size,
+                scanned.entries.size,
+                formatBytes(scanned.totalUncompressedBytes),
+            ),
         )
         lastFailureDiagnostic = null
         binding.diagnosticCopyButton.isVisible = false
@@ -405,7 +441,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         val supported = ArchiveEngine.DEFAULT.capabilities(format).filenameCharsetNames
         if (supported.isEmpty()) {
             filenameCharsetChoices = emptyList()
-            binding.filenameEncodingLayout.isVisible = false
+            updateFilenameEncodingPresentation()
             return
         }
         if (selectedFilenameCharsetName != null && selectedFilenameCharsetName !in supported) {
@@ -433,8 +469,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             it.charsetName == selectedFilenameCharsetName
         }
         binding.filenameEncodingInput.setText(selected.label, false)
-        binding.filenameEncodingLayout.isVisible = true
-        binding.filenameEncodingLayout.isEnabled = !isBusy
+        updateFilenameEncodingPresentation()
     }
 
     private fun applyPassword() {
@@ -548,7 +583,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.archivePassword.post {
             getSystemService<InputMethodManager>()?.showSoftInput(
                 binding.archivePassword,
-                InputMethodManager.SHOW_IMPLICIT,
+                0,
             )
         }
     }
@@ -595,10 +630,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             }
             binding.entryList.isVisible = result.rows.isNotEmpty()
             adapter.submitList(result.rows)
-            binding.selectedCount.text = getString(
-                R.string.text_selected_count,
-                result.selectionCount,
-            )
+            updateSelectionPresentation(result.selectionCount)
             binding.extractButton.isEnabled = true
         }
     }
@@ -719,11 +751,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
     }
 
     private fun updateConflictPolicyInput() {
-        binding.extractionConflictPolicyInput.setText(
-            conflictPolicyLabel(selectedConflictPolicy),
-            false,
-        )
-        binding.extractionConflictPolicyLayout.helperText = getString(
+        val label = conflictPolicyLabel(selectedConflictPolicy)
+        val details = getString(
             when (selectedConflictPolicy) {
                 ArchiveExtractionConflictPolicy.ASK -> R.string.text_conflict_policy_ask_details
                 ArchiveExtractionConflictPolicy.SKIP -> R.string.text_conflict_policy_skip_details
@@ -733,6 +762,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     R.string.text_conflict_policy_auto_rename_details
             },
         )
+        binding.extractionConflictPolicyInput.setText(label, false)
+        binding.extractionConflictPolicyInput.contentDescription = "$label. $details"
+        binding.extractionConflictPolicyLayout.helperText = details.takeUnless { usesCompactHeader }
+        binding.compactConflictButton.text =
+            "${getText(R.string.text_compact_conflict_policy)}: $label"
+        binding.compactConflictButton.contentDescription =
+            "${getText(R.string.text_extraction_conflict_policy)}. $label. $details"
     }
 
     private fun resourceBudgetProfiles(): List<ArchiveResourceBudgetProfile> =
@@ -763,11 +799,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
     }
 
     private fun updateResourceBudgetInput() {
-        binding.extractionBudgetInput.setText(
-            resourceBudgetProfileLabel(selectedResourceBudgetProfile),
-            false,
-        )
-        binding.extractionBudgetLayout.helperText = if (
+        val label = resourceBudgetProfileLabel(selectedResourceBudgetProfile)
+        val details = if (
             selectedResourceBudgetProfile == ArchiveResourceBudgetProfile.CUSTOM
         ) {
             getString(R.string.text_budget_profile_custom_details)
@@ -783,6 +816,173 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 formatWholeNumber(budget.maxCompressionRatio),
             )
         }
+        binding.extractionBudgetInput.setText(label, false)
+        binding.extractionBudgetInput.contentDescription = "$label. $details"
+        binding.extractionBudgetLayout.helperText = details.takeUnless { usesCompactHeader }
+        binding.compactBudgetButton.text =
+            "${getText(R.string.text_compact_extraction_budget)}: $label"
+        binding.compactBudgetButton.contentDescription =
+            "${getText(R.string.text_extraction_budget)}. $label. $details"
+    }
+
+    private fun shouldUseCompactHeader(configuration: Configuration): Boolean =
+        configuration.screenHeightDp < COMPACT_HEADER_MIN_HEIGHT_DP
+
+    private fun shouldUseUltraCompactLayout(configuration: Configuration): Boolean =
+        configuration.screenHeightDp < ULTRA_COMPACT_HEADER_MIN_HEIGHT_DP
+
+    private fun updateHeaderPresentation() = with(binding) {
+        archiveName.isVisible = !usesCompactHeader
+        archiveSummary.isVisible = !usesCompactHeader
+        compactOptions.isVisible = usesCompactHeader
+        extractionBudgetLayout.isVisible = !usesCompactHeader
+        extractionConflictPolicyLayout.isVisible = !usesCompactHeader
+        currentPath.isVisible = !usesUltraCompactLayout
+        selectedCount.isVisible = !usesUltraCompactLayout
+        upButton.isVisible = !usesCompactHeader
+        updateFilenameEncodingPresentation()
+        updateSearchPresentation()
+        toolbar.title = if (usesCompactHeader) {
+            archiveName.text.takeIf { it.isNotBlank() } ?: getText(R.string.app_name)
+        } else {
+            getText(R.string.app_name)
+        }
+        updateToolbarSubtitle()
+    }
+
+    private fun updateSearchPresentation() = with(binding) {
+        searchLayout.isVisible = !usesUltraCompactLayout || isCompactSearchExpanded
+        compactSearchButton.isVisible = usesUltraCompactLayout
+        val query = searchInput.text?.toString().orEmpty().trim()
+        compactSearchButton.text = if (query.isEmpty()) {
+            getText(R.string.text_compact_search)
+        } else {
+            "${getText(R.string.text_compact_search)}: $query"
+        }
+        compactSearchButton.contentDescription = compactSearchButton.text
+    }
+
+    private fun toggleCompactSearch() {
+        if (!usesUltraCompactLayout) return
+        isCompactSearchExpanded = !isCompactSearchExpanded
+        updateSearchPresentation()
+        if (isCompactSearchExpanded) {
+            binding.searchInput.requestFocus()
+            binding.searchInput.post {
+                getSystemService<InputMethodManager>()?.showSoftInput(
+                    binding.searchInput,
+                    0,
+                )
+            }
+        } else {
+            binding.searchInput.clearFocus()
+            getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(
+                binding.searchInput.windowToken,
+                0,
+            )
+        }
+    }
+
+    private fun updateFilenameEncodingPresentation() = with(binding) {
+        val isAvailable = filenameCharsetChoices.isNotEmpty()
+        filenameEncodingLayout.isVisible = isAvailable && !usesCompactHeader
+        compactEncodingButton.isVisible = isAvailable && usesCompactHeader
+        if (!isAvailable) return@with
+        val selected = filenameCharsetChoices.firstOrNull {
+            it.charsetName == selectedFilenameCharsetName
+        } ?: filenameCharsetChoices.first()
+        compactEncodingButton.text =
+            "${getText(R.string.text_compact_filename_encoding)}: ${selected.label}"
+        compactEncodingButton.contentDescription = compactEncodingButton.text
+        filenameEncodingLayout.isEnabled = !isBusy
+        compactEncodingButton.isEnabled = !isBusy
+    }
+
+    internal fun showCompactResourceBudgetDialog(): androidx.appcompat.app.AlertDialog {
+        val profiles = resourceBudgetProfiles()
+        val labels = profiles.map(::resourceBudgetProfileLabel).toTypedArray()
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.text_extraction_budget)
+            .setSingleChoiceItems(
+                labels,
+                profiles.indexOf(selectedResourceBudgetProfile),
+            ) { dialog, which ->
+                dialog.dismiss()
+                profiles.getOrNull(which)?.let(::selectResourceBudgetProfile)
+            }
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .show()
+    }
+
+    internal fun showCompactConflictPolicyDialog(): androidx.appcompat.app.AlertDialog {
+        val policies = conflictPolicies()
+        val labels = policies.map(::conflictPolicyLabel).toTypedArray()
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.text_extraction_conflict_policy)
+            .setSingleChoiceItems(
+                labels,
+                policies.indexOf(selectedConflictPolicy),
+            ) { dialog, which ->
+                dialog.dismiss()
+                policies.getOrNull(which)?.let(::selectConflictPolicy)
+            }
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .show()
+    }
+
+    internal fun showCompactFilenameEncodingDialog(): androidx.appcompat.app.AlertDialog? {
+        if (filenameCharsetChoices.isEmpty()) return null
+        val labels = filenameCharsetChoices.map(FilenameCharsetChoice::label).toTypedArray()
+        val selectedIndex = filenameCharsetChoices.indexOfFirst {
+            it.charsetName == selectedFilenameCharsetName
+        }.coerceAtLeast(0)
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.text_filename_encoding)
+            .setSingleChoiceItems(labels, selectedIndex) { dialog, which ->
+                dialog.dismiss()
+                filenameCharsetChoices.getOrNull(which)?.let(::selectFilenameCharset)
+            }
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .show()
+    }
+
+    private fun updateArchiveSummary(summary: CharSequence) {
+        binding.archiveSummary.text = summary
+        updateToolbarSubtitle()
+    }
+
+    private fun updateSelectionPresentation(selectionCount: Int) {
+        renderedSelectionCount = selectionCount
+        binding.selectedCount.text = getString(R.string.text_selected_count, selectionCount)
+        binding.selectedCount.isVisible = !usesUltraCompactLayout
+        updateToolbarSubtitle()
+    }
+
+    private fun updateToolbarSubtitle() = with(binding) {
+        if (usesCompactHeader && usesUltraCompactLayout) {
+            val contextLabel = if (renderedSelectionCount > 0) {
+                selectedCount.text
+            } else {
+                currentPath.text.takeIf { it.isNotBlank() }
+                    ?: archiveSummary.text.takeIf { it.isNotBlank() }
+            }
+            val archiveTitle = archiveName.text.takeIf { it.isNotBlank() }
+                ?: getText(R.string.app_name)
+            toolbar.title = listOfNotNull(archiveTitle, contextLabel)
+                .joinToString(separator = "  ")
+            toolbar.subtitle = null
+        } else {
+            toolbar.subtitle = when {
+                !usesCompactHeader -> null
+                else -> archiveSummary.text.takeIf { it.isNotBlank() }
+            }
+        }
+        toolbar.contentDescription = listOfNotNull(
+            toolbar.title?.takeIf { it.isNotBlank() },
+            archiveSummary.text.takeIf { it.isNotBlank() },
+            currentPath.text.takeIf { it.isNotBlank() },
+            selectedCount.text.takeIf { it.isNotBlank() },
+        ).joinToString(separator = ". ")
     }
 
     private fun showCustomResourceBudgetDialog() {
@@ -1352,6 +1552,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.extractionBudgetLayout.isEnabled = !busy
         binding.extractionConflictPolicyLayout.isEnabled = !busy
         binding.filenameEncodingLayout.isEnabled = !busy
+        binding.compactBudgetButton.isEnabled = !busy
+        binding.compactConflictButton.isEnabled = !busy
+        binding.compactEncodingButton.isEnabled = !busy
         binding.archivePasswordLayout.isEnabled = !busy
         binding.archivePassword.isEnabled = !busy
         binding.applyPasswordButton.isEnabled = !busy
@@ -1765,6 +1968,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private companion object {
         const val DEFAULT_EXTRACTION_ROOT = "archive"
+        const val COMPACT_HEADER_MIN_HEIGHT_DP = 600
+        const val ULTRA_COMPACT_HEADER_MIN_HEIGHT_DP = 400
         const val MIB = 1_024L * 1_024L
         const val GIB = 1_024L * MIB
         const val MAX_MIB_VALUE = Long.MAX_VALUE / MIB

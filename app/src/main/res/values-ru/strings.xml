@@ -4,7 +4,7 @@
     <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Выборочное извлечение...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
-    <string name="app_name">Менеджер архивов</string>
+    <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_button_continue">Продолжить</string>
     <string name="dialog_button_skip_unsafe">Пропустить и продолжить</string>
@@ -94,6 +94,7 @@
     <string name="text_confirm_password">Подтвердите пароль</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
     <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Сканирование исходных элементов...</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Проверка архива...</string>
     <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Фиксация архива...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Подготовка к извлечению...</string>
     <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
@@ -170,6 +171,10 @@
     <string name="text_custom_budget_zero_note">Укажите 0, чтобы использовать жесткий структурный максимум (число записей, длина и глубина пути) или не задавать порог предупреждения о ресурсах (размеры и степень сжатия). Структурную безопасность путей отключить нельзя.</string>
     <string name="text_extraction_budget">Бюджет извлечения</string>
     <string name="text_extraction_conflict_policy">При конфликте имён вывода</string>
+    <string name="text_compact_extraction_budget">Лимит</string>
+    <string name="text_compact_conflict_policy">Конфликты</string>
+    <string name="text_compact_filename_encoding">Кодировка</string>
+    <string name="text_compact_search">Поиск</string>
     <string name="text_conflict_policy_ask">Спрашивать каждый раз</string>
     <string name="text_conflict_policy_skip">Пропустить</string>
     <string name="text_conflict_policy_overwrite">Перезаписать</string>

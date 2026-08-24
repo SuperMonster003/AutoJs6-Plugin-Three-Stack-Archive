@@ -4,7 +4,7 @@
     <string name="action_selective_extract" tools:ignore="TypographyEllipsis">选择性解压...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解压到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">压缩...</string>
-    <string name="app_name">压缩档案管理器</string>
+    <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_continue">继续</string>
     <string name="dialog_button_skip_unsafe">跳过并继续</string>
@@ -98,6 +98,7 @@
     <string name="text_parent_directory">上级目录</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在准备压缩...</string>
     <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">正在扫描源项目...</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">正在校验压缩档案...</string>
     <string name="text_committing_archive" tools:ignore="TypographyEllipsis">正在提交压缩档案...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在准备解压...</string>
     <string name="text_search_hint">搜索压缩包</string>
@@ -170,6 +171,10 @@
     <string name="text_custom_budget_zero_note">条目数、路径长度和深度填 0 时使用不可放宽的结构上限; 大小和压缩比填 0 时不设置资源告警阈值. 路径结构安全无法关闭.</string>
     <string name="text_extraction_budget">解压预算</string>
     <string name="text_extraction_conflict_policy">输出名称冲突时</string>
+    <string name="text_compact_extraction_budget">预算</string>
+    <string name="text_compact_conflict_policy">冲突</string>
+    <string name="text_compact_filename_encoding">编码</string>
+    <string name="text_compact_search">搜索</string>
     <string name="text_conflict_policy_ask">每次询问</string>
     <string name="text_conflict_policy_skip">跳过</string>
     <string name="text_conflict_policy_overwrite">覆盖</string>

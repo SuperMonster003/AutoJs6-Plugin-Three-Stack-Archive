@@ -59,7 +59,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
 - Create one archive per item in a same-parent multi-selection; the form previews the output count and derived names, while existing or repeated names are numbered without overwriting. Each output commits independently; cancellation or failure keeps and reports completed outputs while blocking an ambiguous whole-batch retry.
 - Create ordinary or standard split ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST with a configurable name and only the compression levels and password options supported by the selected format.
-- Write to a same-directory temporary file and commit atomically; choose automatic numbering or try the exact name and decide before a numbered retry, without overwriting existing files. After name reservation, the sources are scanned into a bounded snapshot before temporary output is opened; the form distinguishes scanning, compression, and commit while showing total files, bytes read, and unknown-size files. Failed creation aborts the transaction; if the host cannot confirm temporary-output cleanup, the form shows the intended path and prevents another attempt.
+- Write to a same-directory temporary file and commit atomically; choose automatic numbering or try the exact name and decide before a numbered retry, without overwriting existing files. After name reservation, the sources are scanned into a bounded snapshot before temporary output is opened; the form distinguishes scanning, compression, verification, and commit while showing total files, bytes read, and unknown-size files. Verification fully reads the still-hidden output and checks its format, entries, sizes, CRC values, and content fingerprints before publication. Failed creation or verification aborts the transaction; if the host cannot confirm temporary-output cleanup, the form shows the intended path and prevents another attempt.
 
 ### Current formats
 
@@ -75,7 +75,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Explorer Action v6 native browsing and entry preview, plus v4 compression, require AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, reading existing split volumes, filename encryption during creation, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> The complete integration uses Explorer Action v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, reading existing split volumes, filename encryption during creation, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
@@ -93,7 +93,7 @@ The plugin requests neither storage nor network permission. Native browsing firs
 
 Resource budgets decide when to warn or request confirmation; they never relax structural safety. After confirmation, live byte and ratio bounds expand only to the selected entries' declared values for that extraction. Undeclared growth, source changes, and size or CRC mismatches still stop the operation and clean its output.
 
-Split ZIP creation assembles the volume set in private cache, removes that staging copy before host commits, never overwrites existing names, and publishes numbered volumes before the final `.zip`. Because the current host has no atomic group commit, any partial result is reported explicitly instead of being presented as a complete archive.
+Split ZIP creation assembles and verifies the complete volume set in private cache, copies each volume to a hidden host output, and compares every pending volume byte for byte. Only then is the private staging copy removed and the numbered volumes published before the final `.zip`; existing names are never overwritten. Because the current host has no atomic group commit, any partial commit result is reported explicitly instead of being presented as a complete archive.
 
 Unsafe names are exposed only as read-only display text behind opaque IDs; they never become output paths.
 
@@ -105,9 +105,9 @@ The implementation tasks and acceptance criteria for more formats, split-volume 
 
 ### Release notes
 
-#### Unreleased
+#### v2.0.0
 
-_Unreleased_
+_2026/08/25_
 
 - `Added` Renamed the product to Archive Manager and the file action to Open archive
 - `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
@@ -132,11 +132,14 @@ _Unreleased_
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
 - `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
+- `Fixed` ZIP files with Unicode names now open correctly on Android 7, including archives whose UTF-8 filename flag is missing or handled inconsistently
 - `Fixed` Wrong passwords now map consistently to PASSWORD/WRONG_PASSWORD, and AES v2 entries with a zero stored CRC are no longer misreported as damaged
 - `Fixed` Default extraction folders for compound extensions such as TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now remove the complete suffix instead of retaining `.tar`
 - `Fixed` Archives containing parent traversal, absolute, drive-prefixed, or control-character names remain browsable; unsafe names move to a read-only isolation folder, remain previewable when their data is readable, and require explicit skipping before extraction
 - `Fixed` Extraction no longer overwrites existing files or directories when a destination provider treats case or Unicode-equivalent names as identical; equivalent output-folder names are numbered automatically
 - `Fixed` Cancellation and extraction failures roll back the newly created output root in a non-cancellable cleanup phase; if a provider refuses deletion, the possible residual name and URI are listed instead of only a generic cleanup error
+- `Fixed` Encrypted 7Z creation now works on Android 7, and verification matches entries by path so valid backend ordering differences no longer cause false failures
+- `Fixed` The management page now adapts to short portrait and landscape screens: archive and path context move into the toolbar, settings remain available in a compact horizontal row, and entries and actions stay visible at up to 2.0x font scale
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
@@ -145,7 +148,8 @@ _Unreleased_
 - `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
 - `Improved` Ordinary archives now browse through independent positional channels over the host's read-only descriptor without a whole-file copy; incompatible inputs or readers (currently including encrypted ZIP) fall back to private cache, which is cleaned on close, failure, or expiry
 - `Improved` Unified ZIP, 7Z, and TAR-family creation output transactions; unreadable sources and reserve, open, write, or commit failures now carry stable stages, while unconfirmed rollback closes the session, shows the intended path, and prevents an unsafe retry
-- `Improved` Archive creation now scans sources before opening temporary output and shows separate scanning, compression, and commit states with total files, bytes read, and unknown-size files
+- `Improved` Archive creation now scans sources before opening temporary output and shows separate scanning, compression, verification, and commit states with total files, bytes read, and unknown-size files
+- `Improved` Created archives are fully read back before publication to verify their format, entries, sizes, CRC values, and content fingerprints; every pending split ZIP volume is also compared byte for byte
 - `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path
 - `Dependency` Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ reading and writing without native ABIs
 - `Dependency` Added BSD-licensed zstd-jni 1.5.7-15 for TAR.ZST/TZST reading and writing; all four Android ABIs pass 16 KiB ELF alignment and RELRO checks

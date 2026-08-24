@@ -1,4 +1,4 @@
-Utilisez le gestionnaire d'archives depuis le gestionnaire de fichiers principal:
+Utilisez Archive Manager depuis le gestionnaire de fichiers principal:
 
 1. Installez et activez le plugin `Archive Manager`.
 2. Ouvrez le menu supplémentaire d'une archive prise en charge.

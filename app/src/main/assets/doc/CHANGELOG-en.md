@@ -1,8 +1,8 @@
 # Release notes
 
-## Unreleased
+## v2.0.0
 
-_Unreleased_
+_2026/08/25_
 
 - `Added` Renamed the product to Archive Manager and the file action to Open archive
 - `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
@@ -27,11 +27,14 @@ _Unreleased_
 - `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
 - `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
 - `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
+- `Fixed` ZIP files with Unicode names now open correctly on Android 7, including archives whose UTF-8 filename flag is missing or handled inconsistently
 - `Fixed` Wrong passwords now map consistently to PASSWORD/WRONG_PASSWORD, and AES v2 entries with a zero stored CRC are no longer misreported as damaged
 - `Fixed` Default extraction folders for compound extensions such as TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now remove the complete suffix instead of retaining `.tar`
 - `Fixed` Archives containing parent traversal, absolute, drive-prefixed, or control-character names remain browsable; unsafe names move to a read-only isolation folder, remain previewable when their data is readable, and require explicit skipping before extraction
 - `Fixed` Extraction no longer overwrites existing files or directories when a destination provider treats case or Unicode-equivalent names as identical; equivalent output-folder names are numbered automatically
 - `Fixed` Cancellation and extraction failures roll back the newly created output root in a non-cancellable cleanup phase; if a provider refuses deletion, the possible residual name and URI are listed instead of only a generic cleanup error
+- `Fixed` Encrypted 7Z creation now works on Android 7, and verification matches entries by path so valid backend ordering differences no longer cause false failures
+- `Fixed` The management page now adapts to short portrait and landscape screens: archive and path context move into the toolbar, settings remain available in a compact horizontal row, and entries and actions stay visible at up to 2.0x font scale
 - `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
 - `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
 - `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
@@ -40,7 +43,8 @@ _Unreleased_
 - `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
 - `Improved` Ordinary archives now browse through independent positional channels over the host's read-only descriptor without a whole-file copy; incompatible inputs or readers (currently including encrypted ZIP) fall back to private cache, which is cleaned on close, failure, or expiry
 - `Improved` Unified ZIP, 7Z, and TAR-family creation output transactions; unreadable sources and reserve, open, write, or commit failures now carry stable stages, while unconfirmed rollback closes the session, shows the intended path, and prevents an unsafe retry
-- `Improved` Archive creation now scans sources before opening temporary output and shows separate scanning, compression, and commit states with total files, bytes read, and unknown-size files
+- `Improved` Archive creation now scans sources before opening temporary output and shows separate scanning, compression, verification, and commit states with total files, bytes read, and unknown-size files
+- `Improved` Created archives are fully read back before publication to verify their format, entries, sizes, CRC values, and content fingerprints; every pending split ZIP volume is also compared byte for byte
 - `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path
 - `Dependency` Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ reading and writing without native ABIs
 - `Dependency` Added BSD-licensed zstd-jni 1.5.7-15 for TAR.ZST/TZST reading and writing; all four Android ABIs pass 16 KiB ELF alignment and RELRO checks

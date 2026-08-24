@@ -4,7 +4,7 @@
     <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Extracción selectiva...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
-    <string name="app_name">Gestor de archivos comprimidos</string>
+    <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="dialog_button_continue">Continuar</string>
     <string name="dialog_button_skip_unsafe">Omitir y continuar</string>
@@ -94,6 +94,7 @@
     <string name="text_confirm_password">Confirmar contraseña</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
     <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Analizando los elementos de origen...</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verificando el archivo...</string>
     <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Confirmando el archivo...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparando la extracción...</string>
     <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
@@ -170,6 +171,10 @@
     <string name="text_custom_budget_zero_note">Usa 0 para el máximo estructural fijo (cantidad de entradas, longitud y profundidad de ruta) o para no establecer umbral de aviso de recursos (tamaños y relación de compresión). La seguridad estructural de las rutas no se puede desactivar.</string>
     <string name="text_extraction_budget">Presupuesto de extracción</string>
     <string name="text_extraction_conflict_policy">Cuando haya conflictos de nombres de salida</string>
+    <string name="text_compact_extraction_budget">Presupuesto</string>
+    <string name="text_compact_conflict_policy">Conflictos</string>
+    <string name="text_compact_filename_encoding">Codificación</string>
+    <string name="text_compact_search">Buscar</string>
     <string name="text_conflict_policy_ask">Preguntar cada vez</string>
     <string name="text_conflict_policy_skip">Omitir</string>
     <string name="text_conflict_policy_overwrite">Sobrescribir</string>

@@ -4,11 +4,13 @@ import android.os.ParcelFileDescriptor
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.security.MessageDigest
 
 /**
  * Reserves, fills, and commits every physical file in one standard split ZIP as a coherent group.
  *
- * Explorer Action v6 has no batch commit primitive. All names are therefore reserved exactly
+ * Explorer Action v7 has no batch commit primitive. All names are therefore reserved exactly
  * before any host output is opened, part files are committed first, and the terminal `.zip` file
  * is committed last. If a later commit fails, callers receive an explicit partial-output state.
  */
@@ -114,6 +116,67 @@ internal class ZipSplitOutputPublisher(
                     descriptor.use { outputDescriptor ->
                         copyVolume(volume, outputDescriptor, checkCancelled)
                     }
+                }
+            }
+        } catch (error: Throwable) {
+            abortPendingOrThrow(error)
+            throw error
+        }
+    }
+
+    fun verifyPendingVolumes(
+        volumes: List<StagedZipVolume>,
+        terminalDisplayName: String,
+        checkCancelled: () -> Unit,
+    ) {
+        require(volumes.size == pending.size)
+        try {
+            volumes.forEach { volume ->
+                checkCancelled()
+                val displayName = volume.outputDisplayName(terminalDisplayName)
+                val transaction = requireNotNull(pending[displayName])
+                val expectedSize = volume.file.length()
+                val expectedFingerprint = runCreationOutputOperation(
+                    operation = ArchiveCreationOutputOperation.VERIFY,
+                    outputDisplayName = displayName,
+                    format = ArchiveFormat.ZIP,
+                ) {
+                    volume.file.inputStream().use { input ->
+                        fingerprint(input, checkCancelled)
+                    }.also { fingerprint ->
+                        if (
+                            volume.file.length() != expectedSize ||
+                            fingerprint.bytes != expectedSize
+                        ) {
+                            throw IOException(
+                                "ZIP staging volume changed while it was being verified",
+                            )
+                        }
+                    }
+                }
+                val pendingFingerprint = runCreationOutputOperation(
+                    operation = ArchiveCreationOutputOperation.VERIFY,
+                    outputDisplayName = displayName,
+                    format = ArchiveFormat.ZIP,
+                ) {
+                    val descriptor = session.openPendingOutput(transaction.id)
+                    ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { input ->
+                        fingerprint(input, checkCancelled)
+                    }
+                }
+                if (
+                    pendingFingerprint.bytes != expectedFingerprint.bytes ||
+                    !MessageDigest.isEqual(
+                        pendingFingerprint.sha256,
+                        expectedFingerprint.sha256,
+                    )
+                ) {
+                    throw ArchiveCreationOutputException(
+                        operation = ArchiveCreationOutputOperation.VERIFY,
+                        outputDisplayName = displayName,
+                        cause = IOException("Host pending ZIP volume differs from its staging file"),
+                        format = ArchiveFormat.ZIP,
+                    )
                 }
             }
         } catch (error: Throwable) {
@@ -249,6 +312,26 @@ internal class ZipSplitOutputPublisher(
         }
     }
 
+    private fun fingerprint(
+        source: InputStream,
+        checkCancelled: () -> Unit,
+    ): VolumeFingerprint {
+        val digest = MessageDigest.getInstance(SHA_256)
+        var bytes = 0L
+        BufferedInputStream(source, BUFFER_SIZE).use { input ->
+            val buffer = ByteArray(BUFFER_SIZE)
+            while (true) {
+                checkCancelled()
+                val read = input.read(buffer)
+                if (read < 0) break
+                if (read == 0) continue
+                digest.update(buffer, 0, read)
+                bytes = Math.addExact(bytes, read.toLong())
+            }
+        }
+        return VolumeFingerprint(bytes, digest.digest())
+    }
+
     private fun abortPendingOrThrow(operationFailure: Throwable) {
         if (pending.isEmpty()) return
         val residual = mutableListOf<HostOutputTransaction>()
@@ -279,10 +362,16 @@ internal class ZipSplitOutputPublisher(
         val hostFailure: IllegalArgumentException,
     ) : IllegalStateException("ZIP split output name is unavailable", hostFailure)
 
+    private data class VolumeFingerprint(
+        val bytes: Long,
+        val sha256: ByteArray,
+    )
+
     private companion object {
         const val ZIP_SUFFIX = ".zip"
         const val SPLIT_PART_MIME_TYPE = "application/octet-stream"
         const val MAX_NUMBERING_ATTEMPTS = 10_000
         const val BUFFER_SIZE = 64 * 1_024
+        const val SHA_256 = "SHA-256"
     }
 }

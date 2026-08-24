@@ -1,4 +1,4 @@
-Usa el Gestor de archivos comprimidos desde el gestor de archivos principal:
+Usa Archive Manager desde el gestor de archivos principal:
 
 1. Instala y activa el plugin `Archive Manager`.
 2. Abre el menú adicional de un archivo comprimido compatible.

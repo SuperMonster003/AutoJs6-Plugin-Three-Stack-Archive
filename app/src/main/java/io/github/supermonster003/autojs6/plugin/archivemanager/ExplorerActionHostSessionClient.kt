@@ -111,6 +111,10 @@ internal class ExplorerActionHostSessionClient(
     fun openOutput(transactionId: String): ParcelFileDescriptor =
         remote.openOutput(transactionId) ?: error("Host returned no output descriptor")
 
+    fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
+        remote.openPendingOutput(transactionId)
+            ?: error("Host returned no pending output descriptor")
+
     fun commitOutput(
         transactionId: String,
         format: ArchiveFormat,

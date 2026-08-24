@@ -4,7 +4,8 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
-import net.lingala.zip4j.ZipFile
+import net.lingala.zip4j.io.outputstream.SplitOutputStream
+import net.lingala.zip4j.io.outputstream.ZipOutputStream as Zip4jOutputStream
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.CompressionMethod
@@ -12,7 +13,9 @@ import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
+import org.apache.commons.compress.archivers.sevenz.AndroidSevenZEncryption
 import org.apache.commons.compress.archivers.sevenz.SevenZMethod
+import org.apache.commons.compress.archivers.sevenz.SevenZMethodConfiguration
 import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
@@ -132,8 +135,12 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
 
         try {
             FileOutputStream(source).use { fileOutput ->
-                SevenZOutputFile(fileOutput.channel, TEST_PASSWORD.toCharArray()).use { output ->
-                    output.setContentCompression(SevenZMethod.LZMA2)
+                SevenZOutputFile(fileOutput.channel).use { output ->
+                    AndroidSevenZEncryption.configure(
+                        output,
+                        TEST_PASSWORD.toCharArray(),
+                        SevenZMethodConfiguration(SevenZMethod.LZMA2),
+                    )
                     output.putArchiveEntry(
                         SevenZArchiveEntry().apply {
                             name = "目录/hello.txt"
@@ -213,18 +220,8 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
 
         listOf(EncryptionMethod.AES, EncryptionMethod.ZIP_STANDARD).forEach { encryption ->
             val source = File(context.cacheDir, "encrypted-${encryption.name}-${UUID.randomUUID()}.zip")
-            val payload = File(context.cacheDir, "payload-${UUID.randomUUID()}.txt")
             try {
-                payload.writeBytes(expected)
-                val parameters = ZipParameters().apply {
-                    fileNameInZip = "payload.txt"
-                    isEncryptFiles = true
-                    encryptionMethod = encryption
-                    aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
-                }
-                ZipFile(source, TEST_PASSWORD.toCharArray()).use { archive ->
-                    archive.addFile(payload, parameters)
-                }
+                writeEncryptedZip(source, "payload.txt", expected, encryption)
 
                 val locked = ArchiveScanner().scan(source).entries.single()
                 assertTrue(locked.isEncrypted)
@@ -245,7 +242,6 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
                     assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
                 }
             } finally {
-                payload.delete()
                 source.delete()
             }
         }
@@ -255,23 +251,28 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
     fun standardSplitZipIsReportedAsMissingVolumesOnTheDeviceRuntime() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val source = File(context.cacheDir, "split-${UUID.randomUUID()}.zip")
-        val payload = File(context.cacheDir, "split-payload-${UUID.randomUUID()}.bin")
         var splitFiles = emptyList<File>()
 
         try {
-            payload.writeBytes(ByteArray(70_000) { index -> (index * 31 + 17).toByte() })
-            ZipFile(source).use { archive ->
-                archive.createSplitZipFile(
-                    listOf(payload),
+            val payload = ByteArray(70_000) { index -> (index * 31 + 17).toByte() }
+            Zip4jOutputStream(SplitOutputStream(source, SPLIT_VOLUME_BYTES)).use { output ->
+                output.putNextEntry(
                     ZipParameters().apply {
+                        fileNameInZip = "payload.bin"
                         compressionMethod = CompressionMethod.STORE
+                        entrySize = payload.size.toLong()
+                        isWriteExtendedLocalFileHeader = false
                     },
-                    true,
-                    65_536L,
                 )
-                splitFiles = archive.splitZipFiles
+                output.write(payload)
+                output.closeEntry()
             }
+            splitFiles = listOf(
+                File(source.parentFile, "${source.nameWithoutExtension}.z01"),
+                source,
+            )
 
+            assertTrue(splitFiles.all(File::isFile))
             assertEquals(2, splitFiles.size)
             val info = requireNotNull(ZipSplitArchiveDetector.inspect(source))
             assertEquals(ZipSplitSegmentKind.FINAL_VOLUME, info.segmentKind)
@@ -286,7 +287,27 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
         } finally {
             splitFiles.forEach(File::delete)
             source.delete()
-            payload.delete()
+        }
+    }
+
+    private fun writeEncryptedZip(
+        target: File,
+        entryName: String,
+        payload: ByteArray,
+        encryption: EncryptionMethod,
+    ) {
+        Zip4jOutputStream(FileOutputStream(target), TEST_PASSWORD.toCharArray()).use { output ->
+            output.putNextEntry(
+                ZipParameters().apply {
+                    fileNameInZip = entryName
+                    compressionMethod = CompressionMethod.DEFLATE
+                    isEncryptFiles = true
+                    encryptionMethod = encryption
+                    aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
+                },
+            )
+            output.write(payload)
+            output.closeEntry()
         }
     }
 
@@ -328,6 +349,7 @@ class ArchiveRuntimeCompatibilityInstrumentationTest {
     }
 
     private companion object {
+        const val SPLIT_VOLUME_BYTES = 65_536L
         const val TEST_PASSWORD = "ArchiveManager-Test-2026"
     }
 

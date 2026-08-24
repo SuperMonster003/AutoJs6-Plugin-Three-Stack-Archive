@@ -74,7 +74,7 @@ internal object SevenZArchiveBackend : ArchiveBackend {
         session: IExplorerActionHostSession,
         cacheDirectory: File?,
     ): ArchiveWriter =
-        SevenZArchiveCreator(session)
+        SevenZArchiveCreator(session, cacheDirectory)
 
     private fun openArchive(source: ArchiveReadSource, password: CharArray?): SevenZFile {
         val channel = source.openSeekableChannel()

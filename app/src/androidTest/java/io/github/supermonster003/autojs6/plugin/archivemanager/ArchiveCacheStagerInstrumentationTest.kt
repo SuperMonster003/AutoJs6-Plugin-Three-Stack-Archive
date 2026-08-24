@@ -1,5 +1,6 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.system.Os
 import android.system.OsConstants
@@ -10,9 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import net.lingala.zip4j.ZipFile as Zip4jFile
+import net.lingala.zip4j.io.outputstream.ZipOutputStream as Zip4jOutputStream
 import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.AesKeyStrength
+import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZMethod
@@ -83,10 +85,23 @@ class ArchiveCacheStagerInstrumentationTest {
                     reportedSize = source.length(),
                 )
                 try {
-                    assertEquals(ArchiveInputStorage.SEEKABLE_DESCRIPTOR, staged.storage)
-                    assertEquals(null, staged.source.localFile)
+                    val descriptorBacked = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    assertEquals(
+                        if (descriptorBacked) {
+                            ArchiveInputStorage.SEEKABLE_DESCRIPTOR
+                        } else {
+                            ArchiveInputStorage.PRIVATE_CACHE
+                        },
+                        staged.storage,
+                    )
+                    if (descriptorBacked) {
+                        assertEquals(null, staged.source.localFile)
+                        assertTrue(cache.listFiles().isNullOrEmpty())
+                    } else {
+                        assertTrue(requireNotNull(staged.source.localFile).isFile)
+                        assertFalse(cache.listFiles().isNullOrEmpty())
+                    }
                     assertEquals(source.length(), staged.bytes)
-                    assertTrue(cache.listFiles().isNullOrEmpty())
 
                     val snapshot = ArchiveScanner().scan(staged.source)
                     assertEquals(fixture.format, snapshot.format)
@@ -99,10 +114,12 @@ class ArchiveCacheStagerInstrumentationTest {
                         val liveEntry = requireNotNull(reader.entryAt(entry.ordinal))
                         assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
                     }
-                    assertEquals(
-                        originalPosition,
-                        Os.lseek(descriptor.fileDescriptor, 0L, OsConstants.SEEK_CUR),
-                    )
+                    if (descriptorBacked) {
+                        assertEquals(
+                            originalPosition,
+                            Os.lseek(descriptor.fileDescriptor, 0L, OsConstants.SEEK_CUR),
+                        )
+                    }
                 } finally {
                     staged.close()
                     staged.close()
@@ -126,7 +143,14 @@ class ArchiveCacheStagerInstrumentationTest {
                 cacheDirectory = cache,
                 reportedSize = ArchiveIntentPolicy.SIZE_UNKNOWN,
             )
-            assertEquals(ArchiveInputStorage.SEEKABLE_DESCRIPTOR, staged.storage)
+            assertEquals(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    ArchiveInputStorage.SEEKABLE_DESCRIPTOR
+                } else {
+                    ArchiveInputStorage.PRIVATE_CACHE
+                },
+                staged.storage,
+            )
             assertTrue(source.delete())
 
             try {
@@ -153,43 +177,38 @@ class ArchiveCacheStagerInstrumentationTest {
         withTestDirectory { root ->
             val cache = File(root, "cache").apply { assertTrue(mkdirs()) }
             val source = File(root, "encrypted.zip")
-            val payload = File(root, "encrypted-payload.txt")
             val expected = "encrypted descriptor fallback".toByteArray()
-            payload.writeBytes(expected)
-            val parameters = ZipParameters().apply {
-                fileNameInZip = ENTRY_NAME
-                isEncryptFiles = true
-                encryptionMethod = EncryptionMethod.AES
-                aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
-            }
-            Zip4jFile(source, TEST_PASSWORD.toCharArray()).use { archive ->
-                archive.addFile(payload, parameters)
-            }
+            createEncryptedZip(source, expected)
 
-            val direct = ArchiveCacheStager.stage(
+            val initial = ArchiveCacheStager.stage(
                 source = ParcelFileDescriptor.open(source, ParcelFileDescriptor.MODE_READ_ONLY),
                 cacheDirectory = cache,
                 reportedSize = source.length(),
             )
-            assertEquals(ArchiveInputStorage.SEEKABLE_DESCRIPTOR, direct.storage)
-            try {
-                ArchiveScanner().scan(direct.source)
-                throw AssertionError("Expected encrypted ZIP to request a local file")
-            } catch (_: ArchiveLocalFileRequiredException) {
-                // Expected: Zip4j cannot consume an already-open descriptor directly.
+            var readable = initial
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                assertEquals(ArchiveInputStorage.SEEKABLE_DESCRIPTOR, initial.storage)
+                try {
+                    ArchiveScanner().scan(initial.source)
+                    throw AssertionError("Expected encrypted ZIP to request a local file")
+                } catch (_: ArchiveLocalFileRequiredException) {
+                    // Expected: Zip4j cannot consume an already-open descriptor directly.
+                }
+                readable = ArchiveCacheStager.materialize(initial, cache)
+                initial.close()
+            } else {
+                assertEquals(ArchiveInputStorage.PRIVATE_CACHE, initial.storage)
             }
 
-            val cached = ArchiveCacheStager.materialize(direct, cache)
-            direct.close()
             try {
-                assertEquals(ArchiveInputStorage.PRIVATE_CACHE, cached.storage)
+                assertEquals(ArchiveInputStorage.PRIVATE_CACHE, readable.storage)
                 val snapshot = ArchiveScanner().scan(
-                    source = cached.source,
+                    source = readable.source,
                     options = ArchiveReaderOptions(password = TEST_PASSWORD.toCharArray()),
                 )
                 val entry = snapshot.entries.single()
                 ArchiveEngine.DEFAULT.openReader(
-                    source = cached.source,
+                    source = readable.source,
                     format = snapshot.format,
                     options = snapshot.readerOptions,
                 ).use { reader ->
@@ -197,7 +216,8 @@ class ArchiveCacheStagerInstrumentationTest {
                     assertArrayEquals(expected, reader.openEntry(liveEntry).use { it.readBytes() })
                 }
             } finally {
-                cached.close()
+                readable.close()
+                initial.close()
             }
 
             assertTrue(source.isFile)
@@ -439,6 +459,22 @@ class ArchiveCacheStagerInstrumentationTest {
     private fun createZip(target: File, payload: ByteArray) {
         ZipOutputStream(FileOutputStream(target)).use { output ->
             output.putNextEntry(ZipEntry(ENTRY_NAME))
+            output.write(payload)
+            output.closeEntry()
+        }
+    }
+
+    private fun createEncryptedZip(target: File, payload: ByteArray) {
+        Zip4jOutputStream(FileOutputStream(target), TEST_PASSWORD.toCharArray()).use { output ->
+            output.putNextEntry(
+                ZipParameters().apply {
+                    fileNameInZip = ENTRY_NAME
+                    compressionMethod = CompressionMethod.DEFLATE
+                    isEncryptFiles = true
+                    encryptionMethod = EncryptionMethod.AES
+                    aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
+                },
+            )
             output.write(payload)
             output.closeEntry()
         }

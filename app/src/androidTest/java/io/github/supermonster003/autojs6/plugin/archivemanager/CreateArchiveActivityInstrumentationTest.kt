@@ -825,6 +825,9 @@ class CreateArchiveActivityInstrumentationTest {
         override fun openOutput(transactionId: String): ParcelFileDescriptor =
             error("Output access is not expected")
 
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
+            error("Output verification is not expected")
+
         override fun commitOutput(transactionId: String): Bundle = error("Commit is not expected")
 
         override fun abortOutput(transactionId: String) = Unit
@@ -882,6 +885,9 @@ class CreateArchiveActivityInstrumentationTest {
             assertEquals(this.transactionId, transactionId)
             throw IOException("simulated output open failure")
         }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
+            error("Output verification is not expected")
 
         override fun commitOutput(transactionId: String): Bundle = error("Commit is not expected")
 

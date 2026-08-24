@@ -232,7 +232,7 @@ class ArchiveCreationBatchInstrumentationTest {
             )
 
             val result = ArchiveCreationBatchExecutor.execute(
-                writer = ZipArchiveCreator(host),
+                writer = ZipArchiveCreator(host, cacheRoot),
                 plan = plan,
                 checkCancelled = { },
                 progress = ArchiveCreationBatchProgressListener { },
@@ -354,6 +354,9 @@ class ArchiveCreationBatchInstrumentationTest {
 
         override fun openOutput(transactionId: String): ParcelFileDescriptor = error("Not used")
 
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
+            error("Not used")
+
         override fun commitOutput(transactionId: String): Bundle = error("Not used")
 
         override fun abortOutput(transactionId: String) = Unit
@@ -416,6 +419,11 @@ class ArchiveCreationBatchInstrumentationTest {
                     ParcelFileDescriptor.MODE_TRUNCATE or
                     ParcelFileDescriptor.MODE_WRITE_ONLY,
             )
+        }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            val output = requireNotNull(pending[transactionId])
+            return ParcelFileDescriptor.open(output.file, ParcelFileDescriptor.MODE_READ_ONLY)
         }
 
         override fun commitOutput(transactionId: String): Bundle {

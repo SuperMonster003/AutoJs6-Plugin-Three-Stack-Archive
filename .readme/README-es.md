@@ -59,7 +59,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.
 - Crear un archivo por elemento de una selección con el mismo directorio padre; el formulario muestra la cantidad de salidas y los nombres derivados, y numera los nombres existentes o repetidos sin sobrescribir. Cada salida se confirma por separado; una cancelación o un fallo conserva e informa las salidas completadas y bloquea un reintento ambiguo de todo el lote.
 - Crear ZIP normales o divididos estándar, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con nombre configurable y solo los niveles y opciones de contraseña que admita el formato elegido.
-- Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; elegir numeración automática o probar el nombre exacto y preguntar antes de reintentar con un número, sin sobrescribir archivos existentes. Tras reservar el nombre, se analiza una instantánea acotada del origen antes de abrir la salida temporal; el formulario distingue análisis, compresión y confirmación, y muestra el total de archivos, los bytes leídos y los tamaños desconocidos. Un fallo cancela la transacción; si el host no puede confirmar la limpieza de la salida temporal, el formulario muestra la ruta prevista e impide otro intento.
+- Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; elegir numeración automática o probar el nombre exacto y preguntar antes de reintentar con un número, sin sobrescribir archivos existentes. Tras reservar el nombre, se analiza una instantánea acotada del origen antes de abrir la salida temporal; el formulario distingue análisis, compresión, verificación y confirmación, y muestra el total de archivos, los bytes leídos y los tamaños desconocidos. Antes de publicarla, la salida aún oculta se vuelve a leer por completo para comprobar formato, entradas, tamaños, CRC y huellas del contenido. Un fallo de creación o verificación cancela la transacción; si el host no puede confirmar la limpieza, el formulario muestra la ruta prevista e impide otro intento.
 
 ### Formatos actuales
 
@@ -75,7 +75,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La exploración nativa y la vista previa de entradas de Explorer Action v6, junto con la compresión v4, requieren AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, la lectura de volúmenes divididos existentes, el cifrado de nombres al crear, la eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
+> La integración completa usa Explorer Action v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, la lectura de volúmenes divididos existentes, el cifrado de nombres al crear, la eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
@@ -93,7 +93,7 @@ El complemento no solicita permisos de almacenamiento ni de red. La exploración
 
 Los presupuestos de recursos solo deciden cuándo avisar o pedir confirmación; nunca reducen la seguridad estructural. Tras confirmar, los límites de bytes y relación solo aumentan hasta los valores declarados por las entradas seleccionadas para esa extracción. El crecimiento no declarado, los cambios del origen y las diferencias de tamaño o CRC siguen cancelando y limpiando la salida.
 
-Al crear un ZIP dividido, el complemento monta primero el conjunto en la caché privada, elimina esa copia antes de que el anfitrión confirme archivos y nunca sobrescribe nombres existentes. Publica los volúmenes numerados antes del `.zip` final. Como el anfitrión actual no ofrece confirmación atómica de grupos, cualquier resultado parcial se informa de forma explícita y no se presenta como un archivo completo.
+Al crear un ZIP dividido, el complemento monta y verifica todo el conjunto en la caché privada, copia cada volumen a una salida oculta del anfitrión y compara byte a byte cada volumen pendiente. Solo entonces elimina la copia privada y publica los volúmenes numerados antes del `.zip` final; nunca sobrescribe nombres existentes. Como el anfitrión actual no ofrece confirmación atómica de grupos, cualquier confirmación parcial se informa de forma explícita y no se presenta como un archivo completo.
 
 Los nombres no seguros solo se muestran como texto de solo lectura detrás de identificadores opacos y nunca se convierten en rutas de salida.
 
@@ -105,9 +105,9 @@ Las tareas y criterios para más formatos, lectura de volúmenes divididos, extr
 
 ### Notas de la versión
 
-#### Unreleased
+#### v2.0.0
 
-_Sin publicar_
+_2026/08/25_
 
 - `Añadido` El producto pasa a llamarse Archive Manager y la acción, Abrir archivo comprimido
 - `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
@@ -132,11 +132,14 @@ _Sin publicar_
 - `Corregido` La codificación de nombres ZIP se puede cambiar cuando la detección automática sea incorrecta y la extracción reutiliza la selección
 - `Corregido` Los tamaños desconocidos, URI DocumentsProvider válidos y permisos de escritura adicionales del host ya no bloquean archivos válidos
 - `Corregido` Corregida la exploración y extracción de ZIP en Android 7.x, que fallaba al llamar a API exclusivas de sistemas más recientes
+- `Corregido` Los ZIP con nombres Unicode se abren ahora correctamente en Android 7, incluso si falta la marca de nombre UTF-8 o el backend la interpreta de forma incoherente
 - `Corregido` Las contraseñas incorrectas ahora se clasifican de forma estable como PASSWORD/WRONG_PASSWORD y las entradas AES v2 con CRC almacenado igual a cero ya no se marcan erróneamente como dañadas
 - `Corregido` La carpeta de extracción predeterminada de extensiones compuestas como TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST elimina ahora el sufijo completo en lugar de conservar `.tar`
 - `Corregido` Los archivos con nombres que contienen recorridos al directorio padre, rutas absolutas, prefijos de unidad o caracteres de control siguen siendo explorables; esos nombres pasan a una carpeta aislada de solo lectura, conservan la vista previa cuando sus datos son legibles y deben omitirse explícitamente antes de extraer
 - `Corregido` La extracción ya no sobrescribe archivos ni carpetas existentes cuando el proveedor de destino considera idénticos los nombres que solo difieren en mayúsculas o minúsculas o son equivalentes en Unicode; las carpetas de salida equivalentes se numeran automáticamente
 - `Corregido` La cancelación o un fallo de extracción revierte la nueva raíz de salida en una fase de limpieza no cancelable; si el proveedor rechaza la eliminación, se muestran el nombre y el URI del posible residuo en lugar de solo un error genérico
+- `Corregido` La creación de 7Z cifrados funciona ahora en Android 7 y la verificación empareja entradas por ruta para que las diferencias válidas de orden del backend no produzcan fallos falsos
+- `Corregido` La página de gestión se adapta ahora a pantallas bajas en vertical y horizontal: el archivo y la ruta pasan a la barra, los ajustes siguen disponibles en una fila horizontal compacta y las entradas y acciones permanecen visibles con fuentes de hasta 2,0x
 - `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
 - `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
 - `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material
@@ -145,7 +148,8 @@ _Sin publicar_
 - `Mejorado` Los fallos identifican el formato, la etapa, un código estable y el motivo; las compilaciones de depuración permiten copiar el diagnóstico completo
 - `Mejorado` Los archivos normales ahora se exploran mediante canales con posición independiente sobre el descriptor de solo lectura del host, sin copiar todo el archivo; las entradas o lectores incompatibles (actualmente incluido ZIP cifrado) recurren a la caché privada, que se limpia al cerrar, fallar o caducar
 - `Mejorado` Se unificaron las transacciones de salida al crear ZIP, 7Z y TAR; las fuentes ilegibles y los fallos al reservar, abrir, escribir o confirmar tienen etapas estables, mientras que una cancelación no confirmada cierra la sesión, muestra la ruta prevista e impide un reintento inseguro
-- `Mejorado` La creación analiza el origen antes de abrir la salida temporal y muestra estados separados de análisis, compresión y confirmación, con el total de archivos, los bytes leídos y los tamaños desconocidos
+- `Mejorado` La creación analiza el origen antes de abrir la salida temporal y muestra estados separados de análisis, compresión, verificación y confirmación, con el total de archivos, los bytes leídos y los tamaños desconocidos
+- `Mejorado` Los archivos creados se vuelven a leer por completo antes de publicarlos para comprobar formato, entradas, tamaños, CRC y huellas del contenido; cada volumen ZIP pendiente también se compara byte a byte
 - `Dependencia` Se añadió Zip4j 2.11.5 con licencia Apache 2.0 para flujos ZIP cifrados, creación AES-256 y la ruta de compatibilidad con Android 7.x
 - `Dependencia` Se añadió XZ for Java 1.12 con licencia 0BSD para leer y escribir TAR.XZ/TXZ en Java puro sin ABI nativas
 - `Dependencia` Se añadió zstd-jni 1.5.7-15 con licencia BSD para leer y escribir TAR.ZST/TZST; las cuatro ABI de Android superan las comprobaciones de alineación ELF de 16 KiB y RELRO

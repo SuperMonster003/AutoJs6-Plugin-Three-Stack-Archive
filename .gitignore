@@ -1,6 +1,7 @@
 *.apk
 *.zip
 !app/src/test/resources/archive-fixtures/*.zip
+!app/src/test/resources/regression-fixtures/*.zip
 *.exe
 *.iml
 *.jks

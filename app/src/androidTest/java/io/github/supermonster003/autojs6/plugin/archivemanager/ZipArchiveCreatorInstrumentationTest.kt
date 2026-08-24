@@ -30,7 +30,11 @@ class ZipArchiveCreatorInstrumentationTest {
         val session = FakeHostSession(cacheDirectory)
         val request = request(session)
 
-        val result = ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.ZIP, session).create(
+        val result = ArchiveEngine.DEFAULT.createWriter(
+            ArchiveFormat.ZIP,
+            session,
+            cacheDirectory,
+        ).create(
             request = request,
             options = ArchiveCreationOptions("Documents.zip", 6),
             checkCancelled = {},
@@ -64,7 +68,11 @@ class ZipArchiveCreatorInstrumentationTest {
         val session = FakeHostSession(cacheDirectory)
         val request = request(session)
 
-        ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.ZIP, session).create(
+        ArchiveEngine.DEFAULT.createWriter(
+            ArchiveFormat.ZIP,
+            session,
+            cacheDirectory,
+        ).create(
             request = request,
             options = ArchiveCreationOptions(
                 outputDisplayName = "Documents.zip",
@@ -98,9 +106,10 @@ class ZipArchiveCreatorInstrumentationTest {
 
     @Test
     fun everyWriterRejectsAnUnavailableExactNameBeforeOpeningSourcesOrOutput() {
+        val cacheDirectory = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
         ArchiveEngine.DEFAULT.creatableFormats.forEach { format ->
             val session = ExactNameRejectingHostSession()
-            val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+            val writer = ArchiveEngine.DEFAULT.createWriter(format, session, cacheDirectory)
             val outputName = "Documents.${format.primaryExtension}"
 
             val error = org.junit.Assert.assertThrows(
@@ -214,6 +223,11 @@ class ZipArchiveCreatorInstrumentationTest {
             )
         }
 
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            assertEquals(this.transactionId, transactionId)
+            return ParcelFileDescriptor.open(outputFile, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
         override fun commitOutput(transactionId: String): Bundle {
             assertEquals(this.transactionId, transactionId)
             committed = true
@@ -300,6 +314,9 @@ class ZipArchiveCreatorInstrumentationTest {
             outputAccessCalls += 1
             error("Output must not open when reservation fails")
         }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
+            error("Output verification must not run when reservation fails")
 
         override fun commitOutput(transactionId: String): Bundle =
             error("Commit must not run when reservation fails")

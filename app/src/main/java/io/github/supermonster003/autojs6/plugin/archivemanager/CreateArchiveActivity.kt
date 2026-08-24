@@ -462,6 +462,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         when (update.phase) {
             ArchiveCreationPhase.SCANNING -> renderScanningProgress(update)
             ArchiveCreationPhase.COMPRESSING -> renderCompressingProgress(update)
+            ArchiveCreationPhase.VERIFYING -> getString(R.string.text_verifying_archive)
             ArchiveCreationPhase.COMMITTING -> getString(R.string.text_committing_archive)
         }
 

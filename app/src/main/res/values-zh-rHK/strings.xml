@@ -4,7 +4,7 @@
     <string name="action_selective_extract" tools:ignore="TypographyEllipsis">選擇性解壓縮...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解壓縮到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>
-    <string name="app_name">壓縮檔管理器</string>
+    <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">取消</string>
     <string name="dialog_button_continue">繼續</string>
     <string name="dialog_button_skip_unsafe">略過並繼續</string>
@@ -92,6 +92,7 @@
     <string name="text_confirm_password">確認密碼</string>
     <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">正在準備壓縮...</string>
     <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">正在掃描來源項目...</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">正在驗證壓縮檔案...</string>
     <string name="text_committing_archive" tools:ignore="TypographyEllipsis">正在提交壓縮檔案...</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">正在準備解壓縮...</string>
     <string name="text_split_unavailable_for_format">%1$s 目前尚未支援分卷輸出.</string>
@@ -170,6 +171,10 @@
     <string name="text_custom_budget_zero_note">項目數、路徑長度及深度填 0 時使用不可放寬的結構上限; 大小及壓縮比填 0 時不設資源警告門檻. 路徑結構安全無法停用.</string>
     <string name="text_extraction_budget">解壓縮預算</string>
     <string name="text_extraction_conflict_policy">輸出名稱發生衝突時</string>
+    <string name="text_compact_extraction_budget">預算</string>
+    <string name="text_compact_conflict_policy">衝突</string>
+    <string name="text_compact_filename_encoding">編碼</string>
+    <string name="text_compact_search">搜尋</string>
     <string name="text_conflict_policy_ask">每次詢問</string>
     <string name="text_conflict_policy_skip">略過</string>
     <string name="text_conflict_policy_overwrite">覆寫</string>

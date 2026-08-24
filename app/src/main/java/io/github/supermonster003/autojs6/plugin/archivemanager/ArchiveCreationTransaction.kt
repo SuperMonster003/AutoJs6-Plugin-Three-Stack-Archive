@@ -8,6 +8,7 @@ internal enum class ArchiveCreationOutputOperation {
     PREPARE,
     OPEN,
     WRITE,
+    VERIFY,
     COMMIT,
 }
 
@@ -27,6 +28,7 @@ internal class ArchiveCreationOutputException(
         ArchiveCreationOutputOperation.PREPARE -> "Archive output could not be reserved"
         ArchiveCreationOutputOperation.OPEN -> "Archive output could not be opened"
         ArchiveCreationOutputOperation.WRITE -> "Archive output could not be written"
+        ArchiveCreationOutputOperation.VERIFY -> "Archive output could not be verified"
         ArchiveCreationOutputOperation.COMMIT -> "Archive output could not be committed"
     },
     cause = cause,
@@ -131,7 +133,7 @@ internal data class CommittedArchiveOutput<T>(
 )
 
 /**
- * Runs the shared prepare/open/write/commit state machine used by every archive creator.
+ * Runs the shared prepare/open/write/verify/commit state machine used by every archive creator.
  *
  * Once preparation succeeds, every non-committed path asks the host to abort exactly once. A
  * failed abort becomes a typed cleanup failure instead of disappearing in a suppressed exception.
@@ -142,6 +144,7 @@ internal fun <Preparation, T> ExplorerActionHostSessionClient.writeArchiveOutput
     conflictPolicy: ArchiveCreationConflictPolicy,
     prepareAfterReservation: () -> Preparation,
     write: (ParcelFileDescriptor, Preparation) -> T,
+    verify: (ParcelFileDescriptor, Preparation, T) -> Unit,
     beforeCommit: (Preparation, T) -> Unit,
 ): CommittedArchiveOutput<T> {
     val prepared = try {
@@ -175,6 +178,20 @@ internal fun <Preparation, T> ExplorerActionHostSessionClient.writeArchiveOutput
             format = format,
         ) {
             descriptor.use { write(it, preparation) }
+        }
+        val pendingDescriptor = runCreationOutputOperation(
+            operation = ArchiveCreationOutputOperation.VERIFY,
+            outputDisplayName = prepared.displayName,
+            format = format,
+        ) {
+            openPendingOutput(prepared.id)
+        }
+        runCreationOutputOperation(
+            operation = ArchiveCreationOutputOperation.VERIFY,
+            outputDisplayName = prepared.displayName,
+            format = format,
+        ) {
+            pendingDescriptor.use { verify(it, preparation, value) }
         }
         beforeCommit(preparation, value)
         val committed = runCreationOutputOperation(
@@ -216,10 +233,10 @@ internal fun mapCreationOutputFailure(
     outputDisplayName: String,
     format: ArchiveFormat,
     error: Throwable,
-): Throwable = when (error) {
-    is CancellationException,
-    is ArchiveException,
-    is Error,
-    -> error
+): Throwable = when {
+    error is CancellationException || error is Error -> error
+    error is ArchiveCreationSourceException -> error
+    error is ArchiveCreationOutputException -> error
+    operation != ArchiveCreationOutputOperation.VERIFY && error is ArchiveException -> error
     else -> ArchiveCreationOutputException(operation, outputDisplayName, error, format)
 }

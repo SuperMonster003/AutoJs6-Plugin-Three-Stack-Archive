@@ -210,6 +210,7 @@ internal class ArchiveOutputNameUnavailableException(
 internal enum class ArchiveCreationPhase {
     SCANNING,
     COMPRESSING,
+    VERIFYING,
     COMMITTING,
 }
 

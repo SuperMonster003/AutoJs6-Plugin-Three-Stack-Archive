@@ -22,6 +22,11 @@ internal class ZipArchiveCreator(
 
     private val session = ExplorerActionHostSessionClient(remoteSession)
     private val sourceWalker = ArchiveSourceWalker(session)
+    private val verifier = CreatedArchiveVerifier(
+        requireNotNull(cacheDirectory) {
+            "ZIP creation requires a private cache directory for output verification"
+        },
+    )
 
     override fun create(
         request: ArchiveCompressionRequest,
@@ -103,6 +108,18 @@ internal class ZipArchiveCreator(
                     )
                 }.also { checkCancelled() }
             },
+            verify = { descriptor, manifest, counters ->
+                checkCancelled()
+                progress.reportVerifying(manifest, counters)
+                    verifier.verifyPendingOutput(
+                        descriptor = descriptor,
+                        format = format,
+                    manifest = manifest,
+                    counters = counters,
+                    password = password,
+                    checkCancelled = checkCancelled,
+                )
+            },
             beforeCommit = { manifest, counters ->
                 checkCancelled()
                 progress.reportCommitting(manifest, counters)
@@ -162,10 +179,26 @@ internal class ZipArchiveCreator(
             }
             checkCancelled()
             val volumes = activeWorkspace.collectVolumes()
+            progress.reportVerifying(manifest, counters)
+            runCreationOutputOperation(
+                operation = ArchiveCreationOutputOperation.VERIFY,
+                outputDisplayName = outputName,
+                format = format,
+            ) {
+                verifier.verifySplitZip(
+                    terminalFile = activeWorkspace.terminalFile,
+                    volumes = volumes,
+                    manifest = manifest,
+                    counters = counters,
+                    password = password,
+                    checkCancelled = checkCancelled,
+                )
+            }
             val terminalDisplayName = publisher.reserveCompleteGroup(volumes)
             publisher.writePendingVolumes(volumes, terminalDisplayName, checkCancelled)
+            publisher.verifyPendingVolumes(volumes, terminalDisplayName, checkCancelled)
 
-            // Remove the private plaintext/encrypted staging copy before publishing any host file.
+            // Remove the private staging copy after every host pending file matches it byte-for-byte.
             activeWorkspace.close()
             workspace = null
 
@@ -216,13 +249,14 @@ internal class ZipArchiveCreator(
         progress: ArchiveCreationProgressListener,
         checkOutputCapacity: () -> Unit = { },
     ): ArchiveCreationCounters {
-        val counters = ArchiveCreationCounters()
+        val counters = ArchiveCreationCounters(manifest.entries.size)
         progress.reportCompression(manifest, counters, currentEntry = null)
         ZipOutputStream(output, password).use { zipOutput ->
-            manifest.entries.forEach { item ->
+            manifest.entries.forEachIndexed { entryIndex, item ->
                 checkCancelled()
                 progress.reportCompression(manifest, counters, item.archivePath)
                 processSource(
+                    entryIndex = entryIndex,
                     item = item,
                     manifest = manifest,
                     zipOutput = zipOutput,
@@ -240,6 +274,7 @@ internal class ZipArchiveCreator(
     }
 
     private fun processSource(
+        entryIndex: Int,
         item: ArchiveSourceEntry,
         manifest: ArchiveSourceManifest,
         zipOutput: ZipOutputStream,
@@ -275,7 +310,7 @@ internal class ZipArchiveCreator(
                         encryptFiles = encryptFiles,
                     ),
                 )
-                sourceWalker.copyFile(
+                val fingerprint = sourceWalker.copyFileWithFingerprint(
                     entry = item,
                     output = zipOutput,
                     expectedSize = item.size.takeIf { it >= 0L },
@@ -286,6 +321,7 @@ internal class ZipArchiveCreator(
                         progress.reportCompression(manifest, counters, item.archivePath)
                     },
                 )
+                counters.recordSourceFingerprint(entryIndex, fingerprint)
                 zipOutput.closeEntry()
                 counters.files++
                 checkOutputCapacity()

@@ -121,13 +121,7 @@ internal object ZipArchiveAccess {
         }
         if (rawNames.isEmpty() || rawNames.all(::isAscii)) return CP437
 
-        return charsetCandidates(locale)
-            .mapIndexedNotNull { index, charset ->
-                scoreRawNames(charset, rawNames, locale)?.let { Triple(charset, it, -index) }
-            }
-            .maxWithOrNull(compareBy<Triple<Charset, Int, Int>> { it.second }.thenBy { it.third })
-            ?.first
-            ?: CP437
+        return detectRawFilenameCharset(rawNames, locale) ?: CP437
     }
 
     /**
@@ -137,6 +131,13 @@ internal object ZipArchiveAccess {
     private fun detectZip4jCharset(source: ArchiveReadSource, locale: Locale): Charset {
         val localFile = requireNotNull(source.localFile) {
             "Zip4j requires a process-readable archive file"
+        }
+        ZipCentralDirectoryNameReader.readNonUtf8Names(localFile)?.let { rawNames ->
+            // Zip4j on Android 7 can expose UTF-8-flagged names through its configured fallback
+            // charset. UTF-8 is therefore the only lossless default when every legacy name is
+            // ASCII; ASCII itself decodes identically under all supported candidates.
+            if (rawNames.isEmpty()) return UTF8
+            detectRawFilenameCharset(rawNames, locale)?.let { return it }
         }
         return charsetCandidates(locale)
             .mapIndexedNotNull { index, charset ->
@@ -152,6 +153,17 @@ internal object ZipArchiveAccess {
             ?.first
             ?: CP437
     }
+
+    /** Uses round-trip-safe central-directory bytes instead of backend-decoded candidate names. */
+    internal fun detectRawFilenameCharset(
+        rawNames: List<ByteArray>,
+        locale: Locale,
+    ): Charset? = charsetCandidates(locale)
+        .mapIndexedNotNull { index, charset ->
+            scoreRawNames(charset, rawNames, locale)?.let { Triple(charset, it, -index) }
+        }
+        .maxWithOrNull(compareBy<Triple<Charset, Int, Int>> { it.second }.thenBy { it.third })
+        ?.first
 
     /** Avoids the Path-based Commons builder branch and gives the archive ownership of the channel. */
     @Suppress("DEPRECATION")
@@ -287,6 +299,7 @@ internal object ZipArchiveAccess {
     }
 
     private val CP437: Charset = Charset.forName("IBM437")
+    private val UTF8: Charset = Charset.forName("UTF-8")
     private const val MULTIBYTE_COMPACTNESS_BONUS = 4
     private const val SIGNATURE_SCAN_BUFFER_SIZE = 64 * 1024
     private const val ZIP_SIGNATURE_SIZE = 4

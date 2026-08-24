@@ -398,6 +398,14 @@ class ZipSplitArchiveCreatorInstrumentationTest {
             )
         }
 
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            val transaction = requireNotNull(transactions[transactionId])
+            return ParcelFileDescriptor.open(
+                outputFile(transaction.displayName),
+                ParcelFileDescriptor.MODE_READ_ONLY,
+            )
+        }
+
         override fun commitOutput(transactionId: String): Bundle {
             val transaction = requireNotNull(transactions[transactionId])
             commitAttemptOrder += transaction.displayName

@@ -2,6 +2,8 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.content.ClipData
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.SystemClock
@@ -21,6 +23,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +53,7 @@ class ArchiveExtractionScopeInstrumentationTest {
                     activity.findViewById<RecyclerView>(R.id.entryList)
                         .findViewHolderForAdapterPosition(0) != null
             }
+            holdForExternalInspection()
 
             scenario.onActivity { activity ->
                 requireNotNull(activity.showExtractionScopeDialog()).let { dialog ->
@@ -100,6 +104,119 @@ class ArchiveExtractionScopeInstrumentationTest {
                         ),
                         dialogLabels(dialog),
                     )
+                    dialog.dismiss()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun shortLandscapeKeepsEntriesAndAllCompactSettingsAvailable() {
+        val archiveUri = createArchiveDocument()
+
+        ActivityScenario.launch<ArchiveManagerActivity>(archiveIntent(archiveUri)).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+            waitForActivity(scenario) { activity ->
+                activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            }
+
+            var screenHeightDp = Int.MAX_VALUE
+            scenario.onActivity { activity ->
+                screenHeightDp = activity.resources.configuration.screenHeightDp
+            }
+            assumeTrue("Device landscape height is not compact", screenHeightDp < 600)
+
+            waitForActivity(scenario) { activity ->
+                val list = activity.findViewById<RecyclerView>(R.id.entryList)
+                activity.findViewById<android.view.View>(R.id.compactOptions).isShown &&
+                    list.height > 0 &&
+                    list.findViewHolderForAdapterPosition(0) != null
+            }
+            holdForExternalInspection()
+            scenario.onActivity { activity ->
+                assertFalse(activity.findViewById<android.view.View>(R.id.archiveName).isShown)
+                assertFalse(
+                    activity.findViewById<android.view.View>(R.id.extractionBudgetLayout).isShown,
+                )
+                assertFalse(
+                    activity.findViewById<android.view.View>(
+                        R.id.extractionConflictPolicyLayout,
+                    ).isShown,
+                )
+                assertFalse(
+                    activity.findViewById<android.view.View>(R.id.filenameEncodingLayout).isShown,
+                )
+                assertFalse(activity.findViewById<android.view.View>(R.id.upButton).isShown)
+                assertTrue(activity.findViewById<android.view.View>(R.id.compactBudgetButton).isShown)
+                assertTrue(
+                    activity.findViewById<android.view.View>(R.id.compactConflictButton).isShown,
+                )
+                assertTrue(
+                    activity.findViewById<android.view.View>(R.id.compactEncodingButton).isShown,
+                )
+                assertTrue(
+                    activity.findViewById<android.view.View>(R.id.compactBudgetButton)
+                        .hasOnClickListeners(),
+                )
+                assertTrue(
+                    activity.findViewById<android.view.View>(R.id.compactConflictButton)
+                        .hasOnClickListeners(),
+                )
+                assertTrue(
+                    activity.findViewById<android.view.View>(R.id.compactEncodingButton)
+                        .hasOnClickListeners(),
+                )
+                if (screenHeightDp < 400) {
+                    assertFalse(activity.findViewById<android.view.View>(R.id.searchLayout).isShown)
+                    assertFalse(activity.findViewById<android.view.View>(R.id.currentPath).isShown)
+                    assertFalse(activity.findViewById<android.view.View>(R.id.selectedCount).isShown)
+                    assertTrue(
+                        activity.findViewById<android.view.View>(R.id.compactSearchButton).isShown,
+                    )
+                    assertTrue(
+                        activity.findViewById<android.view.View>(R.id.compactSearchButton)
+                            .hasOnClickListeners(),
+                    )
+                    val toolbar =
+                        activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                            R.id.toolbar,
+                        )
+                    assertTrue(toolbar.subtitle == null)
+                    assertTrue(
+                        toolbar.title.toString().contains('/'),
+                    )
+                }
+
+                activity.showCompactResourceBudgetDialog().let { dialog ->
+                    assertEquals(
+                        listOf(
+                            activity.getString(R.string.text_budget_profile_compatible),
+                            activity.getString(R.string.text_budget_profile_strict),
+                            activity.getString(R.string.text_budget_profile_custom),
+                        ),
+                        dialogLabels(dialog),
+                    )
+                    dialog.dismiss()
+                }
+                activity.showCompactConflictPolicyDialog().let { dialog ->
+                    assertEquals(
+                        listOf(
+                            activity.getString(R.string.text_conflict_policy_ask),
+                            activity.getString(R.string.text_conflict_policy_skip),
+                            activity.getString(R.string.text_conflict_policy_overwrite),
+                            activity.getString(R.string.text_conflict_policy_auto_rename),
+                        ),
+                        dialogLabels(dialog),
+                    )
+                    dialog.dismiss()
+                }
+                requireNotNull(activity.showCompactFilenameEncodingDialog()).let { dialog ->
+                    assertTrue(dialogLabels(dialog).isNotEmpty())
                     dialog.dismiss()
                 }
             }
@@ -216,6 +333,14 @@ class ArchiveExtractionScopeInstrumentationTest {
             dialog.listView.adapter.getItem(position).toString()
         }
 
+    private fun holdForExternalInspection() {
+        val requestedMillis = InstrumentationRegistry.getArguments()
+            .getString(EXTERNAL_INSPECTION_HOLD_MILLIS_ARGUMENT)
+            ?.toLongOrNull()
+            ?: return
+        SystemClock.sleep(requestedMillis.coerceIn(0L, MAX_EXTERNAL_INSPECTION_HOLD_MILLIS))
+    }
+
     private fun createArchiveDocument(): Uri {
         val archiveUri = requireNotNull(
             DocumentsContract.createDocument(
@@ -275,13 +400,33 @@ class ArchiveExtractionScopeInstrumentationTest {
         condition: (ArchiveManagerActivity) -> Boolean,
     ) {
         val deadline = SystemClock.elapsedRealtime() + ACTIVITY_TIMEOUT_MILLIS
+        var lastState = "activity unavailable"
         do {
             var satisfied = false
-            scenario.onActivity { activity -> satisfied = condition(activity) }
+            scenario.onActivity { activity ->
+                satisfied = condition(activity)
+                val list = activity.findViewById<RecyclerView>(R.id.entryList)
+                lastState = buildString {
+                    append("extractEnabled=")
+                    append(activity.findViewById<android.view.View>(R.id.extractButton).isEnabled)
+                    append(", adapterItems=")
+                    append(list.adapter?.itemCount ?: -1)
+                    append(", visibleChildren=")
+                    append(list.childCount)
+                    append(", size=")
+                    append(list.width)
+                    append('x')
+                    append(list.height)
+                    append(", shown=")
+                    append(list.isShown)
+                    append(", path=")
+                    append(activity.findViewById<android.widget.TextView>(R.id.currentPath).text)
+                }
+            }
             if (satisfied) return
             SystemClock.sleep(POLL_INTERVAL_MILLIS)
         } while (SystemClock.elapsedRealtime() < deadline)
-        throw AssertionError("Archive manager did not reach the expected state")
+        throw AssertionError("Archive manager did not reach the expected state: $lastState")
     }
 
     private fun resetProvider() {
@@ -298,6 +443,9 @@ class ArchiveExtractionScopeInstrumentationTest {
     private companion object {
         const val ACTIVITY_TIMEOUT_MILLIS = 10_000L
         const val ARCHIVE_NAME = "scope.zip"
+        const val EXTERNAL_INSPECTION_HOLD_MILLIS_ARGUMENT =
+            "archive_manager_hold_millis"
+        const val MAX_EXTERNAL_INSPECTION_HOLD_MILLIS = 30_000L
         const val POLL_INTERVAL_MILLIS = 50L
         const val REQUEST_ID = "123e4567-e89b-12d3-a456-426614174000"
         const val ZIP_MIME_TYPE = "application/zip"

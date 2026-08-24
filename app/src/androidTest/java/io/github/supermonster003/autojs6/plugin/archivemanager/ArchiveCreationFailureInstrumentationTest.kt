@@ -52,12 +52,32 @@ class ArchiveCreationFailureInstrumentationTest {
     }
 
     @Test
-    fun everyWriterTypesOutputWriteFailureAndAbortsThePreparedTransaction() {
+    fun everyWriterRejectsAnUnwritableOutputBeforeCommitAndAbortsIt() {
         forEveryFormat(FailureMode.WRITE) { format, session, error ->
-            error.requireOutputFailure(format, ArchiveCreationOutputOperation.WRITE)
+            val outputError = error as ArchiveCreationOutputException
+            assertTrue(
+                format.displayName,
+                outputError.operation == ArchiveCreationOutputOperation.WRITE ||
+                    outputError.operation == ArchiveCreationOutputOperation.VERIFY,
+            )
+            assertEquals(format.displayName, ArchiveFailureCode.OUTPUT_FAILURE, outputError.code)
+            assertEquals(format.displayName, ArchiveFailureStage.OUTPUT, outputError.stage)
+            assertEquals(format.displayName, format, outputError.format)
             assertEquals(format.displayName, 1, session.outputOpenCalls)
             assertEquals(format.displayName, 0, session.commitCalls)
             assertEquals(format.displayName, 1, session.abortCalls)
+            assertFalse(format.displayName, session.outputFile.exists())
+        }
+    }
+
+    @Test
+    fun everyWriterRejectsCorruptPendingOutputBeforeCommitAndAbortsIt() {
+        forEveryFormat(FailureMode.VERIFY) { format, session, error ->
+            error.requireOutputFailure(format, ArchiveCreationOutputOperation.VERIFY)
+            assertTrue(format.displayName, session.sourceOpenCalls > 0)
+            assertEquals(format.displayName, 0, session.commitCalls)
+            assertEquals(format.displayName, 1, session.abortCalls)
+            assertFalse(format.displayName, session.committed)
             assertFalse(format.displayName, session.outputFile.exists())
         }
     }
@@ -136,7 +156,7 @@ class ArchiveCreationFailureInstrumentationTest {
         ArchiveEngine.DEFAULT.creatableFormats.forEach { format ->
             val session = FailureHostSession(cacheDirectory, format, FailureMode.CANCEL_SCAN)
             try {
-                val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+                val writer = ArchiveEngine.DEFAULT.createWriter(format, session, cacheDirectory)
                 org.junit.Assert.assertThrows(CancellationException::class.java) {
                     writer.create(
                         request = request(session, FailureMode.CANCEL_SCAN),
@@ -172,7 +192,7 @@ class ArchiveCreationFailureInstrumentationTest {
             val session = FailureHostSession(cacheDirectory, format, FailureMode.SUCCESS)
             val updates = mutableListOf<ArchiveCreationProgress>()
             try {
-                val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+                val writer = ArchiveEngine.DEFAULT.createWriter(format, session, cacheDirectory)
                 val result = writer.create(
                     request = request(session, FailureMode.SUCCESS),
                     options = ArchiveCreationOptions(
@@ -200,6 +220,7 @@ class ArchiveCreationFailureInstrumentationTest {
                     listOf(
                         ArchiveCreationPhase.SCANNING,
                         ArchiveCreationPhase.COMPRESSING,
+                        ArchiveCreationPhase.VERIFYING,
                         ArchiveCreationPhase.COMMITTING,
                     ),
                     updates.map(ArchiveCreationProgress::phase).distinct(),
@@ -215,6 +236,11 @@ class ArchiveCreationFailureInstrumentationTest {
                 assertEquals(format.displayName, 1L, committing.completedFiles)
                 assertEquals(format.displayName, 1L, committing.completedDirectories)
                 assertEquals(format.displayName, SOURCE_BYTES.size.toLong(), committing.sourceBytesRead)
+                assertTrue(
+                    format.displayName,
+                    session.operationLog.indexOf("open-pending-output") <
+                        session.operationLog.indexOf("commit"),
+                )
             } finally {
                 session.cleanup()
             }
@@ -229,7 +255,7 @@ class ArchiveCreationFailureInstrumentationTest {
         ArchiveEngine.DEFAULT.creatableFormats.forEach { format ->
             val session = FailureHostSession(cacheDirectory, format, mode)
             try {
-                val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+                val writer = ArchiveEngine.DEFAULT.createWriter(format, session, cacheDirectory)
                 val error = org.junit.Assert.assertThrows(expectedFailureClass(mode)) {
                     writer.create(
                         request = request(session, mode),
@@ -252,6 +278,7 @@ class ArchiveCreationFailureInstrumentationTest {
         FailureMode.PREPARE,
         FailureMode.OPEN,
         FailureMode.WRITE,
+        FailureMode.VERIFY,
         FailureMode.COMMIT,
         -> ArchiveCreationOutputException::class.java
         FailureMode.ROLLBACK -> ArchiveCreationRollbackException::class.java
@@ -309,6 +336,7 @@ class ArchiveCreationFailureInstrumentationTest {
         PREPARE,
         OPEN,
         WRITE,
+        VERIFY,
         COMMIT,
         ROLLBACK,
         SOURCE_OPEN,
@@ -421,12 +449,25 @@ class ArchiveCreationFailureInstrumentationTest {
             if (mode == FailureMode.OPEN || mode == FailureMode.ROLLBACK) {
                 throw IOException("simulated output open failure")
             }
-            val openMode = if (mode == FailureMode.WRITE) {
-                ParcelFileDescriptor.MODE_READ_ONLY
-            } else {
-                ParcelFileDescriptor.MODE_TRUNCATE or ParcelFileDescriptor.MODE_WRITE_ONLY
+            if (mode == FailureMode.WRITE) {
+                return ParcelFileDescriptor.open(
+                    outputFile,
+                    ParcelFileDescriptor.MODE_WRITE_ONLY,
+                ).also(ParcelFileDescriptor::close)
             }
-            return ParcelFileDescriptor.open(outputFile, openMode)
+            return ParcelFileDescriptor.open(
+                outputFile,
+                ParcelFileDescriptor.MODE_TRUNCATE or ParcelFileDescriptor.MODE_WRITE_ONLY,
+            )
+        }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            operationLog += "open-pending-output"
+            assertEquals(this.transactionId, transactionId)
+            if (mode == FailureMode.VERIFY) {
+                outputFile.writeText("not an archive")
+            }
+            return ParcelFileDescriptor.open(outputFile, ParcelFileDescriptor.MODE_READ_ONLY)
         }
 
         override fun commitOutput(transactionId: String): Bundle {

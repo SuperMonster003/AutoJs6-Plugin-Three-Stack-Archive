@@ -1,8 +1,8 @@
 # Notas de la versión
 
-## Unreleased
+## v2.0.0
 
-_Sin publicar_
+_2026/08/25_
 
 - `Añadido` El producto pasa a llamarse Archive Manager y la acción, Abrir archivo comprimido
 - `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
@@ -27,11 +27,14 @@ _Sin publicar_
 - `Corregido` La codificación de nombres ZIP se puede cambiar cuando la detección automática sea incorrecta y la extracción reutiliza la selección
 - `Corregido` Los tamaños desconocidos, URI DocumentsProvider válidos y permisos de escritura adicionales del host ya no bloquean archivos válidos
 - `Corregido` Corregida la exploración y extracción de ZIP en Android 7.x, que fallaba al llamar a API exclusivas de sistemas más recientes
+- `Corregido` Los ZIP con nombres Unicode se abren ahora correctamente en Android 7, incluso si falta la marca de nombre UTF-8 o el backend la interpreta de forma incoherente
 - `Corregido` Las contraseñas incorrectas ahora se clasifican de forma estable como PASSWORD/WRONG_PASSWORD y las entradas AES v2 con CRC almacenado igual a cero ya no se marcan erróneamente como dañadas
 - `Corregido` La carpeta de extracción predeterminada de extensiones compuestas como TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST elimina ahora el sufijo completo en lugar de conservar `.tar`
 - `Corregido` Los archivos con nombres que contienen recorridos al directorio padre, rutas absolutas, prefijos de unidad o caracteres de control siguen siendo explorables; esos nombres pasan a una carpeta aislada de solo lectura, conservan la vista previa cuando sus datos son legibles y deben omitirse explícitamente antes de extraer
 - `Corregido` La extracción ya no sobrescribe archivos ni carpetas existentes cuando el proveedor de destino considera idénticos los nombres que solo difieren en mayúsculas o minúsculas o son equivalentes en Unicode; las carpetas de salida equivalentes se numeran automáticamente
 - `Corregido` La cancelación o un fallo de extracción revierte la nueva raíz de salida en una fase de limpieza no cancelable; si el proveedor rechaza la eliminación, se muestran el nombre y el URI del posible residuo en lugar de solo un error genérico
+- `Corregido` La creación de 7Z cifrados funciona ahora en Android 7 y la verificación empareja entradas por ruta para que las diferencias válidas de orden del backend no produzcan fallos falsos
+- `Corregido` La página de gestión se adapta ahora a pantallas bajas en vertical y horizontal: el archivo y la ruta pasan a la barra, los ajustes siguen disponibles en una fila horizontal compacta y las entradas y acciones permanecen visibles con fuentes de hasta 2,0x
 - `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
 - `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
 - `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material
@@ -40,7 +43,8 @@ _Sin publicar_
 - `Mejorado` Los fallos identifican el formato, la etapa, un código estable y el motivo; las compilaciones de depuración permiten copiar el diagnóstico completo
 - `Mejorado` Los archivos normales ahora se exploran mediante canales con posición independiente sobre el descriptor de solo lectura del host, sin copiar todo el archivo; las entradas o lectores incompatibles (actualmente incluido ZIP cifrado) recurren a la caché privada, que se limpia al cerrar, fallar o caducar
 - `Mejorado` Se unificaron las transacciones de salida al crear ZIP, 7Z y TAR; las fuentes ilegibles y los fallos al reservar, abrir, escribir o confirmar tienen etapas estables, mientras que una cancelación no confirmada cierra la sesión, muestra la ruta prevista e impide un reintento inseguro
-- `Mejorado` La creación analiza el origen antes de abrir la salida temporal y muestra estados separados de análisis, compresión y confirmación, con el total de archivos, los bytes leídos y los tamaños desconocidos
+- `Mejorado` La creación analiza el origen antes de abrir la salida temporal y muestra estados separados de análisis, compresión, verificación y confirmación, con el total de archivos, los bytes leídos y los tamaños desconocidos
+- `Mejorado` Los archivos creados se vuelven a leer por completo antes de publicarlos para comprobar formato, entradas, tamaños, CRC y huellas del contenido; cada volumen ZIP pendiente también se compara byte a byte
 - `Dependencia` Se añadió Zip4j 2.11.5 con licencia Apache 2.0 para flujos ZIP cifrados, creación AES-256 y la ruta de compatibilidad con Android 7.x
 - `Dependencia` Se añadió XZ for Java 1.12 con licencia 0BSD para leer y escribir TAR.XZ/TXZ en Java puro sin ABI nativas
 - `Dependencia` Se añadió zstd-jni 1.5.7-15 con licencia BSD para leer y escribir TAR.ZST/TZST; las cuatro ABI de Android superan las comprobaciones de alineación ELF de 16 KiB y RELRO

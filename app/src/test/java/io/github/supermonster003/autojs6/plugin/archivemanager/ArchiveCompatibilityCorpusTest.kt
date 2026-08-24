@@ -34,6 +34,53 @@ class ArchiveCompatibilityCorpusTest {
     }
 
     @Test
+    fun `Bandizip 7 sample preserves legacy Windows separators and unicode names`() {
+        val source = copyFixture(BANDIZIP_ZIP_FIXTURE)
+
+        assertEquals(EXPECTED_BANDIZIP_ZIP_SHA256, source.sha256())
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.ZIP, snapshot.format)
+        assertEquals(listOf("ascii.txt", "目录/文件.txt"), snapshot.entries.map(ArchiveEntry::path))
+        assertFixtureText(snapshot, source, "目录/文件.txt")
+    }
+
+    @Test
+    fun `WinRAR 6 ZIP sample preserves unicode names and content`() {
+        val source = copyFixture(WINRAR_ZIP_FIXTURE)
+
+        assertEquals(EXPECTED_WINRAR_ZIP_SHA256, source.sha256())
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.ZIP, snapshot.format)
+        assertEquals(listOf("ascii.txt", "文件.txt"), snapshot.entries.map(ArchiveEntry::path))
+        assertFixtureText(snapshot, source, "文件.txt")
+    }
+
+    @Test
+    fun `RAR corpus remains explicitly unsupported until a backend is registered`() {
+        listOf(
+            WINRAR_RAR4_FIXTURE to EXPECTED_WINRAR_RAR4_SHA256,
+            WINRAR_RAR5_FIXTURE to EXPECTED_WINRAR_RAR5_SHA256,
+            WINRAR_RAR5_AES_FIXTURE to EXPECTED_WINRAR_RAR5_AES_SHA256,
+            WINRAR_RAR5_HEADER_AES_FIXTURE to EXPECTED_WINRAR_RAR5_HEADER_AES_SHA256,
+            WINRAR_RAR5_SPLIT_FIRST_FIXTURE to EXPECTED_WINRAR_RAR5_SPLIT_FIRST_SHA256,
+        ).forEach { (fixture, expectedSha256) ->
+            val source = copyFixture(fixture)
+
+            assertEquals(expectedSha256, source.sha256())
+            val error = expectArchiveFailure<ArchiveValidationException>(
+                ArchiveFailureCode.INVALID_SIGNATURE,
+            ) {
+                ArchiveScanner().scan(source)
+            }
+
+            assertEquals("$fixture format", null, error.format)
+            assertEquals("$fixture stage", ArchiveFailureStage.FORMAT_DETECTION, error.stage)
+        }
+    }
+
+    @Test
     fun `7-Zip 22 tar sample preserves unicode names and content`() {
         val source = copyFixture(TAR_FIXTURE)
 
@@ -185,6 +232,12 @@ class ArchiveCompatibilityCorpusTest {
         return target
     }
 
+    private fun assertFixtureText(snapshot: ArchiveSnapshot, source: File, path: String) {
+        val output = java.io.ByteArrayOutputStream()
+        ArchiveEntryStreamer(source, snapshot).stream(snapshot.entries.single { it.path == path }, output)
+        assertTrue(output.toString(Charsets.UTF_8.name()).contains("UTF-8 文件名"))
+    }
+
     private fun File.sha256(): String = MessageDigest.getInstance("SHA-256")
         .digest(readBytes())
         .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }
@@ -192,6 +245,20 @@ class ArchiveCompatibilityCorpusTest {
     private companion object {
         const val EXPECTED_7ZIP_SHA256 =
             "af0b0186ec1605f5f2b640816b85586336b1e3d9b46f85fbedc238ae042c9c0c"
+        const val EXPECTED_BANDIZIP_ZIP_SHA256 =
+            "61ef38cc532dc9112a85e427a02fd5cc1e9d6b9ec1830039311359ac5b165b0c"
+        const val EXPECTED_WINRAR_ZIP_SHA256 =
+            "487938029f4282fdfe731d790592f18c6f5ebc93aff7c6309dee2cf5fa419e00"
+        const val EXPECTED_WINRAR_RAR4_SHA256 =
+            "a12fc3e2f14a946ecb983efb3a4c808909ef22f9e150d0d2ace61e0dd95047ea"
+        const val EXPECTED_WINRAR_RAR5_SHA256 =
+            "c009be6f80980f6bba3856125f5e107d93fbd30fcaa87b22d0d6a78c67026599"
+        const val EXPECTED_WINRAR_RAR5_AES_SHA256 =
+            "05cdd95a68d8a5a1afac7b9961d0323e7a1a9fa6224418f388ba0cba918d7f7f"
+        const val EXPECTED_WINRAR_RAR5_HEADER_AES_SHA256 =
+            "d27f8ddc47eca0777cdbe00819bb69f740f60b1dc1d757af5e6656b779177007"
+        const val EXPECTED_WINRAR_RAR5_SPLIT_FIRST_SHA256 =
+            "404bc4db3a217e9d7eaaa03ac483fd6502289680bfc2af404bc74d572116bae4"
         const val EXPECTED_7ZIP_TAR_SHA256 =
             "771eaf4fc2bef962e4bed64ee109d51d6ef4e25ec95357e5343c882dbb59e403"
         const val EXPECTED_7ZIP_TAR_GZIP_SHA256 =
@@ -204,6 +271,14 @@ class ArchiveCompatibilityCorpusTest {
             "de581c580bd873817ab3cf5d2311c623ded577cfaa7e0096eb7d6c4c0db3655a"
         const val AES_FIXTURE = "7zip-22-aes256-unicode.zip"
         const val ZIP_CRYPTO_FIXTURE = "7zip-22-zipcrypto-unicode.zip"
+        const val BANDIZIP_ZIP_FIXTURE = "bandizip-7.46-deflate-unicode.zip"
+        const val WINRAR_ZIP_FIXTURE = "winrar-6.10-deflate-unicode.zip"
+        const val WINRAR_RAR4_FIXTURE = "winrar-6.10-rar4-unicode.rar"
+        const val WINRAR_RAR5_FIXTURE = "winrar-6.10-rar5-unicode.rar"
+        const val WINRAR_RAR5_AES_FIXTURE = "winrar-6.10-rar5-aes-unicode.rar"
+        const val WINRAR_RAR5_HEADER_AES_FIXTURE =
+            "winrar-6.10-rar5-header-aes-unicode.rar"
+        const val WINRAR_RAR5_SPLIT_FIRST_FIXTURE = "winrar-6.10-store-split.part1.rar"
         const val TAR_FIXTURE = "7zip-22-ustar-unicode.tar"
         const val TAR_GZIP_FIXTURE = "7zip-22-ustar-unicode.tar.gz"
         const val TAR_XZ_FIXTURE = "7zip-22-ustar-unicode.tar.xz"

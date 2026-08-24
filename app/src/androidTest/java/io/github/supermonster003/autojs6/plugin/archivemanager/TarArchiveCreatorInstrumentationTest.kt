@@ -39,7 +39,11 @@ class TarArchiveCreatorInstrumentationTest {
         cases.forEach { (format, compressionLevel) ->
             val session = FakeHostSession(cacheDirectory, format)
             try {
-                val result = ArchiveEngine.DEFAULT.createWriter(format, session).create(
+                val result = ArchiveEngine.DEFAULT.createWriter(
+                    format,
+                    session,
+                    cacheDirectory,
+                ).create(
                     request = request(session),
                     options = ArchiveCreationOptions(
                         outputDisplayName = session.outputDisplayName,
@@ -87,7 +91,11 @@ class TarArchiveCreatorInstrumentationTest {
 
         try {
             org.junit.Assert.assertThrows(CancellationException::class.java) {
-                ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.TAR_ZSTD, session).create(
+                ArchiveEngine.DEFAULT.createWriter(
+                    ArchiveFormat.TAR_ZSTD,
+                    session,
+                    cacheDirectory,
+                ).create(
                     request = request(session),
                     options = ArchiveCreationOptions(session.outputDisplayName, 6),
                     checkCancelled = {
@@ -113,7 +121,11 @@ class TarArchiveCreatorInstrumentationTest {
 
         try {
             org.junit.Assert.assertThrows(IOException::class.java) {
-                ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.TAR, session).create(
+                ArchiveEngine.DEFAULT.createWriter(
+                    ArchiveFormat.TAR,
+                    session,
+                    cacheDirectory,
+                ).create(
                     request = request(session, documentSize = 4L),
                     options = ArchiveCreationOptions(session.outputDisplayName, 0),
                     checkCancelled = {},
@@ -240,6 +252,11 @@ class TarArchiveCreatorInstrumentationTest {
                     ParcelFileDescriptor.MODE_TRUNCATE or
                     ParcelFileDescriptor.MODE_WRITE_ONLY,
             )
+        }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            assertEquals(this.transactionId, transactionId)
+            return ParcelFileDescriptor.open(outputFile, ParcelFileDescriptor.MODE_READ_ONLY)
         }
 
         override fun commitOutput(transactionId: String): Bundle {

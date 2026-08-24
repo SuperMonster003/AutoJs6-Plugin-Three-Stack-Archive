@@ -59,7 +59,7 @@ Archive Manager intègre la navigation, l'extraction et la création des archive
 - Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.
 - Créer une archive par élément d’une sélection partageant le même dossier parent ; le formulaire affiche le nombre de sorties et les noms dérivés, tandis que les noms existants ou répétés sont numérotés sans remplacement. Chaque sortie est validée séparément ; une annulation ou un échec conserve et signale les sorties terminées tout en bloquant une relance ambiguë du lot entier.
 - Créer des ZIP ordinaires ou fractionnés standard, ainsi que des 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST, avec un nom configurable et seulement les niveaux et options de mot de passe réellement pris en charge par le format choisi.
-- Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; choisir la numérotation automatique ou essayer le nom exact et demander avant de réessayer avec un numéro, sans écraser les fichiers existants. Après réservation du nom, un instantané source borné est analysé avant l'ouverture de la sortie temporaire ; le formulaire distingue analyse, compression et validation, avec le total des fichiers, les octets lus et les tailles inconnues. Un échec annule la transaction ; si l'hôte ne peut pas confirmer le nettoyage de la sortie temporaire, le formulaire affiche le chemin prévu et interdit une nouvelle tentative.
+- Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; choisir la numérotation automatique ou essayer le nom exact et demander avant de réessayer avec un numéro, sans écraser les fichiers existants. Après réservation du nom, un instantané source borné est analysé avant l'ouverture de la sortie temporaire ; le formulaire distingue analyse, compression, vérification et validation, avec le total des fichiers, les octets lus et les tailles inconnues. Avant publication, la sortie encore masquée est relue intégralement pour vérifier le format, les entrées, les tailles, les CRC et les empreintes du contenu. Un échec de création ou de vérification annule la transaction ; si l'hôte ne peut pas confirmer le nettoyage, le formulaire affiche le chemin prévu et interdit une nouvelle tentative.
 
 ### Formats actuels
 
@@ -75,7 +75,7 @@ La version actuelle peut créer les formats suivants:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La navigation native et l'aperçu des entrées d'Explorer Action v6, ainsi que la compression v4, exigent AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, la lecture de volumes fractionnés existants, le chiffrement des noms à la création, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
+> L'intégration complète utilise Explorer Action v7 pour vérifier la sortie avant validation, v6 pour la navigation native et l'aperçu, et les sessions de fichiers v4 pour la compression ; elle exige AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, la lecture de volumes fractionnés existants, le chiffrement des noms à la création, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
 
 ### Utilisation
 
@@ -93,7 +93,7 @@ Le plugin ne demande aucune autorisation de stockage ni de réseau. La navigatio
 
 Les budgets de ressources déterminent seulement quand avertir ou demander une confirmation ; ils ne relâchent jamais la sécurité structurelle. Après confirmation, les limites réelles d'octets et de ratio ne sont étendues que jusqu'aux valeurs déclarées par les entrées sélectionnées pour cette extraction. Toute croissance non déclarée, modification de la source ou incohérence de taille ou de CRC interrompt toujours l'opération et nettoie la sortie.
 
-Lors de la création d'un ZIP fractionné, le plugin assemble d'abord tous les volumes dans son cache privé, supprime cette copie avant les validations de l'hôte et n'écrase jamais un nom existant. Les volumes numérotés sont publiés avant le `.zip` final. Comme l'hôte actuel ne sait pas valider un groupe atomiquement, tout résultat partiel est signalé explicitement au lieu d'être présenté comme une archive complète.
+Lors de la création d'un ZIP fractionné, le plugin assemble et vérifie tous les volumes dans son cache privé, copie chacun vers une sortie masquée de l'hôte et compare chaque volume en attente octet par octet. Il supprime ensuite seulement la copie privée et publie les volumes numérotés avant le `.zip` final, sans jamais écraser un nom existant. Comme l'hôte actuel ne sait pas valider un groupe atomiquement, toute validation partielle est signalée explicitement au lieu d'être présentée comme une archive complète.
 
 Les noms non sûrs ne sont exposés que comme texte d'affichage en lecture seule derrière des identifiants opaques et ne deviennent jamais des chemins de sortie.
 
@@ -105,9 +105,9 @@ Les tâches et critères pour davantage de formats, la lecture de volumes fracti
 
 ### Notes de version
 
-#### Unreleased
+#### v2.0.0
 
-_Non publié_
+_2026/08/25_
 
 - `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
 - `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
@@ -132,11 +132,14 @@ _Non publié_
 - `Correction` L'encodage des noms ZIP peut être remplacé si la détection automatique est incorrecte et l'extraction réutilise ce choix
 - `Correction` Les tailles inconnues, les URI DocumentsProvider valides et les droits d'écriture supplémentaires de l'hôte ne bloquent plus une archive valide
 - `Correction` Correction de la consultation et de l'extraction ZIP sous Android 7.x, qui appelaient des API réservées aux systèmes récents
+- `Correction` Les ZIP contenant des noms Unicode s'ouvrent désormais correctement sous Android 7, même si l'indicateur de nom UTF-8 manque ou est interprété de façon incohérente par le backend
 - `Correction` Les mots de passe erronés sont désormais classés de façon stable sous PASSWORD/WRONG_PASSWORD et les entrées AES v2 avec un CRC stocké nul ne sont plus signalées à tort comme endommagées
 - `Correction` Le dossier d'extraction par défaut des extensions composées telles que TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST retire désormais le suffixe complet au lieu de conserver `.tar`
 - `Correction` Les archives contenant des remontées vers le dossier parent, des chemins absolus, des préfixes de lecteur ou des caractères de contrôle restent consultables ; ces noms passent dans un dossier isolé en lecture seule, restent prévisualisables si leurs données sont lisibles et doivent être explicitement ignorés avant extraction
 - `Correction` L'extraction n'écrase plus les fichiers ou dossiers existants lorsque le fournisseur de destination considère comme identiques les noms qui ne diffèrent que par la casse ou sont équivalents en Unicode ; les dossiers de sortie équivalents sont numérotés automatiquement
 - `Correction` Une annulation ou un échec d'extraction restaure la nouvelle racine de sortie dans une phase de nettoyage non annulable ; si le fournisseur refuse la suppression, le nom et l'URI du résidu possible remplacent le seul message générique
+- `Correction` La création de 7Z chiffrés fonctionne désormais sous Android 7 et la vérification associe les entrées par chemin afin que les différences d'ordre valides du backend ne provoquent plus de faux échecs
+- `Correction` La page de gestion s'adapte désormais aux écrans peu hauts en portrait et en paysage : l'archive et le chemin passent dans la barre, les réglages restent disponibles dans une rangée horizontale compacte et les entrées et actions demeurent visibles jusqu'à une police de 2,0x
 - `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
 - `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
 - `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material
@@ -145,7 +148,8 @@ _Non publié_
 - `Amélioration` Les échecs indiquent le format, l'étape, un code stable et le motif ; les versions de débogage peuvent copier le diagnostic complet
 - `Amélioration` Les archives ordinaires sont désormais consultées par des canaux à position indépendante sur le descripteur en lecture seule de l'hôte, sans copie intégrale ; les entrées ou lecteurs incompatibles (actuellement les ZIP chiffrés) utilisent le cache privé, nettoyé à la fermeture, en cas d'échec ou après expiration
 - `Amélioration` Transactions de sortie unifiées pour la création ZIP, 7Z et TAR ; les sources illisibles et les échecs de réservation, ouverture, écriture ou validation ont une étape stable, tandis qu'une annulation non confirmée ferme la session, affiche le chemin prévu et interdit une nouvelle tentative risquée
-- `Amélioration` La création analyse les sources avant d'ouvrir la sortie temporaire et affiche séparément l'analyse, la compression et la validation, avec le total des fichiers, les octets lus et les tailles inconnues
+- `Amélioration` La création analyse les sources avant d'ouvrir la sortie temporaire et affiche séparément l'analyse, la compression, la vérification et la validation, avec le total des fichiers, les octets lus et les tailles inconnues
+- `Amélioration` Les archives créées sont entièrement relues avant publication afin de vérifier le format, les entrées, les tailles, les CRC et les empreintes du contenu ; chaque volume ZIP en attente est aussi comparé octet par octet
 - `Dépendance` Ajout de Zip4j 2.11.5 sous licence Apache 2.0 pour les flux ZIP chiffrés, la création AES-256 et le chemin de compatibilité Android 7.x
 - `Dépendance` Ajout de XZ for Java 1.12 sous licence 0BSD pour lire et écrire TAR.XZ/TXZ en Java pur sans ABI native
 - `Dépendance` Ajout de zstd-jni 1.5.7-15 sous licence BSD pour lire et écrire TAR.ZST/TZST ; les quatre ABI Android passent les contrôles d'alignement ELF 16 Kio et RELRO

@@ -36,7 +36,11 @@ class SevenZArchiveCreatorInstrumentationTest {
         ).forEach { (level, expectedMethod) ->
             val session = FakeHostSession(cacheDirectory)
             try {
-                val result = ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.SEVEN_Z, session).create(
+                val result = ArchiveEngine.DEFAULT.createWriter(
+                    ArchiveFormat.SEVEN_Z,
+                    session,
+                    cacheDirectory,
+                ).create(
                     request = request(session),
                     options = ArchiveCreationOptions(session.outputDisplayName, level),
                     checkCancelled = {},
@@ -82,7 +86,11 @@ class SevenZArchiveCreatorInstrumentationTest {
         val password = TEST_PASSWORD.toCharArray()
 
         try {
-            ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.SEVEN_Z, session).create(
+            ArchiveEngine.DEFAULT.createWriter(
+                ArchiveFormat.SEVEN_Z,
+                session,
+                cacheDirectory,
+            ).create(
                 request = request(session),
                 options = ArchiveCreationOptions(
                     outputDisplayName = session.outputDisplayName,
@@ -134,7 +142,11 @@ class SevenZArchiveCreatorInstrumentationTest {
 
         try {
             org.junit.Assert.assertThrows(CancellationException::class.java) {
-                ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.SEVEN_Z, session).create(
+                ArchiveEngine.DEFAULT.createWriter(
+                    ArchiveFormat.SEVEN_Z,
+                    session,
+                    cacheDirectory,
+                ).create(
                     request = request(session),
                     options = ArchiveCreationOptions(session.outputDisplayName, 6),
                     checkCancelled = {
@@ -160,7 +172,11 @@ class SevenZArchiveCreatorInstrumentationTest {
 
         try {
             org.junit.Assert.assertThrows(IOException::class.java) {
-                ArchiveEngine.DEFAULT.createWriter(ArchiveFormat.SEVEN_Z, session).create(
+                ArchiveEngine.DEFAULT.createWriter(
+                    ArchiveFormat.SEVEN_Z,
+                    session,
+                    cacheDirectory,
+                ).create(
                     request = request(session, documentSize = 4L),
                     options = ArchiveCreationOptions(session.outputDisplayName, 6),
                     checkCancelled = {},
@@ -279,6 +295,11 @@ class SevenZArchiveCreatorInstrumentationTest {
                     ParcelFileDescriptor.MODE_TRUNCATE or
                     ParcelFileDescriptor.MODE_WRITE_ONLY,
             )
+        }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            assertEquals(this.transactionId, transactionId)
+            return ParcelFileDescriptor.open(outputFile, ParcelFileDescriptor.MODE_READ_ONLY)
         }
 
         override fun commitOutput(transactionId: String): Bundle {

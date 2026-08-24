@@ -213,6 +213,9 @@ class ArchiveSourceManifestInstrumentationTest {
         override fun openOutput(transactionId: String): ParcelFileDescriptor =
             error("Manifest scanning must not open output")
 
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
+            error("Manifest scanning must not verify output")
+
         override fun commitOutput(transactionId: String): Bundle =
             error("Manifest scanning must not commit output")
 

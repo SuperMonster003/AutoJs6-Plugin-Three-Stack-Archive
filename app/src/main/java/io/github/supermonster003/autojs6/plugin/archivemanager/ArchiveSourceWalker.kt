@@ -4,6 +4,8 @@ import android.os.ParcelFileDescriptor
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import java.io.BufferedInputStream
 import java.io.OutputStream
+import java.security.DigestOutputStream
+import java.security.MessageDigest
 import java.util.ArrayDeque
 import java.util.Collections
 import java.util.HashSet
@@ -224,6 +226,24 @@ internal class ArchiveSourceWalker(
         return total
     }
 
+    fun copyFileWithFingerprint(
+        entry: ArchiveSourceEntry,
+        output: OutputStream,
+        expectedSize: Long?,
+        checkCancelled: () -> Unit,
+        onBytesWritten: (Int) -> Unit,
+    ): ArchiveCreationSourceFingerprint {
+        val digest = MessageDigest.getInstance(SHA_256)
+        val bytes = copyFile(
+            entry = entry,
+            output = DigestOutputStream(output, digest),
+            expectedSize = expectedSize,
+            checkCancelled = checkCancelled,
+            onBytesWritten = onBytesWritten,
+        )
+        return ArchiveCreationSourceFingerprint(bytes, digest.digest())
+    }
+
     private fun enqueueDirectoryPage(
         item: WorkItem.DirectoryPage,
         queue: ArrayDeque<WorkItem>,
@@ -429,6 +449,7 @@ internal class ArchiveSourceWalker(
 
     private companion object {
         const val BUFFER_SIZE = 64 * 1_024
+        const val SHA_256 = "SHA-256"
         const val MAX_MANIFEST_PATH_CHARACTERS = 16L * 1_024L * 1_024L
     }
 }
