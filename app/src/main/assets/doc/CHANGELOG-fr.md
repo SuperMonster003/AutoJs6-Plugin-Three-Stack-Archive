@@ -12,6 +12,7 @@ _Non publié_
 - `Ajout` Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
+- `Ajout` La création d’archives propose désormais les stratégies Renommer automatiquement et Demander à chaque fois sans écraser les archives existantes
 - `Ajout` Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort
 - `Ajout` Création de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec niveaux propres au format et mise à jour complète des extensions composées
 - `Ajout` Navigation et extraction des ZIP chiffrés avec ZipCrypto/AES, nouvelle saisie sur place d'un mot de passe erroné et création facultative de ZIP AES-256 dont les noms restent visibles avec confirmation identique du mot de passe

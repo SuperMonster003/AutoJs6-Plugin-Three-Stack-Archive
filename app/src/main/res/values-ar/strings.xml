@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">متابعة</string>
     <string name="dialog_button_skip_unsafe">تخطي والمتابعة</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
+    <string name="dialog_button_edit_name">تعديل الاسم</string>
+    <string name="dialog_button_use_numbered_name">استخدام اسم مرقم</string>
+    <string name="dialog_title_archive_name_unavailable">اسم الإخراج المطابق غير متاح</string>
+    <string name="dialog_message_archive_name_unavailable">تعذر على المضيف حجز %1$s في %2$s. لم تتم كتابة أي بيانات للأرشيف. عدل الاسم أو أعد المحاولة باستخدام الترقيم التلقائي.</string>
     <string name="dialog_message_skip_unsafe_paths">تستخدم %1$d من عناصر الأرشيف مسارات لا يمكن كتابتها بأمان. تظل متاحة للمعاينة في مجلد المسارات غير الآمنة. هل تريد المتابعة وتخطيها؟</string>
     <string name="dialog_title_unsafe_paths">مسارات غير آمنة</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
@@ -67,7 +71,9 @@
     <string name="text_delete_sources_after_compression">حذف العناصر المصدر بعد الضغط</string>
     <string name="text_encrypt_file_names">تشفير أسماء الملفات</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">إذا كان الاسم موجودا، تتم إضافة رقم تلقائيا.</string>
+    <string name="text_creation_conflict_policy">إذا كان اسم الأرشيف غير متاح</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">احجز اسما مرقما متاحا. لا يتم استبدال الأرشيفات الموجودة أبدا. تتطلب الكتابة فوق الملف ضمن معاملة واجهة API أحدث للمضيف.</string>
+    <string name="text_creation_conflict_policy_ask_details">جرب الاسم المطابق أولا. إذا تعذر على المضيف حجزه، فاسأل قبل إعادة المحاولة باسم مرقم. لا يتم استبدال الأرشيفات الموجودة أبدا.</string>
     <string name="text_none">بلا</string>
     <string name="text_output_path">المسار</string>
     <string name="text_password">كلمة المرور</string>

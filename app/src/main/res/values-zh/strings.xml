@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">继续</string>
     <string name="dialog_button_skip_unsafe">跳过并继续</string>
     <string name="dialog_button_select_all">全选</string>
+    <string name="dialog_button_edit_name">编辑名称</string>
+    <string name="dialog_button_use_numbered_name">使用编号名称</string>
+    <string name="dialog_title_archive_name_unavailable">无法使用精确输出名称</string>
+    <string name="dialog_message_archive_name_unavailable">无法在 %2$s 中预留 %1$s. 尚未写入任何压缩档案数据. 请编辑名称, 或改用自动编号后重试.</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d 个档案条目使用了无法安全写出的路径. 它们仍可在“危险路径”文件夹中预览. 是否继续并跳过这些条目?</string>
     <string name="dialog_title_unsafe_paths">危险路径</string>
     <string name="error_archive_invalid">压缩包无效或不受支持</string>
@@ -67,7 +71,9 @@
     <string name="text_loading_progress">%1$s / %2$s</string>
     <string name="text_modified">修改时间: %1$s</string>
     <string name="text_no_entries">没有匹配的条目</string>
-    <string name="text_name_conflict_auto_rename">名称已存在时自动添加序号.</string>
+    <string name="text_creation_conflict_policy">压缩档案名称不可用时</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">由宿主预留可用的编号名称. 既有压缩档案始终不会被替换. 事务式覆盖需要新版宿主 API.</string>
+    <string name="text_creation_conflict_policy_ask_details">先尝试精确名称; 宿主无法预留时, 询问是否改用编号名称. 既有压缩档案始终不会被替换.</string>
     <string name="text_none">无</string>
     <string name="text_output_path">路径</string>
     <string name="text_password">密码</string>

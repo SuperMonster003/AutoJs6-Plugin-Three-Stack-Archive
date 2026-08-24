@@ -51,7 +51,7 @@ internal class TarArchiveCreator(
             "${format.displayName} does not support password encryption"
         }
 
-        val transaction = session.prepareOutput(outputName, format)
+        val transaction = session.prepareOutput(outputName, format, options.conflictPolicy)
         try {
             val descriptor = session.openOutput(transaction.id)
             val counters = writeArchive(

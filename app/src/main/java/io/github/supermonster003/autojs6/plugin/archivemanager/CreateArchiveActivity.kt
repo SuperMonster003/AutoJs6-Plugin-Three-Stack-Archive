@@ -11,6 +11,7 @@ import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityCreateArchiveBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -29,12 +30,21 @@ class CreateArchiveActivity : AppCompatActivity() {
     private val archiveEngine = ArchiveEngine.DEFAULT
     private var selectedFormat = ArchiveFormat.ZIP
     private var compressionLevel = ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
+    private var selectedConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME
+    private var unavailableNameDialog: androidx.appcompat.app.AlertDialog? = null
     private var sessionClosed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCreateArchiveBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        selectedConflictPolicy = savedInstanceState
+            ?.getString(STATE_CONFLICT_POLICY)
+            ?.let { stored ->
+                ArchiveCreationConflictPolicy.entries.firstOrNull { it.name == stored }
+            }
+            ?: ArchiveCreationConflictPolicy.AUTO_RENAME
 
         val resolvedRequest = ArchiveCompressionIntentPolicy.resolve(intent)
         if (resolvedRequest == null) {
@@ -44,6 +54,11 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         request = resolvedRequest
         setupViews(resolvedRequest)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(STATE_CONFLICT_POLICY, selectedConflictPolicy.name)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
@@ -94,6 +109,20 @@ class CreateArchiveActivity : AppCompatActivity() {
         format.setText(formatLabels.first(), false)
         format.setOnClickListener { format.showDropDown() }
         compressionLevel.setOnClickListener { compressionLevel.showDropDown() }
+
+        val conflictPolicies = ArchiveCreationConflictPolicy.entries
+        creationConflictPolicy.setAdapter(
+            ArrayAdapter(
+                this@CreateArchiveActivity,
+                android.R.layout.simple_list_item_1,
+                conflictPolicies.map(::conflictPolicyLabel),
+            ),
+        )
+        selectConflictPolicy(selectedConflictPolicy)
+        creationConflictPolicy.setOnClickListener { creationConflictPolicy.showDropDown() }
+        creationConflictPolicy.setOnItemClickListener { _, _, position, _ ->
+            selectConflictPolicy(conflictPolicies[position])
+        }
 
         val levels = listOf(
             CompressionLevelChoice(R.string.text_compression_level_none, 0),
@@ -152,7 +181,9 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun createArchive() {
+    private fun createArchive(
+        conflictPolicy: ArchiveCreationConflictPolicy = selectedConflictPolicy,
+    ) {
         val resolvedRequest = request ?: return
         if (operationJob?.isActive == true) return
         val outputDisplayName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
@@ -195,6 +226,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         setBusy(true, getString(R.string.text_preparing_compression))
 
         operationJob = lifecycleScope.launch {
+            var unavailableName: ArchiveOutputNameUnavailableException? = null
             try {
                 val result = withContext(Dispatchers.IO) {
                     val cancellationContext = currentCoroutineContext()
@@ -205,6 +237,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                             outputDisplayName = outputDisplayName,
                             compressionLevel = compressionLevel,
                             password = passwordForCreation,
+                            conflictPolicy = conflictPolicy,
                         ),
                         checkCancelled = { cancellationContext.ensureActive() },
                         progress = ArchiveCreationProgressListener { update ->
@@ -248,6 +281,11 @@ class CreateArchiveActivity : AppCompatActivity() {
                 if (!isFinishing && !isDestroyed) {
                     setBusy(false, getString(R.string.text_cancelled))
                 }
+            } catch (error: ArchiveOutputNameUnavailableException) {
+                if (!isFinishing && !isDestroyed) {
+                    unavailableName = error
+                    setBusy(false, getString(R.string.dialog_title_archive_name_unavailable))
+                }
             } catch (error: Throwable) {
                 if (!isFinishing && !isDestroyed) {
                     setBusy(
@@ -263,8 +301,69 @@ class CreateArchiveActivity : AppCompatActivity() {
                 password.fill('\u0000')
                 operationJob = null
             }
+            unavailableName?.let(::showUnavailableNameDialog)
         }
     }
+
+    private fun selectConflictPolicy(policy: ArchiveCreationConflictPolicy) = with(binding) {
+        selectedConflictPolicy = policy
+        creationConflictPolicy.setText(conflictPolicyLabel(policy), false)
+        creationConflictPolicyDetails.setText(
+            when (policy) {
+                ArchiveCreationConflictPolicy.AUTO_RENAME ->
+                    R.string.text_creation_conflict_policy_auto_rename_details
+                ArchiveCreationConflictPolicy.ASK ->
+                    R.string.text_creation_conflict_policy_ask_details
+            },
+        )
+    }
+
+    private fun conflictPolicyLabel(policy: ArchiveCreationConflictPolicy): String = getString(
+        when (policy) {
+            ArchiveCreationConflictPolicy.AUTO_RENAME -> R.string.text_conflict_policy_auto_rename
+            ArchiveCreationConflictPolicy.ASK -> R.string.text_conflict_policy_ask
+        },
+    )
+
+    private fun showUnavailableNameDialog(error: ArchiveOutputNameUnavailableException) {
+        if (isFinishing || isDestroyed) return
+        val dialog = createUnavailableNameDialog(error)
+        unavailableNameDialog = dialog
+        dialog.setOnDismissListener {
+            if (unavailableNameDialog === dialog) unavailableNameDialog = null
+        }
+        dialog.show()
+    }
+
+    internal fun createUnavailableNameDialog(
+        error: ArchiveOutputNameUnavailableException,
+    ): androidx.appcompat.app.AlertDialog {
+        val safeName = ArchivePathPolicy.unsafeSourceNameForDisplay(error.requestedDisplayName)
+        val safePath = ArchivePathPolicy.unsafeSourceNameForDisplay(
+            request?.parentDisplayPath.orEmpty(),
+        )
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_archive_name_unavailable)
+            .setMessage(
+                getString(
+                    R.string.dialog_message_archive_name_unavailable,
+                    safeName,
+                    safePath,
+                ),
+            )
+            .setNegativeButton(R.string.dialog_button_edit_name) { _, _ ->
+                binding.outputName.requestFocus()
+                binding.outputName.setSelection(binding.outputName.text?.length ?: 0)
+            }
+            .setNeutralButton(R.string.dialog_button_cancel, null)
+            .setPositiveButton(R.string.dialog_button_use_numbered_name) { _, _ ->
+                createArchive(ArchiveCreationConflictPolicy.AUTO_RENAME)
+            }
+            .create()
+    }
+
+    internal fun currentUnavailableNameDialog(): androidx.appcompat.app.AlertDialog? =
+        unavailableNameDialog
 
     private fun configureFormat(
         format: ArchiveFormat,
@@ -336,6 +435,8 @@ class CreateArchiveActivity : AppCompatActivity() {
         status.isVisible = true
         status.text = message
         outputNameLayout.isEnabled = !busy
+        creationConflictPolicyLayout.isEnabled = !busy
+        creationConflictPolicy.isEnabled = !busy
         format.isEnabled = !busy
         val capabilities = archiveEngine.capabilities(selectedFormat)
         compressionLevel.isEnabled = !busy && capabilities.compressionLevels.size > 1
@@ -378,5 +479,6 @@ class CreateArchiveActivity : AppCompatActivity() {
     private companion object {
         val UI_PROGRESS_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(100)
         const val MAX_ERROR_REASON_LENGTH = 500
+        const val STATE_CONFLICT_POLICY = "creation_conflict_policy"
     }
 }

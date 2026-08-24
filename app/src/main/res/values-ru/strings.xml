@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">Продолжить</string>
     <string name="dialog_button_skip_unsafe">Пропустить и продолжить</string>
     <string name="dialog_button_select_all">Выбрать все</string>
+    <string name="dialog_button_edit_name">Изменить имя</string>
+    <string name="dialog_button_use_numbered_name">Использовать имя с номером</string>
+    <string name="dialog_title_archive_name_unavailable">Точное имя результата недоступно</string>
+    <string name="dialog_message_archive_name_unavailable">Хост не смог зарезервировать %1$s в %2$s. Данные архива не записывались. Измените имя или повторите попытку с автоматической нумерацией.</string>
     <string name="dialog_message_skip_unsafe_paths">Записи архива (%1$d) используют пути, которые нельзя безопасно записать. Их по-прежнему можно просмотреть в папке «Небезопасные пути». Продолжить и пропустить их?</string>
     <string name="dialog_title_unsafe_paths">Небезопасные пути</string>
     <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
@@ -67,7 +71,9 @@
     <string name="text_delete_sources_after_compression">Удалить исходные элементы после сжатия</string>
     <string name="text_encrypt_file_names">Шифровать имена файлов</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">Если имя уже существует, номер добавляется автоматически.</string>
+    <string name="text_creation_conflict_policy">Если имя архива недоступно</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Резервировать доступное имя с номером. Существующие архивы никогда не заменяются. Для транзакционной перезаписи требуется более новая версия API хоста.</string>
+    <string name="text_creation_conflict_policy_ask_details">Сначала пробовать точное имя. Если хост не может его зарезервировать, спрашивать перед повторной попыткой с номером. Существующие архивы никогда не заменяются.</string>
     <string name="text_none">Нет</string>
     <string name="text_output_path">Путь</string>
     <string name="text_password">Пароль</string>

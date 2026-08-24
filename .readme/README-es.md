@@ -58,7 +58,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Mostrar los fallos con formato, etapa, código estable y motivo claro; las compilaciones de depuración permiten copiar el diagnóstico completo.
 - Ofrecer «Comprimir...» para archivos, carpetas y selecciones múltiples con el mismo directorio padre.
 - Crear ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con nombre configurable y solo los niveles y opciones de contraseña que admita el formato elegido.
-- Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; numerar conflictos sin sobrescribir archivos existentes.
+- Escribir primero en un archivo temporal del mismo directorio y confirmar de forma atómica; elegir numeración automática o probar el nombre exacto y preguntar antes de reintentar con un número, sin sobrescribir archivos existentes.
 
 ### Formatos actuales
 
@@ -84,7 +84,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
 5. Para extraer un ámbito concreto, elige «Extracción selectiva...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
 6. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
-7. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato y los ajustes disponibles.
+7. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato, los ajustes disponibles y si un nombre exacto no disponible se numera automáticamente o se confirma antes de reintentar.
 
 ### Permisos y datos
 
@@ -114,6 +114,7 @@ _Sin publicar_
 - `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
+- `Añadido` La creación de archivos ahora ofrece las políticas Renombrar automáticamente y Preguntar cada vez sin sobrescribir archivos existentes
 - `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente
 - `Añadido` Creación de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con niveles propios y actualización completa de extensiones compuestas
 - `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles y confirmación de contraseña coincidente

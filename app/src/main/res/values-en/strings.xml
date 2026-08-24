@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">Continue</string>
     <string name="dialog_button_skip_unsafe">Skip and continue</string>
     <string name="dialog_button_select_all">Select all</string>
+    <string name="dialog_button_edit_name">Edit name</string>
+    <string name="dialog_button_use_numbered_name">Use numbered name</string>
+    <string name="dialog_title_archive_name_unavailable">Exact output name unavailable</string>
+    <string name="dialog_message_archive_name_unavailable">The host could not reserve %1$s in %2$s. No archive data was written. Edit the name or retry with automatic numbering.</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
     <string name="dialog_title_unsafe_paths">Unsafe paths</string>
     <string name="error_archive_invalid">The archive is invalid or unsupported</string>
@@ -77,7 +81,9 @@
     <string name="text_delete_sources_after_compression">Delete source items after compression</string>
     <string name="text_encrypt_file_names">Encrypt file names</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">If the name exists, a number is added automatically.</string>
+    <string name="text_creation_conflict_policy">If the archive name is unavailable</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Reserve an available numbered name. Existing archives are never replaced. Transactional overwrite requires a newer host API.</string>
+    <string name="text_creation_conflict_policy_ask_details">Try the exact name first. If the host cannot reserve it, ask before retrying with a numbered name. Existing archives are never replaced.</string>
     <string name="text_none">None</string>
     <string name="text_output_path">Path</string>
     <string name="text_password">Password</string>

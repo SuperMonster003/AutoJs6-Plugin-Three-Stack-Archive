@@ -158,7 +158,8 @@
 - [ ] (插件/宿主) 只有所有输出关闭并重新打开校验成功后, 才开放删除/移入回收站流程.
 - [x] (插件/宿主) 输出先写入共同父目录中的隐藏临时文件, 完成后同目录原子改名; 取消或失败会中止事务且不覆盖既有档案.
 - [x] (插件/宿主) 同名冲突默认自动添加序号, 并由宿主全局预留目标名称避免并发覆盖.
-- [ ] (插件/宿主) 增加询问/覆盖策略; 覆盖也必须经过临时文件事务.
+- [x] (插件/宿主) 创建表单提供自动重命名与每次询问两种真实策略. 询问模式先以宿主 `OUTPUT_CONFLICT_FAIL` 预留精确名称; 预留失败时尚未遍历源或打开输出, 用户可编辑名称、取消, 或明确改用自动编号重试. 选择会跨 Activity 重建恢复, 既有档案始终不会被覆盖.
+- [ ] (宿主/API) 增加类型化的输出名称冲突结果和事务式覆盖协议. 当前 Explorer Action v6 只有失败/自动编号, 且 `commitOutput` 要求目标不存在; 后续覆盖必须全局预留原目标身份, 在同目录临时文件完成并校验后原子替换或通过备份回滚, 任何中止/失败都保留原档案, 插件不得通过私有路径或先删除目标伪造覆盖.
 - [x] (插件) ZIP、7Z 与 TAR 系列输出保留空目录和可用修改时间; 目录遍历使用共享分页源遍历器, 不接受越界路径或符号链接, 并核对宿主声明的文件大小.
 - [ ] (插件) 定义可表达权限及用户可选的符号链接保存策略.
 - [x] (插件) 显示当前条目/文件数/读取字节进度并支持取消.
@@ -166,7 +167,7 @@
 - [ ] (宿主/API) 在后续协议末尾追加 `openPendingOutput(transactionId)` 只读描述符, 并约束为写描述符关闭后调用、读取期间不可再写、验证失败可中止且最终名称仍未发布.
 - [ ] (插件) 宿主提供待提交输出只读重开后, 逐条验证目录、声明大小、实际数据和 CRC, 关闭验证描述符后才调用 `commitOutput`.
 - [ ] (插件/API) 补齐扫描/压缩/校验/提交/删除源五阶段状态, 输出提交前重新打开验证.
-- [x] (测试) 自动化覆盖 ZIP、7Z 与全部 TAR writer 的文件/目录混合多选、Unicode、空目录、嵌套目录、未知大小、同名自动编号、取消及源大小变化回滚; 模拟器产物已由外部 `unzip`、7-Zip 或 bsdtar 按格式验证.
+- [x] (测试) 自动化覆盖 ZIP、7Z 与全部 TAR writer 的文件/目录混合多选、Unicode、空目录、嵌套目录、未知大小、同名自动编号、取消及源大小变化回滚; 另验证全部 writer 在询问模式无法预留精确名称时统一使用宿主失败策略, 且不会遍历源、打开输出或错误中止不存在的事务. 模拟器产物已由外部 `unzip`、7-Zip 或 bsdtar 按格式验证.
 - [ ] (测试) 补齐不可读文件/空间不足/分卷/插件或宿主进程重建/临时文件过期回收.
 
 验收条件: 所有表单组合都由统一能力模型驱动; 任何失败都不会同时丢失源文件和既有输出文件.
@@ -225,6 +226,8 @@
 - [x] (验证) M4 解压进度与取消回滚阶段的 121 项 JVM 测试与 48 项仪器测试全部通过; 字节/条目进度回退、单调平均速度与 ETA、零字节和时钟回退边界、普通取消删除真实 SAF 输出根并保留既有哨兵, 以及 provider 拒绝删除时通过独立事件和类型化异常报告准确残留根名称/URI 均已覆盖. 完整 Android 套件仅在 `emulator-5554` 运行. Lint 为 0 errors、36 warnings, Release/R8 APK 为 4,007,607 bytes, SHA-256 为 `E8FDB433B69778CD38BF73C339FED13DD1420037EA042DF52879BACD6DA66421`, v2 签名与 `zipalign -P 16` 复核通过; Release 清单不含 Debug 测试 provider, APK 仍只包含四个 zstd-jni ABI, 条目哈希与 Release 中间产物一致, `LOAD` 对齐均为 `0x4000` 且含 `GNU_RELRO`; 未操作实体设备.
 - [x] (验证) M4 选择性解压范围阶段的 126 项 JVM 测试与 50 项仪器测试全部通过; 范围解析覆盖档案根、可提取内部目录、只读隔离目录、空/非空/可变勾选集合、有序去重与不可变快照, 真实 Activity 覆盖根目录、内部目录和勾选后的准确选项, 动作目录与 Intent 测试确认独立 `selective-extract` 入口不会误触发整包快捷路径. AutoJs6 6.8.0 (5276) 在 `emulator-5554` 的真实 ZIP 文件菜单同时显示 `Archive Manager: Selective extraction...` 与 `Archive Manager: Extract to...`; 前者进入管理页后, 根目录只显示 `Entire archive`, 勾选全部后增加 `Current selection`, 内部目录范围由仪器测试复核. 精确测试目录与远端 UI 临时文件已删除, 为宿主可见性验证临时调整的 `MANAGE_EXTERNAL_STORAGE` app-op 已恢复为 `default`. Lint 为 0 errors、36 warnings, Release/R8 APK 为 4,011,771 bytes, SHA-256 为 `6FB156EE2A9D7801630E00F1B7DE41E0F9ECC9D6E7EA53C7CE3989B5D437E754`, v2 签名与 `zipalign -P 16` 复核通过; Release 清单不含 Debug 测试 provider 或 debuggable 标记, APK 仍只包含四个 zstd-jni ABI, 条目哈希与 Release 中间产物一致, 每个 ELF 均有 3 个 `LOAD` 段且对齐为 `0x4000` 并含 `GNU_RELRO`; 全程只操作 `emulator-5554`, 未操作实体设备.
 - [x] (验证) M4 解压冲突策略阶段的 134 项 JVM 测试与 55 项仪器测试全部通过; 自动化覆盖询问/跳过/覆盖/自动重命名、兼容冲突的“应用到全部”、扩展名前编号、类型不一致时禁用覆盖或安全重命名、策略跨 Activity 重建恢复、跳过后的真实进度总量、完成计数、无决定时封闭失败和真实 SAF 根回滚. 完整 Android 套件只在 `emulator-5554` 运行. Lint 为 0 errors、38 warnings, 且警告仅来自依赖/Gradle 配置、图标形状和复数建议; Release/R8 APK 为 4,036,155 bytes, SHA-256 为 `6EB2FCB4A96AE8ED00A311888EDD1395D371CF1A92DE48A4D6692CD53841928B`, v2 签名与 `zipalign -P 16` 复核通过. Release 清单不含 Debug 测试 provider 或 debuggable 标记, APK 仍只包含四个 zstd-jni ABI, 每个 ELF 均有 3 个 `LOAD` 段且对齐为 `0x4000` 并含 `GNU_RELRO`; 全程只操作 `emulator-5554`, 未操作实体设备.
+
+- [x] (验证) M5 压缩输出名称冲突策略阶段的 134 项 JVM 测试与 58 项仪器测试全部通过; 新增 3 项仪器用例覆盖自动编号默认值、询问策略跨 Activity 重建恢复、精确名称失败对话框与明确编号重试, 并验证 ZIP、7Z 和全部 TAR writer 均在宿主预留失败后保持零源遍历、零输出打开和零错误中止. Explorer Action v6 审计确认公共协议只有失败/自动编号, 因而未伪造不安全覆盖. Lint 为 0 errors、38 warnings, 且警告仍只来自依赖/Gradle 配置、图标形状和复数建议; Release/R8 APK 为 4,046,427 bytes, SHA-256 为 `82ED2788ACAEF54E710A97FCB8DC37E5F8B66F4A6EDFEB2AF98132D7A600CBB4`, v2 签名与 `zipalign -P 16` 复核通过. Release 清单不含 Debug 测试 provider、testOnly 或 debuggable 标记, APK 仍只包含四个 zstd-jni ABI, 条目哈希与 Release 中间产物一致, 每个 ELF 均有 3 个 `LOAD` 段且对齐为 `0x4000` 并含 `GNU_RELRO`; 完整 Android 套件只通过显式 `adb -s emulator-5554` 运行, 未操作实体设备或其他模拟器.
 
 - [ ] (CI) 每次提交运行单元测试/Android Lint/Debug/Release 构建和格式样本测试.
 - [ ] (CI) 发布前在支持的最低/最高 Android API/至少一台低内存设备和一台大屏设备执行冒烟测试.

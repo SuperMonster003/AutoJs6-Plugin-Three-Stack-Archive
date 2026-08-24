@@ -62,12 +62,26 @@ internal class ExplorerActionHostSessionClient(
     fun prepareOutput(
         displayName: String,
         format: ArchiveFormat,
+        conflictPolicy: ArchiveCreationConflictPolicy,
     ): HostOutputTransaction {
-        val result = remote.prepareOutput(
-            displayName,
-            format.primaryMimeType,
-            ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME,
-        ) ?: error("Host returned no output transaction")
+        val hostConflictPolicy = when (conflictPolicy) {
+            ArchiveCreationConflictPolicy.AUTO_RENAME ->
+                ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME
+            ArchiveCreationConflictPolicy.ASK ->
+                ExplorerActionHostSessionValues.OUTPUT_CONFLICT_FAIL
+        }
+        val result = try {
+            remote.prepareOutput(
+                displayName,
+                format.primaryMimeType,
+                hostConflictPolicy,
+            )
+        } catch (error: IllegalArgumentException) {
+            if (conflictPolicy == ArchiveCreationConflictPolicy.ASK) {
+                throw ArchiveOutputNameUnavailableException(displayName, error)
+            }
+            throw error
+        } ?: error("Host returned no output transaction")
         return decodeOutput(result, format)
     }
 

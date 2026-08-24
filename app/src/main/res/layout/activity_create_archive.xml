@@ -62,8 +62,7 @@
                 android:id="@+id/outputNameLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/text_archive_file_name"
-                app:helperText="@string/text_name_conflict_auto_rename">
+                android:hint="@string/text_archive_file_name">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/outputName"
@@ -75,6 +74,34 @@
                     android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/creationConflictPolicyLayout"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="@string/text_creation_conflict_policy"
+                android:labelFor="@id/creationConflictPolicy">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/creationConflictPolicy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/creationConflictPolicyDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="4dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="4dp"
+                android:textAppearance="?attr/textAppearanceCaption"
+                tools:text="Reserve an available numbered name without replacing an existing archive." />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"

@@ -58,7 +58,7 @@ Archive Manager intègre la navigation, l'extraction et la création des archive
 - Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.
 - Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.
 - Créer des ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec un nom configurable et seulement les niveaux et options de mot de passe réellement pris en charge par le format choisi.
-- Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; numéroter les conflits sans écraser les fichiers existants.
+- Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; choisir la numérotation automatique ou essayer le nom exact et demander avant de réessayer avec un numéro, sans écraser les fichiers existants.
 
 ### Formats actuels
 
@@ -84,7 +84,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu puis sélectionnez un dossier avec le sélecteur système Android.
 5. Pour extraire une portée précise, choisissez « Extraction sélective... », parcourez la page de gestion ou cochez des entrées, touchez « Extraire vers... », choisissez la portée puis le dossier de sortie.
 6. Avant l'extraction dans la page de gestion, choisissez comment traiter les noms de sortie équivalents. Demander à chaque fois permet d'appliquer une décision d'ignorer, d'écraser ou de renommer automatiquement à tous les conflits compatibles restants.
-7. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format et les réglages disponibles.
+7. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format, les réglages disponibles et si un nom exact indisponible doit être numéroté automatiquement ou confirmé avant une nouvelle tentative.
 
 ### Autorisations et données
 
@@ -114,6 +114,7 @@ _Non publié_
 - `Ajout` Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
+- `Ajout` La création d’archives propose désormais les stratégies Renommer automatiquement et Demander à chaque fois sans écraser les archives existantes
 - `Ajout` Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort
 - `Ajout` Création de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec niveaux propres au format et mise à jour complète des extensions composées
 - `Ajout` Navigation et extraction des ZIP chiffrés avec ZipCrypto/AES, nouvelle saisie sur place d'un mot de passe erroné et création facultative de ZIP AES-256 dont les noms restent visibles avec confirmation identique du mot de passe

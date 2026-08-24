@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">続行</string>
     <string name="dialog_button_skip_unsafe">スキップして続行</string>
     <string name="dialog_button_select_all">すべて選択</string>
+    <string name="dialog_button_edit_name">名前を編集</string>
+    <string name="dialog_button_use_numbered_name">番号付きの名前を使用</string>
+    <string name="dialog_title_archive_name_unavailable">正確な出力名を使用できません</string>
+    <string name="dialog_message_archive_name_unavailable">ホストは %2$s に %1$s を予約できませんでした。アーカイブデータはまだ書き込まれていません。名前を編集するか、自動採番で再試行してください。</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d 件のエントリに安全に書き出せないパスがあります。これらは「安全でないパス」フォルダーで引き続きプレビューできます。スキップして続行しますか?</string>
     <string name="dialog_title_unsafe_paths">安全でないパス</string>
     <string name="error_archive_invalid">アーカイブが無効か未対応です</string>
@@ -67,7 +71,9 @@
     <string name="text_delete_sources_after_compression">圧縮後に元の項目を削除</string>
     <string name="text_encrypt_file_names">ファイル名を暗号化</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">同名のファイルがある場合は番号を自動的に追加します.</string>
+    <string name="text_creation_conflict_policy">アーカイブ名を使用できない場合</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">使用可能な番号付きの名前を予約します。既存のアーカイブは置き換えません。トランザクションによる上書きには新しいホスト API が必要です。</string>
+    <string name="text_creation_conflict_policy_ask_details">最初に正確な名前を試します。ホストが予約できない場合は、番号付きの名前で再試行する前に確認します。既存のアーカイブは置き換えません。</string>
     <string name="text_none">なし</string>
     <string name="text_output_path">パス</string>
     <string name="text_password">パスワード</string>

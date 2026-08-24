@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">Continuar</string>
     <string name="dialog_button_skip_unsafe">Omitir y continuar</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
+    <string name="dialog_button_edit_name">Editar nombre</string>
+    <string name="dialog_button_use_numbered_name">Usar nombre numerado</string>
+    <string name="dialog_title_archive_name_unavailable">El nombre de salida exacto no está disponible</string>
+    <string name="dialog_message_archive_name_unavailable">El host no pudo reservar %1$s en %2$s. No se escribieron datos del archivo. Edite el nombre o reintente con numeración automática.</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d entradas del archivo usan rutas que no se pueden escribir de forma segura. Siguen disponibles para vista previa en la carpeta Rutas no seguras. ¿Continuar y omitirlas?</string>
     <string name="dialog_title_unsafe_paths">Rutas no seguras</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
@@ -67,7 +71,9 @@
     <string name="text_delete_sources_after_compression">Eliminar los elementos de origen después de comprimir</string>
     <string name="text_encrypt_file_names">Cifrar nombres de archivo</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">Si el nombre ya existe, se añade un número automáticamente.</string>
+    <string name="text_creation_conflict_policy">Si el nombre del archivo no está disponible</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Reserva un nombre numerado disponible. Los archivos existentes nunca se reemplazan. La sobrescritura transaccional requiere una API del host más reciente.</string>
+    <string name="text_creation_conflict_policy_ask_details">Prueba primero el nombre exacto. Si el host no puede reservarlo, pregunta antes de reintentar con un nombre numerado. Los archivos existentes nunca se reemplazan.</string>
     <string name="text_none">Ninguno</string>
     <string name="text_output_path">Ruta</string>
     <string name="text_password">Contraseña</string>

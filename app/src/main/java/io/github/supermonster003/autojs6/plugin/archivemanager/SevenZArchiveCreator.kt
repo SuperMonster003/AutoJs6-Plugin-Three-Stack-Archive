@@ -35,8 +35,8 @@ internal class SevenZArchiveCreator(
             formatCapabilities.compressionLevels,
             format,
         )
+        val transaction = session.prepareOutput(outputName, format, options.conflictPolicy)
         val password = options.password?.takeIf(CharArray::isNotEmpty)?.clone()
-        val transaction = session.prepareOutput(outputName, format)
         try {
             val descriptor = session.openOutput(transaction.id)
             val counters = writeArchive(

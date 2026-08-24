@@ -8,6 +8,7 @@ import android.os.ParcelFileDescriptor
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import org.junit.Assert.assertArrayEquals
@@ -95,6 +96,44 @@ class ZipArchiveCreatorInstrumentationTest {
         session.cleanup()
     }
 
+    @Test
+    fun everyWriterRejectsAnUnavailableExactNameBeforeOpeningSourcesOrOutput() {
+        ArchiveEngine.DEFAULT.creatableFormats.forEach { format ->
+            val session = ExactNameRejectingHostSession()
+            val writer = ArchiveEngine.DEFAULT.createWriter(format, session)
+            val outputName = "Documents.${format.primaryExtension}"
+
+            val error = org.junit.Assert.assertThrows(
+                ArchiveOutputNameUnavailableException::class.java,
+            ) {
+                writer.create(
+                    request = request(session),
+                    options = ArchiveCreationOptions(
+                        outputDisplayName = outputName,
+                        compressionLevel = writer.formatCapabilities.compressionLevels.first(),
+                        conflictPolicy = ArchiveCreationConflictPolicy.ASK,
+                    ),
+                    checkCancelled = {},
+                    progress = ArchiveCreationProgressListener {},
+                )
+            }
+
+            assertEquals(format.displayName, outputName, error.requestedDisplayName)
+            assertTrue(format.displayName, error.cause is IllegalArgumentException)
+            assertEquals(format.displayName, 1, session.prepareCalls)
+            assertEquals(format.displayName, outputName, session.requestedDisplayName)
+            assertEquals(format.displayName, format.primaryMimeType, session.requestedMimeType)
+            assertEquals(
+                format.displayName,
+                ExplorerActionHostSessionValues.OUTPUT_CONFLICT_FAIL,
+                session.requestedConflictPolicy,
+            )
+            assertEquals(format.displayName, 0, session.sourceAccessCalls)
+            assertEquals(format.displayName, 0, session.outputAccessCalls)
+            assertEquals(format.displayName, 0, session.abortCalls)
+        }
+    }
+
     private fun request(session: IExplorerActionHostSession) = ArchiveCompressionRequest(
         requestId = UUID.randomUUID().toString(),
         parentUri = Uri.parse("content://host/root"),
@@ -160,6 +199,8 @@ class ZipArchiveCreatorInstrumentationTest {
 
         override fun prepareOutput(displayName: String, mimeType: String, conflictPolicy: Int): Bundle {
             assertEquals("Documents.zip", displayName)
+            assertEquals(ArchiveFormat.ZIP.primaryMimeType, mimeType)
+            assertEquals(ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME, conflictPolicy)
             return outputBundle()
         }
 
@@ -210,6 +251,64 @@ class ZipArchiveCreatorInstrumentationTest {
             putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME, "Documents.zip")
             putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH, outputFile.path)
         }
+    }
+
+    private class ExactNameRejectingHostSession : IExplorerActionHostSession.Stub() {
+        var prepareCalls = 0
+            private set
+        var sourceAccessCalls = 0
+            private set
+        var outputAccessCalls = 0
+            private set
+        var abortCalls = 0
+            private set
+        var requestedDisplayName: String? = null
+            private set
+        var requestedMimeType: String? = null
+            private set
+        var requestedConflictPolicy: Int? = null
+            private set
+
+        override fun listChildren(
+            targetId: String,
+            relativePath: String,
+            offset: Int,
+            limit: Int,
+        ): Bundle {
+            sourceAccessCalls += 1
+            error("Source traversal must not start before output reservation")
+        }
+
+        override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor {
+            sourceAccessCalls += 1
+            error("Source access must not start before output reservation")
+        }
+
+        override fun prepareOutput(
+            displayName: String,
+            mimeType: String,
+            conflictPolicy: Int,
+        ): Bundle {
+            prepareCalls += 1
+            requestedDisplayName = displayName
+            requestedMimeType = mimeType
+            requestedConflictPolicy = conflictPolicy
+            throw IllegalArgumentException("Synthetic exact-name conflict")
+        }
+
+        override fun openOutput(transactionId: String): ParcelFileDescriptor {
+            outputAccessCalls += 1
+            error("Output must not open when reservation fails")
+        }
+
+        override fun commitOutput(transactionId: String): Bundle =
+            error("Commit must not run when reservation fails")
+
+        override fun abortOutput(transactionId: String) {
+            abortCalls += 1
+        }
+
+        override fun close() = Unit
     }
 
     private companion object {

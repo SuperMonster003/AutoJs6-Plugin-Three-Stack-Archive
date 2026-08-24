@@ -17,6 +17,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionIntentValues
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
@@ -25,6 +26,9 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class CreateArchiveActivityInstrumentationTest {
@@ -124,7 +128,117 @@ class CreateArchiveActivityInstrumentationTest {
         }
     }
 
+    @Test
+    fun creationConflictPolicyDefaultsToAutoRenameAndSurvivesRecreation() {
+        val hostSession = RecordingHostSession()
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val policy = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.creationConflictPolicy,
+                )
+                val details = activity.findViewById<android.widget.TextView>(
+                    R.id.creationConflictPolicyDetails,
+                )
+                assertEquals(
+                    listOf(
+                        activity.getString(R.string.text_conflict_policy_auto_rename),
+                        activity.getString(R.string.text_conflict_policy_ask),
+                    ),
+                    (0 until policy.adapter.count).map { policy.adapter.getItem(it).toString() },
+                )
+                assertEquals(
+                    activity.getString(R.string.text_conflict_policy_auto_rename),
+                    policy.text.toString(),
+                )
+                assertEquals(
+                    activity.getString(
+                        R.string.text_creation_conflict_policy_auto_rename_details,
+                    ),
+                    details.text.toString(),
+                )
+
+                selectDropdown(policy, 1)
+            }
+
+            scenario.recreate()
+
+            scenario.onActivity { activity ->
+                assertEquals(
+                    activity.getString(R.string.text_conflict_policy_ask),
+                    activity.findViewById<android.widget.AutoCompleteTextView>(
+                        R.id.creationConflictPolicy,
+                    ).text.toString(),
+                )
+                assertEquals(
+                    activity.getString(R.string.text_creation_conflict_policy_ask_details),
+                    activity.findViewById<android.widget.TextView>(
+                        R.id.creationConflictPolicyDetails,
+                    ).text.toString(),
+                )
+                assertEquals(0, hostSession.prepareOutputCalls)
+            }
+        }
+    }
+
+    @Test
+    fun askRetriesWithAutomaticNumberingWithoutReadingSources() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val hostSession = RecordingHostSession(rejectExactName = true)
+        ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+            scenario.onActivity { activity ->
+                val policy = activity.findViewById<android.widget.AutoCompleteTextView>(
+                    R.id.creationConflictPolicy,
+                )
+                selectDropdown(policy, 1)
+                activity.findViewById<android.view.View>(R.id.createButton).performClick()
+            }
+
+            assertTrue(hostSession.exactNameAttempt.await(5, TimeUnit.SECONDS))
+            instrumentation.waitForIdleSync()
+            scenario.onActivity { activity ->
+                val dialog = requireNotNull(activity.currentUnavailableNameDialog())
+                assertTrue(dialog.isShowing)
+                assertEquals(
+                    activity.getString(
+                        R.string.dialog_message_archive_name_unavailable,
+                        "report.txt.zip",
+                        "/Documents",
+                    ),
+                    requireNotNull(
+                        dialog.findViewById<android.widget.TextView>(android.R.id.message),
+                    ).text.toString(),
+                )
+                assertTrue(
+                    dialog.getButton(android.content.DialogInterface.BUTTON_NEGATIVE).isShown,
+                )
+                assertTrue(
+                    dialog.getButton(android.content.DialogInterface.BUTTON_NEUTRAL).isShown,
+                )
+                assertTrue(
+                    dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).isShown,
+                )
+                dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick()
+            }
+
+            assertTrue(hostSession.autoRenameAttempt.await(5, TimeUnit.SECONDS))
+            instrumentation.waitForIdleSync()
+            assertEquals(
+                listOf(
+                    ExplorerActionHostSessionValues.OUTPUT_CONFLICT_FAIL,
+                    ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME,
+                ),
+                hostSession.conflictPolicies.toList(),
+            )
+            assertEquals(0, hostSession.sourceAccessCalls)
+        }
+    }
+
     private fun selectFormat(
+        view: android.widget.AutoCompleteTextView,
+        position: Int,
+    ) = selectDropdown(view, position)
+
+    private fun selectDropdown(
         view: android.widget.AutoCompleteTextView,
         position: Int,
     ) {
@@ -176,18 +290,41 @@ class CreateArchiveActivityInstrumentationTest {
             }
     }
 
-    private class RecordingHostSession : IExplorerActionHostSession.Stub() {
+    private class RecordingHostSession(
+        private val rejectExactName: Boolean = false,
+    ) : IExplorerActionHostSession.Stub() {
         var prepareOutputCalls = 0
             private set
+        var sourceAccessCalls = 0
+            private set
+        val conflictPolicies = CopyOnWriteArrayList<Int>()
+        val exactNameAttempt = CountDownLatch(1)
+        val autoRenameAttempt = CountDownLatch(1)
 
-        override fun listChildren(targetId: String, relativePath: String, offset: Int, limit: Int): Bundle =
+        override fun listChildren(targetId: String, relativePath: String, offset: Int, limit: Int): Bundle {
+            sourceAccessCalls += 1
             error("Directory access is not expected")
+        }
 
-        override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor =
+        override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor {
+            sourceAccessCalls += 1
             error("File access is not expected")
+        }
 
         override fun prepareOutput(displayName: String, mimeType: String, conflictPolicy: Int): Bundle {
             prepareOutputCalls += 1
+            conflictPolicies += conflictPolicy
+            if (rejectExactName && conflictPolicy == ExplorerActionHostSessionValues.OUTPUT_CONFLICT_FAIL) {
+                exactNameAttempt.countDown()
+                throw IllegalArgumentException("Synthetic exact-name conflict")
+            }
+            if (
+                rejectExactName &&
+                conflictPolicy == ExplorerActionHostSessionValues.OUTPUT_CONFLICT_AUTO_RENAME
+            ) {
+                autoRenameAttempt.countDown()
+                error("Stop after observing automatic numbering")
+            }
             error("Output preparation is not expected")
         }
 

@@ -12,6 +12,7 @@ _Unreleased_
 - `Added` Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Added` Archive creation now offers Auto rename and Ask each time output-name policies without overwriting existing archives
 - `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported
 - `Added` TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST creation with format-specific levels and complete compound-extension updates
 - `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation

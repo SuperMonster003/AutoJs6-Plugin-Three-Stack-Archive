@@ -58,7 +58,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.
 - Offer Compress... for ordinary files, folders, and same-parent multi-selections.
 - Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST with a configurable name and only the compression levels and password options supported by the selected format.
-- Write to a same-directory temporary file and commit atomically; automatically number conflicts without overwriting existing files.
+- Write to a same-directory temporary file and commit atomically; choose automatic numbering or try the exact name and decide before a numbered retry, without overwriting existing files.
 
 ### Current formats
 
@@ -84,7 +84,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
 5. For a specific range, choose Selective extraction..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
 6. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
-7. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format and available settings.
+7. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format, available settings, and whether an unavailable exact name should be numbered automatically or confirmed before retrying.
 
 ### Permissions and data
 
@@ -114,6 +114,7 @@ _Unreleased_
 - `Added` Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
+- `Added` Archive creation now offers Auto rename and Ask each time output-name policies without overwriting existing archives
 - `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported
 - `Added` TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST creation with format-specific levels and complete compound-extension updates
 - `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation

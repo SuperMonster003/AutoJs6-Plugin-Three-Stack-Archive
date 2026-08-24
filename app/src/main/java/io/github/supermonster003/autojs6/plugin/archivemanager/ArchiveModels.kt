@@ -188,7 +188,18 @@ internal data class ArchiveCreationOptions(
     val outputDisplayName: String,
     val compressionLevel: Int,
     val password: CharArray? = null,
+    val conflictPolicy: ArchiveCreationConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME,
 )
+
+internal enum class ArchiveCreationConflictPolicy {
+    AUTO_RENAME,
+    ASK,
+}
+
+internal class ArchiveOutputNameUnavailableException(
+    val requestedDisplayName: String,
+    cause: IllegalArgumentException,
+) : IllegalStateException("The exact archive output name is unavailable", cause)
 
 internal data class ArchiveCreationProgress(
     val currentEntry: String,

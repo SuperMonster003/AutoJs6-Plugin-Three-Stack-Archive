@@ -36,10 +36,10 @@ internal class ZipArchiveCreator(
             formatCapabilities.compressionLevels,
             format,
         )
+        val transaction = session.prepareOutput(outputName, format, options.conflictPolicy)
         val passwordChars = options.password
             ?.takeIf(CharArray::isNotEmpty)
             ?.clone()
-        val transaction = session.prepareOutput(outputName, format)
         try {
             val descriptor = session.openOutput(transaction.id)
             val counters = writeArchive(

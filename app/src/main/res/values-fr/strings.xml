@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">Continuer</string>
     <string name="dialog_button_skip_unsafe">Ignorer et continuer</string>
     <string name="dialog_button_select_all">Tout sélectionner</string>
+    <string name="dialog_button_edit_name">Modifier le nom</string>
+    <string name="dialog_button_use_numbered_name">Utiliser un nom numéroté</string>
+    <string name="dialog_title_archive_name_unavailable">Nom de sortie exact indisponible</string>
+    <string name="dialog_message_archive_name_unavailable">L’hôte n’a pas pu réserver %1$s dans %2$s. Aucune donnée d’archive n’a été écrite. Modifiez le nom ou réessayez avec une numérotation automatique.</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d entrées de l\'archive utilisent des chemins qui ne peuvent pas être écrits en toute sécurité. Elles restent disponibles pour aperçu dans le dossier Chemins non sûrs. Continuer et les ignorer ?</string>
     <string name="dialog_title_unsafe_paths">Chemins non sûrs</string>
     <string name="error_archive_invalid">L\'archive est non valide ou non prise en charge</string>
@@ -67,7 +71,9 @@
     <string name="text_delete_sources_after_compression">Supprimer les éléments sources après compression</string>
     <string name="text_encrypt_file_names">Chiffrer les noms de fichiers</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">Si le nom existe, un numéro est ajouté automatiquement.</string>
+    <string name="text_creation_conflict_policy">Si le nom de l’archive est indisponible</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Réserve un nom numéroté disponible. Les archives existantes ne sont jamais remplacées. L’écrasement transactionnel nécessite une API d’hôte plus récente.</string>
+    <string name="text_creation_conflict_policy_ask_details">Essaie d’abord le nom exact. Si l’hôte ne peut pas le réserver, demande avant de réessayer avec un nom numéroté. Les archives existantes ne sont jamais remplacées.</string>
     <string name="text_none">Aucun</string>
     <string name="text_output_path">Chemin</string>
     <string name="text_password">Mot de passe</string>

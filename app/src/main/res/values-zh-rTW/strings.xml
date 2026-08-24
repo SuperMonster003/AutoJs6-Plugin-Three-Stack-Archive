@@ -9,6 +9,10 @@
     <string name="dialog_button_continue">繼續</string>
     <string name="dialog_button_skip_unsafe">略過並繼續</string>
     <string name="dialog_button_select_all">全選</string>
+    <string name="dialog_button_edit_name">編輯名稱</string>
+    <string name="dialog_button_use_numbered_name">使用編號名稱</string>
+    <string name="dialog_title_archive_name_unavailable">無法使用精確輸出名稱</string>
+    <string name="dialog_message_archive_name_unavailable">無法在 %2$s 中預留 %1$s. 尚未寫入任何壓縮檔案資料. 請編輯名稱, 或改用自動編號後重試.</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d 個檔案項目使用了無法安全寫出的路徑. 它們仍可在「危險路徑」資料夾中預覽. 是否繼續並略過這些項目?</string>
     <string name="dialog_title_unsafe_paths">危險路徑</string>
     <string name="error_archive_invalid">壓縮檔無效或不支援</string>
@@ -65,7 +69,9 @@
     <string name="text_delete_sources_after_compression">壓縮後刪除來源項目</string>
     <string name="text_encrypt_file_names">同時加密檔名</string>
     <string name="text_format_zip">ZIP</string>
-    <string name="text_name_conflict_auto_rename">名稱已存在時會自動加入序號.</string>
+    <string name="text_creation_conflict_policy">壓縮檔案名稱無法使用時</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">由主程式預留可用的編號名稱. 現有壓縮檔案絕不會被取代. 交易式覆寫需要新版主程式 API.</string>
+    <string name="text_creation_conflict_policy_ask_details">先嘗試精確名稱; 主程式無法預留時, 詢問是否改用編號名稱. 現有壓縮檔案絕不會被取代.</string>
     <string name="text_none">無</string>
     <string name="text_output_path">路徑</string>
     <string name="text_password">密碼</string>
