@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
     <string name="app_name">Gestor de archivos comprimidos</string>
     <string name="dialog_button_cancel">Cancelar</string>
+    <string name="dialog_button_continue">Continuar</string>
     <string name="dialog_button_skip_unsafe">Omitir y continuar</string>
     <string name="dialog_button_select_all">Seleccionar todo</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d entradas del archivo usan rutas que no se pueden escribir de forma segura. Siguen disponibles para vista previa en la carpeta Rutas no seguras. ¿Continuar y omitirlas?</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">Salida estimada: %1$s (presupuesto %2$s)</string>
     <string name="text_custom_budget_zero_note">Usa 0 para el máximo estructural fijo (cantidad de entradas, longitud y profundidad de ruta) o para no establecer umbral de aviso de recursos (tamaños y relación de compresión). La seguridad estructural de las rutas no se puede desactivar.</string>
     <string name="text_extraction_budget">Presupuesto de extracción</string>
+    <string name="text_extraction_conflict_policy">Cuando haya conflictos de nombres de salida</string>
+    <string name="text_conflict_policy_ask">Preguntar cada vez</string>
+    <string name="text_conflict_policy_skip">Omitir</string>
+    <string name="text_conflict_policy_overwrite">Sobrescribir</string>
+    <string name="text_conflict_policy_auto_rename">Cambiar nombre automáticamente</string>
+    <string name="text_conflict_policy_ask_details">Pregunta cómo gestionar cada conflicto de nombre dentro de la nueva carpeta de salida. Si ya existe una carpeta de salida, siempre se numera y no se modifica.</string>
+    <string name="text_conflict_policy_skip_details">Omite las entradas posteriores con nombres equivalentes. Si ya existe una carpeta de salida, siempre se numera y no se modifica.</string>
+    <string name="text_conflict_policy_overwrite_details">Reemplaza archivos anteriores y combina carpetas cuando sus tipos coinciden. Los tipos incompatibles se renombran automáticamente. Las carpetas de salida existentes no se modifican.</string>
+    <string name="text_conflict_policy_auto_rename_details">Añade un número a cada entrada posterior con un nombre equivalente. Las carpetas de salida existentes también se numeran y no se modifican.</string>
+    <string name="dialog_title_output_conflict">Conflicto de nombre de salida</string>
+    <string name="dialog_message_output_conflict">Elemento del archivo: %1$s\nExistente: %2$s (%3$s)\nEntrante: %4$s (%5$s)</string>
+    <string name="text_item_type_file">archivo</string>
+    <string name="text_item_type_directory">carpeta</string>
+    <string name="text_apply_to_all_conflicts">Aplicar esta opción a todos los conflictos compatibles</string>
+    <string name="text_conflict_overwrite_unavailable">No se puede sobrescribir porque los tipos son distintos o el elemento existente no fue creado por esta extracción.</string>
+    <string name="text_extraction_conflict_summary">Conflictos resueltos: %1$d omitidos, %2$d sobrescritos o combinados y %3$d renombrados automáticamente.</string>
     <string name="text_resource_budget_summary">Salida estimada: %1$s\nEntradas seleccionadas: %2$d\nEspacio disponible en el destino: compruébalo antes de continuar.</string>
     <string name="text_resource_budget_warning">Continuar permite los valores declarados solo para esta extracción. Las comprobaciones de rutas, identidad del origen, tamaño, suma de comprobación y limpieza siguen activas.</string>
     <string name="text_password_encryption_note">Una contraseña no vacía usa cifrado AES-256. Los nombres de archivo siguen visibles.</string>

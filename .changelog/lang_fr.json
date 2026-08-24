@@ -13,6 +13,7 @@
         "Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte",
         "Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive",
         "Extraction sélective... ouvre la page de gestion avec les portées archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète",
+        "Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants",
         "Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent",
         "Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits",
         "Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort",

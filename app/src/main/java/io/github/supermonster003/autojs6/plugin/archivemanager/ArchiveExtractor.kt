@@ -28,6 +28,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         rootName: String,
         skipUnsafePaths: Boolean = false,
         allowResourceBudgetOverride: Boolean = false,
+        conflictPolicy: ArchiveExtractionConflictPolicy = ArchiveExtractionConflictPolicy.ASK,
+        conflictResolver: ArchiveExtractionConflictResolver = ArchiveExtractionConflictResolver.NONE,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult = extract(
         source = source.asArchiveReadSource(),
@@ -37,6 +39,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         rootName = rootName,
         skipUnsafePaths = skipUnsafePaths,
         allowResourceBudgetOverride = allowResourceBudgetOverride,
+        conflictPolicy = conflictPolicy,
+        conflictResolver = conflictResolver,
         progress = progress,
     )
 
@@ -48,6 +52,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         rootName: String,
         skipUnsafePaths: Boolean = false,
         allowResourceBudgetOverride: Boolean = false,
+        conflictPolicy: ArchiveExtractionConflictPolicy = ArchiveExtractionConflictPolicy.ASK,
+        conflictResolver: ArchiveExtractionConflictResolver = ArchiveExtractionConflictResolver.NONE,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult {
         val resolver = contentResolver ?: throw IllegalStateException(
@@ -71,6 +77,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             writer = writer,
             skipUnsafePaths = skipUnsafePaths,
             allowResourceBudgetOverride = allowResourceBudgetOverride,
+            conflictPolicy = conflictPolicy,
+            conflictResolver = conflictResolver,
             progress = progress,
         )
     }
@@ -83,6 +91,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         writer: ArchiveOutputWriter,
         skipUnsafePaths: Boolean = false,
         allowResourceBudgetOverride: Boolean = false,
+        conflictPolicy: ArchiveExtractionConflictPolicy = ArchiveExtractionConflictPolicy.ASK,
+        conflictResolver: ArchiveExtractionConflictResolver = ArchiveExtractionConflictResolver.NONE,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult = extractToWriter(
         source = source.asArchiveReadSource(),
@@ -92,6 +102,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         writer = writer,
         skipUnsafePaths = skipUnsafePaths,
         allowResourceBudgetOverride = allowResourceBudgetOverride,
+        conflictPolicy = conflictPolicy,
+        conflictResolver = conflictResolver,
         progress = progress,
     )
 
@@ -103,6 +115,8 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         writer: ArchiveOutputWriter,
         skipUnsafePaths: Boolean = false,
         allowResourceBudgetOverride: Boolean = false,
+        conflictPolicy: ArchiveExtractionConflictPolicy = ArchiveExtractionConflictPolicy.ASK,
+        conflictResolver: ArchiveExtractionConflictResolver = ArchiveExtractionConflictResolver.NONE,
         progress: ArchiveProgressListener = ArchiveProgressListener.NONE,
     ): ExtractionResult = withContext(Dispatchers.IO) {
         val extractionContext = currentCoroutineContext()
@@ -144,27 +158,106 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         try {
             root = writer.createRoot(safeRootName)
             currentCoroutineContext().ensureActive()
-            val directories = HashMap<String, ArchiveOutputWriter.Node>()
-            directories[ArchivePathPolicy.ROOT_PATH] = root
-            var completedEntries = 0
-            var bytesWritten = 0L
+            val conflictController = ArchiveExtractionConflictController(
+                policy = conflictPolicy,
+                resolver = conflictResolver,
+            )
+            val directories = HashMap<String, PlannedDirectory?>()
+            directories[ArchivePathPolicy.ROOT_PATH] = PlannedDirectory(root, "")
+            val activeDirectories = ArrayList<String>(selection.directories.size)
+            val plannedFiles = ArrayList<PlannedFile>(selection.files.size)
+            var directoriesCreated = 0
+            var entriesSkipped = 0
+            var entriesOverwritten = 0
+            var entriesAutoRenamed = 0
 
             selection.directories.forEach { directoryPath ->
                 currentCoroutineContext().ensureActive()
-                val parent = directories[parentPath(directoryPath)]
-                    ?: extractionFailure("Extraction directory parent is missing")
-                val directory = writer.createDirectory(parent, displayName(directoryPath))
-                currentCoroutineContext().ensureActive()
+                val parentPath = parentPath(directoryPath)
+                if (!directories.containsKey(parentPath)) {
+                    extractionFailure("Extraction directory parent is missing")
+                }
+                val parent = directories[parentPath]
+                if (parent == null) {
+                    directories[directoryPath] = null
+                    entriesSkipped++
+                    return@forEach
+                }
+                val allocation = allocateOutputNode(
+                    writer = writer,
+                    parent = parent,
+                    archivePath = directoryPath,
+                    requestedDisplayName = displayName(directoryPath),
+                    incomingIsDirectory = true,
+                    structureLimits = structureLimits,
+                    conflictController = conflictController,
+                )
+                when (allocation.decision) {
+                    ArchiveExtractionConflictDecision.SKIP -> entriesSkipped++
+                    ArchiveExtractionConflictDecision.OVERWRITE -> entriesOverwritten++
+                    ArchiveExtractionConflictDecision.AUTO_RENAME -> entriesAutoRenamed++
+                    null -> Unit
+                }
+                val directory = allocation.node?.let { node ->
+                    PlannedDirectory(
+                        node = node,
+                        relativePath = childPath(parent.relativePath, node.location.displayName),
+                    )
+                }
                 directories[directoryPath] = directory
+                if (directory != null) {
+                    activeDirectories += directoryPath
+                    if (allocation.created) directoriesCreated++
+                }
+            }
+
+            selection.files.forEach { entry ->
+                currentCoroutineContext().ensureActive()
+                val parentPath = parentPath(entry.path)
+                if (!directories.containsKey(parentPath)) {
+                    extractionFailure("Extraction file parent is missing")
+                }
+                val parent = directories[parentPath]
+                if (parent == null) {
+                    entriesSkipped++
+                    return@forEach
+                }
+                val allocation = allocateOutputNode(
+                    writer = writer,
+                    parent = parent,
+                    archivePath = entry.path,
+                    requestedDisplayName = entry.displayName,
+                    incomingIsDirectory = false,
+                    structureLimits = structureLimits,
+                    conflictController = conflictController,
+                )
+                when (allocation.decision) {
+                    ArchiveExtractionConflictDecision.SKIP -> entriesSkipped++
+                    ArchiveExtractionConflictDecision.OVERWRITE -> entriesOverwritten++
+                    ArchiveExtractionConflictDecision.AUTO_RENAME -> entriesAutoRenamed++
+                    null -> Unit
+                }
+                allocation.node?.let { plannedFiles += PlannedFile(entry, it) }
+            }
+
+            val totalEntries = activeDirectories.size + plannedFiles.size
+            val totalBytes = plannedFiles.fold(0L) { total, planned ->
+                checkedAdd(total, planned.entry.uncompressedSize, Long.MAX_VALUE) {
+                    ArchiveFailureCode.MALFORMED_ARCHIVE
+                }
+            }
+            var completedEntries = 0
+            var bytesWritten = 0L
+            activeDirectories.forEach { directoryPath ->
                 completedEntries++
                 progress.onProgress(
                     ExtractionProgress(
                         phase = ExtractionPhase.EXTRACTING,
                         currentPath = directoryPath,
                         completedEntries = completedEntries,
-                        totalEntries = selection.totalEntries,
+                        totalEntries = totalEntries,
                         bytesWritten = bytesWritten,
-                        totalBytes = selection.totalUncompressedBytes,
+                        totalBytes = totalBytes,
                     ),
                 )
             }
@@ -174,8 +267,9 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                 format = snapshot.format,
                 options = snapshot.readerOptions,
             ).use { reader ->
-                selection.files.forEach { entry ->
+                plannedFiles.forEach { planned ->
                     currentCoroutineContext().ensureActive()
+                    val entry = planned.entry
                     val liveEntry = reader.entryAt(entry.ordinal)
                         ?: changed("Selected archive entry no longer exists")
                     validateCentralEntry(
@@ -185,10 +279,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                         passwordProvided = snapshot.readerOptions.hasPassword,
                         format = snapshot.format,
                     )
-                    val parent = directories[parentPath(entry.path)]
-                        ?: extractionFailure("Extraction file parent is missing")
-                    val outputNode = writer.createFile(parent, entry.displayName)
-                    val measurement = writer.openFile(outputNode).use { rawOutput ->
+                    val measurement = writer.openFile(planned.node).use { rawOutput ->
                         reader.openEntry(liveEntry).use { rawInput ->
                             copyEntry(
                                 input = BufferedInputStream(rawInput),
@@ -196,9 +287,9 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                                 entry = entry,
                                 compressedSize = liveEntry.compressedSize,
                                 totalBeforeEntry = bytesWritten,
-                                totalExpected = selection.totalUncompressedBytes,
+                                totalExpected = totalBytes,
                                 completedEntries = completedEntries,
-                                totalEntries = selection.totalEntries,
+                                totalEntries = totalEntries,
                                 budget = enforcedBudget,
                                 progress = progress,
                             )
@@ -218,9 +309,9 @@ internal class ArchiveExtractor @JvmOverloads constructor(
                             phase = ExtractionPhase.EXTRACTING,
                             currentPath = entry.path,
                             completedEntries = completedEntries,
-                            totalEntries = selection.totalEntries,
+                            totalEntries = totalEntries,
                             bytesWritten = bytesWritten,
-                            totalBytes = selection.totalUncompressedBytes,
+                            totalBytes = totalBytes,
                         ),
                     )
                 }
@@ -230,18 +321,21 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             verifySourceIdentity(source, snapshot)
             val result = ExtractionResult(
                 root = root.location,
-                filesExtracted = selection.files.size,
-                directoriesCreated = selection.directories.size,
+                filesExtracted = plannedFiles.size,
+                directoriesCreated = directoriesCreated,
                 bytesWritten = bytesWritten,
+                entriesSkipped = entriesSkipped,
+                entriesOverwritten = entriesOverwritten,
+                entriesAutoRenamed = entriesAutoRenamed,
             )
             progress.onProgress(
                 ExtractionProgress(
                     phase = ExtractionPhase.COMPLETED,
                     currentPath = null,
-                    completedEntries = selection.totalEntries,
-                    totalEntries = selection.totalEntries,
+                    completedEntries = totalEntries,
+                    totalEntries = totalEntries,
                     bytesWritten = bytesWritten,
-                    totalBytes = selection.totalUncompressedBytes,
+                    totalBytes = totalBytes,
                 ),
             )
             result
@@ -287,6 +381,170 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             }
             throw mapped
         }
+    }
+
+    private suspend fun allocateOutputNode(
+        writer: ArchiveOutputWriter,
+        parent: PlannedDirectory,
+        archivePath: String,
+        requestedDisplayName: String,
+        incomingIsDirectory: Boolean,
+        structureLimits: ArchiveStructureLimits,
+        conflictController: ArchiveExtractionConflictController,
+    ): OutputAllocation {
+        validateOutputPath(
+            parentPath = parent.relativePath,
+            displayName = requestedDisplayName,
+            isDirectory = incomingIsDirectory,
+            structureLimits = structureLimits,
+        )
+        val existing = writer.findChild(parent.node, requestedDisplayName)
+        if (existing == null) {
+            return OutputAllocation(
+                node = createOutputNode(
+                    writer = writer,
+                    parent = parent.node,
+                    displayName = requestedDisplayName,
+                    isDirectory = incomingIsDirectory,
+                ),
+                created = true,
+            )
+        }
+
+        val conflict = ArchiveExtractionConflict(
+            archivePath = archivePath,
+            requestedDisplayName = requestedDisplayName,
+            existingDisplayName = existing.location.displayName,
+            incomingIsDirectory = incomingIsDirectory,
+            existingIsDirectory = existing.isDirectory,
+            canOverwrite = writer.canOverwrite(existing, incomingIsDirectory),
+        )
+        return when (val decision = conflictController.resolve(conflict)) {
+            ArchiveExtractionConflictDecision.SKIP -> OutputAllocation(
+                node = null,
+                created = false,
+                decision = decision,
+            )
+            ArchiveExtractionConflictDecision.OVERWRITE -> OutputAllocation(
+                node = existing,
+                created = false,
+                decision = decision,
+            )
+            ArchiveExtractionConflictDecision.AUTO_RENAME -> OutputAllocation(
+                node = createAutoRenamedOutputNode(
+                    writer = writer,
+                    parent = parent,
+                    requestedDisplayName = requestedDisplayName,
+                    incomingIsDirectory = incomingIsDirectory,
+                    structureLimits = structureLimits,
+                ),
+                created = true,
+                decision = decision,
+            )
+        }
+    }
+
+    private fun createAutoRenamedOutputNode(
+        writer: ArchiveOutputWriter,
+        parent: PlannedDirectory,
+        requestedDisplayName: String,
+        incomingIsDirectory: Boolean,
+        structureLimits: ArchiveStructureLimits,
+    ): ArchiveOutputWriter.Node {
+        val separatorLength = if (parent.relativePath.isEmpty()) 0 else 1
+        val maximumNameLength = structureLimits.restrictedToHardLimits().maxPathLength -
+            parent.relativePath.length - separatorLength
+        for (suffix in 2..MAX_AUTO_RENAME_ATTEMPTS) {
+            val candidate = numberedDisplayName(
+                requested = requestedDisplayName,
+                suffix = suffix,
+                isDirectory = incomingIsDirectory,
+                maximumLength = maximumNameLength,
+            )
+            validateOutputPath(
+                parentPath = parent.relativePath,
+                displayName = candidate,
+                isDirectory = incomingIsDirectory,
+                structureLimits = structureLimits,
+            )
+            if (writer.findChild(parent.node, candidate) == null) {
+                return createOutputNode(
+                    writer = writer,
+                    parent = parent.node,
+                    displayName = candidate,
+                    isDirectory = incomingIsDirectory,
+                )
+            }
+        }
+        throw ArchiveExtractionException(
+            ArchiveFailureCode.OUTPUT_FAILURE,
+            "Cannot allocate a unique extraction entry name",
+        )
+    }
+
+    private fun createOutputNode(
+        writer: ArchiveOutputWriter,
+        parent: ArchiveOutputWriter.Node,
+        displayName: String,
+        isDirectory: Boolean,
+    ): ArchiveOutputWriter.Node = if (isDirectory) {
+        writer.createDirectory(parent, displayName)
+    } else {
+        writer.createFile(parent, displayName)
+    }
+
+    private fun validateOutputPath(
+        parentPath: String,
+        displayName: String,
+        isDirectory: Boolean,
+        structureLimits: ArchiveStructureLimits,
+    ) {
+        ArchivePathPolicy.validateEntryPath(
+            sourceName = childPath(parentPath, displayName),
+            isDirectory = isDirectory,
+            limits = structureLimits,
+        )
+    }
+
+    private fun numberedDisplayName(
+        requested: String,
+        suffix: Int,
+        isDirectory: Boolean,
+        maximumLength: Int,
+    ): String {
+        val marker = " ($suffix)"
+        if (maximumLength <= marker.length) {
+            throw ArchiveExtractionException(
+                ArchiveFailureCode.PATH_LIMIT_EXCEEDED,
+                "An auto-renamed extraction path would exceed the hard path limit",
+            )
+        }
+        val extensionIndex = if (isDirectory) {
+            -1
+        } else {
+            requested.lastIndexOf('.').takeIf { it in 1 until requested.lastIndex } ?: -1
+        }
+        var stem = if (extensionIndex >= 0) requested.substring(0, extensionIndex) else requested
+        var extension = if (extensionIndex >= 0) requested.substring(extensionIndex) else ""
+        if (maximumLength - marker.length - extension.length <= 0) {
+            stem = requested
+            extension = ""
+        }
+        val stemLimit = maximumLength - marker.length - extension.length
+        val truncatedStem = takeWithoutSplittingSurrogate(stem, stemLimit)
+        return "$truncatedStem$marker$extension"
+    }
+
+    private fun takeWithoutSplittingSurrogate(value: String, maximumLength: Int): String {
+        var end = minOf(value.length, maximumLength.coerceAtLeast(0))
+        if (
+            end in 1 until value.length &&
+            value[end - 1].isHighSurrogate() &&
+            value[end].isLowSurrogate()
+        ) {
+            end--
+        }
+        return value.substring(0, end)
     }
 
     private suspend fun copyEntry(
@@ -635,6 +893,9 @@ internal class ArchiveExtractor @JvmOverloads constructor(
 
     private fun displayName(path: String): String = path.substringAfterLast('/')
 
+    private fun childPath(parentPath: String, displayName: String): String =
+        if (parentPath.isEmpty()) displayName else "$parentPath/$displayName"
+
     private fun changed(message: String): Nothing = throw ArchiveExtractionException(
         ArchiveFailureCode.SOURCE_CHANGED,
         message,
@@ -660,8 +921,25 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         val crc32: Long,
     )
 
+    private data class PlannedDirectory(
+        val node: ArchiveOutputWriter.Node,
+        val relativePath: String,
+    )
+
+    private data class PlannedFile(
+        val entry: ArchiveEntry,
+        val node: ArchiveOutputWriter.Node,
+    )
+
+    private data class OutputAllocation(
+        val node: ArchiveOutputWriter.Node?,
+        val created: Boolean,
+        val decision: ArchiveExtractionConflictDecision? = null,
+    )
+
     private companion object {
         const val BUFFER_SIZE = 32 * 1_024
+        const val MAX_AUTO_RENAME_ATTEMPTS = 10_000
         const val PREFLIGHT_CANCELLATION_CHECK_INTERVAL = 64
     }
 }

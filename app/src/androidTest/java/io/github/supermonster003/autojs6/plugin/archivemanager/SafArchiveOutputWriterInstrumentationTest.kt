@@ -61,7 +61,7 @@ class SafArchiveOutputWriterInstrumentationTest {
     }
 
     @Test
-    fun foldedEntryConflictsFailClosedAndPreserveExistingDestinationContent() {
+    fun unresolvedFoldedEntryConflictsFailClosedAndPreserveExistingDestinationContent() {
         val cases = listOf(
             CollisionCase(
                 rootName = "unicode-output",
@@ -110,7 +110,10 @@ class SafArchiveOutputWriterInstrumentationTest {
                     expected
                 }
 
-                assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
+                assertEquals(
+                    ArchiveFailureCode.OUTPUT_CONFLICT_CONFIRMATION_REQUIRED,
+                    error.code,
+                )
                 assertEquals(setOf(SENTINEL_NAME), childRecords(TREE_ROOT_URI).displayNames())
                 assertArrayEquals(
                     sentinelPayload,
@@ -121,6 +124,146 @@ class SafArchiveOutputWriterInstrumentationTest {
             } finally {
                 source.delete()
             }
+        }
+    }
+
+    @Test
+    fun fixedPoliciesSkipOverwriteOrRenameFoldedFileConflicts() {
+        val cases = listOf(
+            PolicyCase(
+                policy = ArchiveExtractionConflictPolicy.SKIP,
+                expectedNames = setOf("A.txt"),
+                expectedPrimaryPayload = "first",
+                expectedSkipped = 1,
+            ),
+            PolicyCase(
+                policy = ArchiveExtractionConflictPolicy.OVERWRITE,
+                expectedNames = setOf("A.txt"),
+                expectedPrimaryPayload = "second",
+                expectedOverwritten = 1,
+            ),
+            PolicyCase(
+                policy = ArchiveExtractionConflictPolicy.AUTO_RENAME,
+                expectedNames = setOf("A.txt", "a (2).txt"),
+                expectedPrimaryPayload = "first",
+                expectedAutoRenamed = 1,
+            ),
+        )
+
+        cases.forEach { case ->
+            resetProvider()
+            val source = writeZip(
+                listOf(
+                    "A.txt" to "first".toByteArray(),
+                    "a.txt" to "second".toByteArray(),
+                ),
+            )
+            try {
+                val snapshot = ArchiveScanner().scan(source)
+                val result = runBlocking {
+                    ArchiveExtractor(contentResolver = resolver).extract(
+                        source = source,
+                        snapshot = snapshot,
+                        selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                        treeUri = TREE_URI,
+                        rootName = "policy-output",
+                        conflictPolicy = case.policy,
+                    )
+                }
+                val root = Uri.parse(result.root.identifier)
+                val children = childRecords(root)
+
+                assertEquals(case.expectedNames, children.displayNames())
+                assertArrayEquals(
+                    case.expectedPrimaryPayload.toByteArray(),
+                    readDocument(children.single { it.displayName == "A.txt" }),
+                )
+                if (case.policy == ArchiveExtractionConflictPolicy.AUTO_RENAME) {
+                    assertArrayEquals(
+                        "second".toByteArray(),
+                        readDocument(children.single { it.displayName == "a (2).txt" }),
+                    )
+                }
+                assertEquals(case.expectedSkipped, result.entriesSkipped)
+                assertEquals(case.expectedOverwritten, result.entriesOverwritten)
+                assertEquals(case.expectedAutoRenamed, result.entriesAutoRenamed)
+            } finally {
+                source.delete()
+            }
+        }
+    }
+
+    @Test
+    fun askAppliesOneDecisionToAllRemainingFoldedConflicts() {
+        val source = writeZip(
+            listOf(
+                "A.txt" to "first".toByteArray(),
+                "a.txt" to "second".toByteArray(),
+                "A.TXT" to "third".toByteArray(),
+                "a.TXT" to "fourth".toByteArray(),
+            ),
+        )
+        try {
+            val snapshot = ArchiveScanner().scan(source)
+            var resolverCalls = 0
+            val result = runBlocking {
+                ArchiveExtractor(contentResolver = resolver).extract(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                    treeUri = TREE_URI,
+                    rootName = "ask-output",
+                    conflictPolicy = ArchiveExtractionConflictPolicy.ASK,
+                    conflictResolver = ArchiveExtractionConflictResolver {
+                        resolverCalls++
+                        ArchiveExtractionConflictResolution(
+                            decision = ArchiveExtractionConflictDecision.SKIP,
+                            applyToAll = true,
+                        )
+                    },
+                )
+            }
+
+            assertEquals(1, resolverCalls)
+            assertEquals(3, result.entriesSkipped)
+            assertEquals(
+                setOf("A.txt"),
+                childRecords(Uri.parse(result.root.identifier)).displayNames(),
+            )
+        } finally {
+            source.delete()
+        }
+    }
+
+    @Test
+    fun overwriteAutoRenamesAnIncompatibleFoldedTypeConflict() {
+        val source = writeZip(
+            listOf(
+                "node/child.txt" to "child".toByteArray(),
+                "Node" to "file".toByteArray(),
+            ),
+        )
+        try {
+            val snapshot = ArchiveScanner().scan(source)
+            val result = runBlocking {
+                ArchiveExtractor(contentResolver = resolver).extract(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                    treeUri = TREE_URI,
+                    rootName = "type-output",
+                    conflictPolicy = ArchiveExtractionConflictPolicy.OVERWRITE,
+                )
+            }
+
+            assertEquals(0, result.entriesOverwritten)
+            assertEquals(1, result.entriesAutoRenamed)
+            assertEquals(
+                setOf("node", "Node (2)"),
+                childRecords(Uri.parse(result.root.identifier)).displayNames(),
+            )
+        } finally {
+            source.delete()
         }
     }
 
@@ -211,7 +354,10 @@ class SafArchiveOutputWriterInstrumentationTest {
                 expected
             }
 
-            assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
+            assertEquals(
+                ArchiveFailureCode.OUTPUT_CONFLICT_CONFIRMATION_REQUIRED,
+                error.code,
+            )
             val residual = error.residualArchiveOutputs().single()
             assertEquals("residual-output", residual.displayName)
             assertEquals(
@@ -277,6 +423,11 @@ class SafArchiveOutputWriterInstrumentationTest {
     private fun documentId(location: ArchiveOutputLocation): String =
         DocumentsContract.getDocumentId(Uri.parse(location.identifier))
 
+    private fun readDocument(record: ChildRecord): ByteArray {
+        val uri = DocumentsContract.buildDocumentUriUsingTree(TREE_URI, record.documentId)
+        return resolver.openInputStream(uri).use { input -> requireNotNull(input).readBytes() }
+    }
+
     private data class ChildRecord(
         val documentId: String,
         val displayName: String,
@@ -285,6 +436,15 @@ class SafArchiveOutputWriterInstrumentationTest {
     private data class CollisionCase(
         val rootName: String,
         val entries: List<Pair<String, ByteArray>>,
+    )
+
+    private data class PolicyCase(
+        val policy: ArchiveExtractionConflictPolicy,
+        val expectedNames: Set<String>,
+        val expectedPrimaryPayload: String,
+        val expectedSkipped: Int = 0,
+        val expectedOverwritten: Int = 0,
+        val expectedAutoRenamed: Int = 0,
     )
 
     private companion object {

@@ -18,6 +18,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -101,6 +102,111 @@ class ArchiveExtractionScopeInstrumentationTest {
                     )
                     dialog.dismiss()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun conflictPolicyDefaultsToAskAndSurvivesActivityRecreation() {
+        val archiveUri = createArchiveDocument()
+
+        ActivityScenario.launch<ArchiveManagerActivity>(archiveIntent(archiveUri)).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                assertEquals(
+                    activity.getString(R.string.text_conflict_policy_ask),
+                    activity.findViewById<android.widget.TextView>(
+                        R.id.extractionConflictPolicyInput,
+                    ).text.toString(),
+                )
+                activity.selectConflictPolicy(ArchiveExtractionConflictPolicy.AUTO_RENAME)
+                assertEquals(
+                    activity.getString(R.string.text_conflict_policy_auto_rename),
+                    activity.findViewById<android.widget.TextView>(
+                        R.id.extractionConflictPolicyInput,
+                    ).text.toString(),
+                )
+            }
+
+            scenario.recreate()
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.widget.TextView>(
+                    R.id.extractionConflictPolicyInput,
+                ).text.toString() == activity.getString(
+                    R.string.text_conflict_policy_auto_rename,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun askDialogDisablesUnsafeOverwriteAndReturnsApplyToAllChoice() {
+        val archiveUri = createArchiveDocument()
+        lateinit var dialog: androidx.appcompat.app.AlertDialog
+        var resolution: ArchiveExtractionConflictResolution? = null
+        var cancellations = 0
+
+        ActivityScenario.launch<ArchiveManagerActivity>(archiveIntent(archiveUri)).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                dialog = activity.createExtractionConflictDialog(
+                    conflict = ArchiveExtractionConflict(
+                        archivePath = "Node",
+                        requestedDisplayName = "Node",
+                        existingDisplayName = "node",
+                        incomingIsDirectory = false,
+                        existingIsDirectory = true,
+                        canOverwrite = false,
+                    ),
+                    onResolution = { resolution = it },
+                    onCancelled = { cancellations++ },
+                )
+                dialog.show()
+            }
+            instrumentation.waitForIdleSync()
+
+            scenario.onActivity {
+                assertTrue(requireNotNull(dialog.findViewById<android.view.View>(R.id.conflictMessage)).isShown)
+                assertFalse(
+                    requireNotNull(
+                        dialog.findViewById<android.widget.RadioButton>(R.id.conflictOverwrite),
+                    ).isEnabled,
+                )
+                assertTrue(
+                    requireNotNull(
+                        dialog.findViewById<android.view.View>(R.id.overwriteUnavailable),
+                    ).isShown,
+                )
+                requireNotNull(
+                    dialog.findViewById<android.widget.RadioButton>(R.id.conflictSkip),
+                ).performClick()
+                requireNotNull(
+                    dialog.findViewById<android.widget.CheckBox>(R.id.applyToAll),
+                ).performClick()
+                assertTrue(
+                    requireNotNull(
+                        dialog.findViewById<android.widget.RadioButton>(R.id.conflictSkip),
+                    ).isChecked,
+                )
+                assertTrue(
+                    requireNotNull(
+                        dialog.findViewById<android.widget.CheckBox>(R.id.applyToAll),
+                    ).isChecked,
+                )
+                dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick()
+
+                assertEquals(
+                    ArchiveExtractionConflictResolution(
+                        decision = ArchiveExtractionConflictDecision.SKIP,
+                        applyToAll = true,
+                    ),
+                    resolution,
+                )
+                assertEquals(0, cancellations)
             }
         }
     }

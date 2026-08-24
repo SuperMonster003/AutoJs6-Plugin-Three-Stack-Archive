@@ -540,6 +540,161 @@ class ArchiveExtractorTest {
         assertFalse(writer.rootDeleted)
     }
 
+    @Test
+    fun `auto rename preserves every folded file conflict and keeps the extension`() {
+        val source = archive(
+            FixtureEntry("A.txt", "first".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("a.txt", "second".toByteArray(), ZipEntry.STORED),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                rootName = "renamed",
+                writer = writer,
+                conflictPolicy = ArchiveExtractionConflictPolicy.AUTO_RENAME,
+            )
+        }
+
+        assertEquals(setOf("renamed/A.txt", "renamed/a (2).txt"), writer.filePaths())
+        assertArrayEquals("first".toByteArray(), writer.content("renamed/A.txt"))
+        assertArrayEquals("second".toByteArray(), writer.content("renamed/a (2).txt"))
+        assertEquals(2, result.filesExtracted)
+        assertEquals(0, result.entriesSkipped)
+        assertEquals(0, result.entriesOverwritten)
+        assertEquals(1, result.entriesAutoRenamed)
+    }
+
+    @Test
+    fun `skip keeps the first folded output and reports every omitted entry`() {
+        val source = archive(
+            FixtureEntry("A.txt", "first".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("a.txt", "second".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("A.TXT", "third".toByteArray(), ZipEntry.STORED),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+        val progress = mutableListOf<ExtractionProgress>()
+
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                rootName = "skipped",
+                writer = writer,
+                conflictPolicy = ArchiveExtractionConflictPolicy.SKIP,
+                progress = ArchiveProgressListener(progress::add),
+            )
+        }
+
+        assertEquals(setOf("skipped/A.txt"), writer.filePaths())
+        assertArrayEquals("first".toByteArray(), writer.content("skipped/A.txt"))
+        assertEquals(1, result.filesExtracted)
+        assertEquals(2, result.entriesSkipped)
+        assertEquals(0, result.entriesOverwritten)
+        assertEquals(0, result.entriesAutoRenamed)
+        assertEquals(1, progress.last().completedEntries)
+        assertEquals(1, progress.last().totalEntries)
+        assertEquals("first".toByteArray().size.toLong(), progress.last().bytesWritten)
+        assertEquals("first".toByteArray().size.toLong(), progress.last().totalBytes)
+    }
+
+    @Test
+    fun `overwrite reuses only a compatible node created by this extraction`() {
+        val source = archive(
+            FixtureEntry("A.txt", "first".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("a.txt", "second".toByteArray(), ZipEntry.STORED),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                rootName = "overwritten",
+                writer = writer,
+                conflictPolicy = ArchiveExtractionConflictPolicy.OVERWRITE,
+            )
+        }
+
+        assertEquals(setOf("overwritten/A.txt"), writer.filePaths())
+        assertArrayEquals("second".toByteArray(), writer.content("overwritten/A.txt"))
+        assertEquals(2, result.filesExtracted)
+        assertEquals(0, result.entriesSkipped)
+        assertEquals(1, result.entriesOverwritten)
+        assertEquals(0, result.entriesAutoRenamed)
+    }
+
+    @Test
+    fun `ask applies one skip decision to all remaining compatible conflicts`() {
+        val source = archive(
+            FixtureEntry("A.txt", "first".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("a.txt", "second".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("A.TXT", "third".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("a.TXT", "fourth".toByteArray(), ZipEntry.STORED),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+        var resolverCalls = 0
+
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                rootName = "apply-all",
+                writer = writer,
+                conflictPolicy = ArchiveExtractionConflictPolicy.ASK,
+                conflictResolver = ArchiveExtractionConflictResolver {
+                    resolverCalls++
+                    ArchiveExtractionConflictResolution(
+                        decision = ArchiveExtractionConflictDecision.SKIP,
+                        applyToAll = true,
+                    )
+                },
+            )
+        }
+
+        assertEquals(1, resolverCalls)
+        assertEquals(setOf("apply-all/A.txt"), writer.filePaths())
+        assertEquals(3, result.entriesSkipped)
+    }
+
+    @Test
+    fun `overwrite auto renames an incompatible file-directory conflict`() {
+        val source = archive(
+            FixtureEntry("node/child.txt", "child".toByteArray(), ZipEntry.STORED),
+            FixtureEntry("Node", "file".toByteArray(), ZipEntry.STORED),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+
+        val result = runBlocking {
+            ArchiveExtractor().extractToWriter(
+                source = source,
+                snapshot = snapshot,
+                selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                rootName = "type-conflict",
+                writer = writer,
+                conflictPolicy = ArchiveExtractionConflictPolicy.OVERWRITE,
+            )
+        }
+
+        assertEquals(
+            setOf("type-conflict/node/child.txt", "type-conflict/Node (2)"),
+            writer.filePaths(),
+        )
+        assertEquals(0, result.entriesOverwritten)
+        assertEquals(1, result.entriesAutoRenamed)
+    }
+
     private fun archive(vararg entries: FixtureEntry): File =
         writeZip(temporaryFolder.newFile("archive-${temporaryFolder.root.list().orEmpty().size}.zip"), *entries)
 
@@ -561,16 +716,20 @@ class ArchiveExtractorTest {
         var rootDeletionAttempted = false
             private set
         private val files = HashMap<String, ByteArrayOutputStream>()
+        private val nodes = LinkedHashMap<String, FakeNode>()
 
         override fun createRoot(displayName: String): ArchiveOutputWriter.Node =
-            FakeNode(displayName, displayName).also { root = it }
+            FakeNode(displayName, displayName, isDirectory = true, parentPath = null).also {
+                root = it
+                nodes[it.path] = it
+            }
 
         override fun createDirectory(
             parent: ArchiveOutputWriter.Node,
             displayName: String,
         ): ArchiveOutputWriter.Node {
             val fakeParent = parent as FakeNode
-            return FakeNode("${fakeParent.path}/$displayName", displayName)
+            return createNode(fakeParent, displayName, isDirectory = true)
         }
 
         override fun createFile(
@@ -579,7 +738,27 @@ class ArchiveExtractorTest {
         ): ArchiveOutputWriter.Node {
             if (displayName == failCreatingFile) throw IOException("Synthetic provider failure")
             val fakeParent = parent as FakeNode
-            return FakeNode("${fakeParent.path}/$displayName", displayName)
+            return createNode(fakeParent, displayName, isDirectory = false)
+        }
+
+        override fun findChild(
+            parent: ArchiveOutputWriter.Node,
+            displayName: String,
+        ): ArchiveOutputWriter.Node? {
+            val fakeParent = parent as FakeNode
+            val collisionKey = ArchivePathPolicy.destinationCollisionKey(displayName)
+            return nodes.values.firstOrNull {
+                it.parentPath == fakeParent.path &&
+                    ArchivePathPolicy.destinationCollisionKey(it.name) == collisionKey
+            }
+        }
+
+        override fun canOverwrite(
+            node: ArchiveOutputWriter.Node,
+            incomingIsDirectory: Boolean,
+        ): Boolean {
+            val fakeNode = node as FakeNode
+            return nodes[fakeNode.path] === fakeNode && fakeNode.isDirectory == incomingIsDirectory
         }
 
         override fun openFile(node: ArchiveOutputWriter.Node): OutputStream {
@@ -598,9 +777,21 @@ class ArchiveExtractorTest {
 
         fun filePaths(): Set<String> = files.keys.toSet()
 
+        private fun createNode(
+            parent: FakeNode,
+            displayName: String,
+            isDirectory: Boolean,
+        ): FakeNode {
+            check(findChild(parent, displayName) == null) { "Synthetic destination conflict" }
+            val path = "${parent.path}/$displayName"
+            return FakeNode(path, displayName, isDirectory, parent.path).also { nodes[path] = it }
+        }
+
         data class FakeNode(
             val path: String,
             val name: String,
+            override val isDirectory: Boolean,
+            val parentPath: String?,
         ) : ArchiveOutputWriter.Node {
             override val location = ArchiveOutputLocation(path, name)
         }

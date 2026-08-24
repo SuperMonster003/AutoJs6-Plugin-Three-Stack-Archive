@@ -10,6 +10,7 @@ import java.io.OutputStream
 interface ArchiveOutputWriter {
     interface Node {
         val location: ArchiveOutputLocation
+        val isDirectory: Boolean
     }
 
     fun createRoot(displayName: String): Node
@@ -17,6 +18,12 @@ interface ArchiveOutputWriter {
     fun createDirectory(parent: Node, displayName: String): Node
 
     fun createFile(parent: Node, displayName: String): Node
+
+    /** Returns a destination-name-equivalent child, if one is already present. */
+    fun findChild(parent: Node, displayName: String): Node?
+
+    /** True only when reusing [node] cannot modify content that predates this extraction. */
+    fun canOverwrite(node: Node, incomingIsDirectory: Boolean): Boolean
 
     fun openFile(node: Node): OutputStream
 

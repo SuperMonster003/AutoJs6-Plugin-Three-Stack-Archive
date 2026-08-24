@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">ضغط...</string>
     <string name="app_name">مدير الأرشيف</string>
     <string name="dialog_button_cancel">إلغاء</string>
+    <string name="dialog_button_continue">متابعة</string>
     <string name="dialog_button_skip_unsafe">تخطي والمتابعة</string>
     <string name="dialog_button_select_all">تحديد الكل</string>
     <string name="dialog_message_skip_unsafe_paths">تستخدم %1$d من عناصر الأرشيف مسارات لا يمكن كتابتها بأمان. تظل متاحة للمعاينة في مجلد المسارات غير الآمنة. هل تريد المتابعة وتخطيها؟</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">الإخراج المقدر: %1$s (الميزانية %2$s)</string>
     <string name="text_custom_budget_zero_note">استخدم 0 للحد الأقصى البنيوي الثابت (عدد العناصر وطول المسار وعمقه) أو لعدم تعيين عتبة تحذير للموارد (الأحجام ونسبة الضغط). لا يمكن تعطيل الأمان البنيوي للمسارات.</string>
     <string name="text_extraction_budget">ميزانية الاستخراج</string>
+    <string name="text_extraction_conflict_policy">عند تعارض أسماء الإخراج</string>
+    <string name="text_conflict_policy_ask">السؤال في كل مرة</string>
+    <string name="text_conflict_policy_skip">تخطي</string>
+    <string name="text_conflict_policy_overwrite">استبدال</string>
+    <string name="text_conflict_policy_auto_rename">إعادة التسمية تلقائيًا</string>
+    <string name="text_conflict_policy_ask_details">اسأل عن طريقة معالجة كل تعارض أسماء داخل مجلد الإخراج الجديد. إذا وُجد مجلد إخراج بالاسم نفسه، فستتم إضافة رقم إليه دائمًا وسيبقى المجلد الموجود دون تغيير.</string>
+    <string name="text_conflict_policy_skip_details">تخطَّ الإدخالات اللاحقة ذات الأسماء المتكافئة. إذا وُجد مجلد إخراج بالاسم نفسه، فستتم إضافة رقم إليه دائمًا وسيبقى المجلد الموجود دون تغيير.</string>
+    <string name="text_conflict_policy_overwrite_details">استبدل الملفات السابقة وادمج المجلدات عندما تتطابق أنواعها. ستتم إعادة تسمية الأنواع غير المتوافقة تلقائيًا. لن تتغير مجلدات الإخراج الموجودة.</string>
+    <string name="text_conflict_policy_auto_rename_details">أضف رقمًا إلى كل إدخال لاحق له اسم مكافئ. ستتم إضافة أرقام إلى مجلدات الإخراج الموجودة أيضًا وستبقى دون تغيير.</string>
+    <string name="dialog_title_output_conflict">تعارض اسم الإخراج</string>
+    <string name="dialog_message_output_conflict">عنصر الأرشيف: %1$s\nالموجود: %2$s (%3$s)\nالوارد: %4$s (%5$s)</string>
+    <string name="text_item_type_file">ملف</string>
+    <string name="text_item_type_directory">مجلد</string>
+    <string name="text_apply_to_all_conflicts">تطبيق هذا الاختيار على كل التعارضات المتوافقة</string>
+    <string name="text_conflict_overwrite_unavailable">يتعذر الاستبدال لأن نوعي العنصرين مختلفان أو لأن العنصر الموجود لم يُنشأ بواسطة عملية الاستخراج هذه.</string>
+    <string name="text_extraction_conflict_summary">تمت معالجة التعارضات: تخطي %1$d، واستبدال أو دمج %2$d، وإعادة تسمية %3$d تلقائيًا.</string>
     <string name="text_resource_budget_summary">الإخراج المقدر: %1$s\nالعناصر المحددة: %2$d\nالمساحة المتاحة في الوجهة: تحقق منها قبل المتابعة.</string>
     <string name="text_resource_budget_warning">تسمح المتابعة بالقيم المعلنة لهذا الاستخراج فقط. تظل فحوص أمان المسار وهوية المصدر والحجم والمجموع الاختباري والتنظيف مفعلة.</string>
     <string name="text_password_encryption_note">تستخدم كلمة المرور غير الفارغة تشفير AES-256. تظل أسماء الملفات ظاهرة.</string>

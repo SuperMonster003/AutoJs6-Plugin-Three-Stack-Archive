@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compresser...</string>
     <string name="app_name">Gestionnaire d\'archives</string>
     <string name="dialog_button_cancel">Annuler</string>
+    <string name="dialog_button_continue">Continuer</string>
     <string name="dialog_button_skip_unsafe">Ignorer et continuer</string>
     <string name="dialog_button_select_all">Tout sélectionner</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d entrées de l\'archive utilisent des chemins qui ne peuvent pas être écrits en toute sécurité. Elles restent disponibles pour aperçu dans le dossier Chemins non sûrs. Continuer et les ignorer ?</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">Sortie estimée : %1$s (budget %2$s)</string>
     <string name="text_custom_budget_zero_note">Utilisez 0 pour le maximum structurel fixe (nombre d\'entrées, longueur et profondeur des chemins) ou pour ne définir aucun seuil d\'alerte de ressources (tailles et taux de compression). La sécurité structurelle des chemins ne peut pas être désactivée.</string>
     <string name="text_extraction_budget">Budget d\'extraction</string>
+    <string name="text_extraction_conflict_policy">En cas de conflit de noms de sortie</string>
+    <string name="text_conflict_policy_ask">Demander à chaque fois</string>
+    <string name="text_conflict_policy_skip">Ignorer</string>
+    <string name="text_conflict_policy_overwrite">Écraser</string>
+    <string name="text_conflict_policy_auto_rename">Renommer automatiquement</string>
+    <string name="text_conflict_policy_ask_details">Demande comment traiter chaque conflit de nom dans le nouveau dossier de sortie. Un dossier de sortie existant est toujours numéroté et reste inchangé.</string>
+    <string name="text_conflict_policy_skip_details">Ignore les entrées suivantes dont le nom est équivalent. Un dossier de sortie existant est toujours numéroté et reste inchangé.</string>
+    <string name="text_conflict_policy_overwrite_details">Remplace les fichiers précédents et fusionne les dossiers lorsque leurs types correspondent. Les types incompatibles sont renommés automatiquement. Les dossiers de sortie existants restent inchangés.</string>
+    <string name="text_conflict_policy_auto_rename_details">Ajoute un numéro à chaque entrée suivante dont le nom est équivalent. Les dossiers de sortie existants sont aussi numérotés et restent inchangés.</string>
+    <string name="dialog_title_output_conflict">Conflit de nom de sortie</string>
+    <string name="dialog_message_output_conflict">Élément de l\'archive : %1$s\nExistant : %2$s (%3$s)\nEntrant : %4$s (%5$s)</string>
+    <string name="text_item_type_file">fichier</string>
+    <string name="text_item_type_directory">dossier</string>
+    <string name="text_apply_to_all_conflicts">Appliquer ce choix à tous les conflits compatibles</string>
+    <string name="text_conflict_overwrite_unavailable">L\'écrasement est indisponible, car les types diffèrent ou l\'élément existant n\'a pas été créé par cette extraction.</string>
+    <string name="text_extraction_conflict_summary">Conflits traités : %1$d ignorés, %2$d écrasés ou fusionnés, %3$d renommés automatiquement.</string>
     <string name="text_resource_budget_summary">Sortie estimée : %1$s\nEntrées sélectionnées : %2$d\nEspace disponible à destination : vérifiez-le avant de continuer.</string>
     <string name="text_resource_budget_warning">Continuer autorise les valeurs déclarées uniquement pour cette extraction. Les contrôles de chemin, d\'identité de la source, de taille, de somme de contrôle et de nettoyage restent actifs.</string>
     <string name="text_password_encryption_note">Un mot de passe non vide utilise le chiffrement AES-256. Les noms de fichiers restent visibles.</string>

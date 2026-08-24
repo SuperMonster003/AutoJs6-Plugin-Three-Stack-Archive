@@ -13,6 +13,7 @@
     "Preview supported document, image, audio, and video entries with the host's existing viewers.",
     "Use the Extract to... shortcut to extract an entire archive without first opening the archive view.",
     "Choose Selective extraction... to open the management page and extract the entire archive, current internal folder, or current checkbox selection; Extract to... remains the whole-archive shortcut.",
+    "Choose Ask each time, Skip, Overwrite, or Auto rename for equivalent output names; Apply to all handles compatible remaining conflicts, while existing output folders are always numbered and preserved.",
     "Browse directories, search, and sort archive content.",
     "Build the listing from directory metadata without decompressing every entry first.",
     "Browse ordinary archives directly through the host's seekable read-only descriptor with independent positional channels and no whole-file copy; pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache, which is removed on close.",
@@ -43,6 +44,7 @@
     "Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.",
     "To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.",
     "For a specific range, choose Selective extraction..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.",
+    "On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.",
     "To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format and available settings."
   ],
   "h3_security": "Permissions and data",

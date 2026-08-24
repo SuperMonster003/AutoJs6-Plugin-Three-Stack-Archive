@@ -179,6 +179,9 @@ data class ExtractionResult(
     val filesExtracted: Int,
     val directoriesCreated: Int,
     val bytesWritten: Long,
+    val entriesSkipped: Int = 0,
+    val entriesOverwritten: Int = 0,
+    val entriesAutoRenamed: Int = 0,
 )
 
 internal data class ArchiveCreationOptions(
@@ -233,6 +236,7 @@ enum class ArchiveFailureCode {
     EMPTY_SELECTION,
     UNKNOWN_SELECTION,
     INVALID_DESTINATION_NAME,
+    OUTPUT_CONFLICT_CONFIRMATION_REQUIRED,
     OUTPUT_FAILURE,
 }
 
@@ -283,6 +287,7 @@ internal val ArchiveFailureCode.defaultStage: ArchiveFailureStage
         -> ArchiveFailureStage.ENTRY_DATA
 
         ArchiveFailureCode.INVALID_DESTINATION_NAME,
+        ArchiveFailureCode.OUTPUT_CONFLICT_CONFIRMATION_REQUIRED,
         ArchiveFailureCode.OUTPUT_FAILURE,
         -> ArchiveFailureStage.OUTPUT
     }

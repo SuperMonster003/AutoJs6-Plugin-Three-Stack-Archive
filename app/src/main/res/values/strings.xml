@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>
     <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_continue">Continue</string>
     <string name="dialog_button_continue_anyway">Continue anyway</string>
     <string name="dialog_button_save">Save</string>
     <string name="dialog_button_skip_unsafe">Skip and continue</string>
@@ -76,6 +77,22 @@
     <string name="text_extraction_scope_current_directory">Current folder: %1$s</string>
     <string name="text_extraction_scope_current_selection">Current selection</string>
     <string name="text_extraction_budget">Extraction budget</string>
+    <string name="text_extraction_conflict_policy">When output names conflict</string>
+    <string name="text_conflict_policy_ask">Ask each time</string>
+    <string name="text_conflict_policy_skip">Skip</string>
+    <string name="text_conflict_policy_overwrite">Overwrite</string>
+    <string name="text_conflict_policy_auto_rename">Auto rename</string>
+    <string name="text_conflict_policy_ask_details">Ask how to handle each name conflict inside the new output folder. An existing output folder is always numbered and left unchanged.</string>
+    <string name="text_conflict_policy_skip_details">Skip later entries with equivalent names. An existing output folder is always numbered and left unchanged.</string>
+    <string name="text_conflict_policy_overwrite_details">Replace earlier files and merge folders when their types match. Incompatible types are auto-renamed. Existing output folders remain unchanged.</string>
+    <string name="text_conflict_policy_auto_rename_details">Add a number to every later entry with an equivalent name. Existing output folders are numbered too and remain unchanged.</string>
+    <string name="dialog_title_output_conflict">Output name conflict</string>
+    <string name="dialog_message_output_conflict">Archive item: %1$s\nExisting: %2$s (%3$s)\nIncoming: %4$s (%5$s)</string>
+    <string name="text_item_type_file">file</string>
+    <string name="text_item_type_directory">folder</string>
+    <string name="text_apply_to_all_conflicts">Apply this choice to all compatible conflicts</string>
+    <string name="text_conflict_overwrite_unavailable">Overwrite is unavailable because the item types differ or the existing item was not created by this extraction.</string>
+    <string name="text_extraction_conflict_summary">Conflicts handled: %1$d skipped, %2$d overwritten or merged, %3$d auto-renamed.</string>
     <string name="text_extraction_current_item">Current item: %1$s</string>
     <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
     <string name="text_extraction_rate">%1$s/s</string>

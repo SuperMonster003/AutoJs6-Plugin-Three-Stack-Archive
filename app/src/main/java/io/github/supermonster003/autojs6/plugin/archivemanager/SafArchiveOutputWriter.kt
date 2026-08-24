@@ -28,12 +28,15 @@ class SafArchiveOutputWriter(
         }
         val treeDocumentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, treeDocumentId)
         val existing = queryChildren(treeDocumentUri)
-        val uniqueName = uniqueRootName(displayName, existing.displayNames)
+        val uniqueName = uniqueRootName(
+            displayName,
+            existing.mapTo(LinkedHashSet()) { it.location.displayName },
+        )
         return createDocument(
             parent = treeDocumentUri,
             mimeType = DocumentsContract.Document.MIME_TYPE_DIR,
             displayName = uniqueName,
-            existingDocumentIds = existing.documentIds,
+            existingDocumentIds = existing.mapTo(HashSet(), SafNode::documentId),
         )
     }
 
@@ -54,6 +57,25 @@ class SafArchiveOutputWriter(
         mimeType = BINARY_MIME_TYPE,
         displayName = displayName,
     )
+
+    override fun findChild(
+        parent: ArchiveOutputWriter.Node,
+        displayName: String,
+    ): ArchiveOutputWriter.Node? {
+        val collisionKey = ArchivePathPolicy.destinationCollisionKey(displayName)
+        return queryChildren(requireSafNode(parent).uri).firstOrNull {
+            ArchivePathPolicy.destinationCollisionKey(it.location.displayName) == collisionKey
+        }
+    }
+
+    override fun canOverwrite(
+        node: ArchiveOutputWriter.Node,
+        incomingIsDirectory: Boolean,
+    ): Boolean {
+        val safNode = requireSafNode(node)
+        return safNode.documentId in createdDocumentIds &&
+            safNode.isDirectory == incomingIsDirectory
+    }
 
     override fun openFile(node: ArchiveOutputWriter.Node): OutputStream =
         safCall("Cannot open extraction output") {
@@ -86,8 +108,10 @@ class SafArchiveOutputWriter(
         }
         val actualName = runCatching { queryDisplayName(uri) }.getOrNull() ?: displayName
         SafNode(
+            documentId = documentId,
             uri = uri,
             location = ArchiveOutputLocation(uri.toString(), actualName),
+            isDirectory = mimeType == DocumentsContract.Document.MIME_TYPE_DIR,
         )
     }
 
@@ -95,18 +119,22 @@ class SafArchiveOutputWriter(
         parent: Uri,
         mimeType: String,
         displayName: String,
-    ): SafNode = createDocument(parent, mimeType, displayName, emptySet())
+    ): SafNode = createDocument(
+        parent = parent,
+        mimeType = mimeType,
+        displayName = displayName,
+        existingDocumentIds = queryChildren(parent).mapTo(HashSet(), SafNode::documentId),
+    )
 
-    private fun queryChildren(parent: Uri): ExistingChildren = safCall("Cannot inspect extraction output") {
+    private fun queryChildren(parent: Uri): List<SafNode> = safCall("Cannot inspect extraction output") {
         val parentDocumentId = DocumentsContract.getDocumentId(parent)
         val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, parentDocumentId)
-        val documentIds = LinkedHashSet<String>()
-        val displayNames = LinkedHashSet<String>()
         contentResolver.query(
             childrenUri,
             arrayOf(
                 DocumentsContract.Document.COLUMN_DOCUMENT_ID,
                 DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+                DocumentsContract.Document.COLUMN_MIME_TYPE,
             ),
             null,
             null,
@@ -114,12 +142,30 @@ class SafArchiveOutputWriter(
         )?.use { cursor ->
             val idColumn = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
             val nameColumn = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)
-            while (cursor.moveToNext()) {
-                if (idColumn >= 0) cursor.getString(idColumn)?.let(documentIds::add)
-                if (nameColumn >= 0) cursor.getString(nameColumn)?.let(displayNames::add)
+            val mimeColumn = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE)
+            if (idColumn < 0 || nameColumn < 0 || mimeColumn < 0) {
+                throw IOException("Document provider omitted required child metadata")
+            }
+            buildList {
+                while (cursor.moveToNext()) {
+                    val documentId = cursor.getString(idColumn)
+                        ?: throw IOException("Document provider returned a child without an ID")
+                    val displayName = cursor.getString(nameColumn)
+                        ?: throw IOException("Document provider returned a child without a name")
+                    val mimeType = cursor.getString(mimeColumn)
+                        ?: throw IOException("Document provider returned a child without a MIME type")
+                    val uri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
+                    add(
+                        SafNode(
+                            documentId = documentId,
+                            uri = uri,
+                            location = ArchiveOutputLocation(uri.toString(), displayName),
+                            isDirectory = mimeType == DocumentsContract.Document.MIME_TYPE_DIR,
+                        ),
+                    )
+                }
             }
         } ?: throw IOException("Document provider returned no child cursor")
-        ExistingChildren(documentIds, displayNames)
     }
 
     private fun queryDisplayName(documentUri: Uri): String? =
@@ -160,14 +206,11 @@ class SafArchiveOutputWriter(
     }
 
     private data class SafNode(
+        val documentId: String,
         val uri: Uri,
         override val location: ArchiveOutputLocation,
+        override val isDirectory: Boolean,
     ) : ArchiveOutputWriter.Node
-
-    private data class ExistingChildren(
-        val documentIds: Set<String>,
-        val displayNames: Set<String>,
-    )
 
     private companion object {
         const val BINARY_MIME_TYPE = "application/octet-stream"

@@ -40,6 +40,7 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.
 - Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.
 - Elige «Extracción selectiva...» para abrir la página de gestión y extraer todo el archivo, la carpeta interna actual o la selección marcada; «Extraer en...» sigue siendo el acceso para el archivo completo.
+- Para nombres de salida equivalentes, elige Preguntar cada vez, Omitir, Sobrescribir o Cambiar nombre automáticamente; Aplicar a todo resuelve los conflictos compatibles restantes y las carpetas de salida existentes siempre se numeran y conservan.
 - Explorar carpetas, buscar y ordenar el contenido del archivo.
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
 - Explorar archivos normales mediante el descriptor posicionable de solo lectura del host y canales con posición independiente, sin copiar todo el archivo; las tuberías, las fuentes escribibles o no posicionables, Android 7 y los lectores que requieren un archivo local legible por el proceso (actualmente ZIP cifrado) recurren a la caché privada, que se elimina al cerrar.
@@ -82,7 +83,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
 5. Para extraer un ámbito concreto, elige «Extracción selectiva...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
-6. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato y los ajustes disponibles.
+6. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
+7. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato y los ajustes disponibles.
 
 ### Permisos y datos
 
@@ -109,6 +111,7 @@ _Sin publicar_
 - `Añadido` Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
 - `Añadido` Extracción selectiva... abre la página de gestión con los ámbitos de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
+- `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
 - `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente

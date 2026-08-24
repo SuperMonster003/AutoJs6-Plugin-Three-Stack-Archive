@@ -13,6 +13,7 @@
     "Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.",
     "Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.",
     "Elige «Extracción selectiva...» para abrir la página de gestión y extraer todo el archivo, la carpeta interna actual o la selección marcada; «Extraer en...» sigue siendo el acceso para el archivo completo.",
+    "Para nombres de salida equivalentes, elige Preguntar cada vez, Omitir, Sobrescribir o Cambiar nombre automáticamente; Aplicar a todo resuelve los conflictos compatibles restantes y las carpetas de salida existentes siempre se numeran y conservan.",
     "Explorar carpetas, buscar y ordenar el contenido del archivo.",
     "Crear la lista desde los metadatos sin descomprimir primero todas las entradas.",
     "Explorar archivos normales mediante el descriptor posicionable de solo lectura del host y canales con posición independiente, sin copiar todo el archivo; las tuberías, las fuentes escribibles o no posicionables, Android 7 y los lectores que requieren un archivo local legible por el proceso (actualmente ZIP cifrado) recurren a la caché privada, que se elimina al cerrar.",
@@ -43,6 +44,7 @@
     "Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.",
     "Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.",
     "Para extraer un ámbito concreto, elige «Extracción selectiva...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.",
+    "Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.",
     "Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior; después elige el formato y los ajustes disponibles."
   ],
   "h3_security": "Permisos y datos",

@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>
     <string name="app_name">壓縮檔管理器</string>
     <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_continue">繼續</string>
     <string name="dialog_button_skip_unsafe">略過並繼續</string>
     <string name="dialog_button_select_all">全選</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d 個檔案項目使用了無法安全寫出的路徑. 它們仍可在「危險路徑」資料夾中預覽. 是否繼續並略過這些項目?</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">預估輸出: %1$s (預算 %2$s)</string>
     <string name="text_custom_budget_zero_note">項目數、路徑長度與深度填 0 時使用不可放寬的結構上限; 大小與壓縮比填 0 時不設資源警告門檻. 路徑結構安全無法停用.</string>
     <string name="text_extraction_budget">解壓縮預算</string>
+    <string name="text_extraction_conflict_policy">輸出名稱發生衝突時</string>
+    <string name="text_conflict_policy_ask">每次詢問</string>
+    <string name="text_conflict_policy_skip">略過</string>
+    <string name="text_conflict_policy_overwrite">覆寫</string>
+    <string name="text_conflict_policy_auto_rename">自動重新命名</string>
+    <string name="text_conflict_policy_ask_details">逐項詢問如何處理新輸出資料夾內的名稱衝突。若輸出資料夾已存在，系統會一律自動編號，且不會修改原有資料夾。</string>
+    <string name="text_conflict_policy_skip_details">略過其後出現的等價名稱項目。若輸出資料夾已存在，系統會一律自動編號，且不會修改原有資料夾。</string>
+    <string name="text_conflict_policy_overwrite_details">類型相同時取代先前檔案或合併資料夾；類型不相容時自動重新命名。現有輸出資料夾不會被修改。</string>
+    <string name="text_conflict_policy_auto_rename_details">為其後每個等價名稱項目加入編號。現有輸出資料夾也會編號並保持不變。</string>
+    <string name="dialog_title_output_conflict">輸出名稱衝突</string>
+    <string name="dialog_message_output_conflict">封存項目：%1$s\n現有項目：%2$s（%3$s）\n待寫入項目：%4$s（%5$s）</string>
+    <string name="text_item_type_file">檔案</string>
+    <string name="text_item_type_directory">資料夾</string>
+    <string name="text_apply_to_all_conflicts">將此選擇套用至所有相容衝突</string>
+    <string name="text_conflict_overwrite_unavailable">項目類型不相容，或現有項目並非由本次解壓縮建立，因此無法安全覆寫。</string>
+    <string name="text_extraction_conflict_summary">已處理衝突：略過 %1$d 項、覆寫或合併 %2$d 項、自動重新命名 %3$d 項。</string>
     <string name="text_resource_budget_summary">預估輸出: %1$s\n已選項目: %2$d\n目的地可用空間: 繼續前請自行確認.</string>
     <string name="text_resource_budget_warning">繼續只會為本次解壓縮放行檔案宣告值. 路徑安全、來源檔案識別、大小、總和檢查碼與失敗清理仍然生效.</string>
     <string name="text_password_encryption_note">非空白密碼使用 AES-256 加密. 檔名仍然可見.</string>

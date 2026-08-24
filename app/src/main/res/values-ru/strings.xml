@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
     <string name="app_name">Менеджер архивов</string>
     <string name="dialog_button_cancel">Отмена</string>
+    <string name="dialog_button_continue">Продолжить</string>
     <string name="dialog_button_skip_unsafe">Пропустить и продолжить</string>
     <string name="dialog_button_select_all">Выбрать все</string>
     <string name="dialog_message_skip_unsafe_paths">Записи архива (%1$d) используют пути, которые нельзя безопасно записать. Их по-прежнему можно просмотреть в папке «Небезопасные пути». Продолжить и пропустить их?</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">Расчетный объем: %1$s (бюджет %2$s)</string>
     <string name="text_custom_budget_zero_note">Укажите 0, чтобы использовать жесткий структурный максимум (число записей, длина и глубина пути) или не задавать порог предупреждения о ресурсах (размеры и степень сжатия). Структурную безопасность путей отключить нельзя.</string>
     <string name="text_extraction_budget">Бюджет извлечения</string>
+    <string name="text_extraction_conflict_policy">При конфликте имён вывода</string>
+    <string name="text_conflict_policy_ask">Спрашивать каждый раз</string>
+    <string name="text_conflict_policy_skip">Пропустить</string>
+    <string name="text_conflict_policy_overwrite">Перезаписать</string>
+    <string name="text_conflict_policy_auto_rename">Автоматически переименовать</string>
+    <string name="text_conflict_policy_ask_details">Спрашивать, как обрабатывать каждый конфликт имён в новой папке вывода. Существующая папка вывода всегда получает номер и остаётся без изменений.</string>
+    <string name="text_conflict_policy_skip_details">Пропускать последующие элементы с эквивалентными именами. Существующая папка вывода всегда получает номер и остаётся без изменений.</string>
+    <string name="text_conflict_policy_overwrite_details">Заменять предыдущие файлы и объединять папки, если их типы совпадают. Несовместимые типы автоматически переименовываются. Существующие папки вывода не изменяются.</string>
+    <string name="text_conflict_policy_auto_rename_details">Добавлять номер к каждому последующему элементу с эквивалентным именем. Существующие папки вывода также получают номер и остаются без изменений.</string>
+    <string name="dialog_title_output_conflict">Конфликт имени вывода</string>
+    <string name="dialog_message_output_conflict">Элемент архива: %1$s\nСуществующий: %2$s (%3$s)\nНовый: %4$s (%5$s)</string>
+    <string name="text_item_type_file">файл</string>
+    <string name="text_item_type_directory">папка</string>
+    <string name="text_apply_to_all_conflicts">Применить этот выбор ко всем совместимым конфликтам</string>
+    <string name="text_conflict_overwrite_unavailable">Перезапись недоступна: типы элементов различаются либо существующий элемент создан не этим извлечением.</string>
+    <string name="text_extraction_conflict_summary">Обработано конфликтов: пропущено %1$d, перезаписано или объединено %2$d, автоматически переименовано %3$d.</string>
     <string name="text_resource_budget_summary">Расчетный объем: %1$s\nВыбрано записей: %2$d\nСвободное место назначения: проверьте перед продолжением.</string>
     <string name="text_resource_budget_warning">Продолжение разрешает заявленные значения только для этого извлечения. Проверки безопасности путей, идентичности источника, размера, контрольной суммы и очистки остаются включенными.</string>
     <string name="text_password_encryption_note">Непустой пароль использует шифрование AES-256. Имена файлов остаются видимыми.</string>

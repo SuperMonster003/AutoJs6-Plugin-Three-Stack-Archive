@@ -13,6 +13,7 @@
     "Ouvrir les documents, images, fichiers audio et vidéos pris en charge avec les visionneuses existantes de l'hôte.",
     "Utiliser le raccourci « Extraire vers... » pour extraire toute l'archive sans ouvrir d'abord la vue de navigation.",
     "Choisir « Extraction sélective... » pour ouvrir la page de gestion et extraire toute l'archive, le dossier interne actuel ou la sélection cochée; « Extraire vers... » reste le raccourci pour l'archive entière.",
+    "Pour les noms de sortie équivalents, choisissez Demander à chaque fois, Ignorer, Écraser ou Renommer automatiquement; Appliquer à tout traite les conflits compatibles restants et les dossiers de sortie existants sont toujours numérotés et préservés.",
     "Parcourir les dossiers, rechercher et trier le contenu de l'archive.",
     "Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.",
     "Parcourir les archives ordinaires via le descripteur repositionnable en lecture seule de l'hôte et des canaux à position indépendante, sans copie intégrale ; les tubes, les sources inscriptibles ou non repositionnables, Android 7 et les lecteurs exigeant un fichier local lisible par le processus (actuellement les ZIP chiffrés) utilisent le cache privé, supprimé à la fermeture.",
@@ -43,6 +44,7 @@
     "Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.",
     "Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu puis sélectionnez un dossier avec le sélecteur système Android.",
     "Pour extraire une portée précise, choisissez « Extraction sélective... », parcourez la page de gestion ou cochez des entrées, touchez « Extraire vers... », choisissez la portée puis le dossier de sortie.",
+    "Avant l'extraction dans la page de gestion, choisissez comment traiter les noms de sortie équivalents. Demander à chaque fois permet d'appliquer une décision d'ignorer, d'écraser ou de renommer automatiquement à tous les conflits compatibles restants.",
     "Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure, puis choisissez le format et les réglages disponibles."
   ],
   "h3_security": "Autorisations et données",

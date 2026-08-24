@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">压缩...</string>
     <string name="app_name">压缩档案管理器</string>
     <string name="dialog_button_cancel">取消</string>
+    <string name="dialog_button_continue">继续</string>
     <string name="dialog_button_skip_unsafe">跳过并继续</string>
     <string name="dialog_button_select_all">全选</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d 个档案条目使用了无法安全写出的路径. 它们仍可在“危险路径”文件夹中预览. 是否继续并跳过这些条目?</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">预计输出: %1$s (预算 %2$s)</string>
     <string name="text_custom_budget_zero_note">条目数、路径长度和深度填 0 时使用不可放宽的结构上限; 大小和压缩比填 0 时不设置资源告警阈值. 路径结构安全无法关闭.</string>
     <string name="text_extraction_budget">解压预算</string>
+    <string name="text_extraction_conflict_policy">输出名称冲突时</string>
+    <string name="text_conflict_policy_ask">每次询问</string>
+    <string name="text_conflict_policy_skip">跳过</string>
+    <string name="text_conflict_policy_overwrite">覆盖</string>
+    <string name="text_conflict_policy_auto_rename">自动重命名</string>
+    <string name="text_conflict_policy_ask_details">逐项询问如何处理新输出文件夹内的名称冲突。若输出文件夹已存在，将始终自动编号且不会修改原文件夹。</string>
+    <string name="text_conflict_policy_skip_details">跳过后出现的等价名称条目。若输出文件夹已存在，将始终自动编号且不会修改原文件夹。</string>
+    <string name="text_conflict_policy_overwrite_details">类型相同时替换先前文件或合并文件夹；类型不一致时自动重命名。既有输出文件夹不会被修改。</string>
+    <string name="text_conflict_policy_auto_rename_details">为后出现的每个等价名称条目添加编号。既有输出文件夹也会编号并保持不变。</string>
+    <string name="dialog_title_output_conflict">输出名称冲突</string>
+    <string name="dialog_message_output_conflict">档案条目：%1$s\n既有项目：%2$s（%3$s）\n待写入项目：%4$s（%5$s）</string>
+    <string name="text_item_type_file">文件</string>
+    <string name="text_item_type_directory">文件夹</string>
+    <string name="text_apply_to_all_conflicts">将此选择应用于全部兼容冲突</string>
+    <string name="text_conflict_overwrite_unavailable">项目类型不一致，或既有项目并非本次解压所创建，因此无法安全覆盖。</string>
+    <string name="text_extraction_conflict_summary">已处理冲突：跳过 %1$d 项，覆盖或合并 %2$d 项，自动重命名 %3$d 项。</string>
     <string name="text_resource_budget_summary">预计输出: %1$s\n选中条目: %2$d\n目标可用空间: 继续前请自行确认.</string>
     <string name="text_resource_budget_warning">继续操作只会为本次解压放行档案声明值. 路径安全、源文件身份、大小、校验和与失败清理仍然生效.</string>
     <string name="text_password_encryption_note">非空密码使用 AES-256 加密. 文件名仍然可见.</string>

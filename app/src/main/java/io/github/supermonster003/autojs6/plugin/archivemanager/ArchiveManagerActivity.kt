@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityArchiveManagerBinding
+import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveOutputConflictBinding
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveResourceBudgetBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +29,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.resume
 import kotlin.math.roundToInt
 
 class ArchiveManagerActivity : AppCompatActivity() {
@@ -49,6 +52,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var pendingExtractionPaths: Set<String> = emptySet()
     private var pendingSkipUnsafePaths = false
     private var pendingAllowResourceBudgetOverride = false
+    private var pendingConflictPolicy: ArchiveExtractionConflictPolicy? = null
     private var pendingOutputTreeUri: Uri? = null
     private var operationJob: Job? = null
     private var renderJob: Job? = null
@@ -60,6 +64,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var filenameCharsetChoices: List<FilenameCharsetChoice> = emptyList()
     private var selectedResourceBudgetProfile = ArchiveResourceBudgetProfile.COMPATIBLE
     private var customResourceBudget = ArchiveResourceBudget.COMPATIBLE
+    private var selectedConflictPolicy = ArchiveExtractionConflictPolicy.ASK
     private var lastFailureDiagnostic: ArchiveFailureDiagnostic? = null
 
     private val outputTreeLauncher = registerForActivityResult(
@@ -69,6 +74,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             pendingExtractionPaths = emptySet()
             pendingSkipUnsafePaths = false
             pendingAllowResourceBudgetOverride = false
+            pendingConflictPolicy = null
             if (
                 request?.requestedAction == ArchiveRequestedAction.EXTRACT_TO &&
                 selectedPaths == setOf(ArchivePathPolicy.ROOT_PATH)
@@ -118,8 +124,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
             STATE_PENDING_RESOURCE_BUDGET_OVERRIDE,
             pendingAllowResourceBudgetOverride,
         )
+        pendingConflictPolicy?.let {
+            outState.putString(STATE_PENDING_CONFLICT_POLICY, it.name)
+        }
         outState.putBoolean(STATE_DIRECT_ACTION_HANDLED, directActionHandled)
         outState.putString(STATE_RESOURCE_BUDGET_PROFILE, selectedResourceBudgetProfile.name)
+        outState.putString(STATE_CONFLICT_POLICY, selectedConflictPolicy.name)
         outState.putInt(STATE_CUSTOM_BUDGET_ENTRIES, customResourceBudget.maxEntries)
         outState.putInt(STATE_CUSTOM_BUDGET_PATH_LENGTH, customResourceBudget.maxPathLength)
         outState.putInt(STATE_CUSTOM_BUDGET_DEPTH, customResourceBudget.maxDepth)
@@ -184,6 +194,20 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
         extractionBudgetInput.setOnClickListener { extractionBudgetInput.showDropDown() }
         updateResourceBudgetInput()
+        extractionConflictPolicyInput.setAdapter(
+            ArrayAdapter(
+                this@ArchiveManagerActivity,
+                android.R.layout.simple_list_item_1,
+                conflictPolicies().map(::conflictPolicyLabel),
+            ),
+        )
+        extractionConflictPolicyInput.setOnItemClickListener { _, _, position, _ ->
+            conflictPolicies().getOrNull(position)?.let(::selectConflictPolicy)
+        }
+        extractionConflictPolicyInput.setOnClickListener {
+            extractionConflictPolicyInput.showDropDown()
+        }
+        updateConflictPolicyInput()
         applyPasswordButton.setOnClickListener { applyPassword() }
         archivePassword.setOnEditorActionListener { _, _, _ ->
             applyPassword()
@@ -676,6 +700,41 @@ class ArchiveManagerActivity : AppCompatActivity() {
         renderEntries()
     }
 
+    private fun conflictPolicies(): List<ArchiveExtractionConflictPolicy> =
+        ArchiveExtractionConflictPolicy.entries
+
+    private fun conflictPolicyLabel(policy: ArchiveExtractionConflictPolicy): String = getString(
+        when (policy) {
+            ArchiveExtractionConflictPolicy.ASK -> R.string.text_conflict_policy_ask
+            ArchiveExtractionConflictPolicy.SKIP -> R.string.text_conflict_policy_skip
+            ArchiveExtractionConflictPolicy.OVERWRITE -> R.string.text_conflict_policy_overwrite
+            ArchiveExtractionConflictPolicy.AUTO_RENAME -> R.string.text_conflict_policy_auto_rename
+        },
+    )
+
+    internal fun selectConflictPolicy(policy: ArchiveExtractionConflictPolicy) {
+        if (isBusy) return
+        selectedConflictPolicy = policy
+        updateConflictPolicyInput()
+    }
+
+    private fun updateConflictPolicyInput() {
+        binding.extractionConflictPolicyInput.setText(
+            conflictPolicyLabel(selectedConflictPolicy),
+            false,
+        )
+        binding.extractionConflictPolicyLayout.helperText = getString(
+            when (selectedConflictPolicy) {
+                ArchiveExtractionConflictPolicy.ASK -> R.string.text_conflict_policy_ask_details
+                ArchiveExtractionConflictPolicy.SKIP -> R.string.text_conflict_policy_skip_details
+                ArchiveExtractionConflictPolicy.OVERWRITE ->
+                    R.string.text_conflict_policy_overwrite_details
+                ArchiveExtractionConflictPolicy.AUTO_RENAME ->
+                    R.string.text_conflict_policy_auto_rename_details
+            },
+        )
+    }
+
     private fun resourceBudgetProfiles(): List<ArchiveResourceBudgetProfile> =
         ArchiveResourceBudgetProfile.entries
 
@@ -1016,6 +1075,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
         pendingSkipUnsafePaths = selection.skippedUnsafeEntries.isNotEmpty()
         pendingAllowResourceBudgetOverride = budgetAssessment.exceedsBudget
+        pendingConflictPolicy = selectedConflictPolicy
         outputTreeLauncher.launch(null)
     }
 
@@ -1056,10 +1116,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         val paths = pendingExtractionPaths.takeIf(Set<String>::isNotEmpty) ?: return
         val skipUnsafePaths = pendingSkipUnsafePaths
         val allowResourceBudgetOverride = pendingAllowResourceBudgetOverride
+        val conflictPolicy = pendingConflictPolicy ?: selectedConflictPolicy
         val resourceBudget = selectedResourceBudget()
         pendingExtractionPaths = emptySet()
         pendingSkipUnsafePaths = false
         pendingAllowResourceBudgetOverride = false
+        pendingConflictPolicy = null
         setBusy(true, getString(R.string.text_preparing_extraction), cancellable = true)
         operationJob = lifecycleScope.launch {
             var reportedResidualOutputs = emptyList<ArchiveOutputLocation>()
@@ -1081,6 +1143,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         rootName = rootName,
                         skipUnsafePaths = skipUnsafePaths,
                         allowResourceBudgetOverride = allowResourceBudgetOverride,
+                        conflictPolicy = conflictPolicy,
+                        conflictResolver = ArchiveExtractionConflictResolver { conflict ->
+                            resolveExtractionConflict(conflict)
+                        },
                         progress = ArchiveProgressListener { update ->
                             val metrics = progressTracker.update(update)
                             when (update.phase) {
@@ -1115,12 +1181,25 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         },
                     )
                 }
-                val completedMessage = resources.getQuantityString(
+                val completedHeadline = resources.getQuantityString(
                     R.plurals.text_extraction_complete,
                     result.filesExtracted,
                     result.filesExtracted,
                     result.root.displayName,
                 )
+                val conflictCount = result.entriesSkipped +
+                    result.entriesOverwritten +
+                    result.entriesAutoRenamed
+                val completedMessage = if (conflictCount > 0) {
+                    "$completedHeadline\n${getString(
+                        R.string.text_extraction_conflict_summary,
+                        result.entriesSkipped,
+                        result.entriesOverwritten,
+                        result.entriesAutoRenamed,
+                    )}"
+                } else {
+                    completedHeadline
+                }
                 showMessage(completedMessage)
                 Toast.makeText(this@ArchiveManagerActivity, completedMessage, Toast.LENGTH_LONG).show()
                 setBusy(false)
@@ -1154,6 +1233,111 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
+    internal suspend fun resolveExtractionConflict(
+        conflict: ArchiveExtractionConflict,
+    ): ArchiveExtractionConflictResolution = withContext(Dispatchers.Main.immediate) {
+        suspendCancellableCoroutine { continuation ->
+            val dialog = createExtractionConflictDialog(
+                conflict = conflict,
+                onResolution = { resolution ->
+                    if (continuation.isActive) continuation.resume(resolution)
+                },
+                onCancelled = {
+                    if (continuation.isActive) {
+                        continuation.cancel(
+                            CancellationException("Output conflict decision cancelled"),
+                        )
+                    }
+                },
+            )
+            continuation.invokeOnCancellation {
+                runOnUiThread {
+                    if (dialog.isShowing) dialog.dismiss()
+                }
+            }
+            dialog.show()
+        }
+    }
+
+    internal fun createExtractionConflictDialog(
+        conflict: ArchiveExtractionConflict,
+        onResolution: (ArchiveExtractionConflictResolution) -> Unit,
+        onCancelled: () -> Unit,
+    ): androidx.appcompat.app.AlertDialog {
+        val conflictBinding = DialogArchiveOutputConflictBinding.inflate(layoutInflater)
+        val existingType = getString(
+            if (conflict.existingIsDirectory) {
+                R.string.text_item_type_directory
+            } else {
+                R.string.text_item_type_file
+            },
+        )
+        val incomingType = getString(
+            if (conflict.incomingIsDirectory) {
+                R.string.text_item_type_directory
+            } else {
+                R.string.text_item_type_file
+            },
+        )
+        conflictBinding.conflictMessage.text = getString(
+            R.string.dialog_message_output_conflict,
+            ArchivePathPolicy.unsafeSourceNameForDisplay(conflict.archivePath),
+            ArchivePathPolicy.unsafeSourceNameForDisplay(conflict.existingDisplayName),
+            existingType,
+            ArchivePathPolicy.unsafeSourceNameForDisplay(conflict.requestedDisplayName),
+            incomingType,
+        )
+        conflictBinding.conflictOverwrite.isEnabled = conflict.canOverwrite
+        conflictBinding.overwriteUnavailable.isVisible = !conflict.canOverwrite
+
+        var completed = false
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_output_conflict)
+            .setView(conflictBinding.root)
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .setPositiveButton(R.string.dialog_button_continue, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(android.content.DialogInterface.BUTTON_NEGATIVE).setOnClickListener {
+                dialog.cancel()
+            }
+            dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val decision = when (conflictBinding.conflictDecision.checkedRadioButtonId) {
+                    R.id.conflictSkip -> ArchiveExtractionConflictDecision.SKIP
+                    R.id.conflictOverwrite -> ArchiveExtractionConflictDecision.OVERWRITE
+                    else -> ArchiveExtractionConflictDecision.AUTO_RENAME
+                }
+                if (
+                    decision == ArchiveExtractionConflictDecision.OVERWRITE &&
+                    !conflict.canOverwrite
+                ) {
+                    return@setOnClickListener
+                }
+                completed = true
+                onResolution(
+                    ArchiveExtractionConflictResolution(
+                        decision = decision,
+                        applyToAll = conflictBinding.applyToAll.isChecked,
+                    ),
+                )
+                dialog.dismiss()
+            }
+        }
+        dialog.setOnCancelListener {
+            if (!completed) {
+                completed = true
+                onCancelled()
+            }
+        }
+        dialog.setOnDismissListener {
+            if (!completed) {
+                completed = true
+                onCancelled()
+            }
+        }
+        return dialog
+    }
+
     private fun setBusy(busy: Boolean, status: String? = null, cancellable: Boolean = false) {
         isBusy = busy
         if (busy) {
@@ -1166,6 +1350,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.cancelButton.isEnabled = busy && cancellable
         binding.searchInput.isEnabled = !busy
         binding.extractionBudgetLayout.isEnabled = !busy
+        binding.extractionConflictPolicyLayout.isEnabled = !busy
         binding.filenameEncodingLayout.isEnabled = !busy
         binding.archivePasswordLayout.isEnabled = !busy
         binding.archivePassword.isEnabled = !busy
@@ -1267,6 +1452,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
             STATE_PENDING_RESOURCE_BUDGET_OVERRIDE,
             false,
         )
+        pendingConflictPolicy = savedInstanceState.getString(STATE_PENDING_CONFLICT_POLICY)
+            ?.let { stored ->
+                ArchiveExtractionConflictPolicy.entries.firstOrNull { it.name == stored }
+            }
         directActionHandled = savedInstanceState.getBoolean(STATE_DIRECT_ACTION_HANDLED, false)
         selectedResourceBudgetProfile = savedInstanceState
             .getString(STATE_RESOURCE_BUDGET_PROFILE)
@@ -1274,6 +1463,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 ArchiveResourceBudgetProfile.entries.firstOrNull { it.name == stored }
             }
             ?: ArchiveResourceBudgetProfile.COMPATIBLE
+        selectedConflictPolicy = savedInstanceState.getString(STATE_CONFLICT_POLICY)
+            ?.let { stored ->
+                ArchiveExtractionConflictPolicy.entries.firstOrNull { it.name == stored }
+            }
+            ?: ArchiveExtractionConflictPolicy.ASK
         customResourceBudget = restoredCustomResourceBudget(savedInstanceState)
         selectedFilenameCharsetName = savedInstanceState.getString(STATE_FILENAME_CHARSET)
             ?.take(MAX_FILENAME_CHARSET_LENGTH)
@@ -1360,7 +1554,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
             ArchiveFailureCode.TOTAL_SIZE_LIMIT_EXCEEDED,
             ArchiveFailureCode.COMPRESSION_RATIO_LIMIT_EXCEEDED,
             -> getString(R.string.error_archive_limit)
-            ArchiveFailureCode.OUTPUT_FAILURE -> getString(R.string.error_cannot_create_output)
+            ArchiveFailureCode.OUTPUT_CONFLICT_CONFIRMATION_REQUIRED,
+            ArchiveFailureCode.OUTPUT_FAILURE,
+            -> getString(R.string.error_cannot_create_output)
             ArchiveFailureCode.PASSWORD_REQUIRED -> getString(R.string.error_password_required)
             ArchiveFailureCode.WRONG_PASSWORD -> getString(R.string.error_password_incorrect)
             else -> getString(R.string.error_extraction_failed)
@@ -1417,6 +1613,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 ArchiveFailureCode.CRC_MISMATCH,
                 -> R.string.error_reason_integrity
                 ArchiveFailureCode.INVALID_DESTINATION_NAME,
+                ArchiveFailureCode.OUTPUT_CONFLICT_CONFIRMATION_REQUIRED,
                 ArchiveFailureCode.OUTPUT_FAILURE,
                 -> R.string.error_reason_output
                 else -> when (diagnostic.stage) {
@@ -1583,10 +1780,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val RENDER_CANCELLATION_INTERVAL = 64
         const val SEARCH_DEBOUNCE_MILLIS = 150L
         const val STATE_CURRENT_DIRECTORY = "current_directory"
+        const val STATE_CONFLICT_POLICY = "conflict_policy"
         const val STATE_DIRECT_ACTION_HANDLED = "direct_action_handled"
         const val STATE_FILENAME_CHARSET = "filename_charset"
         const val STATE_PENDING_EXTRACTION_PATHS = "pending_extraction_paths"
         const val STATE_PENDING_OUTPUT_TREE_URI = "pending_output_tree_uri"
+        const val STATE_PENDING_CONFLICT_POLICY = "pending_conflict_policy"
         const val STATE_PENDING_RESOURCE_BUDGET_OVERRIDE = "pending_resource_budget_override"
         const val STATE_PENDING_SKIP_UNSAFE_PATHS = "pending_skip_unsafe_paths"
         const val STATE_RESOURCE_BUDGET_PROFILE = "resource_budget_profile"

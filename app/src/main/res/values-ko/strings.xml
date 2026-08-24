@@ -6,6 +6,7 @@
     <string name="action_compress" tools:ignore="TypographyEllipsis">압축...</string>
     <string name="app_name">압축 파일 관리자</string>
     <string name="dialog_button_cancel">취소</string>
+    <string name="dialog_button_continue">계속</string>
     <string name="dialog_button_skip_unsafe">건너뛰고 계속</string>
     <string name="dialog_button_select_all">모두 선택</string>
     <string name="dialog_message_skip_unsafe_paths">압축 파일 항목 %1$d개의 경로를 안전하게 쓸 수 없습니다. 해당 항목은 안전하지 않은 경로 폴더에서 계속 미리 볼 수 있습니다. 건너뛰고 계속할까요?</string>
@@ -142,6 +143,22 @@
     <string name="text_budget_violation_total_size">예상 출력: %1$s (예산 %2$s)</string>
     <string name="text_custom_budget_zero_note">항목 수, 경로 길이와 깊이에 0을 사용하면 완화할 수 없는 구조 상한을 적용합니다. 크기와 압축률에 0을 사용하면 리소스 경고 임계값을 두지 않습니다. 경로 구조 안전은 끌 수 없습니다.</string>
     <string name="text_extraction_budget">압축 해제 예산</string>
+    <string name="text_extraction_conflict_policy">출력 이름이 충돌할 때</string>
+    <string name="text_conflict_policy_ask">매번 확인</string>
+    <string name="text_conflict_policy_skip">건너뛰기</string>
+    <string name="text_conflict_policy_overwrite">덮어쓰기</string>
+    <string name="text_conflict_policy_auto_rename">자동 이름 변경</string>
+    <string name="text_conflict_policy_ask_details">새 출력 폴더 안에서 이름이 충돌할 때마다 처리 방법을 묻습니다. 같은 이름의 출력 폴더가 이미 있으면 항상 번호를 붙이고 기존 폴더는 변경하지 않습니다.</string>
+    <string name="text_conflict_policy_skip_details">동등한 이름을 가진 뒤쪽 항목을 건너뜁니다. 같은 이름의 출력 폴더가 이미 있으면 항상 번호를 붙이고 기존 폴더는 변경하지 않습니다.</string>
+    <string name="text_conflict_policy_overwrite_details">유형이 같으면 앞의 파일을 바꾸고 폴더를 병합합니다. 유형이 다르면 자동으로 이름을 변경합니다. 기존 출력 폴더는 변경하지 않습니다.</string>
+    <string name="text_conflict_policy_auto_rename_details">동등한 이름을 가진 뒤쪽 항목마다 번호를 붙입니다. 기존 출력 폴더에도 번호를 붙이며 원래 폴더는 변경하지 않습니다.</string>
+    <string name="dialog_title_output_conflict">출력 이름 충돌</string>
+    <string name="dialog_message_output_conflict">압축 파일 항목: %1$s\n기존 항목: %2$s (%3$s)\n새 항목: %4$s (%5$s)</string>
+    <string name="text_item_type_file">파일</string>
+    <string name="text_item_type_directory">폴더</string>
+    <string name="text_apply_to_all_conflicts">이 선택을 호환되는 모든 충돌에 적용</string>
+    <string name="text_conflict_overwrite_unavailable">항목 유형이 다르거나 기존 항목이 이번 압축 해제에서 생성되지 않았으므로 안전하게 덮어쓸 수 없습니다.</string>
+    <string name="text_extraction_conflict_summary">충돌 처리: %1$d개 건너뜀, %2$d개 덮어쓰기 또는 병합, %3$d개 자동 이름 변경.</string>
     <string name="text_resource_budget_summary">예상 출력: %1$s\n선택 항목: %2$d\n대상 여유 공간: 계속하기 전에 확인하세요.</string>
     <string name="text_resource_budget_warning">계속하면 이 압축 해제에 한해 선언된 값을 허용합니다. 경로 안전, 원본 식별, 크기, 체크섬 및 정리 검사는 계속 적용됩니다.</string>
     <string name="text_password_encryption_note">비어 있지 않은 비밀번호에는 AES-256 암호화를 사용합니다. 파일 이름은 계속 표시됩니다.</string>

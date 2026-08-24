@@ -9,6 +9,7 @@ _Unreleased_
 - `Added` Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Selective extraction... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection ranges while preserving the direct whole-archive shortcut
+- `Added` Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
 - `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported

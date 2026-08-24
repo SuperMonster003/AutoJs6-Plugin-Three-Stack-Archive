@@ -40,6 +40,7 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Preview supported document, image, audio, and video entries with the host's existing viewers.
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
 - Choose Selective extraction... to open the management page and extract the entire archive, current internal folder, or current checkbox selection; Extract to... remains the whole-archive shortcut.
+- Choose Ask each time, Skip, Overwrite, or Auto rename for equivalent output names; Apply to all handles compatible remaining conflicts, while existing output folders are always numbered and preserved.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
 - Browse ordinary archives directly through the host's seekable read-only descriptor with independent positional channels and no whole-file copy; pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache, which is removed on close.
@@ -82,7 +83,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
 5. For a specific range, choose Selective extraction..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
-6. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format and available settings.
+6. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
+7. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar, then choose the output format and available settings.
 
 ### Permissions and data
 
@@ -109,6 +111,7 @@ _Unreleased_
 - `Added` Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
 - `Added` Selective extraction... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection ranges while preserving the direct whole-archive shortcut
+- `Added` Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
 - `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported
