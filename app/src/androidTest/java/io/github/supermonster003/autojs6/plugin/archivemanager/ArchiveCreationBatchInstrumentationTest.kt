@@ -338,7 +338,7 @@ class ArchiveCreationBatchInstrumentationTest {
         ): ArchiveCreationResult = write(request, options, progress)
     }
 
-    private class NoOpHostSession : IExplorerActionHostSession.Stub() {
+    private class NoOpHostSession : TestExplorerActionHostSession() {
         override fun listChildren(
             targetId: String,
             relativePath: String,
@@ -367,7 +367,7 @@ class ArchiveCreationBatchInstrumentationTest {
     private class MultiOutputHostSession(
         private val root: File,
         sourceContents: List<String>,
-    ) : IExplorerActionHostSession.Stub() {
+    ) : TestExplorerActionHostSession() {
         private data class PendingOutput(
             val id: String,
             val displayName: String,

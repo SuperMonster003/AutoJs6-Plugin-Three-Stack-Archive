@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>An AutoJs6 file-manager plugin for browsing, extracting, and creating ZIP, 7Z, and TAR-family archives</p>
+  <p>An AutoJs6 file-manager plugin for browsing, extracting, and creating supported archives, with transactional editing for ordinary ZIP files</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,7 +31,7 @@ The README is available in these languages:
 
 ### About
 
-Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creation into the AutoJs6 file manager. The current build browses archives in the native host list with external and internal paths, previews supported entries, extracts the entire archive, current internal folder, or current checkbox selection from the management page, and creates a supported format from one item or a same-parent selection. Per-entry extraction inside the native host page and in-archive editing remain staged in the Roadmap.
+Archive Manager brings archive browsing, extraction, creation, and management into the AutoJs6 file manager. The current build uses the native host list and path bar for ZIP, 7Z, and TAR-family browsing, previews supported entries, extracts selected ranges, creates supported formats from one item or a same-parent selection, and transactionally edits ordinary single-volume ZIP files from the management page.
 
 ### Available now
 
@@ -39,7 +39,8 @@ Archive Manager brings ZIP, 7Z, and TAR-family browsing, extraction, and creatio
 - Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
 - Preview supported document, image, audio, and video entries with the host's existing viewers.
 - Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
-- Choose Selective extraction... to open the management page and extract the entire archive, current internal folder, or current checkbox selection; Extract to... remains the whole-archive shortcut.
+- Choose Manage archive... to open the management page, extract the entire archive, current internal folder, or current checkbox selection, or edit an ordinary single-volume ZIP with Add files..., New folder..., Rename..., and Delete; Extract to... remains the whole-archive shortcut.
+- ZIP changes are planned before writing, rebuilt into host-owned pending output, fully read back, and atomically replace the original only after verification. Cancellation or failure leaves the source unchanged, and a successful commit refreshes Explorer automatically.
 - Choose Ask each time, Skip, Overwrite, or Auto rename for equivalent output names; Apply to all handles compatible remaining conflicts, while existing output folders are always numbered and preserved.
 - Browse directories, search, and sort archive content.
 - Build the listing from directory metadata without decompressing every entry first.
@@ -75,7 +76,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> The complete integration uses Explorer Action v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Per-entry extraction inside the native host page, reading existing split volumes, filename encryption during creation, source deletion, and in-archive add/delete operations are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> The complete integration uses Explorer Action v8 for verified target replacement, v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Editing currently applies only to ordinary single-volume `.zip` files. Per-entry extraction inside the native host page, reading existing split volumes, importing a complete directory tree, filename encryption during creation, source deletion, and editing JAR/AAR/WAR, 7Z, or TAR-family archives are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
@@ -83,9 +84,10 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
-5. For a specific range, choose Selective extraction..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
-6. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
-7. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar. To create one archive per item, enable Compress each item separately, review the output preview, and create; this mode always resolves name conflicts with safe automatic numbering. For ZIP, choose No split, a common MiB preset, or a custom whole number from 1 to 4096 MiB; when output exceeds that size, it consists of `.z01`, `.z02`, ... numbered volumes and a final `.zip`, while smaller output remains one `.zip`.
+5. For a specific extraction range, choose Manage archive..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
+6. To edit an ordinary single-volume ZIP, choose Manage archive... and use Add files..., New folder..., Rename..., or Delete. Wait for rebuilding, verification, and the success message before leaving the page.
+7. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
+8. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar. To create one archive per item, enable Compress each item separately, review the output preview, and create; this mode always resolves name conflicts with safe automatic numbering. For ZIP, choose No split, a common MiB preset, or a custom whole number from 1 to 4096 MiB; when output exceeds that size, it consists of `.z01`, `.z02`, ... numbered volumes and a final `.zip`, while smaller output remains one `.zip`.
 
 ### Permissions and data
 
@@ -99,11 +101,21 @@ Unsafe names are exposed only as read-only display text behind opaque IDs; they 
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for more formats, split-volume reading, per-entry extraction inside the native host page, archive editing, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for writable formats beyond ordinary ZIP, directory-tree import, split-volume reading, per-entry extraction inside the native host page, undo, failure recovery, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.1.0
+
+_2026/08/25_
+
+- `Note` Editing currently targets ordinary single-volume `.zip` files. JAR/AAR/WAR, split ZIP, 7Z, and TAR-family archives remain read-only; rebuilding normalizes archive comments, nonessential extra metadata, and Unix permission attributes
+- `Added` Manage archive... opens a selected ZIP in the management page with Add files..., New folder..., Rename..., and Delete actions, including directory-subtree rename and deletion
+- `Added` Explorer Action v8 rebuilds into host-owned pending output, fully reads the result back, atomically replaces the original only after verification, and refreshes the Explorer row automatically
+- `Improved` Every change is prevalidated as an immutable plan for unsafe paths, duplicate or equivalent names, file/directory collisions, unsupported retained entries, and source changes before replacement output is committed
+- `Improved` ZIP rebuilds retain stored or deflated entry content, usable timestamps, and supported ZipCrypto/AES encryption; cancellation or any validation failure aborts pending output and leaves the original archive unchanged
 
 #### v2.0.0
 
@@ -113,7 +125,7 @@ _2026/08/25_
 - `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
 - `Added` Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers
 - `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
-- `Added` Selective extraction... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection ranges while preserving the direct whole-archive shortcut
+- `Added` Manage archive... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection extraction ranges while preserving the direct whole-archive shortcut
 - `Added` Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders
 - `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
 - `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
@@ -160,13 +172,6 @@ _2026/08/08_
 
 - `Fixed` Empty service binding when enabling the plugin in Plugin Center
 - `Improved` Simplified the plugin name, description, and usage text
-
-#### v1.0.0
-
-_2026/08/02_
-
-- `Added` Initial release for browsing ZIP, JAR, AAR, and WAR files and extracting selected files or folders
-- `Added` Added search, selection, progress, cancellation, temporary-input cleanup, and localized UI
 
 ##### Full history
 

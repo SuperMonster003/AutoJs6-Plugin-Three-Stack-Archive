@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Открыть архив</string>
-    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Выборочное извлечение...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Управление архивом...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
     <string name="app_name">Archive Manager</string>
@@ -193,4 +193,22 @@
     <string name="text_resource_budget_summary">Расчетный объем: %1$s\nВыбрано записей: %2$d\nСвободное место назначения: проверьте перед продолжением.</string>
     <string name="text_resource_budget_warning">Продолжение разрешает заявленные значения только для этого извлечения. Проверки безопасности путей, идентичности источника, размера, контрольной суммы и очистки остаются включенными.</string>
     <string name="text_password_encryption_note">Непустой пароль использует шифрование AES-256. Имена файлов остаются видимыми.</string>
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">Добавить файлы...</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Новая папка...</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">Переименовать...</string>
+    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">Удалить выбранные элементы (%1$d) и всё содержимое выбранных папок? ZIP будет пересоздан до замены исходного файла.</string>
+    <string name="dialog_title_delete_archive_entries">Удалить из архива</string>
+    <string name="dialog_title_new_archive_folder">Новая папка в архиве</string>
+    <string name="dialog_title_rename_archive_entry">Переименовать элемент архива</string>
+    <string name="error_archive_mutation_failed">Не удалось обновить ZIP</string>
+    <string name="error_archive_refresh_failed">ZIP обновлён, но его новое содержимое не удалось загрузить</string>
+    <string name="error_rename_single_selection">Выберите ровно один файл или папку для переименования</string>
+    <string name="error_zip_entry_name_invalid">Введите допустимое имя файла или папки</string>
+    <string name="text_archive_changes_complete">Архив обновлён</string>
+    <string name="text_archive_entry_name">Имя</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Применение изменений архива...</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Подготовка изменений архива...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Проверка изменений архива...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Обновление %1$d из %2$d: %3$s</string>
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Abrir archivo comprimido</string>
-    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Extracción selectiva...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Gestionar archivo...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
     <string name="app_name">Archive Manager</string>
@@ -193,4 +193,22 @@
     <string name="text_resource_budget_summary">Salida estimada: %1$s\nEntradas seleccionadas: %2$d\nEspacio disponible en el destino: compruébalo antes de continuar.</string>
     <string name="text_resource_budget_warning">Continuar permite los valores declarados solo para esta extracción. Las comprobaciones de rutas, identidad del origen, tamaño, suma de comprobación y limpieza siguen activas.</string>
     <string name="text_password_encryption_note">Una contraseña no vacía usa cifrado AES-256. Los nombres de archivo siguen visibles.</string>
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">Añadir archivos...</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Nueva carpeta...</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">Cambiar nombre...</string>
+    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">¿Eliminar los %1$d elementos seleccionados y todo el contenido de las carpetas seleccionadas? El ZIP se reconstruirá antes de sustituir el original.</string>
+    <string name="dialog_title_delete_archive_entries">Eliminar del archivo</string>
+    <string name="dialog_title_new_archive_folder">Nueva carpeta en el archivo</string>
+    <string name="dialog_title_rename_archive_entry">Cambiar nombre del elemento</string>
+    <string name="error_archive_mutation_failed">No se pudo actualizar el ZIP</string>
+    <string name="error_archive_refresh_failed">El ZIP se actualizó, pero no se pudo volver a cargar su contenido</string>
+    <string name="error_rename_single_selection">Selecciona exactamente un archivo o carpeta para cambiarle el nombre</string>
+    <string name="error_zip_entry_name_invalid">Introduce un nombre de archivo o carpeta válido</string>
+    <string name="text_archive_changes_complete">Archivo actualizado</string>
+    <string name="text_archive_entry_name">Nombre</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Confirmando cambios del archivo...</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Preparando cambios del archivo...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verificando cambios del archivo...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Actualizando %1$d de %2$d: %3$s</string>
 </resources>

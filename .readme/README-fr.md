@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>Plugin du gestionnaire de fichiers AutoJs6 pour parcourir, extraire et créer des archives ZIP, 7Z et de la famille TAR</p>
+  <p>Plugin du gestionnaire de fichiers AutoJs6 pour parcourir, extraire et créer les archives prises en charge, avec modification transactionnelle des ZIP ordinaires</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,7 +31,7 @@ Le README est disponible dans les langues suivantes:
 
 ### Présentation
 
-Archive Manager intègre la navigation, l'extraction et la création des archives ZIP, 7Z et de la famille TAR au gestionnaire de fichiers AutoJs6. La version actuelle parcourt les archives dans la liste native de l'hôte avec les chemins externe et interne, prévisualise les entrées prises en charge, extrait toute l'archive, le dossier interne actuel ou la sélection cochée depuis la page de gestion et crée un format pris en charge à partir d'un élément ou d'une sélection de même dossier parent. L'extraction par entrée dans la page native de l'hôte et l'édition interne restent planifiées dans le Roadmap.
+Archive Manager intègre la navigation, l'extraction, la création et la gestion des archives au gestionnaire de fichiers AutoJs6. La version actuelle utilise la liste native et la barre de chemin de l'hôte pour parcourir les formats ZIP, 7Z et de la famille TAR, prévisualise les entrées prises en charge, extrait une portée choisie, crée les formats pris en charge depuis un élément ou une sélection de même dossier parent et modifie transactionnellement les ZIP ordinaires en un seul volume depuis la page de gestion.
 
 ### Disponible actuellement
 
@@ -39,7 +39,8 @@ Archive Manager intègre la navigation, l'extraction et la création des archive
 - Afficher le dossier externe, le nom de l'archive et le dossier interne dans la barre de chemin ; toucher un niveau pour y accéder et utiliser Retour pour remonter avant de quitter l'archive.
 - Ouvrir les documents, images, fichiers audio et vidéos pris en charge avec les visionneuses existantes de l'hôte.
 - Utiliser le raccourci « Extraire vers... » pour extraire toute l'archive sans ouvrir d'abord la vue de navigation.
-- Choisir « Extraction sélective... » pour ouvrir la page de gestion et extraire toute l'archive, le dossier interne actuel ou la sélection cochée; « Extraire vers... » reste le raccourci pour l'archive entière.
+- Choisir « Gérer l'archive... » pour ouvrir la page de gestion, extraire toute l'archive, le dossier interne actuel ou la sélection cochée, ou modifier un ZIP ordinaire en un seul volume avec « Ajouter des fichiers... », « Nouveau dossier... », « Renommer... » et « Supprimer »; « Extraire vers... » reste le raccourci pour l'archive entière.
+- Les modifications ZIP sont planifiées avant l'écriture, reconstruites dans une sortie en attente détenue par l'hôte, entièrement relues, puis remplacent l'original atomiquement après validation. Une annulation ou un échec laisse la source intacte, et une validation réussie actualise Explorer automatiquement.
 - Pour les noms de sortie équivalents, choisissez Demander à chaque fois, Ignorer, Écraser ou Renommer automatiquement; Appliquer à tout traite les conflits compatibles restants et les dossiers de sortie existants sont toujours numérotés et préservés.
 - Parcourir les dossiers, rechercher et trier le contenu de l'archive.
 - Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
@@ -75,7 +76,7 @@ La version actuelle peut créer les formats suivants:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> L'intégration complète utilise Explorer Action v7 pour vérifier la sortie avant validation, v6 pour la navigation native et l'aperçu, et les sessions de fichiers v4 pour la compression ; elle exige AutoJs6 avec le code de version 5276 ou plus récent. L'extraction par entrée dans la page native de l'hôte, la lecture de volumes fractionnés existants, le chiffrement des noms à la création, la suppression des sources et l'ajout/suppression interne ne sont pas encore publiés. Le Roadmap fait foi.
+> L'intégration complète utilise Explorer Action v8 pour le remplacement vérifié de la cible, v7 pour vérifier la sortie avant validation, v6 pour la navigation native et l'aperçu, et les sessions de fichiers v4 pour la compression; elle exige AutoJs6 avec le code de version 5276 ou plus récent. La modification concerne actuellement les fichiers `.zip` ordinaires en un seul volume. L'extraction par entrée dans la page native de l'hôte, la lecture de volumes fractionnés existants, l'importation d'une arborescence complète, le chiffrement des noms à la création, la suppression des sources et la modification de JAR/AAR/WAR, 7Z ou de la famille TAR ne sont pas encore publiés. Le Roadmap fait foi.
 
 ### Utilisation
 
@@ -83,9 +84,10 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR.
 3. Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.
 4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu puis sélectionnez un dossier avec le sélecteur système Android.
-5. Pour extraire une portée précise, choisissez « Extraction sélective... », parcourez la page de gestion ou cochez des entrées, touchez « Extraire vers... », choisissez la portée puis le dossier de sortie.
-6. Avant l'extraction dans la page de gestion, choisissez comment traiter les noms de sortie équivalents. Demander à chaque fois permet d'appliquer une décision d'ignorer, d'écraser ou de renommer automatiquement à tous les conflits compatibles restants.
-7. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure. Pour créer une archive par élément, activez « Compresser chaque élément séparément », vérifiez l’aperçu des sorties, puis lancez la création ; ce mode résout toujours les conflits par une numérotation automatique sûre. Pour ZIP, choisissez Aucun fractionnement, une valeur MiB courante ou un entier personnalisé de 1 à 4096 MiB ; si la sortie dépasse cette taille, elle comprend les volumes `.z01`, `.z02`, ... puis un `.zip` final, tandis qu'une sortie plus petite reste un seul `.zip`.
+5. Pour extraire une portée précise, choisissez « Gérer l'archive... », parcourez la page de gestion ou cochez des entrées, touchez « Extraire vers... », choisissez la portée puis le dossier de sortie.
+6. Pour modifier un ZIP ordinaire en un seul volume, choisissez « Gérer l'archive... » puis utilisez « Ajouter des fichiers... », « Nouveau dossier... », « Renommer... » ou « Supprimer ». Attendez la reconstruction, la validation et le message de réussite avant de quitter la page.
+7. Avant l'extraction dans la page de gestion, choisissez comment traiter les noms de sortie équivalents. Demander à chaque fois permet d'appliquer une décision d'ignorer, d'écraser ou de renommer automatiquement à tous les conflits compatibles restants.
+8. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure. Pour créer une archive par élément, activez « Compresser chaque élément séparément », vérifiez l’aperçu des sorties, puis lancez la création ; ce mode résout toujours les conflits par une numérotation automatique sûre. Pour ZIP, choisissez Aucun fractionnement, une valeur MiB courante ou un entier personnalisé de 1 à 4096 MiB ; si la sortie dépasse cette taille, elle comprend les volumes `.z01`, `.z02`, ... puis un `.zip` final, tandis qu'une sortie plus petite reste un seul `.zip`.
 
 ### Autorisations et données
 
@@ -99,11 +101,21 @@ Les noms non sûrs ne sont exposés que comme texte d'affichage en lecture seule
 
 ### Roadmap
 
-Les tâches et critères pour davantage de formats, la lecture de volumes fractionnés, l'extraction par entrée dans la page native de l'hôte, l'édition d'archives et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
+Les tâches et critères pour les formats modifiables au-delà du ZIP ordinaire, l'importation d'arborescences, la lecture de volumes fractionnés, l'extraction par entrée dans la page native de l'hôte, l'annulation, la récupération après échec et la matrice complète d'appareils sont regroupés dans le Roadmap. Une case non cochée n'est pas une fonction actuelle.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notes de version
+
+#### v2.1.0
+
+_2026/08/25_
+
+- `Note` La modification concerne actuellement les fichiers `.zip` ordinaires en un seul volume. JAR/AAR/WAR, ZIP fractionné, 7Z et famille TAR restent en lecture seule; la reconstruction normalise les commentaires, les métadonnées extra non essentielles et les attributs de permission Unix
+- `Ajout` Gérer l'archive... ouvre le ZIP sélectionné dans la page de gestion avec Ajouter des fichiers..., Nouveau dossier..., Renommer... et Supprimer, y compris le renommage et la suppression de sous-arborescences
+- `Ajout` Explorer Action v8 reconstruit dans une sortie en attente détenue par l'hôte, relit entièrement le résultat, ne remplace atomiquement l'original qu'après validation et actualise automatiquement la ligne Explorer
+- `Amélioration` Chaque modification est prévalidée dans un plan immuable qui contrôle les chemins dangereux, les noms dupliqués ou équivalents, les conflits fichier/dossier, les entrées conservées non prises en charge et les changements de source avant validation de la sortie de remplacement
+- `Amélioration` La reconstruction ZIP conserve le contenu Stored/Deflate, les horodatages utilisables et le chiffrement ZipCrypto/AES pris en charge; une annulation ou tout échec de validation abandonne la sortie en attente et laisse l'archive originale intacte
 
 #### v2.0.0
 
@@ -113,7 +125,7 @@ _2026/08/25_
 - `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
 - `Ajout` Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
-- `Ajout` Extraction sélective... ouvre la page de gestion avec les portées archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
+- `Ajout` Gérer l'archive... ouvre la page de gestion avec les portées d'extraction archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
 - `Ajout` Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
@@ -160,13 +172,6 @@ _2026/08/08_
 
 - `Correction` Liaison de service vide lors de l'activation dans le centre de plugins
 - `Amélioration` Simplification du nom, de la description et des instructions
-
-#### v1.0.0
-
-_2026/08/02_
-
-- `Ajout` Première version pour parcourir ZIP, JAR, AAR et WAR et extraire la sélection
-- `Ajout` Recherche, sélection, progression, annulation, nettoyage temporaire et interface localisée
 
 ##### Historique complet
 

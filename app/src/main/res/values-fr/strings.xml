@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Ouvrir l\'archive</string>
-    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">Extraction sélective...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Gérer l\'archive...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraire vers...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compresser...</string>
     <string name="app_name">Archive Manager</string>
@@ -193,4 +193,22 @@
     <string name="text_resource_budget_summary">Sortie estimée : %1$s\nEntrées sélectionnées : %2$d\nEspace disponible à destination : vérifiez-le avant de continuer.</string>
     <string name="text_resource_budget_warning">Continuer autorise les valeurs déclarées uniquement pour cette extraction. Les contrôles de chemin, d\'identité de la source, de taille, de somme de contrôle et de nettoyage restent actifs.</string>
     <string name="text_password_encryption_note">Un mot de passe non vide utilise le chiffrement AES-256. Les noms de fichiers restent visibles.</string>
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">Ajouter des fichiers...</string>
+    <string name="action_delete">Supprimer</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Nouveau dossier...</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">Renommer...</string>
+    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">Supprimer les %1$d éléments sélectionnés et tout le contenu des dossiers sélectionnés? Le ZIP sera reconstruit avant de remplacer l\'original.</string>
+    <string name="dialog_title_delete_archive_entries">Supprimer de l\'archive</string>
+    <string name="dialog_title_new_archive_folder">Nouveau dossier dans l\'archive</string>
+    <string name="dialog_title_rename_archive_entry">Renommer l\'élément de l\'archive</string>
+    <string name="error_archive_mutation_failed">Impossible de mettre à jour le ZIP</string>
+    <string name="error_archive_refresh_failed">Le ZIP a été mis à jour, mais son nouveau contenu n\'a pas pu être rechargé</string>
+    <string name="error_rename_single_selection">Sélectionnez exactement un fichier ou dossier à renommer</string>
+    <string name="error_zip_entry_name_invalid">Saisissez un nom de fichier ou de dossier valide</string>
+    <string name="text_archive_changes_complete">Archive mise à jour</string>
+    <string name="text_archive_entry_name">Nom</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Validation des modifications de l\'archive...</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Préparation des modifications de l\'archive...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Vérification des modifications de l\'archive...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Mise à jour de %1$d sur %2$d: %3$s</string>
 </resources>

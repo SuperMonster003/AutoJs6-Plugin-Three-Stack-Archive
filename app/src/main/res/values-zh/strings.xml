@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">打开压缩档案</string>
-    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">选择性解压...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">管理压缩档案...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解压到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">压缩...</string>
     <string name="app_name">Archive Manager</string>
@@ -193,4 +193,22 @@
     <string name="text_resource_budget_summary">预计输出: %1$s\n选中条目: %2$d\n目标可用空间: 继续前请自行确认.</string>
     <string name="text_resource_budget_warning">继续操作只会为本次解压放行档案声明值. 路径安全、源文件身份、大小、校验和与失败清理仍然生效.</string>
     <string name="text_password_encryption_note">非空密码使用 AES-256 加密. 文件名仍然可见.</string>
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">添加文件...</string>
+    <string name="action_delete">删除</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">新建文件夹...</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">重命名...</string>
+    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">删除选中的 %1$d 个条目及所选文件夹内的全部内容? 替换原文件前将重新构建 ZIP.</string>
+    <string name="dialog_title_delete_archive_entries">从压缩档案中删除</string>
+    <string name="dialog_title_new_archive_folder">新建档案内文件夹</string>
+    <string name="dialog_title_rename_archive_entry">重命名档案条目</string>
+    <string name="error_archive_mutation_failed">无法更新 ZIP</string>
+    <string name="error_archive_refresh_failed">ZIP 已更新, 但无法重新载入新内容</string>
+    <string name="error_rename_single_selection">请选择一个要重命名的文件或文件夹</string>
+    <string name="error_zip_entry_name_invalid">请输入有效的文件或文件夹名称</string>
+    <string name="text_archive_changes_complete">压缩档案已更新</string>
+    <string name="text_archive_entry_name">名称</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">正在提交档案更改...</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">正在准备档案更改...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">正在验证档案更改...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">正在更新第 %1$d/%2$d 项: %3$s</string>
 </resources>

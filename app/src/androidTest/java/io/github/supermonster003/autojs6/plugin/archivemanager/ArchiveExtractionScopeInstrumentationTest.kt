@@ -14,6 +14,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionIntentValues
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
@@ -56,6 +57,10 @@ class ArchiveExtractionScopeInstrumentationTest {
             holdForExternalInspection()
 
             scenario.onActivity { activity ->
+                assertTrue(activity.findViewById<android.view.View>(R.id.addFilesButton).isShown)
+                assertTrue(activity.findViewById<android.view.View>(R.id.newFolderButton).isShown)
+                assertFalse(activity.findViewById<android.view.View>(R.id.renameButton).isEnabled)
+                assertFalse(activity.findViewById<android.view.View>(R.id.deleteButton).isEnabled)
                 requireNotNull(activity.showExtractionScopeDialog()).let { dialog ->
                     assertEquals(
                         listOf(activity.getString(R.string.text_extraction_scope_entire_archive)),
@@ -95,6 +100,8 @@ class ArchiveExtractionScopeInstrumentationTest {
             }
 
             scenario.onActivity { activity ->
+                assertTrue(activity.findViewById<android.view.View>(R.id.renameButton).isEnabled)
+                assertTrue(activity.findViewById<android.view.View>(R.id.deleteButton).isEnabled)
                 requireNotNull(activity.showExtractionScopeDialog()).let { dialog ->
                     assertEquals(
                         listOf(
@@ -379,7 +386,7 @@ class ArchiveExtractionScopeInstrumentationTest {
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
             .putExtra(
                 ExplorerActionIntentExtras.ACTION_ID,
-                ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID,
+                ArchiveManagerPlugin.ACTION_MANAGE_ID,
             )
             .putExtra(ExplorerActionIntentExtras.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
             .putExtra(ExplorerActionIntentExtras.REQUEST_ID, REQUEST_ID)
@@ -392,6 +399,15 @@ class ArchiveExtractionScopeInstrumentationTest {
                 ExplorerActionIntentValues.SOURCE_SURFACE_MAIN,
             )
             .putParcelableArrayListExtra(ExplorerActionIntentExtras.TARGETS, arrayListOf(target))
+            .putExtra(
+                ExplorerActionIntentExtras.HOST_SESSION,
+                Bundle().apply {
+                    putBinder(
+                        ExplorerActionHostSessionKeys.BINDER,
+                        UnusedTestExplorerActionHostSession().asBinder(),
+                    )
+                },
+            )
             .apply { clipData = ClipData.newRawUri(ARCHIVE_NAME, archiveUri) }
     }
 

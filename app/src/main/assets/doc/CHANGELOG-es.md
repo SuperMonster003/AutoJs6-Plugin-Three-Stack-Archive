@@ -1,5 +1,15 @@
 # Notas de la versión
 
+## v2.1.0
+
+_2026/08/25_
+
+- `Nota` La edición se limita actualmente a archivos `.zip` normales de un solo volumen. JAR/AAR/WAR, ZIP dividido, 7Z y la familia TAR siguen siendo de solo lectura; la reconstrucción normaliza los comentarios, los metadatos extra no esenciales y los atributos de permisos Unix
+- `Añadido` Administrar archivo... abre el ZIP seleccionado en la página de gestión con Añadir archivos..., Nueva carpeta..., Renombrar... y Eliminar, incluido el cambio de nombre y la eliminación de subárboles de directorios
+- `Añadido` Explorer Action v8 reconstruye en una salida pendiente propiedad del host, relee por completo el resultado, reemplaza atómicamente el original solo tras verificarlo y actualiza automáticamente la fila de Explorer
+- `Mejorado` Cada cambio se valida antes como un plan inmutable que comprueba rutas peligrosas, nombres duplicados o equivalentes, conflictos de archivo/directorio, entradas conservadas no compatibles y cambios de la fuente antes de confirmar la salida de reemplazo
+- `Mejorado` La reconstrucción ZIP conserva el contenido Stored/Deflate, las marcas de tiempo utilizables y el cifrado ZipCrypto/AES compatible; la cancelación o cualquier fallo de validación descarta la salida pendiente y deja intacto el archivo original
+
 ## v2.0.0
 
 _2026/08/25_
@@ -8,7 +18,7 @@ _2026/08/25_
 - `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
 - `Añadido` Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
-- `Añadido` Extracción selectiva... abre la página de gestión con los ámbitos de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
+- `Añadido` Gestionar archivo... abre la página de gestión con los ámbitos de extracción de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
 - `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos

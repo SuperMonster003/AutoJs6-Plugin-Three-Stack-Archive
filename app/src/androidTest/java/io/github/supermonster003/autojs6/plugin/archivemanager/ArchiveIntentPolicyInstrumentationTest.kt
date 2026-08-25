@@ -10,6 +10,7 @@ import android.os.Bundle
 import androidx.test.runner.AndroidJUnit4
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionIntentValues
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
@@ -54,16 +55,84 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
-    fun selectiveExtractionUsesTheManagementPageWithoutStartingTheShortcut() {
+    fun manageArchiveRequiresAndRetainsTheHostReplacementSession() {
+        val hostSession = UnusedTestExplorerActionHostSession()
         val resolved = ArchiveIntentPolicy.resolve(
-            Intent(validIntent()).putExtra(
-                ExplorerActionIntentExtras.ACTION_ID,
-                ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID,
-            ),
+            Intent(validIntent())
+                .putExtra(
+                    ExplorerActionIntentExtras.ACTION_ID,
+                    ArchiveManagerPlugin.ACTION_MANAGE_ID,
+                )
+                .putExtra(
+                    ExplorerActionIntentExtras.HOST_SESSION,
+                    Bundle().apply {
+                        putBinder(ExplorerActionHostSessionKeys.BINDER, hostSession.asBinder())
+                    },
+                ),
         )
 
         assertNotNull(resolved)
-        assertEquals(ArchiveRequestedAction.SELECTIVE_EXTRACT, resolved?.requestedAction)
+        assertEquals(ArchiveRequestedAction.MANAGE, resolved?.requestedAction)
+        assertNotNull(resolved?.hostSession)
+    }
+
+    @Test
+    fun manageArchiveRejectsAMissingHostReplacementSession() {
+        val resolved = ArchiveIntentPolicy.resolve(
+            Intent(validIntent()).putExtra(
+                ExplorerActionIntentExtras.ACTION_ID,
+                ArchiveManagerPlugin.ACTION_MANAGE_ID,
+            ),
+        )
+
+        assertNull(resolved)
+    }
+
+    @Test
+    fun manageArchiveRejectsNonZipFormatsEvenWithAHostSession() {
+        val hostSession = UnusedTestExplorerActionHostSession()
+        val resolved = ArchiveIntentPolicy.resolve(
+            Intent(validIntent())
+                .setType("application/vnd.rar")
+                .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_MANAGE_ID)
+                .putExtra(ExplorerActionIntentExtras.DISPLAY_NAME, "bundle.rar")
+                .putParcelableArrayListExtra(
+                    ExplorerActionIntentExtras.TARGETS,
+                    arrayListOf(
+                        targetBundle(
+                            displayName = "bundle.rar",
+                            mimeType = "application/vnd.rar",
+                        ),
+                    ),
+                )
+                .putExtra(
+                    ExplorerActionIntentExtras.HOST_SESSION,
+                    Bundle().apply {
+                        putBinder(ExplorerActionHostSessionKeys.BINDER, hostSession.asBinder())
+                    },
+                ),
+        )
+
+        assertNull(resolved)
+    }
+
+    @Test
+    fun manageArchiveRejectsZipContainerAliases() {
+        listOf("library.jar", "library.aar", "application.war").forEach { displayName ->
+            val intent = validIntent(displayName, "application/zip")
+                .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_MANAGE_ID)
+                .putExtra(
+                    ExplorerActionIntentExtras.HOST_SESSION,
+                    Bundle().apply {
+                        putBinder(
+                            ExplorerActionHostSessionKeys.BINDER,
+                            UnusedTestExplorerActionHostSession().asBinder(),
+                        )
+                    },
+                )
+
+            assertNull(ArchiveIntentPolicy.resolve(intent))
+        }
     }
 
     @Test
@@ -272,14 +341,17 @@ class ArchiveIntentPolicyInstrumentationTest {
         )
     }
 
-    private fun validIntent(): Intent =
+    private fun validIntent(
+        displayName: String = "bundle.zip",
+        mimeType: String = "application/zip",
+    ): Intent =
         Intent(ExplorerActionPluginActions.EXECUTE)
-            .setDataAndType(archiveUri, "application/zip")
+            .setDataAndType(archiveUri, mimeType)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
             .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_OPEN_ID)
             .putExtra(ExplorerActionIntentExtras.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
             .putExtra(ExplorerActionIntentExtras.REQUEST_ID, REQUEST_ID)
-            .putExtra(ExplorerActionIntentExtras.DISPLAY_NAME, "bundle.zip")
+            .putExtra(ExplorerActionIntentExtras.DISPLAY_NAME, displayName)
             .putExtra(ExplorerActionIntentExtras.SIZE, 4096L)
             .putExtra(ExplorerActionIntentExtras.PARENT_URI, parentUri)
             .putExtra(ExplorerActionIntentExtras.PARENT_DISPLAY_PATH, "/storage/emulated/0/Archives")
@@ -289,7 +361,7 @@ class ArchiveIntentPolicyInstrumentationTest {
             )
             .putParcelableArrayListExtra(
                 ExplorerActionIntentExtras.TARGETS,
-                arrayListOf(targetBundle()),
+                arrayListOf(targetBundle(displayName = displayName, mimeType = mimeType)),
             )
             .apply { clipData = clipData(archiveUri) }
 

@@ -1,5 +1,15 @@
 # Notes de version
 
+## v2.1.0
+
+_2026/08/25_
+
+- `Note` La modification concerne actuellement les fichiers `.zip` ordinaires en un seul volume. JAR/AAR/WAR, ZIP fractionné, 7Z et famille TAR restent en lecture seule; la reconstruction normalise les commentaires, les métadonnées extra non essentielles et les attributs de permission Unix
+- `Ajout` Gérer l'archive... ouvre le ZIP sélectionné dans la page de gestion avec Ajouter des fichiers..., Nouveau dossier..., Renommer... et Supprimer, y compris le renommage et la suppression de sous-arborescences
+- `Ajout` Explorer Action v8 reconstruit dans une sortie en attente détenue par l'hôte, relit entièrement le résultat, ne remplace atomiquement l'original qu'après validation et actualise automatiquement la ligne Explorer
+- `Amélioration` Chaque modification est prévalidée dans un plan immuable qui contrôle les chemins dangereux, les noms dupliqués ou équivalents, les conflits fichier/dossier, les entrées conservées non prises en charge et les changements de source avant validation de la sortie de remplacement
+- `Amélioration` La reconstruction ZIP conserve le contenu Stored/Deflate, les horodatages utilisables et le chiffrement ZipCrypto/AES pris en charge; une annulation ou tout échec de validation abandonne la sortie en attente et laisse l'archive originale intacte
+
 ## v2.0.0
 
 _2026/08/25_
@@ -8,7 +18,7 @@ _2026/08/25_
 - `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
 - `Ajout` Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte
 - `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
-- `Ajout` Extraction sélective... ouvre la page de gestion avec les portées archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
+- `Ajout` Gérer l'archive... ouvre la page de gestion avec les portées d'extraction archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
 - `Ajout` Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants
 - `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
 - `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits

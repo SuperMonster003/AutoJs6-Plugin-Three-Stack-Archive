@@ -229,7 +229,7 @@ class SevenZArchiveCreatorInstrumentationTest {
         lastModified = 1_700_000_000_000L,
     )
 
-    private class FakeHostSession(cacheDirectory: File) : IExplorerActionHostSession.Stub() {
+    private class FakeHostSession(cacheDirectory: File) : TestExplorerActionHostSession() {
         private val transactionId = UUID.randomUUID().toString()
         private val sourceFiles = mapOf(
             "document:" to cacheDirectory.resolve("source-${UUID.randomUUID()}-document.txt").apply {

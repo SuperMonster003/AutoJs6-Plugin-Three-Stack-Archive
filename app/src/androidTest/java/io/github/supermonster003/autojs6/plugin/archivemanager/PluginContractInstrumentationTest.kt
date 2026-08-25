@@ -44,14 +44,14 @@ class PluginContractInstrumentationTest {
     }
 
     @Test
-    fun catalogDeclaresReadOnlyArchiveAndCreateInParentCompressionActions() {
+    fun catalogDeclaresArchiveManagementExtractionAndCompressionActions() {
         val catalog = archiveManagerActionCatalog()
         val actions = catalog.getParcelableArrayList<Bundle>(ExplorerActionCatalogKeys.ACTIONS)
         val actionsById = actions.orEmpty().associateBy {
             it.getString(ExplorerActionCatalogKeys.ID)
         }
         val openAction = actionsById[ArchiveManagerPlugin.ACTION_OPEN_ID]
-        val selectiveExtractAction = actionsById[ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID]
+        val manageAction = actionsById[ArchiveManagerPlugin.ACTION_MANAGE_ID]
         val extractToAction = actionsById[ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID]
         val compressSingleAction = actionsById[ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID]
         val compressMultipleAction = actionsById[ArchiveManagerPlugin.ACTION_COMPRESS_MULTIPLE_ID]
@@ -59,7 +59,7 @@ class PluginContractInstrumentationTest {
         assertEquals(ExplorerActionProtocol.VERSION, catalog.getInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION))
         assertEquals(5, actionsById.size)
         assertNotNull(openAction)
-        assertNotNull(selectiveExtractAction)
+        assertNotNull(manageAction)
         assertNotNull(extractToAction)
         assertNotNull(compressSingleAction)
         assertNotNull(compressMultipleAction)
@@ -68,8 +68,8 @@ class PluginContractInstrumentationTest {
             openAction?.getString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME),
         )
         assertEquals(
-            ArchiveManagerPlugin.SELECTIVE_EXTRACT_LABEL_RESOURCE_NAME,
-            selectiveExtractAction?.getString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME),
+            ArchiveManagerPlugin.MANAGE_LABEL_RESOURCE_NAME,
+            manageAction?.getString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME),
         )
         assertEquals(
             ArchiveManagerPlugin.EXTRACT_TO_LABEL_RESOURCE_NAME,
@@ -80,8 +80,8 @@ class PluginContractInstrumentationTest {
             openAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
         )
         assertEquals(
-            ArchiveManagerPlugin.SELECTIVE_EXTRACT_ACTION_PRIORITY,
-            selectiveExtractAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
+            ArchiveManagerPlugin.MANAGE_ACTION_PRIORITY,
+            manageAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
         )
         assertEquals(
             ArchiveManagerPlugin.EXTRACT_TO_ACTION_PRIORITY,
@@ -93,11 +93,7 @@ class PluginContractInstrumentationTest {
             ExplorerActionValues.PLACEMENT_PRIMARY,
             ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
         )
-        assertCommonReadOnlyFileAction(
-            requireNotNull(selectiveExtractAction),
-            ExplorerActionValues.PLACEMENT_OVERFLOW,
-            ExplorerActionValues.PRESENTATION_ACTIVITY,
-        )
+        assertManageFileAction(requireNotNull(manageAction))
         assertCommonReadOnlyFileAction(
             requireNotNull(extractToAction),
             ExplorerActionValues.PLACEMENT_OVERFLOW,
@@ -133,6 +129,35 @@ class PluginContractInstrumentationTest {
         )
         assertEquals(listOf("*/*"), action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES))
         assertTrue(action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS).orEmpty().isEmpty())
+    }
+
+    private fun assertManageFileAction(action: Bundle) {
+        assertEquals(
+            ArchiveManagerPlugin.ACTIVITY_CLASS_NAME,
+            action.getString(ExplorerActionCatalogKeys.ACTIVITY_CLASS_NAME),
+        )
+        assertEquals(ExplorerActionValues.TARGET_FILE, action.getInt(ExplorerActionCatalogKeys.TARGET_KIND))
+        assertEquals(
+            ExplorerActionValues.CARDINALITY_SINGLE,
+            action.getInt(ExplorerActionCatalogKeys.CARDINALITY),
+        )
+        assertEquals(
+            ExplorerActionValues.ACCESS_REPLACE_TARGET,
+            action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE),
+        )
+        assertEquals(ExplorerActionValues.PLACEMENT_OVERFLOW, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
+        assertEquals(
+            ExplorerActionValues.PRESENTATION_ACTIVITY,
+            action.getInt(ExplorerActionCatalogKeys.PRESENTATION),
+        )
+        assertEquals(
+            emptyList<String>(),
+            action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES),
+        )
+        assertEquals(
+            ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
+            action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS),
+        )
     }
 
     private fun assertCommonReadOnlyFileAction(action: Bundle, placement: Int, presentation: Int) {

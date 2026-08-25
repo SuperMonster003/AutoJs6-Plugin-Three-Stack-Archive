@@ -168,7 +168,7 @@ class ZipArchiveCreatorInstrumentationTest {
         lastModified = 1_700_000_000_000L,
     )
 
-    private class FakeHostSession(cacheDirectory: File) : IExplorerActionHostSession.Stub() {
+    private class FakeHostSession(cacheDirectory: File) : TestExplorerActionHostSession() {
 
         private val transactionId = UUID.randomUUID().toString()
         private val sourceFiles = mapOf(
@@ -267,7 +267,7 @@ class ZipArchiveCreatorInstrumentationTest {
         }
     }
 
-    private class ExactNameRejectingHostSession : IExplorerActionHostSession.Stub() {
+    private class ExactNameRejectingHostSession : TestExplorerActionHostSession() {
         var prepareCalls = 0
             private set
         var sourceAccessCalls = 0

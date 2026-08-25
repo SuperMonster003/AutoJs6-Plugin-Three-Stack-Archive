@@ -2,15 +2,20 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentResolver
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsContract
+import android.provider.OpenableColumns
+import android.text.InputType
 import android.text.format.DateFormat
 import android.text.format.DateUtils
 import android.text.format.Formatter
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,6 +37,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
@@ -71,6 +77,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var usesUltraCompactLayout = false
     private var isCompactSearchExpanded = false
     private var renderedSelectionCount = 0
+    private var pendingAddDirectory: String? = null
+    private var hostSessionClosed = false
 
     private val outputTreeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree(),
@@ -91,6 +99,16 @@ class ArchiveManagerActivity : AppCompatActivity() {
             extractTo(treeUri)
         } else {
             pendingOutputTreeUri = treeUri
+        }
+    }
+
+    private val addFilesLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments(),
+    ) { uris ->
+        val parentPath = pendingAddDirectory
+        pendingAddDirectory = null
+        if (uris.isNotEmpty() && parentPath != null) {
+            startAddingFiles(parentPath, uris.distinct())
         }
     }
 
@@ -155,6 +173,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         outState.putLong(STATE_CUSTOM_BUDGET_SINGLE_SIZE, customResourceBudget.maxSingleUncompressedBytes)
         outState.putLong(STATE_CUSTOM_BUDGET_TOTAL_SIZE, customResourceBudget.maxTotalUncompressedBytes)
         outState.putLong(STATE_CUSTOM_BUDGET_RATIO, customResourceBudget.maxCompressionRatio)
+        pendingAddDirectory?.let { outState.putString(STATE_PENDING_ADD_DIRECTORY, it) }
         selectedFilenameCharsetName?.let {
             outState.putString(STATE_FILENAME_CHARSET, it)
         }
@@ -163,11 +182,16 @@ class ArchiveManagerActivity : AppCompatActivity() {
     override fun onDestroy() {
         clearSelectedPassword()
         if (::binding.isInitialized) binding.archivePassword.text?.clear()
+        val closeSessionAfterCleanup = !isChangingConfigurations
         val activeOperation = operationJob
         if (activeOperation?.isActive == true) {
-            activeOperation.invokeOnCompletion { clearStagedArchive() }
+            activeOperation.invokeOnCompletion {
+                clearStagedArchive()
+                if (closeSessionAfterCleanup) closeHostSession()
+            }
         } else {
             clearStagedArchive()
+            if (closeSessionAfterCleanup) closeHostSession()
         }
         super.onDestroy()
     }
@@ -198,6 +222,14 @@ class ArchiveManagerActivity : AppCompatActivity() {
             renderEntries()
         }
         selectAllButton.setOnClickListener { selectAllVisibleEntries() }
+        addFilesButton.setOnClickListener {
+            if (!canManageArchive()) return@setOnClickListener
+            pendingAddDirectory = currentDirectory
+            addFilesLauncher.launch(arrayOf("*/*"))
+        }
+        newFolderButton.setOnClickListener { showNewFolderDialog() }
+        renameButton.setOnClickListener { showRenameDialog() }
+        deleteButton.setOnClickListener { showDeleteDialog() }
         extractButton.setOnClickListener { showExtractionScopeDialog() }
         cancelButton.setOnClickListener { operationJob?.cancel() }
         filenameEncodingInput.setOnItemClickListener { _, _, position, _ ->
@@ -632,6 +664,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             adapter.submitList(result.rows)
             updateSelectionPresentation(result.selectionCount)
             binding.extractButton.isEnabled = true
+            updateManagementPresentation()
         }
     }
 
@@ -730,6 +763,300 @@ class ArchiveManagerActivity : AppCompatActivity() {
             if (!row.isBlocked) selectedPaths += row.path
         }
         renderEntries()
+    }
+
+    private fun canManageArchive(): Boolean =
+        request?.requestedAction == ArchiveRequestedAction.MANAGE &&
+            request?.hostSession != null &&
+            snapshot?.format == ArchiveFormat.ZIP
+
+    private fun showNewFolderDialog() {
+        if (!canManageArchive() || isBusy) return
+        showArchiveEntryNameDialog(
+            title = getString(R.string.dialog_title_new_archive_folder),
+            initialValue = "",
+        ) { displayName ->
+            startArchiveMutation(
+                ZipArchiveMutationRequest.AddDirectory(
+                    parentPath = currentDirectory,
+                    displayName = displayName,
+                ),
+            )
+        }
+    }
+
+    private fun showRenameDialog() {
+        if (!canManageArchive() || isBusy) return
+        val path = selectedPaths.singleOrNull()
+        val node = path?.let { index?.node(it) }
+        if (path == null || node == null || path.isEmpty()) {
+            showMessage(getString(R.string.error_rename_single_selection))
+            return
+        }
+        showArchiveEntryNameDialog(
+            title = getString(R.string.dialog_title_rename_archive_entry),
+            initialValue = node.name,
+        ) { displayName ->
+            startArchiveMutation(
+                ZipArchiveMutationRequest.Rename(
+                    path = path,
+                    newDisplayName = displayName,
+                ),
+            )
+        }
+    }
+
+    private fun showDeleteDialog() {
+        if (!canManageArchive() || isBusy) return
+        val paths = selectedPaths.toSet()
+        if (paths.isEmpty()) {
+            showMessage(getString(R.string.error_no_selection))
+            return
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_delete_archive_entries)
+            .setMessage(getString(R.string.dialog_message_delete_archive_entries, paths.size))
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .setPositiveButton(R.string.action_delete) { _, _ ->
+                startArchiveMutation(ZipArchiveMutationRequest.Delete(paths))
+            }
+            .show()
+    }
+
+    private fun showArchiveEntryNameDialog(
+        title: String,
+        initialValue: String,
+        onAccepted: (String) -> Unit,
+    ) {
+        val input = EditText(this).apply {
+            hint = getString(R.string.text_archive_entry_name)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            isSingleLine = true
+            setText(initialValue)
+            setSelection(text.length)
+        }
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setView(input)
+            .setNegativeButton(R.string.dialog_button_cancel, null)
+            .setPositiveButton(R.string.dialog_button_continue, null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).setOnClickListener {
+                val displayName = input.text?.toString().orEmpty()
+                if (ArchiveIntentPolicy.validateDisplayName(displayName) == null) {
+                    input.error = getString(R.string.error_zip_entry_name_invalid)
+                    return@setOnClickListener
+                }
+                dialog.dismiss()
+                onAccepted(displayName)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun startAddingFiles(parentPath: String, uris: List<Uri>) {
+        startArchiveMutation {
+            val files = withContext(Dispatchers.IO) {
+                uris.map(::resolveAddedFile)
+            }
+            ZipArchiveMutationRequest.AddFiles(parentPath, files)
+        }
+    }
+
+    private fun resolveAddedFile(uri: Uri): ZipArchiveAddedFile {
+        if (!uri.scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true)) {
+            throw IOException("Selected file does not use a content URI")
+        }
+        var displayName: String? = null
+        var size = ArchiveIntentPolicy.SIZE_UNKNOWN
+        contentResolver.query(
+            uri,
+            arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE),
+            null,
+            null,
+            null,
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val nameColumn = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                val sizeColumn = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (nameColumn >= 0 && !cursor.isNull(nameColumn)) {
+                    displayName = cursor.getString(nameColumn)
+                }
+                if (sizeColumn >= 0 && !cursor.isNull(sizeColumn)) {
+                    size = cursor.getLong(sizeColumn).takeIf { it >= 0L }
+                        ?: ArchiveIntentPolicy.SIZE_UNKNOWN
+                }
+            }
+        }
+        val validatedName = ArchiveIntentPolicy.validateDisplayName(displayName)
+            ?: throw ArchiveValidationException(
+                code = ArchiveFailureCode.INVALID_DESTINATION_NAME,
+                message = "Selected file has an invalid display name",
+                format = ArchiveFormat.ZIP,
+            )
+        val lastModified = runCatching {
+            contentResolver.query(
+                uri,
+                arrayOf(DocumentsContract.Document.COLUMN_LAST_MODIFIED),
+                null,
+                null,
+                null,
+            )?.use { cursor ->
+                val column = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
+                if (cursor.moveToFirst() && column >= 0 && !cursor.isNull(column)) {
+                    cursor.getLong(column).takeIf { it >= 0L }
+                } else {
+                    null
+                }
+            }
+        }.getOrNull() ?: -1L
+        return ZipArchiveAddedFile(
+            displayName = validatedName,
+            size = size,
+            lastModified = lastModified,
+        ) {
+            contentResolver.openInputStream(uri)
+                ?: throw IOException("Selected file cannot be opened")
+        }
+    }
+
+    private fun startArchiveMutation(request: ZipArchiveMutationRequest) {
+        startArchiveMutation { request }
+    }
+
+    private fun startArchiveMutation(
+        requestProvider: suspend () -> ZipArchiveMutationRequest,
+    ) {
+        if (!canManageArchive() || isBusy) return
+        val staged = stagedArchive ?: return
+        val archive = snapshot ?: return
+        val openRequest = request ?: return
+        val hostSession = openRequest.hostSession ?: return
+        setBusy(true, getString(R.string.text_preparing_archive_changes), cancellable = true)
+        operationJob = lifecycleScope.launch {
+            var committed: HostOutputTransaction? = null
+            try {
+                val mutationRequest = requestProvider()
+                committed = withContext(Dispatchers.IO) {
+                    ZipArchiveMutator(hostSession, cacheDir).mutate(
+                        source = staged.source,
+                        snapshot = archive,
+                        targetId = openRequest.targetId,
+                        displayName = openRequest.displayName,
+                        request = mutationRequest,
+                        checkCancelled = { ensureActive() },
+                        progress = ZipArchiveMutationProgressListener(::renderMutationProgress),
+                    )
+                }
+                reloadArchiveAfterMutation(openRequest, committed)
+                Toast.makeText(
+                    this@ArchiveManagerActivity,
+                    R.string.text_archive_changes_complete,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            } catch (cancelled: CancellationException) {
+                if (committed == null) {
+                    showMessage(getString(R.string.text_cancelled))
+                } else if (!isFinishing && !isDestroyed) {
+                    showMessage(getString(R.string.error_archive_refresh_failed))
+                }
+                setBusy(false)
+                throw cancelled
+            } catch (error: Throwable) {
+                showFailure(
+                    error = error,
+                    headline = getString(
+                        if (committed == null) {
+                            R.string.error_archive_mutation_failed
+                        } else {
+                            R.string.error_archive_refresh_failed
+                        },
+                    ),
+                    formatHint = ArchiveFormat.ZIP,
+                    stageHint = if (committed == null) {
+                        ArchiveFailureStage.OUTPUT
+                    } else {
+                        ArchiveFailureStage.INPUT
+                    },
+                )
+                setBusy(false)
+                if (snapshot != null) renderEntries()
+            }
+        }
+    }
+
+    private suspend fun reloadArchiveAfterMutation(
+        previousRequest: ArchiveOpenRequest,
+        committed: HostOutputTransaction,
+    ) {
+        val previousStaged = synchronized(this) {
+            val value = stagedArchive
+            stagedArchive = null
+            value
+        }
+        snapshot?.readerOptions?.clearPassword()
+        snapshot = null
+        index = null
+        previousStaged?.close()
+        selectedPaths.clear()
+        val updatedRequest = previousRequest.copy(
+            reportedSize = committed.size ?: ArchiveIntentPolicy.SIZE_UNKNOWN,
+        )
+        request = updatedRequest
+        val replacement = withContext(Dispatchers.IO) {
+            ArchiveCacheStager.stage(
+                contentResolver = contentResolver,
+                source = updatedRequest.archiveUri,
+                cacheDirectory = cacheDir,
+                reportedSize = updatedRequest.reportedSize,
+            ) { copied ->
+                postUiUpdate {
+                    updateArchiveSummary(
+                        getString(
+                            R.string.text_loading_progress,
+                            formatBytes(copied),
+                            formatBytes(updatedRequest.reportedSize),
+                        ),
+                    )
+                }
+            }.also { stagedArchive = it }
+        }
+        val (scanned, scannedIndex) = scanStagedArchive(replacement)
+        applyScannedArchive(scanned, scannedIndex)
+    }
+
+    private fun renderMutationProgress(update: ZipArchiveMutationProgress) {
+        postUiUpdate {
+            val text = when (update.phase) {
+                ZipArchiveMutationPhase.PREPARING ->
+                    getString(R.string.text_preparing_archive_changes)
+                ZipArchiveMutationPhase.WRITING -> getString(
+                    R.string.text_writing_archive_changes,
+                    (update.completedEntries + 1).coerceAtMost(update.totalEntries),
+                    update.totalEntries,
+                    update.currentPath.orEmpty(),
+                )
+                ZipArchiveMutationPhase.VERIFYING ->
+                    getString(R.string.text_verifying_archive_changes)
+                ZipArchiveMutationPhase.COMMITTING ->
+                    getString(R.string.text_committing_archive_changes)
+            }
+            binding.message.text = text
+            binding.message.isVisible = true
+        }
+    }
+
+    private fun updateManagementPresentation() = with(binding) {
+        val visible = canManageArchive()
+        addFilesButton.isVisible = visible
+        newFolderButton.isVisible = visible
+        renameButton.isVisible = visible
+        deleteButton.isVisible = visible
+        addFilesButton.isEnabled = visible && !isBusy
+        newFolderButton.isEnabled = visible && !isBusy
+        renameButton.isEnabled = visible && !isBusy && selectedPaths.size == 1
+        deleteButton.isEnabled = visible && !isBusy && selectedPaths.isNotEmpty()
     }
 
     private fun conflictPolicies(): List<ArchiveExtractionConflictPolicy> =
@@ -1561,6 +1888,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.upButton.isEnabled = !busy && currentDirectory.isNotEmpty()
         binding.selectAllButton.isEnabled = !busy && snapshot != null
         binding.extractButton.isEnabled = !busy && snapshot != null
+        updateManagementPresentation()
         if (busy) binding.diagnosticCopyButton.isVisible = false
         if (status != null) {
             binding.message.text = status
@@ -1636,6 +1964,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
         selectedPassword = null
     }
 
+    @Synchronized
+    private fun closeHostSession() {
+        if (hostSessionClosed) return
+        hostSessionClosed = true
+        runCatching { request?.hostSession?.close() }
+    }
+
     private fun restoreInstanceState(savedInstanceState: Bundle?) {
         if (savedInstanceState == null) return
         currentDirectory = savedInstanceState.getString(STATE_CURRENT_DIRECTORY)
@@ -1647,6 +1982,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             .toSet()
         pendingOutputTreeUri = savedInstanceState.getString(STATE_PENDING_OUTPUT_TREE_URI)
             ?.let(Uri::parse)
+        pendingAddDirectory = savedInstanceState.getString(STATE_PENDING_ADD_DIRECTORY)
         pendingSkipUnsafePaths = savedInstanceState.getBoolean(
             STATE_PENDING_SKIP_UNSAFE_PATHS,
             false,
@@ -1989,6 +2325,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val STATE_DIRECT_ACTION_HANDLED = "direct_action_handled"
         const val STATE_FILENAME_CHARSET = "filename_charset"
         const val STATE_PENDING_EXTRACTION_PATHS = "pending_extraction_paths"
+        const val STATE_PENDING_ADD_DIRECTORY = "pending_add_directory"
         const val STATE_PENDING_OUTPUT_TREE_URI = "pending_output_tree_uri"
         const val STATE_PENDING_CONFLICT_POLICY = "pending_conflict_policy"
         const val STATE_PENDING_RESOURCE_BUDGET_OVERRIDE = "pending_resource_budget_override"

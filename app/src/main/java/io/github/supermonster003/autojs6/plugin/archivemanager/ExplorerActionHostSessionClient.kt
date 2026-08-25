@@ -30,6 +30,8 @@ internal data class HostOutputTransaction(
     val id: String,
     val displayName: String,
     val displayPath: String,
+    val size: Long? = null,
+    val lastModified: Long? = null,
 )
 
 internal class ExplorerActionHostSessionClient(
@@ -110,6 +112,15 @@ internal class ExplorerActionHostSessionClient(
 
     fun openOutput(transactionId: String): ParcelFileDescriptor =
         remote.openOutput(transactionId) ?: error("Host returned no output descriptor")
+
+    fun prepareTargetReplacement(
+        targetId: String,
+        expectedDisplayName: String,
+    ): HostOutputTransaction = decodeExactOutput(
+        remote.prepareTargetReplacement(targetId)
+            ?: error("Host returned no replacement transaction"),
+        expectedDisplayName,
+    )
 
     fun openPendingOutput(transactionId: String): ParcelFileDescriptor =
         remote.openPendingOutput(transactionId)
@@ -202,7 +213,11 @@ internal class ExplorerActionHostSessionClient(
         val displayPath = bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH)
             ?.takeIf { it.length in 1..ExplorerActionProtocol.MAX_PARENT_DISPLAY_PATH_LENGTH }
             ?: error("Host output display path is invalid")
-        return HostOutputTransaction(id, displayName, displayPath)
+        val size = bundle.getLong(ExplorerActionHostSessionKeys.SIZE)
+            .takeIf { bundle.containsKey(ExplorerActionHostSessionKeys.SIZE) && it >= 0L }
+        val lastModified = bundle.getLong(ExplorerActionHostSessionKeys.LAST_MODIFIED)
+            .takeIf { bundle.containsKey(ExplorerActionHostSessionKeys.LAST_MODIFIED) && it >= 0L }
+        return HostOutputTransaction(id, displayName, displayPath, size, lastModified)
     }
 
     @Suppress("DEPRECATION")

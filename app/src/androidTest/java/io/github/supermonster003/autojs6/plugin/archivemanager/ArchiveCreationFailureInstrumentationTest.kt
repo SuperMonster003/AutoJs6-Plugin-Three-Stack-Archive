@@ -349,7 +349,7 @@ class ArchiveCreationFailureInstrumentationTest {
         cacheDirectory: File,
         private val format: ArchiveFormat,
         private val mode: FailureMode,
-    ) : IExplorerActionHostSession.Stub() {
+    ) : TestExplorerActionHostSession() {
 
         private val transactionId = UUID.randomUUID().toString()
         private val sourceFile = cacheDirectory.resolve("creation-source-${UUID.randomUUID()}.txt").apply {

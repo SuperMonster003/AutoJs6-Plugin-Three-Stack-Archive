@@ -185,7 +185,7 @@ class TarArchiveCreatorInstrumentationTest {
     private class FakeHostSession(
         cacheDirectory: File,
         private val format: ArchiveFormat,
-    ) : IExplorerActionHostSession.Stub() {
+    ) : TestExplorerActionHostSession() {
 
         private val transactionId = UUID.randomUUID().toString()
         private val sourceFiles = mapOf(

@@ -5,6 +5,20 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v2.1.0": {
+      "released_date": "2026/08/25",
+      "hint": [
+        "Editing currently targets ordinary single-volume `.zip` files. JAR/AAR/WAR, split ZIP, 7Z, and TAR-family archives remain read-only; rebuilding normalizes archive comments, nonessential extra metadata, and Unix permission attributes"
+      ],
+      "feature": [
+        "Manage archive... opens a selected ZIP in the management page with Add files..., New folder..., Rename..., and Delete actions, including directory-subtree rename and deletion",
+        "Explorer Action v8 rebuilds into host-owned pending output, fully reads the result back, atomically replaces the original only after verification, and refreshes the Explorer row automatically"
+      ],
+      "improvement": [
+        "Every change is prevalidated as an immutable plan for unsafe paths, duplicate or equivalent names, file/directory collisions, unsupported retained entries, and source changes before replacement output is committed",
+        "ZIP rebuilds retain stored or deflated entry content, usable timestamps, and supported ZipCrypto/AES encryption; cancellation or any validation failure aborts pending output and leaves the original archive unchanged"
+      ]
+    },
     "v2.0.0": {
       "released_date": "2026/08/25",
       "feature": [
@@ -12,7 +26,7 @@
         "Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation",
         "Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers",
         "Extract to... shortcut for choosing a destination and extracting the entire archive",
-        "Selective extraction... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection ranges while preserving the direct whole-archive shortcut",
+        "Manage archive... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection extraction ranges while preserving the direct whole-archive shortcut",
         "Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders",
         "Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar",
         "ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering",

@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>Complemento del gestor de archivos de AutoJs6 para explorar, extraer y crear archivos ZIP, 7Z y de la familia TAR</p>
+  <p>Complemento del gestor de archivos de AutoJs6 para explorar, extraer y crear archivos compatibles, con edición transaccional de ZIP normales</p>
 
   <p>
     <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
@@ -31,7 +31,7 @@ El README está disponible en los siguientes idiomas:
 
 ### Acerca del proyecto
 
-Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y formatos de la familia TAR en el gestor de archivos de AutoJs6. La versión actual explora los archivos en la lista nativa del host con rutas externas e internas, muestra vistas previas de las entradas compatibles, extrae todo el archivo, la carpeta interna actual o la selección marcada desde la página de gestión y crea un formato compatible desde un elemento o una selección con el mismo directorio padre. La extracción por entrada dentro de la página nativa del anfitrión y la edición interna siguen en el Roadmap.
+Archive Manager integra la exploración, extracción, creación y gestión de archivos en el gestor de archivos de AutoJs6. La versión actual usa la lista nativa y la barra de ruta del host para explorar ZIP, 7Z y la familia TAR, muestra vistas previas de entradas compatibles, extrae un ámbito elegido, crea formatos compatibles desde un elemento o una selección con el mismo directorio padre y edita transaccionalmente ZIP normales de un solo volumen desde la página de gestión.
 
 ### Disponible ahora
 
@@ -39,7 +39,8 @@ Archive Manager integra la exploración, extracción y creación de ZIP, 7Z y fo
 - Mostrar el directorio externo, el nombre del archivo y el directorio interno en la barra de ruta; tocar un nivel para ir a él y usar Atrás para subir antes de salir del archivo.
 - Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.
 - Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.
-- Elige «Extracción selectiva...» para abrir la página de gestión y extraer todo el archivo, la carpeta interna actual o la selección marcada; «Extraer en...» sigue siendo el acceso para el archivo completo.
+- Elige «Gestionar archivo...» para abrir la página de gestión, extraer todo el archivo, la carpeta interna actual o la selección marcada, o editar un ZIP normal de un solo volumen con «Añadir archivos...», «Nueva carpeta...», «Cambiar nombre...» y «Eliminar»; «Extraer en...» sigue siendo el acceso para el archivo completo.
+- Los cambios de ZIP se planifican antes de escribir, se reconstruyen en una salida pendiente propiedad del host, se releen por completo y reemplazan atómicamente el original solo tras verificarlos. La cancelación o un fallo deja intacta la fuente, y una confirmación correcta actualiza Explorer automáticamente.
 - Para nombres de salida equivalentes, elige Preguntar cada vez, Omitir, Sobrescribir o Cambiar nombre automáticamente; Aplicar a todo resuelve los conflictos compatibles restantes y las carpetas de salida existentes siempre se numeran y conservan.
 - Explorar carpetas, buscar y ordenar el contenido del archivo.
 - Crear la lista desde los metadatos sin descomprimir primero todas las entradas.
@@ -75,7 +76,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración completa usa Explorer Action v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La extracción por entrada dentro de la página nativa del anfitrión, la lectura de volúmenes divididos existentes, el cifrado de nombres al crear, la eliminación de fuentes y añadir/eliminar dentro del archivo aún no son funciones publicadas. El Roadmap es la referencia.
+> La integración completa usa Explorer Action v8 para el reemplazo verificado del objetivo, v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La edición se aplica actualmente a archivos `.zip` normales de un solo volumen. La extracción por entrada dentro de la página nativa del host, la lectura de volúmenes divididos existentes, la importación de un árbol de directorios completo, el cifrado de nombres al crear, la eliminación de fuentes y la edición de JAR/AAR/WAR, 7Z o la familia TAR aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
@@ -83,9 +84,10 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR.
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
-5. Para extraer un ámbito concreto, elige «Extracción selectiva...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
-6. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
-7. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior. Para crear un archivo por elemento, activa «Comprimir cada elemento por separado», revisa la vista previa y crea; este modo siempre resuelve los conflictos con numeración automática segura. Para ZIP, elige Sin división, un valor MiB habitual o un entero personalizado de 1 a 4096 MiB; si la salida supera ese tamaño, contiene volúmenes `.z01`, `.z02`, ... y un `.zip` final, mientras que una salida menor permanece como un único `.zip`.
+5. Para extraer un ámbito concreto, elige «Gestionar archivo...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
+6. Para editar un ZIP normal de un solo volumen, elige «Gestionar archivo...» y usa «Añadir archivos...», «Nueva carpeta...», «Cambiar nombre...» o «Eliminar». Espera a que terminen la reconstrucción, la verificación y el mensaje de éxito antes de salir de la página.
+7. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
+8. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior. Para crear un archivo por elemento, activa «Comprimir cada elemento por separado», revisa la vista previa y crea; este modo siempre resuelve los conflictos con numeración automática segura. Para ZIP, elige Sin división, un valor MiB habitual o un entero personalizado de 1 a 4096 MiB; si la salida supera ese tamaño, contiene volúmenes `.z01`, `.z02`, ... y un `.zip` final, mientras que una salida menor permanece como un único `.zip`.
 
 ### Permisos y datos
 
@@ -99,11 +101,21 @@ Los nombres no seguros solo se muestran como texto de solo lectura detrás de id
 
 ### Roadmap
 
-Las tareas y criterios para más formatos, lectura de volúmenes divididos, extracción por entrada dentro de la página nativa del anfitrión, edición de archivos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
+Las tareas y criterios para formatos editables más allá de ZIP normal, importación de árboles de directorios, lectura de volúmenes divididos, extracción por entrada dentro de la página nativa del host, deshacer, recuperación de fallos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.1.0
+
+_2026/08/25_
+
+- `Nota` La edición se limita actualmente a archivos `.zip` normales de un solo volumen. JAR/AAR/WAR, ZIP dividido, 7Z y la familia TAR siguen siendo de solo lectura; la reconstrucción normaliza los comentarios, los metadatos extra no esenciales y los atributos de permisos Unix
+- `Añadido` Administrar archivo... abre el ZIP seleccionado en la página de gestión con Añadir archivos..., Nueva carpeta..., Renombrar... y Eliminar, incluido el cambio de nombre y la eliminación de subárboles de directorios
+- `Añadido` Explorer Action v8 reconstruye en una salida pendiente propiedad del host, relee por completo el resultado, reemplaza atómicamente el original solo tras verificarlo y actualiza automáticamente la fila de Explorer
+- `Mejorado` Cada cambio se valida antes como un plan inmutable que comprueba rutas peligrosas, nombres duplicados o equivalentes, conflictos de archivo/directorio, entradas conservadas no compatibles y cambios de la fuente antes de confirmar la salida de reemplazo
+- `Mejorado` La reconstrucción ZIP conserva el contenido Stored/Deflate, las marcas de tiempo utilizables y el cifrado ZipCrypto/AES compatible; la cancelación o cualquier fallo de validación descarta la salida pendiente y deja intacto el archivo original
 
 #### v2.0.0
 
@@ -113,7 +125,7 @@ _2026/08/25_
 - `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
 - `Añadido` Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host
 - `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
-- `Añadido` Extracción selectiva... abre la página de gestión con los ámbitos de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
+- `Añadido` Gestionar archivo... abre la página de gestión con los ámbitos de extracción de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
 - `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
 - `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
 - `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
@@ -160,13 +172,6 @@ _2026/08/08_
 
 - `Corregido` Enlace de servicio vacío al activar el complemento
 - `Mejorado` Nombre, descripción e instrucciones más simples
-
-#### v1.0.0
-
-_2026/08/02_
-
-- `Añadido` Primera versión para explorar ZIP, JAR, AAR y WAR y extraer la selección
-- `Añadido` Búsqueda, selección, progreso, cancelación, limpieza temporal e interfaz localizada
 
 ##### Historial completo
 

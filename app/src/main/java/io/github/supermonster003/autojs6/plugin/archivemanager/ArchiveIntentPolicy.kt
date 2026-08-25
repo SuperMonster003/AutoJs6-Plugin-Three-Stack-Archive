@@ -6,10 +6,12 @@ import android.net.Uri
 import android.os.Bundle
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionIntentValues
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
 import org.autojs.plugin.explorer.api.ExplorerActionValues
+import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import java.util.Locale
 import java.util.UUID
 
@@ -19,14 +21,16 @@ internal data class ArchiveOpenRequest(
     val parentDisplayPath: String,
     val requestId: String,
     val displayName: String,
+    val targetId: String,
     /** Provider-reported size, or [ArchiveIntentPolicy.SIZE_UNKNOWN] when unavailable. */
     val reportedSize: Long,
     val requestedAction: ArchiveRequestedAction,
+    val hostSession: ExplorerActionHostSessionClient?,
 )
 
 internal enum class ArchiveRequestedAction {
     OPEN,
-    SELECTIVE_EXTRACT,
+    MANAGE,
     EXTRACT_TO,
 }
 
@@ -43,7 +47,7 @@ internal object ArchiveIntentPolicy {
         if (intent.action != ExplorerActionPluginActions.EXECUTE) return null
         val requestedAction = when (intent.getStringExtra(ExplorerActionIntentExtras.ACTION_ID)) {
             ArchiveManagerPlugin.ACTION_OPEN_ID -> ArchiveRequestedAction.OPEN
-            ArchiveManagerPlugin.ACTION_SELECTIVE_EXTRACT_ID -> ArchiveRequestedAction.SELECTIVE_EXTRACT
+            ArchiveManagerPlugin.ACTION_MANAGE_ID -> ArchiveRequestedAction.MANAGE
             ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID -> ArchiveRequestedAction.EXTRACT_TO
             else -> return null
         }
@@ -80,7 +84,7 @@ internal object ArchiveIntentPolicy {
             ?.takeIf { it.size == 1 }
             ?: return null
         val target = targets.single()
-        validateOpaqueTargetId(target.getString(ExplorerActionTargetKeys.ID)) ?: return null
+        val targetId = validateOpaqueTargetId(target.getString(ExplorerActionTargetKeys.ID)) ?: return null
         if (
             target.getInt(ExplorerActionTargetKeys.KIND, Int.MIN_VALUE) !=
             ExplorerActionValues.TARGET_FILE
@@ -110,6 +114,12 @@ internal object ArchiveIntentPolicy {
             ?: return null
         if (normalizeMimeType(intent.type) != targetMimeType) return null
         if (!isSupportedArchive(targetMimeType, displayName)) return null
+        if (
+            requestedAction == ArchiveRequestedAction.MANAGE &&
+            !isSupportedZipArchive(displayName)
+        ) {
+            return null
+        }
 
         if (!target.containsKey(ExplorerActionTargetKeys.SIZE)) return null
         val reportedSize = target.getLong(ExplorerActionTargetKeys.SIZE, SIZE_UNKNOWN)
@@ -118,6 +128,11 @@ internal object ArchiveIntentPolicy {
         if (intent.getLongExtra(ExplorerActionIntentExtras.SIZE, Long.MIN_VALUE) != reportedSize) return null
         if (!target.containsKey(ExplorerActionTargetKeys.LAST_MODIFIED)) return null
         if (target.getLong(ExplorerActionTargetKeys.LAST_MODIFIED, Long.MIN_VALUE) < SIZE_UNKNOWN) return null
+        val hostSession = if (requestedAction == ArchiveRequestedAction.MANAGE) {
+            resolveHostSession(intent) ?: return null
+        } else {
+            null
+        }
 
         return ArchiveOpenRequest(
             archiveUri = archiveUri,
@@ -125,8 +140,10 @@ internal object ArchiveIntentPolicy {
             parentDisplayPath = parentDisplayPath,
             requestId = requestId,
             displayName = displayName,
+            targetId = targetId,
             reportedSize = reportedSize,
             requestedAction = requestedAction,
+            hostSession = hostSession,
         )
     }
 
@@ -147,6 +164,10 @@ internal object ArchiveIntentPolicy {
         val extensionMatches = supportedFormats.any { format -> format.matchesFileName(displayName) }
         return normalizedMimeType in supportedMimeTypes || extensionMatches
     }
+
+    private fun isSupportedZipArchive(displayName: String): Boolean =
+        displayName.substringAfterLast('.', missingDelimiterValue = "")
+            .equals(ArchiveFormat.ZIP.primaryExtension, ignoreCase = true)
 
     private fun isUsableContentUri(uri: Uri): Boolean =
         uri.isHierarchical &&
@@ -181,6 +202,14 @@ internal object ArchiveIntentPolicy {
             ?.takeIf { it.length <= MAX_MIME_TYPE_LENGTH }
             ?: return null
         return normalized.takeIf(MIME_TYPE_PATTERN::matches)
+    }
+
+    private fun resolveHostSession(intent: Intent): ExplorerActionHostSessionClient? {
+        val binder = intent.getBundleExtra(ExplorerActionIntentExtras.HOST_SESSION)
+            ?.getBinder(ExplorerActionHostSessionKeys.BINDER)
+            ?: return null
+        return IExplorerActionHostSession.Stub.asInterface(binder)
+            ?.let(::ExplorerActionHostSessionClient)
     }
 
     @Suppress("DEPRECATION")

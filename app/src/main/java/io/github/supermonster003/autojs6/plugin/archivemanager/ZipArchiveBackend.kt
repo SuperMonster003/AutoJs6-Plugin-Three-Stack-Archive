@@ -19,9 +19,9 @@ internal object ZipArchiveBackend : ArchiveBackend {
         canOpen = true,
         canExtract = true,
         canCreate = true,
-        canAdd = false,
-        canDelete = false,
-        canRename = false,
+        canAdd = true,
+        canDelete = true,
+        canRename = true,
         password = ArchiveOptionMode.OPTIONAL,
         filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
         splitVolumes = ArchiveOptionMode.OPTIONAL,
@@ -143,7 +143,6 @@ private class ZipArchiveReader(
             if (!entry.isDirectory && !entry.canExtract) {
                 add(ArchiveEntryLimitation.UNSUPPORTED_COMPRESSION_METHOD)
             }
-            add(ArchiveEntryLimitation.MUTATION_UNAVAILABLE)
         }
         ArchiveReaderEntry(
             ordinal = ordinal,
@@ -160,8 +159,8 @@ private class ZipArchiveReader(
             capabilities = ArchiveEntryCapabilities(
                 canOpen = !entry.isDirectory && canReadData,
                 canExtract = entry.isDirectory || canReadData,
-                canDelete = false,
-                canRename = false,
+                canDelete = true,
+                canRename = true,
                 limitations = limitations,
             ),
             compressedSize = entry.compressedSize,

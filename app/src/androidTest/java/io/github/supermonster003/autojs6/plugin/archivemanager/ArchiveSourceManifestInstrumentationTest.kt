@@ -171,7 +171,7 @@ class ArchiveSourceManifestInstrumentationTest {
         lastModified = 1_700_000_000_000L,
     )
 
-    private class PagedTreeHostSession : IExplorerActionHostSession.Stub() {
+    private class PagedTreeHostSession : TestExplorerActionHostSession() {
         val pages = mutableListOf<String>()
 
         override fun listChildren(

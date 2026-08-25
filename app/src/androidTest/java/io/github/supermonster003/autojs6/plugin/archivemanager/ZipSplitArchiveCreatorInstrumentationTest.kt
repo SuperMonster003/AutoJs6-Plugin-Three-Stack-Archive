@@ -315,7 +315,7 @@ class ZipSplitArchiveCreatorInstrumentationTest {
     private class SplitHostSession(
         cacheDirectory: File,
         payload: ByteArray,
-    ) : IExplorerActionHostSession.Stub() {
+    ) : TestExplorerActionHostSession() {
 
         val stagingDirectory = cacheDirectory.resolve("split-staging-${UUID.randomUUID()}").apply {
             check(mkdirs())

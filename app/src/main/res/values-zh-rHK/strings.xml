@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">開啟壓縮檔</string>
-    <string name="action_selective_extract" tools:ignore="TypographyEllipsis">選擇性解壓縮...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">管理壓縮檔案...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解壓縮到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>
     <string name="app_name">Archive Manager</string>
@@ -193,4 +193,22 @@
     <string name="text_resource_budget_summary">預計輸出: %1$s\n已選項目: %2$d\n目的地可用空間: 繼續前請自行確認.</string>
     <string name="text_resource_budget_warning">繼續只會為本次解壓縮放行檔案聲明值. 路徑安全、來源檔案身分、大小、校驗和及失敗清理仍然生效.</string>
     <string name="text_password_encryption_note">非空白密碼使用 AES-256 加密. 檔案名稱仍然可見.</string>
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">加入檔案...</string>
+    <string name="action_delete">刪除</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">新增資料夾...</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">重新命名...</string>
+    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">刪除選取的 %1$d 個項目及所選資料夾內的所有內容? ZIP 會在取代原檔案前重新建立.</string>
+    <string name="dialog_title_delete_archive_entries">從壓縮檔案刪除</string>
+    <string name="dialog_title_new_archive_folder">新增壓縮檔案資料夾</string>
+    <string name="dialog_title_rename_archive_entry">重新命名壓縮檔案項目</string>
+    <string name="error_archive_mutation_failed">無法更新 ZIP</string>
+    <string name="error_archive_refresh_failed">ZIP 已更新, 但無法重新載入新內容</string>
+    <string name="error_rename_single_selection">請只選取一個要重新命名的檔案或資料夾</string>
+    <string name="error_zip_entry_name_invalid">請輸入有效的檔案或資料夾名稱</string>
+    <string name="text_archive_changes_complete">壓縮檔案已更新</string>
+    <string name="text_archive_entry_name">名稱</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">正在提交壓縮檔案變更...</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">正在準備壓縮檔案變更...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">正在驗證壓縮檔案變更...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">正在更新第 %1$d/%2$d 項: %3$s</string>
 </resources>

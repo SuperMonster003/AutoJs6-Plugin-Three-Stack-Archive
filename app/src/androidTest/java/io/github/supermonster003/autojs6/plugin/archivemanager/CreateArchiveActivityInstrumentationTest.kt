@@ -784,7 +784,7 @@ class CreateArchiveActivityInstrumentationTest {
 
     private class RecordingHostSession(
         private val rejectExactName: Boolean = false,
-    ) : IExplorerActionHostSession.Stub() {
+    ) : TestExplorerActionHostSession() {
         var prepareOutputCalls = 0
             private set
         var sourceAccessCalls = 0
@@ -837,7 +837,7 @@ class CreateArchiveActivityInstrumentationTest {
         }
     }
 
-    private class RollbackFailingHostSession : IExplorerActionHostSession.Stub() {
+    private class RollbackFailingHostSession : TestExplorerActionHostSession() {
         private val transactionId = UUID.randomUUID().toString()
         var prepareOutputCalls = 0
             private set
