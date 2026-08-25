@@ -50,7 +50,9 @@ class ArchiveExtractorTest {
         assertArrayEquals("alpha".toByteArray(), writer.content("archive/folder/a.txt"))
         assertArrayEquals("bravo".toByteArray(), writer.content("archive/b.txt"))
         assertFalse(writer.rootDeleted)
+        assertTrue(writer.rootCommitted)
         assertEquals(ExtractionPhase.PREPARING, progress.first().phase)
+        assertTrue(progress.indexOfFirst { it.phase == ExtractionPhase.COMMITTING } in 1 until progress.lastIndex)
         assertEquals(ExtractionPhase.COMPLETED, progress.last().phase)
         assertEquals(10L, progress.last().bytesWritten)
     }
@@ -695,6 +697,57 @@ class ArchiveExtractorTest {
         assertEquals(1, result.entriesAutoRenamed)
     }
 
+    @Test
+    fun `commit failure is reported as output failure and rolls back the pending root`() {
+        val source = archive(FixtureEntry("file.txt", "data".encodeToByteArray()))
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter(failCommittingRoot = true)
+
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.OUTPUT_FAILURE) {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                    rootName = "commit-failure",
+                    writer = writer,
+                )
+            }
+        }
+
+        assertTrue(writer.rootDeletionAttempted)
+        assertTrue(writer.rootDeleted)
+        assertFalse(writer.rootCommitted)
+    }
+
+    @Test
+    fun `progress failure after commit never removes committed output`() {
+        val source = archive(FixtureEntry("file.txt", "data".encodeToByteArray()))
+        val snapshot = ArchiveScanner().scan(source)
+        val writer = FakeArchiveOutputWriter()
+
+        runCatching {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                    rootName = "committed",
+                    writer = writer,
+                    progress = ArchiveProgressListener { update ->
+                        if (update.phase == ExtractionPhase.COMPLETED) {
+                            throw IOException("Synthetic UI callback failure")
+                        }
+                    },
+                )
+            }
+        }
+
+        assertTrue(writer.rootCommitted)
+        assertFalse(writer.rootDeletionAttempted)
+        assertFalse(writer.rootDeleted)
+    }
+
     private fun archive(vararg entries: FixtureEntry): File =
         writeZip(temporaryFolder.newFile("archive-${temporaryFolder.root.list().orEmpty().size}.zip"), *entries)
 
@@ -708,12 +761,15 @@ class ArchiveExtractorTest {
     private class FakeArchiveOutputWriter(
         private val failCreatingFile: String? = null,
         private val failDeletingRoot: Boolean = false,
+        private val failCommittingRoot: Boolean = false,
     ) : ArchiveOutputWriter {
         var root: FakeNode? = null
             private set
         var rootDeleted = false
             private set
         var rootDeletionAttempted = false
+            private set
+        var rootCommitted = false
             private set
         private val files = HashMap<String, ByteArrayOutputStream>()
         private val nodes = LinkedHashMap<String, FakeNode>()
@@ -764,6 +820,13 @@ class ArchiveExtractorTest {
         override fun openFile(node: ArchiveOutputWriter.Node): OutputStream {
             val fakeNode = node as FakeNode
             return ByteArrayOutputStream().also { files[fakeNode.path] = it }
+        }
+
+        override fun commitRoot(root: ArchiveOutputWriter.Node): ArchiveOutputWriter.Node {
+            check(root === this.root)
+            if (failCommittingRoot) throw IOException("Synthetic commit failure")
+            rootCommitted = true
+            return root
         }
 
         override fun deleteRoot(root: ArchiveOutputWriter.Node) {

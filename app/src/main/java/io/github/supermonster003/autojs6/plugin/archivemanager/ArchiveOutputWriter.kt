@@ -27,6 +27,9 @@ interface ArchiveOutputWriter {
 
     fun openFile(node: Node): OutputStream
 
+    /** Finalizes a newly created root and returns its committed location. */
+    fun commitRoot(root: Node): Node = root
+
     /** Deletes the root and every document created below it. */
     fun deleteRoot(root: Node)
 }

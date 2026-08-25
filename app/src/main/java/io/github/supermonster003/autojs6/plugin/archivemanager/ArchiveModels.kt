@@ -143,6 +143,7 @@ data class ResolvedArchiveSelection(
 enum class ExtractionPhase {
     PREPARING,
     EXTRACTING,
+    COMMITTING,
     CLEANING_UP,
     CLEANUP_FAILED,
     COMPLETED,

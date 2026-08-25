@@ -38,8 +38,8 @@ Archive Manager brings archive browsing, extraction, creation, and management in
 - Open ZIP-, 7Z-, and TAR-family archives directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
 - Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
 - Preview supported document, image, audio, and video entries with the host's existing viewers.
-- Use the Extract to... shortcut to extract an entire archive without first opening the archive view.
-- Choose Manage archive... to open the management page, extract the entire archive, current internal folder, or current checkbox selection, or edit an ordinary single-volume ZIP with Add files..., New folder..., Rename..., and Delete; Extract to... remains the whole-archive shortcut.
+- Use Extract to... to extract an entire archive into the recommended same-directory folder, or choose another folder with the Android system picker; equivalent existing folder names are safely numbered.
+- Choose Manage archive... to open the management page, extract the entire archive, current internal folder, or current checkbox selection, or edit an ordinary single-volume ZIP with Add files..., Add folder..., New folder..., Rename..., and Delete; Extract to... remains the whole-archive shortcut.
 - ZIP changes are planned before writing, rebuilt into host-owned pending output, fully read back, and atomically replace the original only after verification. Cancellation or failure leaves the source unchanged, and a successful commit refreshes Explorer automatically.
 - Choose Ask each time, Skip, Overwrite, or Auto rename for equivalent output names; Apply to all handles compatible remaining conflicts, while existing output folders are always numbered and preserved.
 - Browse directories, search, and sort archive content.
@@ -76,22 +76,22 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> The complete integration uses Explorer Action v8 for verified target replacement, v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Editing currently applies only to ordinary single-volume `.zip` files. Per-entry extraction inside the native host page, reading existing split volumes, importing a complete directory tree, filename encryption during creation, source deletion, and editing JAR/AAR/WAR, 7Z, or TAR-family archives are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> The complete integration uses Explorer Action v9 for verified directory output and recovery, v8 for verified target replacement, v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Editing currently applies only to ordinary single-volume `.zip` files. Per-entry extraction inside the native host page, reading existing split volumes, filename encryption during creation, source deletion, and editing JAR/AAR/WAR, 7Z, or TAR-family archives are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
 1. Install the plugin and enable it in the AutoJs6 Plugin Center.
 2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
-4. To extract the entire archive, choose Extract to... from its file menu and select an output directory with the Android system picker.
+4. To extract the entire archive, choose Extract to... from its file menu. Use the recommended current folder or choose another folder with the Android system picker, then confirm the exact output path.
 5. For a specific extraction range, choose Manage archive..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
-6. To edit an ordinary single-volume ZIP, choose Manage archive... and use Add files..., New folder..., Rename..., or Delete. Wait for rebuilding, verification, and the success message before leaving the page.
+6. To edit an ordinary single-volume ZIP, choose Manage archive... and use Add files..., Add folder... to import a complete folder tree, New folder... to create an empty folder, Rename..., or Delete. Wait for rebuilding, verification, and the success message before leaving the page.
 7. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
 8. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar. To create one archive per item, enable Compress each item separately, review the output preview, and create; this mode always resolves name conflicts with safe automatic numbering. For ZIP, choose No split, a common MiB preset, or a custom whole number from 1 to 4096 MiB; when output exceeds that size, it consists of `.z01`, `.z02`, ... numbered volumes and a final `.zip`, while smaller output remains one `.zip`.
 
 ### Permissions and data
 
-The plugin requests neither storage nor network permission. Native browsing first leases the host's seekable read-only descriptor and gives ordinary archives independent positional channels. Pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache. The descriptor lease or cache is cleaned when the page closes, unbinds, fails, or expires. Extraction uses only the input URI temporarily granted by the host. Archive creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. Passwords stay only in clearable memory buffers, are never written to Bundles, preferences, logs, or diagnostics, and are cleared when replaced, after a task, or when the page is destroyed. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, source-size checks, output transactions, and failure cleanup remain.
+The plugin requests neither storage nor network permission. Native browsing first leases the host's seekable read-only descriptor and gives ordinary archives independent positional channels. Pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache. The descriptor lease or cache is cleaned when the page closes, unbinds, fails, or expires. Same-directory extraction writes only through a host-owned directory transaction pinned to the plugin UID; another folder uses only the tree grant chosen in the Android system picker. Archive creation uses a host file session pinned to the plugin UID, reads targets page by page, and can create transactional output only in the current parent directory. Passwords stay only in clearable memory buffers, are never written to Bundles, preferences, logs, or diagnostics, and are cleared when replaced, after a task, or when the page is destroyed. The fixed 4 GiB input cap and browse-time extraction-size/ratio gates have been removed; path containment, destination isolation, source-size checks, output transactions, and failure cleanup remain.
 
 Resource budgets decide when to warn or request confirmation; they never relax structural safety. After confirmation, live byte and ratio bounds expand only to the selected entries' declared values for that extraction. Undeclared growth, source changes, and size or CRC mismatches still stop the operation and clean its output.
 
@@ -101,11 +101,22 @@ Unsafe names are exposed only as read-only display text behind opaque IDs; they 
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for writable formats beyond ordinary ZIP, directory-tree import, split-volume reading, per-entry extraction inside the native host page, undo, failure recovery, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for writable formats beyond ordinary ZIP, split-volume reading, per-entry extraction inside the native host page, undo, remaining failure recovery, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.2.0
+
+_2026/08/26_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v9 (version code 5276 or newer)
+- `Added` Extract to... now recommends the current folder and creates a same-name output folder through a host-owned directory transaction; an equivalent existing name is safely numbered and its content is never changed
+- `Added` Ordinary single-volume ZIP management can import an entire folder through the Android system picker, including nested files and empty folders
+- `Fixed` The extraction destination chooser remains fully usable on short and narrow screens and shows the exact default path
+- `Fixed` Cancelled, failed, interrupted, or out-of-space same-directory extractions roll back unpublished output; the next session recovers interrupted host transactions without changing the source archive
+- `Improved` Explorer Action v9 atomically publishes verified directory trees and refreshes the new output folder in AutoJs6 immediately after commit
 
 #### v2.1.0
 
@@ -165,13 +176,6 @@ _2026/08/25_
 - `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path
 - `Dependency` Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ reading and writing without native ABIs
 - `Dependency` Added BSD-licensed zstd-jni 1.5.7-15 for TAR.ZST/TZST reading and writing; all four Android ABIs pass 16 KiB ELF alignment and RELRO checks
-
-#### v1.0.1
-
-_2026/08/08_
-
-- `Fixed` Empty service binding when enabling the plugin in Plugin Center
-- `Improved` Simplified the plugin name, description, and usage text
 
 ##### Full history
 

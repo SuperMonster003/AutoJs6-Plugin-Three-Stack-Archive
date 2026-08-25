@@ -15,6 +15,7 @@
     <string name="dialog_button_use_numbered_name">Use numbered name</string>
     <string name="dialog_title_archive_name_unavailable">Exact output name unavailable</string>
     <string name="dialog_message_archive_name_unavailable">The host could not reserve %1$s in %2$s. No archive data was written. Edit the name or retry with automatic numbering.</string>
+    <string name="dialog_message_extraction_destination">The default output folder is %1$s. If that name exists, Archive Manager adds a number without changing existing content.</string>
     <string name="dialog_message_skip_unsafe_paths" tools:ignore="PluralsCandidate">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
     <string name="dialog_title_custom_budget">Custom extraction budget</string>
     <string name="dialog_title_resource_budget">Extraction budget exceeded</string>
@@ -92,9 +93,13 @@
     <string name="text_delete_sources_after_compression">Delete source items after compression</string>
     <string name="text_encrypt_file_names">Encrypt file names</string>
     <string name="dialog_title_extraction_scope">Extraction range</string>
+    <string name="dialog_title_extraction_destination">Extraction destination</string>
     <string name="text_extraction_scope_entire_archive">Entire archive</string>
     <string name="text_extraction_scope_current_directory">Current folder: %1$s</string>
     <string name="text_extraction_scope_current_selection">Current selection</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Choose another folder...</string>
+    <string name="text_extraction_destination_current_folder">Current folder (Recommended)\n%1$s</string>
+    <string name="text_extraction_output_path">Output: %1$s</string>
     <string name="text_extraction_budget">Extraction budget</string>
     <string name="text_extraction_conflict_policy">When output names conflict</string>
     <string name="text_compact_extraction_budget">Budget</string>
@@ -145,6 +150,8 @@
     <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Scanning source items...</string>
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verifying archive...</string>
     <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Committing archive...</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalizing extracted files...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Rolled back %1$d incomplete output transactions from an interrupted operation.</string>
     <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparing extraction...</string>
     <string name="text_search_hint">Search archive</string>
     <string name="text_select_entry">Select entry</string>
@@ -194,6 +201,7 @@
     <string name="text_resource_budget_warning">Continuing permits the declared values for this extraction only. Path safety, source identity, size, checksum, and cleanup checks stay enabled.</string>
     <string name="text_password_encryption_note">A non-empty password uses AES-256 encryption. File names remain visible.</string>
     <string name="action_add_files" tools:ignore="TypographyEllipsis">Add files...</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Add folder...</string>
     <string name="action_delete">Delete</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">New folder...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">Rename...</string>
@@ -209,6 +217,7 @@
     <string name="text_archive_entry_name">Name</string>
     <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Committing archive changes...</string>
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Preparing archive changes...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Scanning folder...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verifying archive changes...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Updating %1$d of %2$d: %3$s</string>
 </resources>

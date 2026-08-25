@@ -82,6 +82,89 @@ class ZipArchiveMutationPlannerTest {
     }
 
     @Test
+    fun `adds a complete folder tree and preserves empty directories without opening files`() {
+        var opened = false
+        val plan = ZipArchiveMutationPlanner.plan(
+            snapshot(),
+            ZipArchiveMutationRequest.AddTree(
+                parentPath = "docs",
+                entries = listOf(
+                    ZipArchiveAddedTreeEntry.Directory("bundle", lastModified = 10L),
+                    ZipArchiveAddedTreeEntry.Directory("bundle/empty", lastModified = 20L),
+                    ZipArchiveAddedTreeEntry.FileEntry(
+                        relativePath = "bundle/notes.txt",
+                        file = ZipArchiveAddedFile("notes.txt", size = 5L, lastModified = 30L) {
+                            opened = true
+                            ByteArrayInputStream("notes".encodeToByteArray())
+                        },
+                    ),
+                ),
+            ),
+        )
+
+        assertFalse(opened)
+        assertEquals(
+            listOf("docs/bundle", "docs/bundle/empty", "docs/bundle/notes.txt"),
+            plan.entries.takeLast(3).map(ZipArchiveMutationEntry::archivePath),
+        )
+        assertTrue(plan.entries[plan.entries.lastIndex - 2].isDirectory)
+        assertEquals(20L, plan.entries[plan.entries.lastIndex - 1].lastModified)
+        assertEquals(5L, plan.entries.last().size)
+    }
+
+    @Test
+    fun `auto renames an imported root instead of merging with existing archive content`() {
+        val plan = ZipArchiveMutationPlanner.plan(
+            snapshot(),
+            ZipArchiveMutationRequest.AddTree(
+                parentPath = "",
+                entries = listOf(
+                    ZipArchiveAddedTreeEntry.Directory("docs"),
+                    ZipArchiveAddedTreeEntry.FileEntry(
+                        "docs/new.txt",
+                        ZipArchiveAddedFile("new.txt") {
+                            ByteArrayInputStream(byteArrayOf(9))
+                        },
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf("docs (2)", "docs (2)/new.txt"),
+            plan.entries.takeLast(2).map(ZipArchiveMutationEntry::archivePath),
+        )
+    }
+
+    @Test
+    fun `rejects folder trees with missing parents or more than one root`() {
+        val missingParent = ZipArchiveMutationRequest.AddTree(
+            parentPath = "",
+            entries = listOf(
+                ZipArchiveAddedTreeEntry.Directory("bundle"),
+                ZipArchiveAddedTreeEntry.FileEntry(
+                    "bundle/missing/file.txt",
+                    ZipArchiveAddedFile("file.txt") { ByteArrayInputStream(byteArrayOf(1)) },
+                ),
+            ),
+        )
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
+            ZipArchiveMutationPlanner.plan(snapshot(), missingParent)
+        }
+
+        val multipleRoots = ZipArchiveMutationRequest.AddTree(
+            parentPath = "",
+            entries = listOf(
+                ZipArchiveAddedTreeEntry.Directory("one"),
+                ZipArchiveAddedTreeEntry.Directory("two"),
+            ),
+        )
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
+            ZipArchiveMutationPlanner.plan(snapshot(), multipleRoots)
+        }
+    }
+
+    @Test
     fun `rejects rename collisions before output reservation`() {
         expectArchiveFailure<ArchiveValidationException>(
             ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,

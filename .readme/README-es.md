@@ -38,8 +38,8 @@ Archive Manager integra la exploración, extracción, creación y gestión de ar
 - Abrir archivos de las familias ZIP, 7Z y TAR directamente en la lista nativa de AutoJs6, con el tema, el modo oscuro y los colores dinámicos del host.
 - Mostrar el directorio externo, el nombre del archivo y el directorio interno en la barra de ruta; tocar un nivel para ir a él y usar Atrás para subir antes de salir del archivo.
 - Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.
-- Usar el acceso «Extraer en...» para extraer todo el archivo sin abrir antes la vista de exploración.
-- Elige «Gestionar archivo...» para abrir la página de gestión, extraer todo el archivo, la carpeta interna actual o la selección marcada, o editar un ZIP normal de un solo volumen con «Añadir archivos...», «Nueva carpeta...», «Cambiar nombre...» y «Eliminar»; «Extraer en...» sigue siendo el acceso para el archivo completo.
+- Usar «Extraer en...» para extraer todo el archivo en la carpeta recomendada junto a él, o elegir otra carpeta con el selector del sistema Android; los nombres de carpeta equivalentes que ya existan se numeran de forma segura.
+- Elige «Gestionar archivo...» para abrir la página de gestión, extraer todo el archivo, la carpeta interna actual o la selección marcada, o editar un ZIP normal de un solo volumen con «Añadir archivos...», «Añadir carpeta...», «Nueva carpeta...», «Cambiar nombre...» y «Eliminar»; «Extraer en...» sigue siendo el acceso para el archivo completo.
 - Los cambios de ZIP se planifican antes de escribir, se reconstruyen en una salida pendiente propiedad del host, se releen por completo y reemplazan atómicamente el original solo tras verificarlos. La cancelación o un fallo deja intacta la fuente, y una confirmación correcta actualiza Explorer automáticamente.
 - Para nombres de salida equivalentes, elige Preguntar cada vez, Omitir, Sobrescribir o Cambiar nombre automáticamente; Aplicar a todo resuelve los conflictos compatibles restantes y las carpetas de salida existentes siempre se numeran y conservan.
 - Explorar carpetas, buscar y ordenar el contenido del archivo.
@@ -76,22 +76,22 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración completa usa Explorer Action v8 para el reemplazo verificado del objetivo, v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La edición se aplica actualmente a archivos `.zip` normales de un solo volumen. La extracción por entrada dentro de la página nativa del host, la lectura de volúmenes divididos existentes, la importación de un árbol de directorios completo, el cifrado de nombres al crear, la eliminación de fuentes y la edición de JAR/AAR/WAR, 7Z o la familia TAR aún no son funciones publicadas. El Roadmap es la referencia.
+> La integración completa usa Explorer Action v9 para la salida de directorios verificada y su recuperación, v8 para el reemplazo verificado del objetivo, v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La edición se aplica actualmente a archivos `.zip` normales de un solo volumen. La extracción por entrada dentro de la página nativa del host, la lectura de volúmenes divididos existentes, el cifrado de nombres al crear, la eliminación de fuentes y la edición de JAR/AAR/WAR, 7Z o la familia TAR aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
 1. Instala el complemento y actívalo en el centro de complementos de AutoJs6.
 2. Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR.
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
-4. Para extraer todo el archivo, elige «Extraer en...» en su menú y selecciona una carpeta con el selector del sistema Android.
+4. Para extraer todo el archivo, elige «Extraer en...» en su menú. Usa la carpeta actual recomendada o elige otra con el selector del sistema Android y confirma la ruta exacta de salida.
 5. Para extraer un ámbito concreto, elige «Gestionar archivo...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
-6. Para editar un ZIP normal de un solo volumen, elige «Gestionar archivo...» y usa «Añadir archivos...», «Nueva carpeta...», «Cambiar nombre...» o «Eliminar». Espera a que terminen la reconstrucción, la verificación y el mensaje de éxito antes de salir de la página.
+6. Para editar un ZIP normal de un solo volumen, elige «Gestionar archivo...» y usa «Añadir archivos...», «Añadir carpeta...» para importar un árbol completo, «Nueva carpeta...» para crear una carpeta vacía, «Cambiar nombre...» o «Eliminar». Espera a que terminen la reconstrucción, la verificación y el mensaje de éxito antes de salir de la página.
 7. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
 8. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior. Para crear un archivo por elemento, activa «Comprimir cada elemento por separado», revisa la vista previa y crea; este modo siempre resuelve los conflictos con numeración automática segura. Para ZIP, elige Sin división, un valor MiB habitual o un entero personalizado de 1 a 4096 MiB; si la salida supera ese tamaño, contiene volúmenes `.z01`, `.z02`, ... y un `.zip` final, mientras que una salida menor permanece como un único `.zip`.
 
 ### Permisos y datos
 
-El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa conserva primero el descriptor posicionable de solo lectura del host y proporciona canales con posición independiente para los archivos normales. Las tuberías, las fuentes escribibles o no posicionables, Android 7 y los lectores que requieren un archivo local legible por el proceso (actualmente ZIP cifrado) recurren a la caché privada. El descriptor o la caché se limpian al cerrar, desvincular, fallar o caducar. La extracción solo usa el URI temporal del host. La creación de archivos usa una sesión vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Las contraseñas permanecen solo en búferes de memoria que pueden borrarse, nunca se escriben en Bundles, preferencias, registros ni diagnósticos, y se borran al sustituirlas, al terminar una tarea o al destruir la página. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de tamaño de origen, las transacciones de salida y la limpieza de fallos.
+El complemento no solicita permisos de almacenamiento ni de red. La exploración nativa conserva primero el descriptor posicionable de solo lectura del host y proporciona canales con posición independiente para los archivos normales. Las tuberías, las fuentes escribibles o no posicionables, Android 7 y los lectores que requieren un archivo local legible por el proceso (actualmente ZIP cifrado) recurren a la caché privada. El descriptor o la caché se limpian al cerrar, desvincular, fallar o caducar. La extracción en la misma carpeta solo escribe mediante una transacción de directorio propiedad del host y vinculada al UID del complemento; otra ubicación usa únicamente el permiso de árbol elegido en el selector del sistema Android. La creación de archivos usa una sesión vinculada al UID del complemento, lee los objetivos por páginas y solo puede crear una salida transaccional en el directorio padre actual. Las contraseñas permanecen solo en búferes de memoria que pueden borrarse, nunca se escriben en Bundles, preferencias, registros ni diagnósticos, y se borran al sustituirlas, al terminar una tarea o al destruir la página. Se eliminaron el límite fijo de 4 GiB y los umbrales durante la exploración; se mantienen el aislamiento de rutas, las comprobaciones de tamaño de origen, las transacciones de salida y la limpieza de fallos.
 
 Los presupuestos de recursos solo deciden cuándo avisar o pedir confirmación; nunca reducen la seguridad estructural. Tras confirmar, los límites de bytes y relación solo aumentan hasta los valores declarados por las entradas seleccionadas para esa extracción. El crecimiento no declarado, los cambios del origen y las diferencias de tamaño o CRC siguen cancelando y limpiando la salida.
 
@@ -101,11 +101,22 @@ Los nombres no seguros solo se muestran como texto de solo lectura detrás de id
 
 ### Roadmap
 
-Las tareas y criterios para formatos editables más allá de ZIP normal, importación de árboles de directorios, lectura de volúmenes divididos, extracción por entrada dentro de la página nativa del host, deshacer, recuperación de fallos y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
+Las tareas y criterios para formatos editables más allá de ZIP normal, lectura de volúmenes divididos, extracción por entrada dentro de la página nativa del host, deshacer, la recuperación de fallos restante y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.2.0
+
+_2026/08/26_
+
+- `Nota` Esta versión requiere la compilación correspondiente de AutoJs6 6.8.0 con Explorer Action v9 (código de versión 5276 o posterior)
+- `Añadido` Extraer en... ahora recomienda la carpeta actual y crea una carpeta de salida con el mismo nombre mediante una transacción de directorio propiedad del host; si ya existe un nombre equivalente, se numera de forma segura sin modificar su contenido
+- `Añadido` La gestión de ZIP normales de un solo volumen puede importar una carpeta completa mediante el selector del sistema Android, incluidos los archivos anidados y las carpetas vacías
+- `Corregido` El selector de destino de extracción permanece totalmente utilizable en pantallas estrechas y de poca altura y muestra la ruta predeterminada exacta
+- `Corregido` Las extracciones en la misma carpeta canceladas, fallidas, interrumpidas o sin espacio revierten la salida no publicada; la siguiente sesión recupera las transacciones interrumpidas del host sin cambiar el archivo de origen
+- `Mejorado` Explorer Action v9 publica atómicamente árboles de directorios verificados y actualiza la nueva carpeta de salida en AutoJs6 inmediatamente después de confirmarla
 
 #### v2.1.0
 
@@ -165,13 +176,6 @@ _2026/08/25_
 - `Dependencia` Se añadió Zip4j 2.11.5 con licencia Apache 2.0 para flujos ZIP cifrados, creación AES-256 y la ruta de compatibilidad con Android 7.x
 - `Dependencia` Se añadió XZ for Java 1.12 con licencia 0BSD para leer y escribir TAR.XZ/TXZ en Java puro sin ABI nativas
 - `Dependencia` Se añadió zstd-jni 1.5.7-15 con licencia BSD para leer y escribir TAR.ZST/TZST; las cuatro ABI de Android superan las comprobaciones de alineación ELF de 16 KiB y RELRO
-
-#### v1.0.1
-
-_2026/08/08_
-
-- `Corregido` Enlace de servicio vacío al activar el complemento
-- `Mejorado` Nombre, descripción e instrucciones más simples
 
 ##### Historial completo
 

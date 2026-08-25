@@ -1,5 +1,16 @@
 # Release notes
 
+## v2.2.0
+
+_2026/08/26_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v9 (version code 5276 or newer)
+- `Added` Extract to... now recommends the current folder and creates a same-name output folder through a host-owned directory transaction; an equivalent existing name is safely numbered and its content is never changed
+- `Added` Ordinary single-volume ZIP management can import an entire folder through the Android system picker, including nested files and empty folders
+- `Fixed` The extraction destination chooser remains fully usable on short and narrow screens and shows the exact default path
+- `Fixed` Cancelled, failed, interrupted, or out-of-space same-directory extractions roll back unpublished output; the next session recovers interrupted host transactions without changing the source archive
+- `Improved` Explorer Action v9 atomically publishes verified directory trees and refreshes the new output folder in AutoJs6 immediately after commit
+
 ## v2.1.0
 
 _2026/08/25_

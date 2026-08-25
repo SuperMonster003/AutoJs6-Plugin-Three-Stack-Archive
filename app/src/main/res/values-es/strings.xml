@@ -211,4 +211,13 @@
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Preparando cambios del archivo...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verificando cambios del archivo...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Actualizando %1$d de %2$d: %3$s</string>
+    <string name="dialog_message_extraction_destination">La carpeta de salida predeterminada es %1$s. Si ese nombre ya existe, Archive Manager añade un número sin modificar el contenido existente.</string>
+    <string name="dialog_title_extraction_destination">Destino de extracción</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Elegir otra carpeta...</string>
+    <string name="text_extraction_destination_current_folder">Carpeta actual (Recomendada)\n%1$s</string>
+    <string name="text_extraction_output_path">Salida: %1$s</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalizando los archivos extraídos...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Se han revertido %1$d transacciones de salida incompletas de una operación interrumpida.</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Añadir carpeta...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Analizando carpeta...</string>
 </resources>

@@ -211,4 +211,13 @@
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Préparation des modifications de l\'archive...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Vérification des modifications de l\'archive...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Mise à jour de %1$d sur %2$d: %3$s</string>
+    <string name="dialog_message_extraction_destination">Le dossier de sortie par défaut est %1$s. Si ce nom existe déjà, Archive Manager ajoute un numéro sans modifier le contenu existant.</string>
+    <string name="dialog_title_extraction_destination">Destination d\'extraction</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Choisir un autre dossier...</string>
+    <string name="text_extraction_destination_current_folder">Dossier actuel (Recommandé)\n%1$s</string>
+    <string name="text_extraction_output_path">Sortie: %1$s</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalisation des fichiers extraits...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Transactions de sortie incomplètes annulées après une interruption: %1$d.</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Ajouter un dossier...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Analyse du dossier...</string>
 </resources>

@@ -211,4 +211,13 @@
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">正在准备档案更改...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">正在验证档案更改...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">正在更新第 %1$d/%2$d 项: %3$s</string>
+    <string name="dialog_message_extraction_destination">默认输出文件夹为 %1$s. 如果该名称已存在, Archive Manager 会添加序号, 且不会修改已有内容.</string>
+    <string name="dialog_title_extraction_destination">解压位置</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">选择其他文件夹...</string>
+    <string name="text_extraction_destination_current_folder">当前文件夹 (推荐)\n%1$s</string>
+    <string name="text_extraction_output_path">输出: %1$s</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">正在完成解压...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">已回滚中断操作留下的 %1$d 个未完成输出事务.</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">添加文件夹...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">正在扫描文件夹...</string>
 </resources>

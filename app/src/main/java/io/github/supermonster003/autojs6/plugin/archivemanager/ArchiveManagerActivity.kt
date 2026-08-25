@@ -29,6 +29,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityArchiveManagerBinding
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveOutputConflictBinding
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveResourceBudgetBinding
+import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogExtractionDestinationBinding
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -78,6 +79,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var isCompactSearchExpanded = false
     private var renderedSelectionCount = 0
     private var pendingAddDirectory: String? = null
+    private var pendingImportParentPath: String? = null
     private var hostSessionClosed = false
 
     private val outputTreeLauncher = registerForActivityResult(
@@ -112,6 +114,16 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
+    private val addFolderLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree(),
+    ) { treeUri ->
+        val parentPath = pendingImportParentPath
+        pendingImportParentPath = null
+        if (treeUri != null && parentPath != null) {
+            startAddingDirectoryTree(parentPath, treeUri)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityArchiveManagerBinding.inflate(layoutInflater)
@@ -128,6 +140,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         usesCompactHeader = shouldUseCompactHeader(resources.configuration)
         usesUltraCompactLayout = shouldUseUltraCompactLayout(resources.configuration)
         setupViews()
+        val recoveredOutputs = runCatching {
+            resolvedRequest.hostSession?.abortIncompleteOutputs() ?: 0
+        }.getOrDefault(0)
+        if (recoveredOutputs > 0) {
+            showMessage(getString(R.string.text_interrupted_outputs_recovered, recoveredOutputs))
+        }
         updateHeaderPresentation()
         loadArchive(resolvedRequest)
     }
@@ -174,6 +192,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
         outState.putLong(STATE_CUSTOM_BUDGET_TOTAL_SIZE, customResourceBudget.maxTotalUncompressedBytes)
         outState.putLong(STATE_CUSTOM_BUDGET_RATIO, customResourceBudget.maxCompressionRatio)
         pendingAddDirectory?.let { outState.putString(STATE_PENDING_ADD_DIRECTORY, it) }
+        pendingImportParentPath?.let {
+            outState.putString(STATE_PENDING_IMPORT_PARENT_PATH, it)
+        }
         selectedFilenameCharsetName?.let {
             outState.putString(STATE_FILENAME_CHARSET, it)
         }
@@ -226,6 +247,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
             if (!canManageArchive()) return@setOnClickListener
             pendingAddDirectory = currentDirectory
             addFilesLauncher.launch(arrayOf("*/*"))
+        }
+        addFolderButton.setOnClickListener {
+            if (!canManageArchive()) return@setOnClickListener
+            pendingImportParentPath = currentDirectory
+            addFolderLauncher.launch(null)
         }
         newFolderButton.setOnClickListener { showNewFolderDialog() }
         renameButton.setOnClickListener { showRenameDialog() }
@@ -864,6 +890,34 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
+    private fun startAddingDirectoryTree(parentPath: String, treeUri: Uri) {
+        val archive = snapshot ?: return
+        startArchiveMutation {
+            binding.message.text = getString(R.string.text_scanning_folder)
+            binding.message.isVisible = true
+            val remainingEntries = archive.structureLimits.maxEntries - archive.entries.size
+            if (remainingEntries <= 0) {
+                throw ArchiveValidationException(
+                    code = ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+                    message = "The archive has no remaining entry capacity",
+                    format = ArchiveFormat.ZIP,
+                    stage = ArchiveFailureStage.INPUT,
+                )
+            }
+            val entries = withContext(Dispatchers.IO) {
+                SafDirectoryTreeImporter(
+                    contentResolver = contentResolver,
+                    limits = archive.structureLimits,
+                    maxEntries = minOf(
+                        remainingEntries,
+                        SafDirectoryTreeImporter.MAX_IMPORT_ENTRIES,
+                    ),
+                ).scan(treeUri) { ensureActive() }
+            }
+            ZipArchiveMutationRequest.AddTree(parentPath, entries)
+        }
+    }
+
     private fun resolveAddedFile(uri: Uri): ZipArchiveAddedFile {
         if (!uri.scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true)) {
             throw IOException("Selected file does not use a content URI")
@@ -1050,10 +1104,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private fun updateManagementPresentation() = with(binding) {
         val visible = canManageArchive()
         addFilesButton.isVisible = visible
+        addFolderButton.isVisible = visible
         newFolderButton.isVisible = visible
         renameButton.isVisible = visible
         deleteButton.isVisible = visible
         addFilesButton.isEnabled = visible && !isBusy
+        addFolderButton.isEnabled = visible && !isBusy
         newFolderButton.isEnabled = visible && !isBusy
         renameButton.isEnabled = visible && !isBusy && selectedPaths.size == 1
         deleteButton.isEnabled = visible && !isBusy && selectedPaths.isNotEmpty()
@@ -1603,7 +1659,56 @@ class ArchiveManagerActivity : AppCompatActivity() {
         pendingSkipUnsafePaths = selection.skippedUnsafeEntries.isNotEmpty()
         pendingAllowResourceBudgetOverride = budgetAssessment.exceedsBudget
         pendingConflictPolicy = selectedConflictPolicy
-        outputTreeLauncher.launch(null)
+        showExtractionDestinationDialog()
+    }
+
+    internal fun showExtractionDestinationDialog(): androidx.appcompat.app.AlertDialog? {
+        val openRequest = request ?: return null
+        if (!canUseHostExtractionDestination()) {
+            outputTreeLauncher.launch(null)
+            return null
+        }
+        val destinationBinding = DialogExtractionDestinationBinding.inflate(layoutInflater)
+        destinationBinding.destinationMessage.text = getString(
+            R.string.dialog_message_extraction_destination,
+            extractionRootName(openRequest.displayName, snapshot?.format ?: ArchiveFormat.ZIP),
+        )
+        destinationBinding.currentFolderButton.text = getString(
+            R.string.text_extraction_destination_current_folder,
+            openRequest.parentDisplayPath,
+        )
+        destinationBinding.chooseFolderButton.text =
+            getString(R.string.text_extraction_destination_choose_folder)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_extraction_destination)
+            .setView(destinationBinding.root)
+            .setNegativeButton(R.string.dialog_button_cancel) { _, _ ->
+                clearPendingExtraction()
+            }
+            .create()
+        destinationBinding.currentFolderButton.setOnClickListener {
+            dialog.dismiss()
+            extractToHost()
+        }
+        destinationBinding.chooseFolderButton.setOnClickListener {
+            dialog.dismiss()
+            outputTreeLauncher.launch(null)
+        }
+        dialog.setOnCancelListener { clearPendingExtraction() }
+        dialog.show()
+        return dialog
+    }
+
+    internal fun canUseHostExtractionDestination(): Boolean = request?.let { openRequest ->
+        openRequest.hostSession != null &&
+            openRequest.requestedAction == ArchiveRequestedAction.EXTRACT_TO
+    } == true
+
+    private fun clearPendingExtraction() {
+        pendingExtractionPaths = emptySet()
+        pendingSkipUnsafePaths = false
+        pendingAllowResourceBudgetOverride = false
+        pendingConflictPolicy = null
     }
 
     private fun startDirectExtractionIfRequested(resolvedRequest: ArchiveOpenRequest) {
@@ -1637,7 +1742,21 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun extractTo(treeUri: Uri) {
+    private fun extractTo(treeUri: Uri) = startExtraction {
+        SafArchiveOutputWriter(contentResolver, treeUri)
+    }
+
+    private fun extractToHost() {
+        val hostSession = request?.hostSession ?: run {
+            outputTreeLauncher.launch(null)
+            return
+        }
+        startExtraction { HostArchiveOutputWriter(hostSession) }
+    }
+
+    private fun startExtraction(
+        writerFactory: () -> ArchiveOutputWriter,
+    ) {
         val staged = stagedArchive ?: return
         val archive = snapshot ?: return
         val paths = pendingExtractionPaths.takeIf(Set<String>::isNotEmpty) ?: return
@@ -1662,12 +1781,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     var lastReportedBytes = -PROGRESS_REPORT_BYTES
                     var lastCompletedEntries = -1
                     var lastReportedElapsedMillis = -PROGRESS_REPORT_INTERVAL_MILLIS
-                    ArchiveExtractor(contentResolver, resourceBudget).extract(
+                    ArchiveExtractor(resourceBudget = resourceBudget).extractToWriter(
                         source = staged.source,
                         snapshot = archive,
                         selectedPaths = paths,
-                        treeUri = treeUri,
                         rootName = rootName,
+                        writer = writerFactory(),
                         skipUnsafePaths = skipUnsafePaths,
                         allowResourceBudgetOverride = allowResourceBudgetOverride,
                         conflictPolicy = conflictPolicy,
@@ -1688,6 +1807,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
                                 }
                                 ExtractionPhase.PREPARING -> postUiUpdate {
                                     renderExtractionPreparing()
+                                }
+                                ExtractionPhase.COMMITTING -> postUiUpdate {
+                                    renderExtractionCommitting()
                                 }
                                 ExtractionPhase.EXTRACTING -> if (
                                     update.bytesWritten - lastReportedBytes >= PROGRESS_REPORT_BYTES ||
@@ -1717,7 +1839,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 val conflictCount = result.entriesSkipped +
                     result.entriesOverwritten +
                     result.entriesAutoRenamed
-                val completedMessage = if (conflictCount > 0) {
+                val completedSummary = if (conflictCount > 0) {
                     "$completedHeadline\n${getString(
                         R.string.text_extraction_conflict_summary,
                         result.entriesSkipped,
@@ -1727,6 +1849,10 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 } else {
                     completedHeadline
                 }
+                val completedMessage = "$completedSummary\n${getString(
+                    R.string.text_extraction_output_path,
+                    ArchivePathPolicy.unsafeSourceNameForDisplay(result.root.identifier),
+                )}"
                 showMessage(completedMessage)
                 Toast.makeText(this@ArchiveManagerActivity, completedMessage, Toast.LENGTH_LONG).show()
                 setBusy(false)
@@ -1983,6 +2109,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         pendingOutputTreeUri = savedInstanceState.getString(STATE_PENDING_OUTPUT_TREE_URI)
             ?.let(Uri::parse)
         pendingAddDirectory = savedInstanceState.getString(STATE_PENDING_ADD_DIRECTORY)
+        pendingImportParentPath = savedInstanceState.getString(STATE_PENDING_IMPORT_PARENT_PATH)
         pendingSkipUnsafePaths = savedInstanceState.getBoolean(
             STATE_PENDING_SKIP_UNSAFE_PATHS,
             false,
@@ -2192,6 +2319,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.cancelButton.isEnabled = true
     }
 
+    private fun renderExtractionCommitting() {
+        if (!isBusy) return
+        setProgressIndicatorIndeterminate(true)
+        binding.message.text = getString(R.string.text_committing_extraction)
+        binding.cancelButton.isEnabled = false
+    }
+
     private fun renderExtractionProgress(
         update: ExtractionProgress,
         metrics: ExtractionProgressMetrics,
@@ -2326,6 +2460,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         const val STATE_FILENAME_CHARSET = "filename_charset"
         const val STATE_PENDING_EXTRACTION_PATHS = "pending_extraction_paths"
         const val STATE_PENDING_ADD_DIRECTORY = "pending_add_directory"
+        const val STATE_PENDING_IMPORT_PARENT_PATH = "pending_import_parent_path"
         const val STATE_PENDING_OUTPUT_TREE_URI = "pending_output_tree_uri"
         const val STATE_PENDING_CONFLICT_POLICY = "pending_conflict_policy"
         const val STATE_PENDING_RESOURCE_BUDGET_OVERRIDE = "pending_resource_budget_override"

@@ -211,4 +211,13 @@
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Подготовка изменений архива...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Проверка изменений архива...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Обновление %1$d из %2$d: %3$s</string>
+    <string name="dialog_message_extraction_destination">Папка вывода по умолчанию: %1$s. Если это имя уже существует, Archive Manager добавит номер, не изменяя существующее содержимое.</string>
+    <string name="dialog_title_extraction_destination">Папка извлечения</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Выбрать другую папку...</string>
+    <string name="text_extraction_destination_current_folder">Текущая папка (Рекомендуется)\n%1$s</string>
+    <string name="text_extraction_output_path">Результат: %1$s</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Завершение извлечения файлов...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Откат незавершённых выходных транзакций после прерванной операции: %1$d.</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Добавить папку...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Сканирование папки...</string>
 </resources>

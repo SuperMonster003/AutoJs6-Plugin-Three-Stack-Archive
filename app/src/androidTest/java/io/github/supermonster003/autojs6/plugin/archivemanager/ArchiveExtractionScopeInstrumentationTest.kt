@@ -57,7 +57,9 @@ class ArchiveExtractionScopeInstrumentationTest {
             holdForExternalInspection()
 
             scenario.onActivity { activity ->
+                assertFalse(activity.canUseHostExtractionDestination())
                 assertTrue(activity.findViewById<android.view.View>(R.id.addFilesButton).isShown)
+                assertTrue(activity.findViewById<android.view.View>(R.id.addFolderButton).isShown)
                 assertTrue(activity.findViewById<android.view.View>(R.id.newFolderButton).isShown)
                 assertFalse(activity.findViewById<android.view.View>(R.id.renameButton).isEnabled)
                 assertFalse(activity.findViewById<android.view.View>(R.id.deleteButton).isEnabled)
@@ -113,6 +115,56 @@ class ArchiveExtractionScopeInstrumentationTest {
                     )
                     dialog.dismiss()
                 }
+            }
+        }
+    }
+
+    @Test
+    fun extractionDestinationDialogShowsBothChoicesWithItsMessage() {
+        val archiveUri = createArchiveDocument()
+        lateinit var dialog: androidx.appcompat.app.AlertDialog
+
+        ActivityScenario.launch<ArchiveManagerActivity>(
+            archiveIntent(
+                archiveUri = archiveUri,
+                actionId = ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID,
+            ),
+        ).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                assertTrue(activity.canUseHostExtractionDestination())
+                dialog = requireNotNull(activity.showExtractionDestinationDialog())
+            }
+            instrumentation.waitForIdleSync()
+
+            scenario.onActivity { activity ->
+                val message = requireNotNull(
+                    dialog.findViewById<android.widget.TextView>(R.id.destinationMessage),
+                )
+                val currentFolder = requireNotNull(
+                    dialog.findViewById<android.widget.Button>(R.id.currentFolderButton),
+                )
+                val chooseFolder = requireNotNull(
+                    dialog.findViewById<android.widget.Button>(R.id.chooseFolderButton),
+                )
+                assertTrue(message.isShown)
+                assertTrue(currentFolder.isShown)
+                assertTrue(chooseFolder.isShown)
+                assertTrue(message.text.toString().contains("scope"))
+                assertEquals(
+                    activity.getString(
+                        R.string.text_extraction_destination_current_folder,
+                        "/Scope test",
+                    ),
+                    currentFolder.text.toString(),
+                )
+                assertEquals(
+                    activity.getString(R.string.text_extraction_destination_choose_folder),
+                    chooseFolder.text.toString(),
+                )
+                dialog.getButton(android.content.DialogInterface.BUTTON_NEGATIVE).performClick()
             }
         }
     }
@@ -370,7 +422,10 @@ class ArchiveExtractionScopeInstrumentationTest {
         return archiveUri
     }
 
-    private fun archiveIntent(archiveUri: Uri): Intent {
+    private fun archiveIntent(
+        archiveUri: Uri,
+        actionId: String = ArchiveManagerPlugin.ACTION_MANAGE_ID,
+    ): Intent {
         val target = Bundle().apply {
             putString(ExplorerActionTargetKeys.ID, "scope-target")
             putParcelable(ExplorerActionTargetKeys.URI, archiveUri)
@@ -386,7 +441,7 @@ class ArchiveExtractionScopeInstrumentationTest {
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
             .putExtra(
                 ExplorerActionIntentExtras.ACTION_ID,
-                ArchiveManagerPlugin.ACTION_MANAGE_ID,
+                actionId,
             )
             .putExtra(ExplorerActionIntentExtras.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
             .putExtra(ExplorerActionIntentExtras.REQUEST_ID, REQUEST_ID)

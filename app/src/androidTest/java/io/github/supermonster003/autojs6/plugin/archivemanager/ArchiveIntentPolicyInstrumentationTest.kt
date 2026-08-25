@@ -28,7 +28,7 @@ class ArchiveIntentPolicyInstrumentationTest {
     private val archiveUri = Uri.parse("content://org.autojs.test.fileprovider/root/archives/bundle.zip")
 
     @Test
-    fun completeV4ExplorerContractIsAccepted() {
+    fun completeExplorerContractIsAccepted() {
         val resolved = ArchiveIntentPolicy.resolve(validIntent())
 
         assertNotNull(resolved)
@@ -43,6 +43,28 @@ class ArchiveIntentPolicyInstrumentationTest {
 
     @Test
     fun extractToShortcutUsesTheSameValidatedContract() {
+        val hostSession = UnusedTestExplorerActionHostSession()
+        val resolved = ArchiveIntentPolicy.resolve(
+            Intent(validIntent())
+                .putExtra(
+                    ExplorerActionIntentExtras.ACTION_ID,
+                    ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID,
+                )
+                .putExtra(
+                    ExplorerActionIntentExtras.HOST_SESSION,
+                    Bundle().apply {
+                        putBinder(ExplorerActionHostSessionKeys.BINDER, hostSession.asBinder())
+                    },
+                ),
+        )
+
+        assertNotNull(resolved)
+        assertEquals(ArchiveRequestedAction.EXTRACT_TO, resolved?.requestedAction)
+        assertNotNull(resolved?.hostSession)
+    }
+
+    @Test
+    fun extractToShortcutRejectsAMissingHostOutputSession() {
         val resolved = ArchiveIntentPolicy.resolve(
             Intent(validIntent()).putExtra(
                 ExplorerActionIntentExtras.ACTION_ID,
@@ -50,8 +72,7 @@ class ArchiveIntentPolicyInstrumentationTest {
             ),
         )
 
-        assertNotNull(resolved)
-        assertEquals(ArchiveRequestedAction.EXTRACT_TO, resolved?.requestedAction)
+        assertNull(resolved)
     }
 
     @Test

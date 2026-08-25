@@ -64,10 +64,34 @@ class ZipArchiveMutatorInstrumentationTest {
                 ),
             ),
         )
+        mutate(
+            mutator,
+            archive,
+            ZipArchiveMutationRequest.AddTree(
+                parentPath = "manual",
+                entries = listOf(
+                    ZipArchiveAddedTreeEntry.Directory("bundle"),
+                    ZipArchiveAddedTreeEntry.Directory("bundle/empty"),
+                    ZipArchiveAddedTreeEntry.FileEntry(
+                        "bundle/nested.txt",
+                        ZipArchiveAddedFile("nested.txt", size = 6L) {
+                            ByteArrayInputStream("nested".encodeToByteArray())
+                        },
+                    ),
+                ),
+            ),
+        )
 
         ArchiveEngine.DEFAULT.openReader(archive, ArchiveFormat.ZIP).use { reader ->
             assertEquals(
-                listOf("manual/readme.txt", "manual/empty/", "manual/notes.txt"),
+                listOf(
+                    "manual/readme.txt",
+                    "manual/empty/",
+                    "manual/notes.txt",
+                    "manual/bundle/",
+                    "manual/bundle/empty/",
+                    "manual/bundle/nested.txt",
+                ),
                 reader.entries.map(ArchiveReaderEntry::name),
             )
             assertEquals(
@@ -82,9 +106,15 @@ class ZipArchiveMutatorInstrumentationTest {
                     it.name == "manual/notes.txt"
                 })).use { it.readBytes().decodeToString() },
             )
+            assertEquals(
+                "nested",
+                reader.openEntry(requireNotNull(reader.entries.firstOrNull {
+                    it.name == "manual/bundle/nested.txt"
+                })).use { it.readBytes().decodeToString() },
+            )
         }
-        assertEquals(4, host.commitCalls)
-        assertEquals(4, host.pendingOpenCalls)
+        assertEquals(5, host.commitCalls)
+        assertEquals(5, host.pendingOpenCalls)
         assertEquals(0, host.abortCalls)
         assertFalse(host.pendingFile.exists())
         directory.deleteRecursively()

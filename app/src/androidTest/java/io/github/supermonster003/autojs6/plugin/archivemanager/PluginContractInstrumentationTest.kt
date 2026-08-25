@@ -88,16 +88,18 @@ class PluginContractInstrumentationTest {
             extractToAction?.getInt(ExplorerActionCatalogKeys.PRIORITY),
         )
 
-        assertCommonReadOnlyFileAction(
+        assertCommonFileAction(
             requireNotNull(openAction),
             ExplorerActionValues.PLACEMENT_PRIMARY,
             ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+            ExplorerActionValues.ACCESS_READ_ONLY,
         )
         assertManageFileAction(requireNotNull(manageAction))
-        assertCommonReadOnlyFileAction(
+        assertCommonFileAction(
             requireNotNull(extractToAction),
             ExplorerActionValues.PLACEMENT_OVERFLOW,
             ExplorerActionValues.PRESENTATION_ACTIVITY,
+            ExplorerActionValues.ACCESS_CREATE_IN_PARENT,
         )
         assertCompressionAction(
             requireNotNull(compressSingleAction),
@@ -142,7 +144,7 @@ class PluginContractInstrumentationTest {
             action.getInt(ExplorerActionCatalogKeys.CARDINALITY),
         )
         assertEquals(
-            ExplorerActionValues.ACCESS_REPLACE_TARGET,
+            ExplorerActionValues.ACCESS_MANAGE_TARGET,
             action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE),
         )
         assertEquals(ExplorerActionValues.PLACEMENT_OVERFLOW, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
@@ -160,7 +162,12 @@ class PluginContractInstrumentationTest {
         )
     }
 
-    private fun assertCommonReadOnlyFileAction(action: Bundle, placement: Int, presentation: Int) {
+    private fun assertCommonFileAction(
+        action: Bundle,
+        placement: Int,
+        presentation: Int,
+        accessMode: Int,
+    ) {
         assertEquals(
             ArchiveManagerPlugin.ACTIVITY_CLASS_NAME,
             action.getString(ExplorerActionCatalogKeys.ACTIVITY_CLASS_NAME),
@@ -170,7 +177,7 @@ class PluginContractInstrumentationTest {
             ExplorerActionValues.CARDINALITY_SINGLE,
             action.getInt(ExplorerActionCatalogKeys.CARDINALITY),
         )
-        assertEquals(ExplorerActionValues.ACCESS_READ_ONLY, action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE))
+        assertEquals(accessMode, action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE))
         assertEquals(placement, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
         assertEquals(presentation, action.getInt(ExplorerActionCatalogKeys.PRESENTATION))
         assertEquals(

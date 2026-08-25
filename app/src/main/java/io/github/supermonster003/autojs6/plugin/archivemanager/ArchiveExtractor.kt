@@ -155,6 +155,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         currentCoroutineContext().ensureActive()
 
         var root: ArchiveOutputWriter.Node? = null
+        var committed = false
         try {
             root = writer.createRoot(safeRootName)
             currentCoroutineContext().ensureActive()
@@ -319,8 +320,20 @@ internal class ArchiveExtractor @JvmOverloads constructor(
 
             currentCoroutineContext().ensureActive()
             verifySourceIdentity(source, snapshot)
+            progress.onProgress(
+                ExtractionProgress(
+                    phase = ExtractionPhase.COMMITTING,
+                    currentPath = null,
+                    completedEntries = totalEntries,
+                    totalEntries = totalEntries,
+                    bytesWritten = bytesWritten,
+                    totalBytes = totalBytes,
+                ),
+            )
+            val committedRoot = writer.commitRoot(root)
+            committed = true
             val result = ExtractionResult(
-                root = root.location,
+                root = committedRoot.location,
                 filesExtracted = plannedFiles.size,
                 directoriesCreated = directoriesCreated,
                 bytesWritten = bytesWritten,
@@ -341,7 +354,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             result
         } catch (error: Throwable) {
             val mapped = mapExtractionFailure(error)
-            root?.let { createdRoot ->
+            root?.takeUnless { committed }?.let { createdRoot ->
                 val cleanupFailure = withContext(NonCancellable) {
                     val notificationFailure = runCatching {
                         progress.onProgress(

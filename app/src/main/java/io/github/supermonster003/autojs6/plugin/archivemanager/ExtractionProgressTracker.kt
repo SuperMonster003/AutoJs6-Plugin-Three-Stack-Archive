@@ -59,6 +59,7 @@ internal class ExtractionProgressTracker(
     private fun progressFraction(progress: ExtractionProgress): Double? = when {
         progress.phase == ExtractionPhase.CLEANING_UP ||
             progress.phase == ExtractionPhase.CLEANUP_FAILED -> null
+        progress.phase == ExtractionPhase.COMMITTING -> 1.0
         progress.phase == ExtractionPhase.COMPLETED -> 1.0
         progress.totalBytes > 0L ->
             progress.bytesWritten.toDouble().div(progress.totalBytes.toDouble()).coerceIn(0.0, 1.0)

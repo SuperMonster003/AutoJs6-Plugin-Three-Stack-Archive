@@ -34,6 +34,11 @@ internal sealed interface ZipArchiveMutationRequest {
         val parentPath: String,
         val files: List<ZipArchiveAddedFile>,
     ) : ZipArchiveMutationRequest
+
+    data class AddTree(
+        val parentPath: String,
+        val entries: List<ZipArchiveAddedTreeEntry>,
+    ) : ZipArchiveMutationRequest
 }
 
 internal class ZipArchiveAddedFile(
@@ -52,6 +57,24 @@ internal class ZipArchiveAddedFile(
     private companion object {
         const val SIZE_UNKNOWN = -1L
         const val TIME_UNKNOWN = -1L
+    }
+}
+
+internal sealed interface ZipArchiveAddedTreeEntry {
+    val relativePath: String
+    val lastModified: Long
+
+    data class Directory(
+        override val relativePath: String,
+        override val lastModified: Long = -1L,
+    ) : ZipArchiveAddedTreeEntry
+
+    data class FileEntry(
+        override val relativePath: String,
+        val file: ZipArchiveAddedFile,
+    ) : ZipArchiveAddedTreeEntry {
+        override val lastModified: Long
+            get() = file.lastModified
     }
 }
 
@@ -99,21 +122,21 @@ internal data class ZipArchiveMutationEntry(
         get() = when (source) {
             is ZipArchiveMutationSource.Existing -> source.entry.uncompressedSize
             is ZipArchiveMutationSource.AddedFile -> source.file.size
-            ZipArchiveMutationSource.AddedDirectory -> 0L
+            is ZipArchiveMutationSource.AddedDirectory -> 0L
         }
 
     val lastModified: Long
         get() = when (source) {
             is ZipArchiveMutationSource.Existing -> source.entry.modifiedTimeMillis ?: -1L
             is ZipArchiveMutationSource.AddedFile -> source.file.lastModified
-            ZipArchiveMutationSource.AddedDirectory -> -1L
+            is ZipArchiveMutationSource.AddedDirectory -> source.lastModified
         }
 }
 
 internal sealed interface ZipArchiveMutationSource {
     data class Existing(val entry: ArchiveEntry) : ZipArchiveMutationSource
     data class AddedFile(val file: ZipArchiveAddedFile) : ZipArchiveMutationSource
-    data object AddedDirectory : ZipArchiveMutationSource
+    data class AddedDirectory(val lastModified: Long = -1L) : ZipArchiveMutationSource
 }
 
 /** Produces a complete, collision-free replacement directory before the host output is reserved. */
@@ -132,6 +155,7 @@ internal object ZipArchiveMutationPlanner {
             is ZipArchiveMutationRequest.Rename -> rename(original, request, snapshot)
             is ZipArchiveMutationRequest.AddDirectory -> addDirectory(original, request, snapshot)
             is ZipArchiveMutationRequest.AddFiles -> addFiles(original, request, snapshot)
+            is ZipArchiveMutationRequest.AddTree -> addTree(original, request, snapshot)
         }
         validateFinalEntries(entries, snapshot.structureLimits)
         entries.forEach(::requireRewritableEntry)
@@ -193,7 +217,7 @@ internal object ZipArchiveMutationPlanner {
         if (pathExists(original, path)) {
             fail(ArchiveFailureCode.DUPLICATE_PATH, "A ZIP entry with this name already exists")
         }
-        return original + ZipArchiveMutationEntry(path, ZipArchiveMutationSource.AddedDirectory)
+        return original + ZipArchiveMutationEntry(path, ZipArchiveMutationSource.AddedDirectory())
     }
 
     private fun addFiles(
@@ -208,6 +232,99 @@ internal object ZipArchiveMutationPlanner {
             ZipArchiveMutationEntry(path, ZipArchiveMutationSource.AddedFile(file))
         }
         return original + additions
+    }
+
+    private fun addTree(
+        original: List<ZipArchiveMutationEntry>,
+        request: ZipArchiveMutationRequest.AddTree,
+        snapshot: ArchiveSnapshot,
+    ): List<ZipArchiveMutationEntry> {
+        if (request.entries.isEmpty()) {
+            fail(ArchiveFailureCode.EMPTY_SELECTION, "The selected folder is empty or unavailable")
+        }
+        val parent = validatedParentPath(request.parentPath, original, snapshot)
+        val validated = request.entries.map { added ->
+            val path = ArchivePathPolicy.validateEntryPath(
+                sourceName = added.relativePath,
+                isDirectory = added is ZipArchiveAddedTreeEntry.Directory,
+                limits = snapshot.structureLimits,
+            ).path
+            if (path != added.relativePath) {
+                fail(ArchiveFailureCode.INVALID_PATH, "The selected folder contains an ambiguous path")
+            }
+            if (
+                added is ZipArchiveAddedTreeEntry.FileEntry &&
+                added.file.displayName != path.substringAfterLast('/')
+            ) {
+                fail(ArchiveFailureCode.INVALID_DESTINATION_NAME, "A selected file name changed while scanning")
+            }
+            path to added
+        }
+        val sourceRoots = validated.mapTo(linkedSetOf()) { (path, _) -> path.substringBefore('/') }
+        if (sourceRoots.size != 1) {
+            fail(ArchiveFailureCode.INVALID_PATH, "The selected folder does not have one stable root")
+        }
+        val sourceRoot = sourceRoots.single()
+        val directories = validated
+            .filter { (_, added) -> added is ZipArchiveAddedTreeEntry.Directory }
+            .mapTo(hashSetOf()) { (path, _) -> path }
+        if (sourceRoot !in directories) {
+            fail(ArchiveFailureCode.INVALID_PATH, "The selected folder root is missing")
+        }
+        validated.forEach { (path, _) ->
+            val immediateParent = path.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
+            if (immediateParent.isNotEmpty() && immediateParent !in directories) {
+                fail(ArchiveFailureCode.INVALID_PATH, "The selected folder tree has a missing directory")
+            }
+        }
+
+        val targetRoot = availableChildName(
+            original = original,
+            parent = parent,
+            requested = sourceRoot,
+            limits = snapshot.structureLimits,
+        )
+        val additions = validated.map { (relativePath, added) ->
+            val remappedRelativePath = targetRoot + relativePath.removePrefix(sourceRoot)
+            val archivePath = if (parent.isEmpty()) {
+                remappedRelativePath
+            } else {
+                "$parent/$remappedRelativePath"
+            }
+            val source = when (added) {
+                is ZipArchiveAddedTreeEntry.Directory ->
+                    ZipArchiveMutationSource.AddedDirectory(added.lastModified)
+                is ZipArchiveAddedTreeEntry.FileEntry ->
+                    ZipArchiveMutationSource.AddedFile(added.file)
+            }
+            ZipArchiveMutationEntry(archivePath, source)
+        }
+        return original + additions
+    }
+
+    private fun availableChildName(
+        original: List<ZipArchiveMutationEntry>,
+        parent: String,
+        requested: String,
+        limits: ArchiveStructureLimits,
+    ): String {
+        val occupiedKeys = original.mapNotNullTo(hashSetOf()) { entry ->
+            val relative = when {
+                parent.isEmpty() -> entry.archivePath
+                entry.archivePath.startsWith("$parent/") -> entry.archivePath.removePrefix("$parent/")
+                else -> return@mapNotNullTo null
+            }
+            relative.substringBefore('/').takeIf(String::isNotEmpty)
+                ?.let(ArchivePathPolicy::destinationCollisionKey)
+        }
+        if (ArchivePathPolicy.destinationCollisionKey(requested) !in occupiedKeys) return requested
+        for (index in 2..MAX_AUTO_RENAME_ATTEMPTS) {
+            val candidate = "$requested ($index)"
+            requireLeafName(candidate)
+            portableChildPath(parent, candidate, limits)
+            if (ArchivePathPolicy.destinationCollisionKey(candidate) !in occupiedKeys) return candidate
+        }
+        fail(ArchiveFailureCode.DUPLICATE_PATH, "No available ZIP folder name could be reserved")
     }
 
     private fun validatedParentPath(
@@ -370,6 +487,7 @@ internal object ZipArchiveMutationPlanner {
         ArchiveEncryptionMethod.ZIP_CRYPTO,
         ArchiveEncryptionMethod.AES,
     )
+    private const val MAX_AUTO_RENAME_ATTEMPTS = 100_000
 }
 
 /** Rebuilds one ZIP into a host-owned pending file, verifies it fully, then atomically commits it. */
@@ -621,7 +739,7 @@ internal class ZipArchiveMutator(
             input = source.file.openInputStream(),
             crc = null,
         )
-        ZipArchiveMutationSource.AddedDirectory -> error("ZIP directories have no input data")
+        is ZipArchiveMutationSource.AddedDirectory -> error("ZIP directories have no input data")
     }
 
     private fun zipParameters(

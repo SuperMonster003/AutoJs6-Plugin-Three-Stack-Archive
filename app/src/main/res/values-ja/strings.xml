@@ -211,4 +211,13 @@
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を準備しています...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を検証しています...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">%2$d 件中 %1$d 件を更新中: %3$s</string>
+    <string name="dialog_message_extraction_destination">デフォルトの出力フォルダーは %1$s です。同名のフォルダーが存在する場合、Archive Manager は既存の内容を変更せずに番号を追加します。</string>
+    <string name="dialog_title_extraction_destination">展開先</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">別のフォルダーを選択...</string>
+    <string name="text_extraction_destination_current_folder">現在のフォルダー (推奨)\n%1$s</string>
+    <string name="text_extraction_output_path">出力: %1$s</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">展開したファイルを確定しています...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">中断された操作の未完了の出力トランザクション %1$d 件をロールバックしました。</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">フォルダーを追加...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">フォルダーをスキャンしています...</string>
 </resources>

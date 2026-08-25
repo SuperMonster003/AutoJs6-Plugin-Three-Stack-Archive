@@ -211,4 +211,13 @@
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">جار تحضير تغييرات الأرشيف...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">جار التحقق من تغييرات الأرشيف...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">جار تحديث %1$d من %2$d: %3$s</string>
+    <string name="dialog_message_extraction_destination">مجلد الإخراج الافتراضي هو %1$s. إذا كان هذا الاسم موجودا، يضيف Archive Manager رقما دون تغيير المحتوى الموجود.</string>
+    <string name="dialog_title_extraction_destination">وجهة الاستخراج</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">اختر مجلدا آخر...</string>
+    <string name="text_extraction_destination_current_folder">المجلد الحالي (موصى به)\n%1$s</string>
+    <string name="text_extraction_output_path">الناتج: %1$s</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">جار إنهاء الملفات المستخرجة...</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">تم التراجع عن %1$d من معاملات الإخراج غير المكتملة بعد مقاطعة العملية.</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">إضافة مجلد...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">جار فحص المجلد...</string>
 </resources>

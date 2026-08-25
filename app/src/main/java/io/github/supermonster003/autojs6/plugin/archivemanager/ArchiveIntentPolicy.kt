@@ -128,7 +128,10 @@ internal object ArchiveIntentPolicy {
         if (intent.getLongExtra(ExplorerActionIntentExtras.SIZE, Long.MIN_VALUE) != reportedSize) return null
         if (!target.containsKey(ExplorerActionTargetKeys.LAST_MODIFIED)) return null
         if (target.getLong(ExplorerActionTargetKeys.LAST_MODIFIED, Long.MIN_VALUE) < SIZE_UNKNOWN) return null
-        val hostSession = if (requestedAction == ArchiveRequestedAction.MANAGE) {
+        val hostSession = if (
+            requestedAction == ArchiveRequestedAction.MANAGE ||
+            requestedAction == ArchiveRequestedAction.EXTRACT_TO
+        ) {
             resolveHostSession(intent) ?: return null
         } else {
             null
@@ -208,8 +211,8 @@ internal object ArchiveIntentPolicy {
         val binder = intent.getBundleExtra(ExplorerActionIntentExtras.HOST_SESSION)
             ?.getBinder(ExplorerActionHostSessionKeys.BINDER)
             ?: return null
-        return IExplorerActionHostSession.Stub.asInterface(binder)
-            ?.let(::ExplorerActionHostSessionClient)
+        val remote = IExplorerActionHostSession.Stub.asInterface(binder) ?: return null
+        return runCatching { ExplorerActionHostSessionClient(remote) }.getOrNull()
     }
 
     @Suppress("DEPRECATION")

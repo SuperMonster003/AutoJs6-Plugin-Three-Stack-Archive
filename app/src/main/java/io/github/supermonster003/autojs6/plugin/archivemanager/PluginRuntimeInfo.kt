@@ -93,7 +93,7 @@ internal fun archiveManagerActionCatalog(): Bundle {
             labelResourceName = ArchiveManagerPlugin.MANAGE_LABEL_RESOURCE_NAME,
             labelFallback = ArchiveManagerPlugin.MANAGE_LABEL_FALLBACK,
             priority = ArchiveManagerPlugin.MANAGE_ACTION_PRIORITY,
-            accessMode = ExplorerActionValues.ACCESS_REPLACE_TARGET,
+            accessMode = ExplorerActionValues.ACCESS_MANAGE_TARGET,
             mimeTypes = emptyArray(),
             extensions = ArchiveManagerPlugin.MANAGE_EXTENSIONS,
         ),
@@ -102,6 +102,7 @@ internal fun archiveManagerActionCatalog(): Bundle {
             labelResourceName = ArchiveManagerPlugin.EXTRACT_TO_LABEL_RESOURCE_NAME,
             labelFallback = ArchiveManagerPlugin.EXTRACT_TO_LABEL_FALLBACK,
             priority = ArchiveManagerPlugin.EXTRACT_TO_ACTION_PRIORITY,
+            accessMode = ExplorerActionValues.ACCESS_CREATE_IN_PARENT,
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID,

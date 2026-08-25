@@ -83,6 +83,36 @@ class ExtractionProgressTrackerTest {
     }
 
     @Test
+    fun `committing is complete work with no remaining estimate`() {
+        var now = 0L
+        val tracker = ExtractionProgressTracker { now }
+        tracker.update(progress(phase = ExtractionPhase.PREPARING, totalEntries = 2))
+        now += 1_000_000_000L
+        tracker.update(
+            progress(
+                phase = ExtractionPhase.EXTRACTING,
+                completedEntries = 2,
+                totalEntries = 2,
+                bytesWritten = 100L,
+                totalBytes = 100L,
+            ),
+        )
+
+        val committing = tracker.update(
+            progress(
+                phase = ExtractionPhase.COMMITTING,
+                completedEntries = 2,
+                totalEntries = 2,
+                bytesWritten = 100L,
+                totalBytes = 100L,
+            ),
+        )
+
+        assertEquals(1.0, requireNotNull(committing.fraction), 0.0)
+        assertEquals(0L, committing.estimatedRemainingMillis)
+    }
+
+    @Test
     fun `clock regression cannot produce negative speed elapsed time or eta`() {
         var now = 5_000_000_000L
         val tracker = ExtractionProgressTracker { now }

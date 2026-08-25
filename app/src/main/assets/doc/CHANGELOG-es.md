@@ -1,5 +1,16 @@
 # Notas de la versión
 
+## v2.2.0
+
+_2026/08/26_
+
+- `Nota` Esta versión requiere la compilación correspondiente de AutoJs6 6.8.0 con Explorer Action v9 (código de versión 5276 o posterior)
+- `Añadido` Extraer en... ahora recomienda la carpeta actual y crea una carpeta de salida con el mismo nombre mediante una transacción de directorio propiedad del host; si ya existe un nombre equivalente, se numera de forma segura sin modificar su contenido
+- `Añadido` La gestión de ZIP normales de un solo volumen puede importar una carpeta completa mediante el selector del sistema Android, incluidos los archivos anidados y las carpetas vacías
+- `Corregido` El selector de destino de extracción permanece totalmente utilizable en pantallas estrechas y de poca altura y muestra la ruta predeterminada exacta
+- `Corregido` Las extracciones en la misma carpeta canceladas, fallidas, interrumpidas o sin espacio revierten la salida no publicada; la siguiente sesión recupera las transacciones interrumpidas del host sin cambiar el archivo de origen
+- `Mejorado` Explorer Action v9 publica atómicamente árboles de directorios verificados y actualiza la nueva carpeta de salida en AutoJs6 inmediatamente después de confirmarla
+
 ## v2.1.0
 
 _2026/08/25_
