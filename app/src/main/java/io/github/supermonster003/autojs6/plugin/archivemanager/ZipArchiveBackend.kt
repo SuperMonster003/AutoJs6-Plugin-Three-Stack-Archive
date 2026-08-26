@@ -35,7 +35,9 @@ internal object ZipArchiveBackend : ArchiveBackend {
     )
 
     override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {
-        ZipSplitArchiveDetector.inspect(source)?.let { splitArchive ->
+        val splitArchive = ZipSplitArchiveDetector.inspect(source)
+        val splitReady = splitArchive != null && source.volumeSet?.localDirectory != null
+        if (splitArchive != null && !splitReady) {
             val error = ZipSplitArchiveException(splitArchive)
             throw ArchiveBackendException(
                 format = format,
@@ -46,7 +48,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             )
         }
         val charsetName = options.filenameCharsetName ?: try {
-            ZipArchiveAccess.detectCharset(source).name()
+            ZipArchiveAccess.detectCharset(source, forceZip4j = splitReady).name()
         } catch (error: ArchiveLocalFileRequiredException) {
             throw error
         } catch (error: Exception) {
@@ -54,7 +56,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
         }
         val password = options.passwordChars()
         val archive = try {
-            ZipArchiveAccess.open(source, charsetName, password)
+            ZipArchiveAccess.open(source, charsetName, password, forceZip4j = splitReady)
         } catch (error: ArchiveLocalFileRequiredException) {
             throw error
         } catch (error: Exception) {
@@ -67,6 +69,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             ZipArchiveReader(
                 archive = archive,
                 options = resolvedOptions,
+                canMutate = !splitReady,
             )
         } catch (error: Exception) {
             resolvedOptions.clearPassword()
@@ -131,6 +134,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
 private class ZipArchiveReader(
     private val archive: OpenZipArchive,
     override val options: ArchiveReaderOptions,
+    private val canMutate: Boolean,
 ) : ArchiveReader {
     override val format = ArchiveFormat.ZIP
     override val formatCapabilities = ZipArchiveBackend.capabilities
@@ -159,8 +163,8 @@ private class ZipArchiveReader(
             capabilities = ArchiveEntryCapabilities(
                 canOpen = !entry.isDirectory && canReadData,
                 canExtract = entry.isDirectory || canReadData,
-                canDelete = true,
-                canRename = true,
+                canDelete = canMutate,
+                canRename = canMutate,
                 limitations = limitations,
             ),
             compressedSize = entry.compressedSize,

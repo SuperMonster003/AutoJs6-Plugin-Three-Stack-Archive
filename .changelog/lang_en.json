@@ -5,6 +5,23 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v2.5.0": {
+      "released_date": "2026/08/27",
+      "hint": [
+        "This release requires the paired AutoJs6 6.8.0 build with Explorer Action v12 (version code 5276 or newer)"
+      ],
+      "feature": [
+        "Complete standard `.z01 + .zip` sets and modern WinRAR `partN.rar` sets can now be browsed, previewed, and extracted from the native archive page; split archives remain read-only",
+        "Explorer Action v12 gives the plugin only a bounded catalog of host-approved sibling volumes and opens each one by opaque ID as a read-only descriptor, without exposing a directory or filesystem path"
+      ],
+      "fix": [
+        "Split ZIP final-volume directory metadata is accepted correctly on Android 7 and newer, and entry data is read across every authorized volume without treating the final volume as damaged",
+        "Split RAR segment CRC values are no longer compared with reconstructed entry data; missing volumes and volumes changed after opening now produce stable typed failures"
+      ],
+      "improvement": [
+        "Volume count, names, IDs, open requests, caller UID, file identity, and session lifetime are bounded and revalidated; interrupted staging removes every partial private-cache file"
+      ]
+    },
     "v2.4.0": {
       "released_date": "2026/08/26",
       "hint": [

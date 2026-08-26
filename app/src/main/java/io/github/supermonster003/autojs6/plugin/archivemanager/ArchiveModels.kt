@@ -109,6 +109,8 @@ data class ArchiveSnapshot(
     val structureLimits: ArchiveStructureLimits,
     val format: ArchiveFormat = ArchiveFormat.ZIP,
     val readerOptions: ArchiveReaderOptions = ArchiveReaderOptions(),
+    /** Host-authorized companion-volume identities captured with the primary source. */
+    val volumeIdentities: List<ArchiveVolumeIdentity> = emptyList(),
     /** Safe virtual root containing flat, read-only representations of unsafe source names. */
     val isolatedPathRoot: String? = null,
 ) {

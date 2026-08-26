@@ -39,6 +39,7 @@ Archive Manager works inside the AutoJs6 file manager instead of replacing it. S
 - Preview readable documents, images, audio, and video with the host's existing viewers, without extracting the whole archive first.
 - Extract the whole archive, the current internal folder, or selected entries with progress, cancellation, safe conflict naming, output verification, and rollback before publication.
 - Handle encrypted ZIP, 7Z, and RAR input with host-native password prompts for initial opening or extraction; a wrong password can be corrected without losing the current archive path.
+- Browse, preview, and extract complete standard `.z01 + .zip` sets and modern WinRAR `partN.rar` sets through bounded host-authorized sibling-volume descriptors; missing or changed volumes fail explicitly.
 - Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST from one item or a same-parent selection; ZIP also supports AES-256 and standard split output, and a selection can create one archive per item.
 - Edit ordinary single-volume ZIP files through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
 - Keep unsafe archive names read-only and isolated, apply structural and resource limits before writing, and prefer direct reads from the host's seekable descriptor over whole-file copies.
@@ -57,7 +58,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Native integration requires AutoJs6 6.8.0, version code 5276 or newer, with Explorer Action v11. RAR is deliberately read-only. Editing is limited to ordinary single-volume `.zip` files. Existing split ZIP and RAR sets cannot yet be read as a complete set because the host currently grants only the selected file descriptor; a RAR first volume may show metadata, but extraction remains unavailable. Filename-encrypted creation, source deletion after compression, and in-archive editing for 7Z, RAR, and TAR-family formats are not current capabilities.
+> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v12 (version code 5276 or newer). RAR and split archives are deliberately read-only; editing is limited to ordinary single-volume `.zip` files. Open a standard split ZIP through its final `.zip`, or a modern WinRAR set through its first `partN.rar` volume, with every required sibling in the same directory. Numbered `.zip.001` streams, split 7Z, filename-encrypted creation, source deletion after compression, and in-archive editing for 7Z, RAR, and TAR-family formats are not current capabilities.
 
 ### Usage
 
@@ -69,15 +70,26 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 ### Permissions and data
 
-Archive Manager requests neither storage nor network permission. The host supplies a short-lived read-only descriptor and UID-pinned output transactions, so the plugin cannot choose arbitrary filesystem paths. Explorer Action v11 carries a password only in a bounded synchronous retry request; the host and plugin remove and clear their retained buffers immediately, and neither side persists it in saved state, preferences, logs, or diagnostics. Android and Java libraries can still create unavoidable short-lived runtime copies, so this is best-effort memory hygiene rather than an absolute claim. Path traversal and unsafe names remain isolated, output is verified before publication, and resource-budget confirmation never disables structural safety checks.
+Archive Manager requests neither storage nor network permission. The host supplies short-lived read-only descriptors and UID-pinned output transactions, so the plugin cannot choose arbitrary filesystem paths. Explorer Action v11 carries a password only in a bounded synchronous retry request; both sides immediately remove and clear retained buffers and never persist it. Explorer Action v12 adds only a bounded, session-scoped catalog of host-approved sibling volumes: the plugin receives opaque IDs instead of paths, and caller UID, file identity, size, modification time, and lifecycle are revalidated before use. Android and Java libraries can still create unavoidable short-lived runtime copies, so password cleanup is best-effort memory hygiene rather than an absolute claim. Path traversal and unsafe names remain isolated, output is verified before publication, and resource-budget confirmation never disables structural safety checks.
 
 ### Roadmap
 
-The remaining work is tracked as checkable items: sibling-volume input for split ZIP/RAR sets, native filename-encoding correction, writable rebuilds beyond ordinary ZIP, undo or source-deletion transactions, accessibility review, and the rest of the device and producer matrix.
+The remaining work is tracked as checkable items: native filename-encoding correction, numbered `.zip.001` and split 7Z research, writable rebuilds beyond ordinary ZIP, undo or source-deletion transactions, accessibility review, and the rest of the device and producer matrix.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.5.0
+
+_2026/08/27_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v12 (version code 5276 or newer)
+- `Added` Complete standard `.z01 + .zip` sets and modern WinRAR `partN.rar` sets can now be browsed, previewed, and extracted from the native archive page; split archives remain read-only
+- `Added` Explorer Action v12 gives the plugin only a bounded catalog of host-approved sibling volumes and opens each one by opaque ID as a read-only descriptor, without exposing a directory or filesystem path
+- `Fixed` Split ZIP final-volume directory metadata is accepted correctly on Android 7 and newer, and entry data is read across every authorized volume without treating the final volume as damaged
+- `Fixed` Split RAR segment CRC values are no longer compared with reconstructed entry data; missing volumes and volumes changed after opening now produce stable typed failures
+- `Improved` Volume count, names, IDs, open requests, caller UID, file identity, and session lifetime are bounded and revalidated; interrupted staging removes every partial private-cache file
 
 #### v2.4.0
 
@@ -101,17 +113,6 @@ _2026/08/26_
 - `Fixed` Leaving an archive on Android 7 no longer crashes while the host cleans its preview cache
 - `Fixed` Labels in the five-action file selection bar are centered below their icons on narrow screens
 - `Improved` Archive selection mode now shows only Exit and Extract, hiding filesystem actions that do not apply inside an archive
-
-#### v2.2.0
-
-_2026/08/26_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v9 (version code 5276 or newer)
-- `Added` Extract to... now recommends the current folder and creates a same-name output folder through a host-owned directory transaction; an equivalent existing name is safely numbered and its content is never changed
-- `Added` Ordinary single-volume ZIP management can import an entire folder through the Android system picker, including nested files and empty folders
-- `Fixed` The extraction destination chooser remains fully usable on short and narrow screens and shows the exact default path
-- `Fixed` Cancelled, failed, interrupted, or out-of-space same-directory extractions roll back unpublished output; the next session recovers interrupted host transactions without changing the source archive
-- `Improved` Explorer Action v9 atomically publishes verified directory trees and refreshes the new output folder in AutoJs6 immediately after commit
 
 ##### Full history
 

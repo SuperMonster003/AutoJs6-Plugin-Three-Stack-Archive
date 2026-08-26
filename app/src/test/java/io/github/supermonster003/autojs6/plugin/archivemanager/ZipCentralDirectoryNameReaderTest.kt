@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -57,6 +58,28 @@ class ZipCentralDirectoryNameReaderTest {
         assertEquals(
             Charsets.UTF_8,
             ZipArchiveAccess.detectRawFilenameCharset(rawNames, Locale.CHINA),
+        )
+    }
+
+    @Test
+    fun `reads the central directory from a split final volume`() {
+        val source = temporaryFolder.newFile("split.zip")
+        requireNotNull(
+            javaClass.classLoader?.getResourceAsStream(
+                "archive-fixtures/zip4j-2.11.5-store-split.zip",
+            ),
+        ).use { input -> source.outputStream().use(input::copyTo) }
+
+        val rawNames = requireNotNull(ZipCentralDirectoryNameReader.readNonUtf8Names(source))
+
+        assertTrue(rawNames.isEmpty())
+        assertEquals(
+            Charsets.UTF_8,
+            ZipArchiveAccess.detectCharset(
+                source = source.asArchiveReadSource(),
+                locale = Locale.CHINA,
+                forceZip4j = true,
+            ),
         )
     }
 

@@ -50,8 +50,12 @@ internal interface OpenZipArchive : Closeable {
 /** Opens a ZIP with one stable filename charset for indexing and extraction. */
 internal object ZipArchiveAccess {
 
-    fun detectCharset(source: ArchiveReadSource, locale: Locale = Locale.getDefault()): Charset =
-        if (requiresZip4jBackend()) {
+    fun detectCharset(
+        source: ArchiveReadSource,
+        locale: Locale = Locale.getDefault(),
+        forceZip4j: Boolean = false,
+    ): Charset =
+        if (forceZip4j || requiresZip4jBackend()) {
             detectZip4jCharset(source, locale)
         } else {
             detectCommonsCharset(source, locale)
@@ -61,12 +65,13 @@ internal object ZipArchiveAccess {
         source: ArchiveReadSource,
         charsetName: String?,
         password: CharArray? = null,
+        forceZip4j: Boolean = false,
     ): OpenZipArchive {
         try {
             val charset = charsetName
                 ?.let(Charset::forName)
-                ?: detectCharset(source)
-            return if (requiresZip4jBackend()) {
+                ?: detectCharset(source, forceZip4j = forceZip4j)
+            return if (forceZip4j || requiresZip4jBackend()) {
                 Zip4jOpenZipArchive(requireNotNull(source.localFile), charset, password)
             } else {
                 openCommons(source, charset, password)

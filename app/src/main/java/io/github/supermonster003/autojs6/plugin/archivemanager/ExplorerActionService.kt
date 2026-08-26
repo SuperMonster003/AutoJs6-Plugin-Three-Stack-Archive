@@ -87,29 +87,69 @@ class ExplorerActionService : Service() {
             transientPassword?.fill('\u0000')
             request.remove(ExplorerArchiveRequestKeys.PASSWORD)
         }
+        var volumeClient: ExplorerArchiveVolumeSourceClient? = null
         var staged: StagedArchive? = null
         var snapshot: ArchiveSnapshot? = null
         try {
+            volumeClient = try {
+                ExplorerArchiveVolumeSourceClient.fromBinder(
+                    binder = request.getBinder(ExplorerArchiveRequestKeys.VOLUME_SOURCE_BINDER),
+                    cacheDirectory = cacheDir,
+                )
+            } finally {
+                request.remove(ExplorerArchiveRequestKeys.VOLUME_SOURCE_BINDER)
+            }
             staged = ArchiveCacheStager.stage(source, cacheDir, reportedSize)
+            var sessionSource = sourceWithVolumes(staged.source, displayName, volumeClient)
+            val splitZip = ZipSplitArchiveDetector.inspect(sessionSource)
+            if (splitZip != null && volumeClient != null) {
+                val requiredNames = splitZip.materializationVolumeNames(
+                    displayName = displayName,
+                    availableNames = volumeClient.volumes.map(ArchiveVolumeIdentity::displayName),
+                )
+                if (requiredNames != null) {
+                    val group = ArchiveCacheStager.materializeVolumeGroup(
+                        primary = staged,
+                        primaryDisplayName = displayName,
+                        volumeSet = volumeClient,
+                        requiredVolumeNames = requiredNames,
+                        cacheDirectory = cacheDir,
+                    )
+                    if (group != null) {
+                        staged.close()
+                        volumeClient.close()
+                        volumeClient = null
+                        staged = group
+                        sessionSource = group.source
+                    }
+                }
+            }
             snapshot = try {
-                ArchiveScanner().scan(staged.source, readerOptions)
+                ArchiveScanner().scan(sessionSource, readerOptions)
             } catch (_: ArchiveLocalFileRequiredException) {
                 val cached = ArchiveCacheStager.materialize(staged, cacheDir)
                 staged.close()
                 staged = cached
-                ArchiveScanner().scan(staged.source, readerOptions)
+                sessionSource = sourceWithVolumes(cached.source, displayName, volumeClient)
+                ArchiveScanner().scan(sessionSource, readerOptions)
             }
             return ExplorerArchiveSession(
                 ownerUid = ownerUid,
                 displayName = displayName,
                 stagedArchive = staged,
+                source = sessionSource,
+                volumeLease = volumeClient,
                 snapshot = snapshot,
                 isolatedPathDisplayName = getString(R.string.text_unsafe_paths_folder),
                 onClosed = sessions::remove,
-            ).also(sessions::add)
+            ).also {
+                volumeClient = null
+                sessions.add(it)
+            }
         } catch (error: Throwable) {
             snapshot?.readerOptions?.clearPassword()
             staged?.close()
+            volumeClient?.close()
             throw ExplorerArchiveOpenFailure(
                 diagnostic = ArchiveFailureDiagnostic.from(
                     error = error,
@@ -121,6 +161,16 @@ class ExplorerActionService : Service() {
         } finally {
             readerOptions.clearPassword()
         }
+    }
+
+    private fun sourceWithVolumes(
+        source: ArchiveReadSource,
+        displayName: String,
+        volumeSet: ArchiveVolumeSet?,
+    ): ArchiveReadSource = if (volumeSet == null) {
+        NamedArchiveReadSource(source, displayName)
+    } else {
+        VolumeAwareArchiveReadSource(source, displayName, volumeSet)
     }
 
     override fun onBind(intent: Intent?): IBinder = binder

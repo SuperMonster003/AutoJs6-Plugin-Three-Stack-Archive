@@ -5,9 +5,10 @@ import java.io.IOException
 import java.io.RandomAccessFile
 
 /**
- * Reads filename bytes directly from a single-volume ZIP central directory. Android 7's Zip4j
- * backend can decode a candidate name before honoring a newly selected charset, so those decoded
- * strings are not reliable input for automatic charset selection.
+ * Reads filename bytes directly from a ZIP central directory, including a directory stored in the
+ * selected final volume of a split archive. Android 7's Zip4j backend can decode a candidate name
+ * before honoring a newly selected charset, so those decoded strings are not reliable input for
+ * automatic charset selection.
  */
 internal object ZipCentralDirectoryNameReader {
 
@@ -65,7 +66,7 @@ internal object ZipCentralDirectoryNameReader {
     ): CentralDirectoryDescriptor? {
         val diskNumber = tail.readUnsignedShort(relativeOffset + 4)
         val centralDirectoryDisk = tail.readUnsignedShort(relativeOffset + 6)
-        if (diskNumber != 0 || centralDirectoryDisk != 0) return null
+        if (centralDirectoryDisk != diskNumber) return null
 
         val entryCount = tail.readUnsignedShort(relativeOffset + 10).toLong()
         val directorySize = tail.readUnsignedInt(relativeOffset + 12)

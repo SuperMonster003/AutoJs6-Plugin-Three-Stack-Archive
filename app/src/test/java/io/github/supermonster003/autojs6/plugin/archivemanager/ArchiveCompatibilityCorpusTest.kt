@@ -169,6 +169,92 @@ class ArchiveCompatibilityCorpusTest {
     }
 
     @Test
+    fun `authorized WinRAR volume set lists and streams exact entry data`() {
+        val source = copyVolumeFixtureSet(
+            directoryName = "complete-rar-volume-set",
+            primaryName = WINRAR_RAR5_SPLIT_FIRST_FIXTURE,
+            companionNames = listOf(
+                WINRAR_RAR5_SPLIT_SECOND_FIXTURE,
+                WINRAR_RAR5_SPLIT_THIRD_FIXTURE,
+            ),
+        )
+
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.RAR, snapshot.format)
+        assertEquals(listOf("资料.bin"), snapshot.entries.map(ArchiveEntry::path))
+        assertTrue(snapshot.entries.all(ArchiveEntry::canExtract))
+        assertTrue(snapshot.entries.all { entry ->
+            ArchiveEntryLimitation.MISSING_VOLUME !in entry.capabilities.limitations
+        })
+        assertEquals(null, snapshot.entries.single().crc32)
+        val output = java.io.ByteArrayOutputStream()
+        ArchiveEntryStreamer(source, snapshot).stream(snapshot.entries.single(), output)
+        assertEquals(EXPECTED_SPLIT_PAYLOAD_SHA256, output.toByteArray().sha256())
+    }
+
+    @Test
+    fun `authorized WinRAR volume set reports a missing final volume while streaming`() {
+        val source = copyVolumeFixtureSet(
+            directoryName = "incomplete-rar-volume-set",
+            primaryName = WINRAR_RAR5_SPLIT_FIRST_FIXTURE,
+            companionNames = listOf(WINRAR_RAR5_SPLIT_SECOND_FIXTURE),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val entry = snapshot.entries.single()
+
+        assertTrue(entry.canExtract)
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.MISSING_VOLUME) {
+            ArchiveEntryStreamer(source, snapshot).stream(
+                entry,
+                java.io.ByteArrayOutputStream(),
+            )
+        }
+    }
+
+    @Test
+    fun `authorized WinRAR volume set rejects a changed companion before streaming`() {
+        val source = copyVolumeFixtureSet(
+            directoryName = "changed-rar-volume-set",
+            primaryName = WINRAR_RAR5_SPLIT_FIRST_FIXTURE,
+            companionNames = listOf(
+                WINRAR_RAR5_SPLIT_SECOND_FIXTURE,
+                WINRAR_RAR5_SPLIT_THIRD_FIXTURE,
+            ),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+        val companionDirectory = requireNotNull(source.volumeSet?.localDirectory)
+        File(companionDirectory, WINRAR_RAR5_SPLIT_SECOND_FIXTURE).appendBytes(byteArrayOf(0))
+
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.SOURCE_CHANGED) {
+            ArchiveEntryStreamer(source, snapshot).stream(
+                snapshot.entries.single(),
+                java.io.ByteArrayOutputStream(),
+            )
+        }
+    }
+
+    @Test
+    fun `authorized Zip4j volume set lists and streams exact entry data`() {
+        val source = copyVolumeFixtureSet(
+            directoryName = "complete-zip-volume-set",
+            primaryName = ZIP4J_SPLIT_FINAL_FIXTURE,
+            companionNames = listOf(ZIP4J_SPLIT_FIRST_FIXTURE),
+        )
+
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.ZIP, snapshot.format)
+        assertEquals(listOf("璧勬枡.bin"), snapshot.entries.map(ArchiveEntry::path))
+        assertTrue(snapshot.entries.all(ArchiveEntry::canExtract))
+        assertTrue(snapshot.entries.none { it.capabilities.canDelete })
+        assertTrue(snapshot.entries.none { it.capabilities.canRename })
+        val output = java.io.ByteArrayOutputStream()
+        ArchiveEntryStreamer(source, snapshot).stream(snapshot.entries.single(), output)
+        assertEquals(EXPECTED_SPLIT_PAYLOAD_SHA256, output.toByteArray().sha256())
+    }
+
+    @Test
     fun `7-Zip 22 tar sample preserves unicode names and content`() {
         val source = copyFixture(TAR_FIXTURE)
 
@@ -320,6 +406,31 @@ class ArchiveCompatibilityCorpusTest {
         return target
     }
 
+    private fun copyVolumeFixtureSet(
+        directoryName: String,
+        primaryName: String,
+        companionNames: List<String>,
+    ): ArchiveReadSource {
+        val directory = temporaryFolder.newFolder(directoryName)
+        val primary = copyFixtureTo(directory, primaryName)
+        val companionSources = companionNames.associate { name ->
+            val file = copyFixtureTo(directory, name)
+            collisionKey(name) to file.asArchiveReadSource()
+        }
+        return VolumeAwareArchiveReadSource(
+            source = primary.asArchiveReadSource(),
+            displayName = primary.name,
+            volumeSet = LocalArchiveVolumeSet(directory, companionSources),
+        )
+    }
+
+    private fun copyFixtureTo(directory: File, name: String): File = File(directory, name).also {
+        val resource = requireNotNull(
+            javaClass.classLoader?.getResourceAsStream("archive-fixtures/$name"),
+        )
+        resource.use { input -> it.outputStream().use(input::copyTo) }
+    }
+
     private fun assertFixtureText(snapshot: ArchiveSnapshot, source: File, path: String) {
         val output = java.io.ByteArrayOutputStream()
         ArchiveEntryStreamer(source, snapshot).stream(snapshot.entries.single { it.path == path }, output)
@@ -328,6 +439,10 @@ class ArchiveCompatibilityCorpusTest {
 
     private fun File.sha256(): String = MessageDigest.getInstance("SHA-256")
         .digest(readBytes())
+        .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }
+
+    private fun ByteArray.sha256(): String = MessageDigest.getInstance("SHA-256")
+        .digest(this)
         .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }
 
     private companion object {
@@ -347,6 +462,8 @@ class ArchiveCompatibilityCorpusTest {
             "d27f8ddc47eca0777cdbe00819bb69f740f60b1dc1d757af5e6656b779177007"
         const val EXPECTED_WINRAR_RAR5_SPLIT_FIRST_SHA256 =
             "404bc4db3a217e9d7eaaa03ac483fd6502289680bfc2af404bc74d572116bae4"
+        const val EXPECTED_SPLIT_PAYLOAD_SHA256 =
+            "030ed3574b4b1765d225a5472fc85f33d447fde24968f38e499d57165110c851"
         const val EXPECTED_7ZIP_TAR_SHA256 =
             "771eaf4fc2bef962e4bed64ee109d51d6ef4e25ec95357e5343c882dbb59e403"
         const val EXPECTED_7ZIP_TAR_GZIP_SHA256 =
@@ -367,6 +484,10 @@ class ArchiveCompatibilityCorpusTest {
         const val WINRAR_RAR5_HEADER_AES_FIXTURE =
             "winrar-6.10-rar5-header-aes-unicode.rar"
         const val WINRAR_RAR5_SPLIT_FIRST_FIXTURE = "winrar-6.10-store-split.part1.rar"
+        const val WINRAR_RAR5_SPLIT_SECOND_FIXTURE = "winrar-6.10-store-split.part2.rar"
+        const val WINRAR_RAR5_SPLIT_THIRD_FIXTURE = "winrar-6.10-store-split.part3.rar"
+        const val ZIP4J_SPLIT_FIRST_FIXTURE = "zip4j-2.11.5-store-split.z01"
+        const val ZIP4J_SPLIT_FINAL_FIXTURE = "zip4j-2.11.5-store-split.zip"
         const val TAR_FIXTURE = "7zip-22-ustar-unicode.tar"
         const val TAR_GZIP_FIXTURE = "7zip-22-ustar-unicode.tar.gz"
         const val TAR_XZ_FIXTURE = "7zip-22-ustar-unicode.tar.xz"

@@ -19,6 +19,7 @@ import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
 import org.autojs.plugin.explorer.api.IExplorerArchiveOperationCallback
 import org.autojs.plugin.explorer.api.IExplorerArchiveSession
+import java.io.Closeable
 import java.io.InterruptedIOException
 import java.security.MessageDigest
 import java.util.UUID
@@ -30,6 +31,8 @@ internal class ExplorerArchiveSession(
     private val ownerUid: Int,
     private val displayName: String,
     private val stagedArchive: StagedArchive,
+    private val source: ArchiveReadSource = stagedArchive.source,
+    private val volumeLease: Closeable? = null,
     private val snapshot: ArchiveSnapshot,
     private val isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
     private val extractionResourceBudget: ArchiveResourceBudget = ArchiveResourceBudget.COMPATIBLE,
@@ -103,7 +106,7 @@ internal class ExplorerArchiveSession(
             putLong(ExplorerArchiveSessionKeys.SOURCE_SIZE, stagedArchive.bytes)
             putLong(
                 ExplorerArchiveSessionKeys.SOURCE_LAST_MODIFIED,
-                stagedArchive.source.identity().lastModifiedMillis,
+                source.identity().lastModifiedMillis,
             )
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES,
@@ -212,7 +215,7 @@ internal class ExplorerArchiveSession(
                 ExplorerArchiveExtractionOperation(
                     operationId = operationId,
                     displayName = displayName,
-                    source = stagedArchive.source,
+                    source = source,
                     snapshot = snapshot,
                     selectedPaths = selectedPaths,
                     options = extractionOptions,
@@ -282,6 +285,7 @@ internal class ExplorerArchiveSession(
         }
         streamExecutor.shutdownNow()
         snapshot.readerOptions.clearPassword()
+        runCatching { volumeLease?.close() }
         stagedArchive.close()
         onClosed(this)
     }
@@ -298,7 +302,7 @@ internal class ExplorerArchiveSession(
     private fun streamEntry(entry: ArchiveEntry, writeEnd: ParcelFileDescriptor) {
         val output = ParcelFileDescriptor.AutoCloseOutputStream(writeEnd)
         try {
-            ArchiveEntryStreamer(stagedArchive.source, snapshot).stream(entry, output) {
+            ArchiveEntryStreamer(source, snapshot).stream(entry, output) {
                 if (closed.get() || Thread.currentThread().isInterrupted) {
                     throw InterruptedIOException(STREAM_CLOSED_MESSAGE)
                 }

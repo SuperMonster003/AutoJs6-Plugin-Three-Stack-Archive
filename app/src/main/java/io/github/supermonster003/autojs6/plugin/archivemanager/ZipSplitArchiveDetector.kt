@@ -1,6 +1,7 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import net.lingala.zip4j.ZipFile as Zip4jFile
+import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import java.io.File
 import java.io.IOException
 
@@ -61,6 +62,32 @@ internal data class ZipSplitArchiveInfo(
             append(volumeCount)
             append(" volumes")
         }
+    }
+
+    /** Exact earlier volumes that may be copied beside a selected final `.zip`. */
+    fun materializationVolumeNames(
+        displayName: String,
+        availableNames: List<String>,
+    ): List<String>? {
+        if (segmentKind != ZipSplitSegmentKind.FINAL_VOLUME) return null
+        val stem = displayName.substringBeforeLast('.', displayName)
+        lastDiskNumber?.let { diskNumber ->
+            if (diskNumber !in 1 until ExplorerActionProtocol.MAX_ARCHIVE_VOLUMES) return null
+            return (1..diskNumber).map { index ->
+                stem + ".z" + index.toString().padStart(2, '0')
+            }
+        }
+        val indexed = availableNames.mapNotNull { name ->
+            val match = STANDARD_PART_PATTERN.matchEntire(name) ?: return@mapNotNull null
+            if (!match.groupValues[1].equals(stem, ignoreCase = true)) return@mapNotNull null
+            val index = name.substringAfterLast('z', "").toIntOrNull() ?: return@mapNotNull null
+            index to name
+        }.sortedBy(Pair<Int, String>::first)
+        if (indexed.isEmpty() || indexed.size >= ExplorerActionProtocol.MAX_ARCHIVE_VOLUMES) {
+            return null
+        }
+        if (indexed.map(Pair<Int, String>::first) != (1..indexed.size).toList()) return null
+        return indexed.map(Pair<Int, String>::second)
     }
 
     private companion object {

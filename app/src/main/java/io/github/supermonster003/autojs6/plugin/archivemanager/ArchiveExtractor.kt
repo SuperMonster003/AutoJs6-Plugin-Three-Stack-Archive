@@ -896,6 +896,14 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         ) {
             changed("Archive source changed after scanning")
         }
+        val volumeIdentities = try {
+            source.volumeSet?.inspectIdentities().orEmpty()
+        } catch (_: Exception) {
+            changed("Archive volumes cannot be inspected after scanning")
+        }
+        if (volumeIdentities != snapshot.volumeIdentities) {
+            changed("Archive volumes changed after scanning")
+        }
     }
 
     private fun checkedAdd(

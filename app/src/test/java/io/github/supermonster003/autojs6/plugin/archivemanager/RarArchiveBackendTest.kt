@@ -19,7 +19,7 @@ class RarArchiveBackendTest {
     val temporaryFolder = TemporaryFolder()
 
     @Test
-    fun `rar capabilities are reader only and do not overclaim sibling volumes`() {
+    fun `rar capabilities are reader only and accept authorized sibling volumes`() {
         val capabilities = ArchiveEngine.DEFAULT.capabilities(ArchiveFormat.RAR)
 
         assertTrue(capabilities.canDetect)
@@ -33,10 +33,10 @@ class RarArchiveBackendTest {
         assertFalse(capabilities.canRename)
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
-        assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
+        assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.splitVolumes)
         assertTrue(capabilities.compressionLevels.isEmpty())
         assertTrue(ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT in capabilities.limitations)
-        assertTrue(
+        assertFalse(
             ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations,
         )
         assertEquals("application/vnd.rar", ArchiveFormat.RAR.primaryMimeType)

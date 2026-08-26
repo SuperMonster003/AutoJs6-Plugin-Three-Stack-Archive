@@ -10,13 +10,19 @@ import android.os.ParcelFileDescriptor
 import android.util.Base64
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import net.lingala.zip4j.io.outputstream.SplitOutputStream
+import net.lingala.zip4j.io.outputstream.ZipOutputStream
+import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.model.enums.CompressionMethod
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerArchiveOpenKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveOpenValues
 import org.autojs.plugin.explorer.api.ExplorerArchiveRequestKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
+import org.autojs.plugin.explorer.api.ExplorerArchiveVolumeSourceKeys
 import org.autojs.plugin.explorer.api.IExplorerActionPlugin
 import org.autojs.plugin.explorer.api.IExplorerArchiveSession
+import org.autojs.plugin.explorer.api.IExplorerArchiveVolumeSource
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -26,9 +32,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
+import java.util.zip.CRC32
 
 @RunWith(AndroidJUnit4::class)
 class ExplorerArchiveOpenInstrumentationTest {
@@ -156,16 +165,102 @@ class ExplorerArchiveOpenInstrumentationTest {
         }
     }
 
+    @Test
+    fun hostAuthorizedSplitZipVolumesRoundTripThroughTheExplorerService() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val root = File(context.cacheDir, "archive-open-volumes-${UUID.randomUUID()}")
+        assertTrue(root.mkdirs())
+        val payload = ByteArray(SPLIT_PAYLOAD_BYTES) { index -> (index * 31).toByte() }
+        val terminal = File(root, "authorized-split.zip")
+        SplitOutputStream(terminal, SPLIT_VOLUME_BYTES).use { splitOutput ->
+            ZipOutputStream(splitOutput).use { zipOutput ->
+                zipOutput.putNextEntry(
+                    ZipParameters().apply {
+                        fileNameInZip = SPLIT_ENTRY_NAME
+                        compressionMethod = CompressionMethod.STORE
+                        entrySize = payload.size.toLong()
+                        entryCRC = CRC32().apply { update(payload) }.value
+                    },
+                )
+                zipOutput.write(payload)
+                zipOutput.closeEntry()
+            }
+        }
+        val firstVolume = File(root, "authorized-split.z01")
+        assertTrue(firstVolume.isFile)
+        assertTrue(terminal.isFile)
+        val volumeSource = TestArchiveVolumeSource(firstVolume)
+        val serviceBinder = AtomicReference<IBinder>()
+        val connected = CountDownLatch(1)
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                serviceBinder.set(service)
+                connected.countDown()
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) = Unit
+        }
+        assertTrue(
+            context.bindService(
+                Intent(context, ExplorerActionService::class.java),
+                connection,
+                Context.BIND_AUTO_CREATE,
+            ),
+        )
+
+        var session: IExplorerArchiveSession? = null
+        try {
+            assertTrue("Timed out binding Explorer Action service", connected.await(10, TimeUnit.SECONDS))
+            val plugin = IExplorerActionPlugin.Stub.asInterface(requireNotNull(serviceBinder.get()))
+            val opened = openArchive(plugin, terminal, volumeSource = volumeSource.asBinder())
+            assertEquals(
+                ExplorerArchiveOpenValues.ERROR_NONE,
+                opened.getInt(ExplorerArchiveOpenKeys.ERROR_CODE),
+            )
+            session = requireNotNull(
+                IExplorerArchiveSession.Stub.asInterface(
+                    opened.getBinder(ExplorerArchiveOpenKeys.SESSION_BINDER),
+                ),
+            )
+            val page = session.listChildren(
+                session.info().getString(ExplorerArchiveSessionKeys.ROOT_ID),
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            )
+            @Suppress("DEPRECATION")
+            val entries = page.getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+                .orEmpty()
+            val entry = entries.single {
+                it.getString(ExplorerArchiveSessionKeys.NAME) == SPLIT_ENTRY_NAME
+            }
+            assertTrue(entry.getBoolean(ExplorerArchiveSessionKeys.CAN_OPEN))
+            val descriptor = session.openEntry(
+                requireNotNull(entry.getString(ExplorerArchiveSessionKeys.ID)),
+            )
+            val actual = ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { it.readBytes() }
+            assertArrayEquals(payload, actual)
+            assertEquals(1, volumeSource.openCalls.get())
+        } finally {
+            session?.close()
+            context.unbindService(connection)
+            root.deleteRecursively()
+        }
+    }
+
     private fun openArchive(
         plugin: IExplorerActionPlugin,
         archive: File,
         password: CharArray? = null,
+        volumeSource: IBinder? = null,
     ): Bundle {
         val request = Bundle().apply {
             putString(ExplorerArchiveRequestKeys.DISPLAY_NAME, archive.name)
             putLong(ExplorerArchiveRequestKeys.SIZE, archive.length())
             putLong(ExplorerArchiveRequestKeys.LAST_MODIFIED, archive.lastModified())
             password?.let { putCharArray(ExplorerArchiveRequestKeys.PASSWORD, it) }
+            volumeSource?.let {
+                putBinder(ExplorerArchiveRequestKeys.VOLUME_SOURCE_BINDER, it)
+            }
         }
         val descriptor = ParcelFileDescriptor.open(
             archive,
@@ -178,6 +273,39 @@ class ExplorerArchiveOpenInstrumentationTest {
         return result
     }
 
+    private class TestArchiveVolumeSource(
+        private val volume: File,
+    ) : IExplorerArchiveVolumeSource.Stub() {
+        val openCalls = AtomicInteger(0)
+
+        override fun getCatalog(): Bundle = Bundle().apply {
+            putParcelableArrayList(
+                ExplorerArchiveVolumeSourceKeys.VOLUMES,
+                arrayListOf(
+                    Bundle().apply {
+                        putString(ExplorerArchiveVolumeSourceKeys.VOLUME_ID, VOLUME_ID)
+                        putString(ExplorerArchiveVolumeSourceKeys.DISPLAY_NAME, volume.name)
+                        putLong(ExplorerArchiveVolumeSourceKeys.SIZE, volume.length())
+                        putLong(
+                            ExplorerArchiveVolumeSourceKeys.LAST_MODIFIED,
+                            volume.lastModified(),
+                        )
+                    },
+                ),
+            )
+        }
+
+        override fun openVolume(volumeId: String): ParcelFileDescriptor {
+            require(volumeId == VOLUME_ID)
+            openCalls.incrementAndGet()
+            return ParcelFileDescriptor.open(volume, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        private companion object {
+            const val VOLUME_ID = "authorized-volume-1"
+        }
+    }
+
     private fun IExplorerArchiveSession.info(): Bundle = getInfo()
 
     private companion object {
@@ -186,6 +314,9 @@ class ExplorerArchiveOpenInstrumentationTest {
         const val SOLID_FIXTURE_BASE64 =
             "N3q8ryccAARYHq5O0wAAAAAAAAAiAAAAAAAAAE0lNTEBAEpleHRlcm5hbCBzZXZlbiB6aXAgcGF5bG9hZAojIDdaIOWFvOWuueaApwoK5Zu65a6e5qGj5qGI5LiOIFVuaWNvZGUg6Lev5b6ELgoAAACBMweuD9K0iL1AwJDS/31pTYWReB5L+LlZgagXS3YrHdhkTZ8EF/5GVIgU1kGWiA4Zo8DLnLeE4rjv+RqUedOI4QmTF7yYjXS7/kQ2o5kR08034CxsjGK8q3lA4uudC+wQ+k6OerxiDYds4CLpg869qWJ+XqNgD5mmte4Efy/k9SAAFwZPAQmAhAAHCwEAASMDAQEFXQAQAAAMgK4KAYKqCDwAAA=="
         const val PASSWORD = "archive-secret"
+        const val SPLIT_ENTRY_NAME = "资料.bin"
+        const val SPLIT_PAYLOAD_BYTES = 70_000
+        const val SPLIT_VOLUME_BYTES = 65_536L
         const val EXPECTED_PLAIN_CRC = 0x6501718CL
         val EXPECTED_PLAIN_BYTES = "external seven zip payload\n".toByteArray()
     }

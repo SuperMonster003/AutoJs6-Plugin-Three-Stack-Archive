@@ -20,11 +20,24 @@ internal data class ArchiveSourceIdentity(
     val lastModifiedMillis: Long,
 )
 
+internal data class ArchiveInputIdentity(
+    val primary: ArchiveSourceIdentity,
+    val volumes: List<ArchiveVolumeIdentity>,
+)
+
+@Throws(IOException::class)
+internal fun ArchiveReadSource.inputIdentity(): ArchiveInputIdentity = ArchiveInputIdentity(
+    primary = identity(),
+    volumes = volumeSet?.inspectIdentities().orEmpty(),
+)
+
 /** An archive input that can create fresh readers without requiring path access to its storage. */
 internal interface ArchiveReadSource {
     val isRegularFile: Boolean
     val localFile: File?
     val displayName: String
+    val volumeSet: ArchiveVolumeSet?
+        get() = null
 
     @Throws(IOException::class)
     fun identity(): ArchiveSourceIdentity
@@ -34,6 +47,23 @@ internal interface ArchiveReadSource {
 
     @Throws(IOException::class)
     fun openInputStream(): InputStream = Channels.newInputStream(openSeekableChannel())
+}
+
+internal class VolumeAwareArchiveReadSource(
+    private val source: ArchiveReadSource,
+    override val displayName: String,
+    override val volumeSet: ArchiveVolumeSet,
+) : ArchiveReadSource {
+    override val isRegularFile: Boolean
+        get() = source.isRegularFile
+    override val localFile: File?
+        get() = source.localFile
+
+    override fun identity(): ArchiveSourceIdentity = source.identity()
+
+    override fun openSeekableChannel(): SeekableByteChannel = source.openSeekableChannel()
+
+    override fun openInputStream(): InputStream = source.openInputStream()
 }
 
 internal fun File.asArchiveReadSource(): ArchiveReadSource = FileArchiveReadSource(this)

@@ -6,6 +6,7 @@ internal object ArchiveRetrySnapshotValidator {
     fun requireSameArchive(original: ArchiveSnapshot, retried: ArchiveSnapshot) {
         val sameArchive = original.sourceLength == retried.sourceLength &&
             original.sourceLastModifiedMillis == retried.sourceLastModifiedMillis &&
+            original.volumeIdentities == retried.volumeIdentities &&
             original.totalUncompressedBytes == retried.totalUncompressedBytes &&
             original.structureLimits == retried.structureLimits &&
             original.format == retried.format &&

@@ -18,6 +18,7 @@ import com.github.junrar.rarfile.FileHeader
 import com.github.junrar.rarfile.rar5.Rar5BlockType
 import com.github.junrar.rarfile.rar5.Rar5MainHeader
 import com.github.junrar.volume.Volume
+import com.github.junrar.volume.VolumeHelper
 import com.github.junrar.volume.VolumeManager
 import java.io.EOFException
 import java.io.IOException
@@ -50,12 +51,11 @@ internal object RarArchiveBackend : ArchiveBackend {
         canRename = false,
         password = ArchiveOptionMode.OPTIONAL,
         filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
-        splitVolumes = ArchiveOptionMode.UNSUPPORTED,
+        splitVolumes = ArchiveOptionMode.OPTIONAL,
         compressionLevels = emptyList(),
         limitations = setOf(
             ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT,
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
-            ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
             ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
         ),
     )
@@ -78,7 +78,12 @@ internal object RarArchiveBackend : ArchiveBackend {
             requirePlausibleDirectory(archive)
             if (password != null) validatePasswordChecks(archive.fileHeaders, password)
             val entries = archive.fileHeaders.mapIndexed { ordinal, header ->
-                header.toReaderEntry(ordinal, archive.format, password != null)
+                header.toReaderEntry(
+                    ordinal = ordinal,
+                    rarFormat = archive.format,
+                    passwordProvided = password != null,
+                    nextVolumeAvailable = archive.nextVolumeAvailable(source),
+                )
             }
             return RarArchiveReader(
                 archive = archive,
@@ -104,7 +109,7 @@ internal object RarArchiveBackend : ArchiveBackend {
             .build()
         return try {
             JunrarArchive(
-                SingleSourceVolumeManager(source, source.identity().length),
+                SourceVolumeManager(source),
                 options,
             )
         } finally {
@@ -116,19 +121,20 @@ internal object RarArchiveBackend : ArchiveBackend {
         ordinal: Int,
         rarFormat: RarFormat,
         passwordProvided: Boolean,
+        nextVolumeAvailable: Boolean,
     ): ArchiveReaderEntry {
-        val split = isSplitBefore || isSplitAfter
+        val missingVolume = isSplitBefore || isSplitAfter && !nextVolumeAvailable
         val redirected = redirection != null
         val unknownSize = isUnpSizeUnknown
         val unsupportedType = redirected || unknownSize
         val limitations = buildSet {
             if (isDirectory) add(ArchiveEntryLimitation.DIRECTORY_HAS_NO_DATA)
             if (isEncrypted) add(ArchiveEntryLimitation.ENCRYPTED)
-            if (split) add(ArchiveEntryLimitation.MISSING_VOLUME)
+            if (missingVolume) add(ArchiveEntryLimitation.MISSING_VOLUME)
             if (unsupportedType) add(ArchiveEntryLimitation.UNSUPPORTED_ENTRY_TYPE)
             add(ArchiveEntryLimitation.MUTATION_UNAVAILABLE)
         }
-        val extractable = !split &&
+        val extractable = !missingVolume &&
             !unsupportedType &&
             (isDirectory || !isEncrypted || passwordProvided)
         val method = unpMethod.toInt() and UNSIGNED_BYTE_MASK
@@ -162,7 +168,12 @@ internal object RarArchiveBackend : ArchiveBackend {
             ),
             compressedSize = fullPackSize,
             size = if (unknownSize) UNKNOWN_UNCOMPRESSED_SIZE else fullUnpackSize,
-            crc = if (hasFileCrc() && !isUseHashKey) Integer.toUnsignedLong(fileCRC) else null,
+            // A split header carries the CRC of its current segment, not the reconstructed file.
+            crc = if (!isSplitBefore && !isSplitAfter && hasFileCrc() && !isUseHashKey) {
+                Integer.toUnsignedLong(fileCRC)
+            } else {
+                null
+            },
             time = lastModifiedTime?.toMillis(),
             backendToken = this,
         )
@@ -220,6 +231,22 @@ internal object RarArchiveBackend : ArchiveBackend {
         } else {
             ArchiveEncryptionMethod.OTHER
         }
+    }
+
+    private fun JunrarArchive.nextVolumeAvailable(source: ArchiveReadSource): Boolean {
+        val volumeSet = source.volumeSet ?: return false
+        val nextName = VolumeHelper.nextVolumeName(
+            source.displayName,
+            usesOldVolumeNumbering(),
+        ) ?: return false
+        return volumeSet.volumes.any { volume ->
+            collisionKey(volume.displayName) == collisionKey(nextName)
+        }
+    }
+
+    private fun JunrarArchive.usesOldVolumeNumbering(): Boolean {
+        val header = mainHeader
+        return header != null && (!header.isNewNumbering || isOldFormat)
     }
 
     private fun hasSignature(source: ArchiveReadSource): Boolean {
@@ -433,23 +460,35 @@ private class RarEntryInputStream(
     }
 }
 
-private class SingleSourceVolumeManager(
-    private val source: ArchiveReadSource,
-    private val length: Long,
+private class SourceVolumeManager(
+    private val primarySource: ArchiveReadSource,
 ) : VolumeManager {
-    override fun nextVolume(archive: JunrarArchive, lastVolume: Volume?): Volume? =
-        if (lastVolume == null) SourceVolume(archive, source, length) else null
+    override fun nextVolume(archive: JunrarArchive, lastVolume: Volume?): Volume? {
+        if (lastVolume == null) {
+            return SourceVolume(
+                archive = archive,
+                source = primarySource,
+                displayName = primarySource.displayName,
+            )
+        }
+        val previous = lastVolume as? SourceVolume ?: return null
+        val header = archive.mainHeader
+        val oldNumbering = header != null && (!header.isNewNumbering || archive.isOldFormat)
+        val nextName = VolumeHelper.nextVolumeName(previous.displayName, oldNumbering) ?: return null
+        val nextSource = primarySource.volumeSet?.openSource(nextName) ?: return null
+        return SourceVolume(archive, nextSource, nextName)
+    }
 }
 
 private class SourceVolume(
     private val archive: JunrarArchive,
     private val source: ArchiveReadSource,
-    private val length: Long,
+    val displayName: String,
 ) : Volume {
     override fun getChannel(): SeekableReadOnlyByteChannel =
         RarSeekableChannel(source.openSeekableChannel())
 
-    override fun getLength(): Long = length
+    override fun getLength(): Long = source.identity().length
 
     override fun getArchive(): JunrarArchive = archive
 }
@@ -534,6 +573,15 @@ private fun mapRarEntryFailure(
     passwordProvided: Boolean,
 ): IOException {
     if (error is ArchiveException) return error
+    if (error.findRarCause<ArchiveVolumeChangedException>() != null) {
+        return ArchiveExtractionException(
+            code = ArchiveFailureCode.SOURCE_CHANGED,
+            message = "Archive volumes changed or became unavailable",
+            cause = error,
+            format = ArchiveFormat.RAR,
+            stage = ArchiveFailureStage.INPUT,
+        )
+    }
     if (error.findRarCause<WrongPasswordException>() != null) {
         return ArchiveExtractionException(
             code = if (passwordProvided) {

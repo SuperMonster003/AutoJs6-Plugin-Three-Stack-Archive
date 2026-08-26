@@ -1,5 +1,16 @@
 # Notes de version
 
+## v2.5.0
+
+_2026/08/27_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v12 (code de version 5276 ou supérieur)
+- `Ajout` Les ensembles standard `.z01 + .zip` complets et les ensembles WinRAR modernes `partN.rar` peuvent désormais être parcourus, prévisualisés et extraits dans la page native; les archives fractionnées restent en lecture seule
+- `Ajout` Explorer Action v12 fournit uniquement un catalogue borné de volumes frères approuvés par l'hôte et ouvre chacun par identifiant opaque comme descripteur en lecture seule, sans exposer de dossier ni de chemin système
+- `Correction` Les métadonnées du répertoire du volume ZIP final sont correctement acceptées sous Android 7 et versions ultérieures, et les données sont lues sur tous les volumes autorisés sans déclarer le dernier volume endommagé
+- `Correction` Les CRC de segments RAR ne sont plus comparés aux données reconstituées; les volumes manquants ou modifiés après l'ouverture produisent des erreurs typées stables
+- `Amélioration` Le nombre de volumes, les noms, identifiants, ouvertures, UID appelant, identités de fichiers et durées de session sont bornés et revérifiés; une copie interrompue supprime tous les fragments du cache privé
+
 ## v2.4.0
 
 _2026/08/26_

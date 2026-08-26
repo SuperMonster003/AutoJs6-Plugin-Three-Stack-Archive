@@ -32,9 +32,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.BufferedOutputStream
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
 import java.util.Date
 import java.util.UUID
@@ -445,6 +447,94 @@ class ArchiveCacheStagerInstrumentationTest {
         }
     }
 
+    @Test
+    fun failedVolumeGroupCopyRemovesEveryPartialCacheFile() {
+        withTestDirectory { root ->
+            val cache = File(root, "cache").apply { assertTrue(mkdirs()) }
+            val primaryFile = File(root, "set.zip").apply {
+                createZip(this, "primary".toByteArray())
+            }
+            val companionFile = File(root, "set.z01").apply {
+                writeBytes(ByteArray(128 * 1_024) { index -> index.toByte() })
+            }
+            val primary = ArchiveCacheStager.stage(
+                source = ParcelFileDescriptor.open(
+                    primaryFile,
+                    ParcelFileDescriptor.MODE_READ_ONLY,
+                ),
+                cacheDirectory = cache,
+                reportedSize = primaryFile.length(),
+            )
+            val baseline = cache.childPaths()
+            val volumeSet = TestVolumeSet(
+                file = companionFile,
+                source = FailingArchiveReadSource(companionFile, 4 * 1_024),
+            )
+
+            try {
+                expectFailure<IOException> {
+                    ArchiveCacheStager.materializeVolumeGroup(
+                        primary = primary,
+                        primaryDisplayName = primaryFile.name,
+                        volumeSet = volumeSet,
+                        requiredVolumeNames = listOf(companionFile.name),
+                        cacheDirectory = cache,
+                    )
+                }
+                assertEquals(baseline, cache.childPaths())
+            } finally {
+                primary.close()
+            }
+
+            assertTrue(cache.listFiles().isNullOrEmpty())
+        }
+    }
+
+    @Test
+    fun volumeGroupCopyRejectsACatalogChangeAndRemovesItsCache() {
+        withTestDirectory { root ->
+            val cache = File(root, "cache").apply { assertTrue(mkdirs()) }
+            val primaryFile = File(root, "set.zip").apply {
+                createZip(this, "primary".toByteArray())
+            }
+            val companionFile = File(root, "set.z01").apply {
+                writeBytes(ByteArray(64 * 1_024) { index -> (index * 17).toByte() })
+            }
+            val primary = ArchiveCacheStager.stage(
+                source = ParcelFileDescriptor.open(
+                    primaryFile,
+                    ParcelFileDescriptor.MODE_READ_ONLY,
+                ),
+                cacheDirectory = cache,
+                reportedSize = primaryFile.length(),
+            )
+            val baseline = cache.childPaths()
+            val volumeSet = TestVolumeSet(
+                file = companionFile,
+                source = companionFile.asArchiveReadSource(),
+                changeAfterFirstInspection = true,
+            )
+
+            try {
+                expectFailure<ArchiveVolumeChangedException> {
+                    ArchiveCacheStager.materializeVolumeGroup(
+                        primary = primary,
+                        primaryDisplayName = primaryFile.name,
+                        volumeSet = volumeSet,
+                        requiredVolumeNames = listOf(companionFile.name),
+                        cacheDirectory = cache,
+                    )
+                }
+                assertEquals(2, volumeSet.inspections)
+                assertEquals(baseline, cache.childPaths())
+            } finally {
+                primary.close()
+            }
+
+            assertTrue(cache.listFiles().isNullOrEmpty())
+        }
+    }
+
     private fun withTestDirectory(block: (File) -> Unit) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val root = File(context.cacheDir, "archive-stager-test-${UUID.randomUUID()}")
@@ -521,6 +611,67 @@ class ArchiveCacheStagerInstrumentationTest {
             setLevel(3)
             setChecksum(true)
         }.get()
+
+    private fun File.childPaths(): Set<String> = listFiles()
+        .orEmpty()
+        .map(File::getAbsolutePath)
+        .toSet()
+
+    private inline fun <reified T : Throwable> expectFailure(block: () -> Unit): T {
+        try {
+            block()
+        } catch (error: Throwable) {
+            if (error is T) return error
+            throw AssertionError(
+                "Expected ${T::class.java.name}, but received ${error.javaClass.name}",
+                error,
+            )
+        }
+        throw AssertionError("Expected ${T::class.java.name}")
+    }
+
+    private class TestVolumeSet(
+        private val file: File,
+        private val source: ArchiveReadSource,
+        private val changeAfterFirstInspection: Boolean = false,
+    ) : ArchiveVolumeSet {
+        private val initial = ArchiveVolumeIdentity(file.name, file.length(), file.lastModified())
+        var inspections = 0
+            private set
+
+        override val volumes = listOf(initial)
+
+        override fun inspectIdentities(): List<ArchiveVolumeIdentity> {
+            inspections += 1
+            return if (changeAfterFirstInspection && inspections > 1) {
+                listOf(initial.copy(lastModifiedMillis = initial.lastModifiedMillis + 1L))
+            } else {
+                volumes
+            }
+        }
+
+        override fun openSource(displayName: String): ArchiveReadSource? =
+            source.takeIf { collisionKey(displayName) == collisionKey(file.name) }
+
+        override fun close() = Unit
+    }
+
+    private class FailingArchiveReadSource(
+        private val file: File,
+        private val failAfterBytes: Int,
+    ) : ArchiveReadSource by file.asArchiveReadSource() {
+        override fun openInputStream(): InputStream = object : ByteArrayInputStream(file.readBytes()) {
+            override fun read(): Int {
+                if (pos >= failAfterBytes) throw IOException("Injected archive volume read failure")
+                return super.read()
+            }
+
+            override fun read(buffer: ByteArray, offset: Int, length: Int): Int {
+                if (pos >= failAfterBytes) throw IOException("Injected archive volume read failure")
+                return super.read(buffer, offset, minOf(length, failAfterBytes - pos))
+            }
+        }
+    }
 
     private data class ReaderFixture(
         val name: String,

@@ -30,8 +30,8 @@ internal class ArchiveScanner @JvmOverloads constructor(
             )
         }
         val sourceIdentity = inspectIdentity(source, changed = false)
-        val sourceLength = sourceIdentity.length
-        val sourceLastModifiedMillis = sourceIdentity.lastModifiedMillis
+        val sourceLength = sourceIdentity.primary.length
+        val sourceLastModifiedMillis = sourceIdentity.primary.lastModifiedMillis
         val candidates = ArrayList<ScannedEntryCandidate>()
         val entries = ArrayList<ArchiveEntry>()
         val pathRegistry = PathRegistry(structureLimits)
@@ -179,6 +179,7 @@ internal class ArchiveScanner @JvmOverloads constructor(
             structureLimits = structureLimits,
             format = requireNotNull(detectedFormat),
             readerOptions = requireNotNull(readerOptions),
+            volumeIdentities = sourceIdentity.volumes,
             isolatedPathRoot = isolatedPathRoot,
         )
     }
@@ -186,8 +187,8 @@ internal class ArchiveScanner @JvmOverloads constructor(
     private fun inspectIdentity(
         source: ArchiveReadSource,
         changed: Boolean,
-    ): ArchiveSourceIdentity = try {
-        source.identity()
+    ): ArchiveInputIdentity = try {
+        source.inputIdentity()
     } catch (error: IOException) {
         fail(
             code = if (changed) ArchiveFailureCode.SOURCE_CHANGED else ArchiveFailureCode.SOURCE_NOT_FILE,

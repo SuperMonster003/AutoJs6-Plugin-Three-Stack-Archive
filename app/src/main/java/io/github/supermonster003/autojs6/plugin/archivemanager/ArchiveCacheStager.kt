@@ -10,6 +10,7 @@ import android.system.Os
 import android.system.OsConstants
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.Closeable
@@ -33,6 +34,7 @@ internal class StagedArchive(
     val bytes: Long,
     val storage: ArchiveInputStorage = ArchiveInputStorage.PRIVATE_CACHE,
     private val descriptorLease: ParcelFileDescriptor? = null,
+    private val privateCacheFiles: List<File>? = null,
     private val onClosed: () -> Unit = {},
 ) : Closeable {
     private val closed = AtomicBoolean(false)
@@ -40,6 +42,7 @@ internal class StagedArchive(
     init {
         require(bytes >= 0L)
         require((storage == ArchiveInputStorage.SEEKABLE_DESCRIPTOR) == (descriptorLease != null))
+        require(privateCacheFiles == null || storage == ArchiveInputStorage.PRIVATE_CACHE)
     }
 
     override fun close() {
@@ -48,7 +51,9 @@ internal class StagedArchive(
             runCatching { descriptorLease?.close() }
             if (storage == ArchiveInputStorage.PRIVATE_CACHE) {
                 val localFile = requireNotNull(source.localFile)
-                runCatching { localFile.delete() }
+                (privateCacheFiles ?: listOf(localFile)).forEach { file ->
+                    runCatching { file.delete() }
+                }
                 localFile.parentFile
                     ?.takeIf { it.name.startsWith(ARCHIVE_INPUT_DIRECTORY_PREFIX) }
                     ?.let { parent ->
@@ -227,6 +232,95 @@ internal object ArchiveCacheStager {
         onProgress = {},
     )
 
+    /** Copies one complete, host-authorized volume group into a single private directory. */
+    fun materializeVolumeGroup(
+        primary: StagedArchive,
+        primaryDisplayName: String,
+        volumeSet: ArchiveVolumeSet,
+        requiredVolumeNames: List<String>,
+        cacheDirectory: File,
+    ): StagedArchive? {
+        val names = listOf(primaryDisplayName) + requiredVolumeNames
+        require(names.size in 2..ExplorerActionProtocol.MAX_ARCHIVE_VOLUMES) {
+            "Archive volume group size is invalid"
+        }
+        names.forEach(::requireSafeVolumeName)
+        require(names.map(::collisionKey).distinct().size == names.size) {
+            "Archive volume group contains an ambiguous name"
+        }
+        val expectedVolumeIdentities = volumeSet.inspectIdentities()
+        val volumeMetadata = expectedVolumeIdentities.associateBy { collisionKey(it.displayName) }
+        val required = requiredVolumeNames.map { name ->
+            val metadata = volumeMetadata[collisionKey(name)] ?: return null
+            val source = volumeSet.openSource(metadata.displayName) ?: return null
+            VolumeCopyInput(metadata.displayName, metadata.length, source)
+        }
+        val primaryIdentity = primary.source.identity()
+        val inputs = listOf(
+            VolumeCopyInput(primaryDisplayName, primaryIdentity.length, primary.source),
+        ) + required
+        val copyLimit = cacheDirectory.copyLimit()
+        val expectedTotal = inputs.fold(0L) { total, input ->
+            try {
+                Math.addExact(total, input.expectedSize)
+            } catch (error: ArithmeticException) {
+                throw ArchiveInputLimitException("Archive volume group size overflows")
+            }
+        }
+        if (expectedTotal > copyLimit) {
+            throw ArchiveInputLimitException("Insufficient cache storage for the archive volumes")
+        }
+
+        cleanupStaleInputs(cacheDirectory)
+        val directory = File(cacheDirectory, "$ARCHIVE_INPUT_DIRECTORY_PREFIX${UUID.randomUUID()}")
+        if (!directory.mkdirs()) {
+            throw IOException("Cannot create the archive volume cache directory")
+        }
+        val created = ArrayList<File>(inputs.size)
+        try {
+            var copiedTotal = 0L
+            inputs.forEach { input ->
+                val target = File(directory, input.displayName)
+                created += target
+                val copied = copyExactVolume(input.source, target, copyLimit - copiedTotal)
+                if (copied != input.expectedSize) {
+                    throw ArchiveVolumeChangedException(
+                        "Archive volume changed while it was being staged",
+                    )
+                }
+                copiedTotal = Math.addExact(copiedTotal, copied)
+            }
+            if (volumeSet.inspectIdentities() != expectedVolumeIdentities) {
+                throw ArchiveVolumeChangedException(
+                    "Archive volume catalog changed while it was being staged",
+                )
+            }
+            val primaryFile = created.first()
+            val companionSources = created.drop(1).associate { file ->
+                collisionKey(file.name) to file.asArchiveReadSource()
+            }
+            val localVolumeSet = LocalArchiveVolumeSet(directory, companionSources)
+            val source = VolumeAwareArchiveReadSource(
+                source = primaryFile.asArchiveReadSource(),
+                displayName = primaryDisplayName,
+                volumeSet = localVolumeSet,
+            )
+            val cacheKey = directory.absolutePath
+            activeCacheDirectories += cacheKey
+            return StagedArchive(
+                source = source,
+                bytes = primaryIdentity.length,
+                storage = ArchiveInputStorage.PRIVATE_CACHE,
+                privateCacheFiles = created.toList(),
+                onClosed = { activeCacheDirectories -= cacheKey },
+            )
+        } catch (error: Throwable) {
+            created.forEach { file -> runCatching { file.delete() } }
+            runCatching { directory.delete() }
+            throw error
+        }
+    }
+
     suspend fun materialize(
         staged: StagedArchive,
         cacheDirectory: File,
@@ -322,6 +416,47 @@ internal object ArchiveCacheStager {
         }
     }
 
+    private fun copyExactVolume(
+        source: ArchiveReadSource,
+        target: File,
+        limit: Long,
+    ): Long {
+        var copied = 0L
+        BufferedInputStream(source.openInputStream()).use { input ->
+            BufferedOutputStream(FileOutputStream(target)).use { output ->
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                while (true) {
+                    val read = input.read(buffer)
+                    if (read < 0) break
+                    copied = Math.addExact(copied, read.toLong())
+                    if (copied > limit) {
+                        throw ArchiveInputLimitException(
+                            "Insufficient cache storage for the archive volumes",
+                        )
+                    }
+                    output.write(buffer, 0, read)
+                }
+            }
+        }
+        return copied
+    }
+
+    private fun requireSafeVolumeName(value: String) {
+        require(value.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_VOLUME_DISPLAY_NAME_LENGTH) {
+            "Archive volume name length is invalid"
+        }
+        require(value != "." && value != ".." && value.any { !it.isWhitespace() }) {
+            "Archive volume name is invalid"
+        }
+        require(value.none { character ->
+            character == '/' ||
+                character == '\\' ||
+                character == '\u0000' ||
+                character.code < 0x20 ||
+                character.code == 0x7F
+        }) { "Archive volume name contains an unsafe character" }
+    }
+
     private fun resetToStartIfSeekable(source: ParcelFileDescriptor) {
         runCatching { Os.lseek(source.fileDescriptor, 0L, OsConstants.SEEK_SET) }
     }
@@ -364,6 +499,12 @@ internal object ArchiveCacheStager {
             }
             ?.forEach { child -> runCatching { child.deleteRecursively() } }
     }
+
+    private data class VolumeCopyInput(
+        val displayName: String,
+        val expectedSize: Long,
+        val source: ArchiveReadSource,
+    )
 
     private data class DirectDescriptorCandidate(
         val source: ArchiveReadSource,
