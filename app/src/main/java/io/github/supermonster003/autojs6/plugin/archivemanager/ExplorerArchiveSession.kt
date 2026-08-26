@@ -2,10 +2,22 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.Binder
 import android.os.Bundle
+import android.os.IBinder
 import android.os.ParcelFileDescriptor
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
+import org.autojs.plugin.explorer.api.ExplorerArchiveOperationKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
+import org.autojs.plugin.explorer.api.IExplorerActionHostSession
+import org.autojs.plugin.explorer.api.IExplorerArchiveOperationCallback
 import org.autojs.plugin.explorer.api.IExplorerArchiveSession
 import java.io.InterruptedIOException
 import java.security.MessageDigest
@@ -40,6 +52,9 @@ internal class ExplorerArchiveSession(
     private val streamExecutor = Executors.newSingleThreadExecutor { runnable ->
         Thread(runnable, "archive-entry-stream").apply { isDaemon = true }
     }
+    private val operationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val operationLock = Any()
+    private val activeOperations = LinkedHashMap<String, ExtractionOperationState>()
 
     init {
         val index = ArchiveIndex(snapshot, isolatedPathDisplayName)
@@ -92,6 +107,10 @@ internal class ExplorerArchiveSession(
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES,
                 formatCapabilities.canPreview,
+            )
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES,
+                formatCapabilities.canExtract,
             )
         }
     }
@@ -152,6 +171,84 @@ internal class ExplorerArchiveSession(
         return readEnd
     }
 
+    override fun extractEntries(
+        request: Bundle,
+        outputSession: IExplorerActionHostSession,
+        callback: IExplorerArchiveOperationCallback,
+    ) {
+        checkCaller()
+        checkOpen()
+        check(formatCapabilities.canExtract) { "Archive format cannot be extracted" }
+        val operationId = requireCanonicalOperationId(
+            request.getString(ExplorerArchiveOperationKeys.OPERATION_ID),
+        )
+        @Suppress("DEPRECATION")
+        val entryIds = request.getStringArrayList(ExplorerArchiveOperationKeys.ENTRY_IDS)
+            ?: throw IllegalArgumentException("Archive extraction target IDs are missing")
+        require(entryIds.isNotEmpty() && entryIds.size <= ExplorerActionProtocol.MAX_ARCHIVE_EXTRACTION_TARGETS) {
+            "Archive extraction target count is invalid"
+        }
+        require(entryIds.distinct().size == entryIds.size) {
+            "Archive extraction contains duplicate target IDs"
+        }
+        val selectedPaths = entryIds.mapTo(LinkedHashSet()) { entryId ->
+            require(entryId.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH) {
+                "Archive extraction target ID is invalid"
+            }
+            val sessionNode = requireNotNull(nodesById[entryId]) {
+                "Archive extraction target does not exist"
+            }
+            require(sessionNode.node.canRequestExtraction()) {
+                "Archive extraction target is unavailable"
+            }
+            sessionNode.node.path
+        }
+
+        lateinit var state: ExtractionOperationState
+        val job = operationScope.launch(start = CoroutineStart.LAZY) {
+            try {
+                ExplorerArchiveExtractionOperation(
+                    operationId = operationId,
+                    displayName = displayName,
+                    source = stagedArchive.source,
+                    snapshot = snapshot,
+                    selectedPaths = selectedPaths,
+                    outputSession = outputSession,
+                    callback = callback,
+                ).run()
+            } finally {
+                finishOperation(operationId, state)
+            }
+        }
+        val deathRecipient = IBinder.DeathRecipient {
+            job.cancel(CancellationException("Archive extraction host callback was released"))
+        }
+        state = ExtractionOperationState(job, callback.asBinder(), deathRecipient)
+        try {
+            synchronized(operationLock) {
+                checkOpen()
+                check(activeOperations.isEmpty()) { "Another archive extraction is already running" }
+                callback.asBinder().linkToDeath(deathRecipient, 0)
+                activeOperations[operationId] = state
+            }
+            job.start()
+        } catch (error: Throwable) {
+            synchronized(operationLock) { activeOperations.remove(operationId) }
+            runCatching { callback.asBinder().unlinkToDeath(deathRecipient, 0) }
+            job.cancel()
+            throw error
+        }
+    }
+
+    override fun cancelExtraction(operationId: String?) {
+        checkCaller()
+        checkOpen()
+        val normalizedId = requireCanonicalOperationId(operationId)
+        synchronized(operationLock) { activeOperations[normalizedId] }
+            ?.job
+            ?.cancel(CancellationException("Archive extraction was cancelled by the host"))
+    }
+
     override fun close() {
         checkCaller()
         closeInternal()
@@ -163,6 +260,14 @@ internal class ExplorerArchiveSession(
 
     private fun closeInternal() {
         if (!closed.compareAndSet(false, true)) return
+        val operations = synchronized(operationLock) {
+            activeOperations.values.toList().also { activeOperations.clear() }
+        }
+        operations.forEach { operation ->
+            runCatching { operation.callbackBinder.unlinkToDeath(operation.deathRecipient, 0) }
+            operation.job.cancel(CancellationException(STREAM_CLOSED_MESSAGE))
+        }
+        operationScope.cancel(CancellationException(STREAM_CLOSED_MESSAGE))
         val streamWriters = synchronized(streamLock) {
             activeStreamWriters.toList().also { activeStreamWriters.clear() }
         }
@@ -172,6 +277,15 @@ internal class ExplorerArchiveSession(
         streamExecutor.shutdownNow()
         stagedArchive.close()
         onClosed(this)
+    }
+
+    private fun finishOperation(operationId: String, expected: ExtractionOperationState) {
+        val removed = synchronized(operationLock) {
+            activeOperations[operationId]
+                ?.takeIf { it === expected }
+                ?.also { activeOperations.remove(operationId) }
+        } ?: return
+        runCatching { removed.callbackBinder.unlinkToDeath(removed.deathRecipient, 0) }
     }
 
     private fun streamEntry(entry: ArchiveEntry, writeEnd: ParcelFileDescriptor) {
@@ -226,9 +340,25 @@ internal class ExplorerArchiveSession(
             putLong(ExplorerArchiveSessionKeys.LAST_MODIFIED, entry?.modifiedTimeMillis ?: 0L)
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_EXTRACT,
-                node.isDirectory || formatCapabilities.canPreview && entry?.canOpen == true,
+                node.canRequestExtraction(),
             )
         }
+    }
+
+    private fun ArchiveNode.canRequestExtraction(): Boolean = when {
+        path == ArchivePathPolicy.ROOT_PATH -> formatCapabilities.canExtract
+        snapshot.isIsolatedPath(path) -> false
+        isDirectory -> formatCapabilities.canExtract
+        else -> formatCapabilities.canExtract && entry?.canExtract == true
+    }
+
+    private fun requireCanonicalOperationId(value: String?): String {
+        val normalized = requireNotNull(value) { "Archive extraction operation ID is missing" }
+        val parsed = runCatching { UUID.fromString(normalized) }.getOrNull()
+        require(parsed?.toString()?.equals(normalized, ignoreCase = true) == true) {
+            "Archive extraction operation ID is invalid"
+        }
+        return normalized
     }
 
     private fun stableEntryId(path: String): String = MessageDigest.getInstance("SHA-256")
@@ -239,4 +369,10 @@ internal class ExplorerArchiveSession(
         const val ROOT_ID = "root"
         const val STREAM_CLOSED_MESSAGE = "Archive session is closed"
     }
+
+    private data class ExtractionOperationState(
+        val job: Job,
+        val callbackBinder: IBinder,
+        val deathRecipient: IBinder.DeathRecipient,
+    )
 }

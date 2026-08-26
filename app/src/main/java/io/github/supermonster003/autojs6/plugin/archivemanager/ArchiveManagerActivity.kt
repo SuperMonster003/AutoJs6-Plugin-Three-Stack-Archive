@@ -1671,7 +1671,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         val destinationBinding = DialogExtractionDestinationBinding.inflate(layoutInflater)
         destinationBinding.destinationMessage.text = getString(
             R.string.dialog_message_extraction_destination,
-            extractionRootName(openRequest.displayName, snapshot?.format ?: ArchiveFormat.ZIP),
+            ArchiveExtractionNaming.rootName(openRequest.displayName, snapshot?.format ?: ArchiveFormat.ZIP),
         )
         destinationBinding.currentFolderButton.text = getString(
             R.string.text_extraction_destination_current_folder,
@@ -1772,7 +1772,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         operationJob = lifecycleScope.launch {
             var reportedResidualOutputs = emptyList<ArchiveOutputLocation>()
             try {
-                val rootName = extractionRootName(
+                val rootName = ArchiveExtractionNaming.rootName(
                     displayName = request?.displayName.orEmpty(),
                     format = archive.format,
                 )
@@ -2295,18 +2295,6 @@ class ArchiveManagerActivity : AppCompatActivity() {
         )
     }
 
-    private fun extractionRootName(
-        displayName: String,
-        format: ArchiveFormat,
-    ): String {
-        val candidate = (format.baseNameWithoutArchiveExtension(displayName)
-            ?: displayName.substringBeforeLast('.', displayName))
-            .ifBlank { DEFAULT_EXTRACTION_ROOT }
-            .take(MAX_EXTRACTION_ROOT_LENGTH)
-        return runCatching { ArchivePathPolicy.validateDestinationRootName(candidate) }
-            .getOrDefault(DEFAULT_EXTRACTION_ROOT)
-    }
-
     private fun formatBytes(bytes: Long): String = when {
         bytes < 0L -> getString(R.string.text_unknown)
         else -> Formatter.formatFileSize(this, bytes)
@@ -2437,13 +2425,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
     )
 
     private companion object {
-        const val DEFAULT_EXTRACTION_ROOT = "archive"
         const val COMPACT_HEADER_MIN_HEIGHT_DP = 600
         const val ULTRA_COMPACT_HEADER_MIN_HEIGHT_DP = 400
         const val MIB = 1_024L * 1_024L
         const val GIB = 1_024L * MIB
         const val MAX_MIB_VALUE = Long.MAX_VALUE / MIB
-        const val MAX_EXTRACTION_ROOT_LENGTH = 120
         const val MAX_FILENAME_CHARSET_LENGTH = 64
         const val MAX_SAVED_STATE_CHARS = 128 * 1024
         const val MAX_SAVED_STATE_PATHS = 2_048

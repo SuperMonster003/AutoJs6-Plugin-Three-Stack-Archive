@@ -1,5 +1,16 @@
 # Release notes
 
+## v2.3.0
+
+_2026/08/26_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v10 (version code 5276 or newer)
+- `Added` The native archive page can now extract the current internal folder from the path bar or selected entries from the selection bar without opening a separate management page
+- `Added` Native extraction writes through a host-owned output tree with progress, cancellation, safe conflict numbering, and automatic Explorer refresh
+- `Fixed` Leaving an archive on Android 7 no longer crashes while the host cleans its preview cache
+- `Fixed` Labels in the five-action file selection bar are centered below their icons on narrow screens
+- `Improved` Archive selection mode now shows only Exit and Extract, hiding filesystem actions that do not apply inside an archive
+
 ## v2.2.0
 
 _2026/08/26_

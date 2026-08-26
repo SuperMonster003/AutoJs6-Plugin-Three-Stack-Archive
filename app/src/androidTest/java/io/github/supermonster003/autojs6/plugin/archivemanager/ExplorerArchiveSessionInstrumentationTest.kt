@@ -53,6 +53,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertEquals("session-test.zip", info.getString(ExplorerArchiveSessionKeys.DISPLAY_NAME))
         assertEquals("root", info.getString(ExplorerArchiveSessionKeys.ROOT_ID))
         assertTrue(info.getBoolean(ExplorerArchiveSessionKeys.CAN_OPEN_ENTRIES))
+        assertTrue(info.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES))
 
         val firstPage = session.listChildren(
             "root",
@@ -291,7 +292,7 @@ class ExplorerArchiveSessionInstrumentationTest {
                 .orEmpty()
                 .single()
             assertEquals("../preview.txt", isolatedEntry.getString(ExplorerArchiveSessionKeys.NAME))
-            assertTrue(isolatedEntry.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+            assertFalse(isolatedEntry.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
 
             val actual = ParcelFileDescriptor.AutoCloseInputStream(
                 session.openEntry(requireNotNull(isolatedEntry.getString(ExplorerArchiveSessionKeys.ID))),

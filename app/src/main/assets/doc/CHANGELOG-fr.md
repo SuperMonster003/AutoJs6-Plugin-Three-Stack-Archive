@@ -1,5 +1,16 @@
 # Notes de version
 
+## v2.3.0
+
+_2026/08/26_
+
+- `Note` Cette version exige la compilation AutoJs6 6.8.0 associée avec Explorer Action v10 (code de version 5276 ou ultérieur)
+- `Ajout` La page native des archives peut maintenant extraire le dossier interne courant depuis la barre de chemin ou les entrées cochées depuis la barre de sélection, sans ouvrir une page de gestion distincte
+- `Ajout` L'extraction native écrit dans une arborescence de sortie appartenant à l'hôte, avec progression, annulation, numérotation sûre des conflits et actualisation automatique d'Explorer
+- `Correction` Quitter une archive sous Android 7 ne provoque plus de plantage pendant le nettoyage du cache d'aperçu par l'hôte
+- `Correction` Les libellés de la barre de sélection à cinq actions sont centrés sous leurs icônes sur les écrans étroits
+- `Amélioration` Le mode de sélection d'archive n'affiche plus que Quitter et Extraire, et masque les actions du système de fichiers sans objet dans une archive
+
 ## v2.2.0
 
 _2026/08/26_

@@ -37,6 +37,7 @@ Archive Manager integra la exploración, extracción, creación y gestión de ar
 
 - Abrir archivos de las familias ZIP, 7Z y TAR directamente en la lista nativa de AutoJs6, con el tema, el modo oscuro y los colores dinámicos del host.
 - Mostrar el directorio externo, el nombre del archivo y el directorio interno en la barra de ruta; tocar un nivel para ir a él y usar Atrás para subir antes de salir del archivo.
+- Extraer la carpeta interna actual desde la barra de ruta, o entrar en el modo de selección y extraer los archivos y carpetas marcados, sin salir de la página nativa del host; se muestra el progreso, la tarea se puede cancelar y el directorio padre se actualiza al terminar.
 - Abrir entradas compatibles de documentos, imágenes, audio y vídeo con los visores existentes del host.
 - Usar «Extraer en...» para extraer todo el archivo en la carpeta recomendada junto a él, o elegir otra carpeta con el selector del sistema Android; los nombres de carpeta equivalentes que ya existan se numeran de forma segura.
 - Elige «Gestionar archivo...» para abrir la página de gestión, extraer todo el archivo, la carpeta interna actual o la selección marcada, o editar un ZIP normal de un solo volumen con «Añadir archivos...», «Añadir carpeta...», «Nueva carpeta...», «Cambiar nombre...» y «Eliminar»; «Extraer en...» sigue siendo el acceso para el archivo completo.
@@ -76,7 +77,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración completa usa Explorer Action v9 para la salida de directorios verificada y su recuperación, v8 para el reemplazo verificado del objetivo, v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La edición se aplica actualmente a archivos `.zip` normales de un solo volumen. La extracción por entrada dentro de la página nativa del host, la lectura de volúmenes divididos existentes, el cifrado de nombres al crear, la eliminación de fuentes y la edición de JAR/AAR/WAR, 7Z o la familia TAR aún no son funciones publicadas. El Roadmap es la referencia.
+> La integración completa usa Explorer Action v10 para extraer la carpeta actual o las entradas seleccionadas en la página nativa, v9 para la salida de directorios verificada y su recuperación, v8 para el reemplazo verificado del objetivo, v7 para verificar la salida antes de confirmarla, v6 para la exploración nativa y la vista previa, y sesiones de archivo v4 para comprimir; requiere AutoJs6 con código de versión 5276 o posterior. La edición se aplica actualmente a archivos `.zip` normales de un solo volumen. La lectura de volúmenes divididos existentes, las solicitudes nativas de contraseña y codificación de nombres, el cifrado de nombres al crear, la eliminación de fuentes y la edición de JAR/AAR/WAR, 7Z o la familia TAR aún no son funciones publicadas. El Roadmap es la referencia.
 
 ### Uso
 
@@ -84,7 +85,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR.
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú. Usa la carpeta actual recomendada o elige otra con el selector del sistema Android y confirma la ruta exacta de salida.
-5. Para extraer un ámbito concreto, elige «Gestionar archivo...», navega o marca entradas en la página de gestión, pulsa «Extraer en...», elige el ámbito y después selecciona la carpeta de salida.
+5. Para extraer la carpeta interna actual, pulsa el botón de extracción a la derecha de la barra de ruta. Para extraer entradas concretas, mantén pulsada una entrada, marca archivos o carpetas y pulsa «Extraer» en la barra inferior. Usa «Gestionar archivo...» o «Extraer en...» cuando necesites una contraseña, corregir la codificación, confirmar rutas no seguras, configurar conflictos o elegir otra carpeta.
 6. Para editar un ZIP normal de un solo volumen, elige «Gestionar archivo...» y usa «Añadir archivos...», «Añadir carpeta...» para importar un árbol completo, «Nueva carpeta...» para crear una carpeta vacía, «Cambiar nombre...» o «Eliminar». Espera a que terminen la reconstrucción, la verificación y el mensaje de éxito antes de salir de la página.
 7. Antes de extraer en la página de gestión, elige cómo tratar los nombres de salida equivalentes. Preguntar cada vez permite aplicar una decisión de omitir, sobrescribir o renombrar automáticamente a todos los conflictos compatibles restantes.
 8. Para crear un archivo, elige «Comprimir...» en el menú de un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa «Comprimir...» en la barra inferior. Para crear un archivo por elemento, activa «Comprimir cada elemento por separado», revisa la vista previa y crea; este modo siempre resuelve los conflictos con numeración automática segura. Para ZIP, elige Sin división, un valor MiB habitual o un entero personalizado de 1 a 4096 MiB; si la salida supera ese tamaño, contiene volúmenes `.z01`, `.z02`, ... y un `.zip` final, mientras que una salida menor permanece como un único `.zip`.
@@ -101,11 +102,22 @@ Los nombres no seguros solo se muestran como texto de solo lectura detrás de id
 
 ### Roadmap
 
-Las tareas y criterios para formatos editables más allá de ZIP normal, lectura de volúmenes divididos, extracción por entrada dentro de la página nativa del host, deshacer, la recuperación de fallos restante y la matriz completa de dispositivos están en el Roadmap. Una casilla sin marcar no es una función actual.
+Las tareas y criterios para formatos editables más allá de ZIP normal, lectura de volúmenes divididos, solicitudes nativas de contraseña y codificación de nombres, cifrado de nombres al crear, eliminación de fuentes, deshacer y la recuperación de fallos restante están en el Roadmap. Una casilla sin marcar no es una función actual.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.3.0
+
+_2026/08/26_
+
+- `Nota` Esta versión requiere la compilación asociada de AutoJs6 6.8.0 con Explorer Action v10 (código de versión 5276 o posterior)
+- `Añadido` La página nativa de archivos ahora puede extraer la carpeta interna actual desde la barra de ruta o las entradas marcadas desde la barra de selección sin abrir una página de gestión separada
+- `Añadido` La extracción nativa escribe mediante un árbol de salida propiedad del host, con progreso, cancelación, numeración segura de conflictos y actualización automática de Explorer
+- `Corregido` Salir de un archivo en Android 7 ya no provoca un fallo mientras el host limpia la caché de vistas previas
+- `Corregido` Las etiquetas de la barra de selección de cinco acciones se centran bajo sus iconos en pantallas estrechas
+- `Mejorado` El modo de selección de archivos ahora solo muestra Salir y Extraer, y oculta las acciones del sistema de archivos que no se aplican dentro de un archivo
 
 #### v2.2.0
 
@@ -127,55 +139,6 @@ _2026/08/25_
 - `Añadido` Explorer Action v8 reconstruye en una salida pendiente propiedad del host, relee por completo el resultado, reemplaza atómicamente el original solo tras verificarlo y actualiza automáticamente la fila de Explorer
 - `Mejorado` Cada cambio se valida antes como un plan inmutable que comprueba rutas peligrosas, nombres duplicados o equivalentes, conflictos de archivo/directorio, entradas conservadas no compatibles y cambios de la fuente antes de confirmar la salida de reemplazo
 - `Mejorado` La reconstrucción ZIP conserva el contenido Stored/Deflate, las marcas de tiempo utilizables y el cifrado ZipCrypto/AES compatible; la cancelación o cualquier fallo de validación descarta la salida pendiente y deja intacto el archivo original
-
-#### v2.0.0
-
-_2026/08/25_
-
-- `Añadido` El producto pasa a llamarse Archive Manager y la acción, Abrir archivo comprimido
-- `Añadido` Explorer Action v5 explora archivos en la lista nativa de AutoJs6 con la barra de ruta, el tema y la navegación Atrás existentes
-- `Añadido` Explorer Action v6 abre entradas compatibles con los visores de documentos, imágenes, audio y vídeo del host
-- `Añadido` Acceso Extraer en... para elegir destino y extraer todo el archivo
-- `Añadido` Gestionar archivo... abre la página de gestión con los ámbitos de extracción de archivo completo, carpeta interna actual y selección marcada, manteniendo el acceso directo para todo el archivo
-- `Añadido` Políticas de conflicto al extraer para preguntar, omitir, sobrescribir o renombrar automáticamente, con aplicación global, recuentos precisos y conservación de carpetas de salida existentes
-- `Añadido` Explorer Action v4 añade Comprimir... a los menús de archivos y carpetas y a la barra de cinco acciones para selecciones del mismo directorio padre
-- `Añadido` Creación de ZIP con nombre predeterminado, niveles de compresión, progreso, cancelación y numeración automática de conflictos
-- `Añadido` Creación de ZIP divididos estándar, también con AES-256, mediante tamaños MiB habituales o un entero personalizado; todo el conjunto comparte un nombre base seguro y el `.zip` final aparece después de los volúmenes numerados
-- `Añadido` Creación de un archivo por elemento de una selección del mismo directorio padre, con vista previa de salidas, numeración automática de conflictos y conservación explícita de las salidas completadas tras un fallo o una cancelación posteriores
-- `Añadido` Creación de 7Z no solid con niveles de 0 a 9 y cifrado de contenido AES-256 opcional; los nombres siguen visibles y no se anuncia cifrado de nombres inexistente
-- `Añadido` Creación de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST con niveles propios y actualización completa de extensiones compuestas
-- `Añadido` Exploración y extracción de ZIP cifrados con ZipCrypto/AES, reintento de una contraseña incorrecta en el mismo lugar y creación opcional de ZIP con AES-256 cuyos nombres siguen visibles y confirmación de contraseña coincidente
-- `Añadido` Exploración, vista previa y extracción de 7Z normales o solid con cadenas comunes de compresión y filtros, cifrado AES del contenido y de la cabecera; las contraseñas ausentes o erróneas reciben un diagnóstico explícito
-- `Añadido` Exploración, vista previa y extracción de TAR sin comprimir en la lista nativa con validación de la suma de comprobación de cabeceras; enlaces, nodos de dispositivo y entradas dispersas quedan solo para lectura
-- `Añadido` Exploración, vista previa y extracción de TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 y TAR.ZST/TZST por las mismas rutas nativas; la detección verifica la firma del compresor y la estructura TAR interna
-- `Añadido` Presupuestos de extracción Compatible, Estricto y Personalizado; los archivos que superan el presupuesto siguen disponibles en modo de solo lectura y muestran salida estimada, dimensiones excedidas y una confirmación única antes de escribir
-- `Añadido` El progreso de extracción muestra elementos, bytes, el elemento actual, la velocidad y el tiempo restante estimado, con cancelación fiable
-- `Corregido` La lista ZIP usa metadatos y admite preámbulos autoextraíbles, codificaciones antiguas, separadores Windows y más métodos legibles
-- `Corregido` Los ZIP divididos estándar `.z01 + .zip` ahora indican los volúmenes anteriores necesarios en lugar de marcar el volumen final como dañado
-- `Corregido` La codificación de nombres ZIP se puede cambiar cuando la detección automática sea incorrecta y la extracción reutiliza la selección
-- `Corregido` Los tamaños desconocidos, URI DocumentsProvider válidos y permisos de escritura adicionales del host ya no bloquean archivos válidos
-- `Corregido` Corregida la exploración y extracción de ZIP en Android 7.x, que fallaba al llamar a API exclusivas de sistemas más recientes
-- `Corregido` Los ZIP con nombres Unicode se abren ahora correctamente en Android 7, incluso si falta la marca de nombre UTF-8 o el backend la interpreta de forma incoherente
-- `Corregido` Las contraseñas incorrectas ahora se clasifican de forma estable como PASSWORD/WRONG_PASSWORD y las entradas AES v2 con CRC almacenado igual a cero ya no se marcan erróneamente como dañadas
-- `Corregido` La carpeta de extracción predeterminada de extensiones compuestas como TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST elimina ahora el sufijo completo en lugar de conservar `.tar`
-- `Corregido` Los archivos con nombres que contienen recorridos al directorio padre, rutas absolutas, prefijos de unidad o caracteres de control siguen siendo explorables; esos nombres pasan a una carpeta aislada de solo lectura, conservan la vista previa cuando sus datos son legibles y deben omitirse explícitamente antes de extraer
-- `Corregido` La extracción ya no sobrescribe archivos ni carpetas existentes cuando el proveedor de destino considera idénticos los nombres que solo difieren en mayúsculas o minúsculas o son equivalentes en Unicode; las carpetas de salida equivalentes se numeran automáticamente
-- `Corregido` La cancelación o un fallo de extracción revierte la nueva raíz de salida en una fase de limpieza no cancelable; si el proveedor rechaza la eliminación, se muestran el nombre y el URI del posible residuo en lugar de solo un error genérico
-- `Corregido` La creación de 7Z cifrados funciona ahora en Android 7 y la verificación empareja entradas por ruta para que las diferencias válidas de orden del backend no produzcan fallos falsos
-- `Corregido` La página de gestión se adapta ahora a pantallas bajas en vertical y horizontal: el archivo y la ruta pasan a la barra, los ajustes siguen disponibles en una fila horizontal compacta y las entradas y acciones permanecen visibles con fuentes de hasta 2,0x
-- `Mejorado` Se eliminaron el límite fijo de 4 GiB y los umbrales de tamaño/ratio al explorar, manteniendo aislamiento y verificaciones
-- `Mejorado` Se añadió un Roadmap verificable y se reescribieron README y CHANGELOG
-- `Mejorado` La pantalla independiente sigue ahora el modo día/noche y los colores dinámicos Material
-- `Mejorado` Las salidas ZIP, 7Z y TAR pasan por una sesión del host vinculada al UID, usan un archivo temporal del mismo directorio y se confirman atómicamente sin permiso de almacenamiento ni sobrescrituras
-- `Mejorado` Las capacidades del formato y de cada entrada se comprueban de forma uniforme al previsualizar, extraer y crear, por lo que las opciones no disponibles permanecen desactivadas
-- `Mejorado` Los fallos identifican el formato, la etapa, un código estable y el motivo; las compilaciones de depuración permiten copiar el diagnóstico completo
-- `Mejorado` Los archivos normales ahora se exploran mediante canales con posición independiente sobre el descriptor de solo lectura del host, sin copiar todo el archivo; las entradas o lectores incompatibles (actualmente incluido ZIP cifrado) recurren a la caché privada, que se limpia al cerrar, fallar o caducar
-- `Mejorado` Se unificaron las transacciones de salida al crear ZIP, 7Z y TAR; las fuentes ilegibles y los fallos al reservar, abrir, escribir o confirmar tienen etapas estables, mientras que una cancelación no confirmada cierra la sesión, muestra la ruta prevista e impide un reintento inseguro
-- `Mejorado` La creación analiza el origen antes de abrir la salida temporal y muestra estados separados de análisis, compresión, verificación y confirmación, con el total de archivos, los bytes leídos y los tamaños desconocidos
-- `Mejorado` Los archivos creados se vuelven a leer por completo antes de publicarlos para comprobar formato, entradas, tamaños, CRC y huellas del contenido; cada volumen ZIP pendiente también se compara byte a byte
-- `Dependencia` Se añadió Zip4j 2.11.5 con licencia Apache 2.0 para flujos ZIP cifrados, creación AES-256 y la ruta de compatibilidad con Android 7.x
-- `Dependencia` Se añadió XZ for Java 1.12 con licencia 0BSD para leer y escribir TAR.XZ/TXZ en Java puro sin ABI nativas
-- `Dependencia` Se añadió zstd-jni 1.5.7-15 con licencia BSD para leer y escribir TAR.ZST/TZST; las cuatro ABI de Android superan las comprobaciones de alineación ELF de 16 KiB y RELRO
 
 ##### Historial completo
 

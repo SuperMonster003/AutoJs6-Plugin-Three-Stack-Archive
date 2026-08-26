@@ -37,6 +37,7 @@ Archive Manager brings archive browsing, extraction, creation, and management in
 
 - Open ZIP-, 7Z-, and TAR-family archives directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
 - Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
+- Extract the current internal folder from the path bar, or enter selection mode and extract selected files and folders, without leaving the native host page; progress is shown, the task can be cancelled, and the parent directory refreshes on completion.
 - Preview supported document, image, audio, and video entries with the host's existing viewers.
 - Use Extract to... to extract an entire archive into the recommended same-directory folder, or choose another folder with the Android system picker; equivalent existing folder names are safely numbered.
 - Choose Manage archive... to open the management page, extract the entire archive, current internal folder, or current checkbox selection, or edit an ordinary single-volume ZIP with Add files..., Add folder..., New folder..., Rename..., and Delete; Extract to... remains the whole-archive shortcut.
@@ -76,7 +77,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> The complete integration uses Explorer Action v9 for verified directory output and recovery, v8 for verified target replacement, v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Editing currently applies only to ordinary single-volume `.zip` files. Per-entry extraction inside the native host page, reading existing split volumes, filename encryption during creation, source deletion, and editing JAR/AAR/WAR, 7Z, or TAR-family archives are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
+> The complete integration uses Explorer Action v10 for native current-folder and selected-entry extraction, v9 for verified directory output and recovery, v8 for verified target replacement, v7 for pre-commit output verification, v6 for native browsing and entry preview, and v4 file sessions for compression; it requires AutoJs6 version code 5276 or newer. Editing currently applies only to ordinary single-volume `.zip` files. Reading existing split volumes, native password and filename-encoding prompts, filename encryption during creation, source deletion, and editing JAR/AAR/WAR, 7Z, or TAR-family archives are not released capabilities yet. Use the Roadmap checkboxes as the source of truth.
 
 ### Usage
 
@@ -84,7 +85,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu. Use the recommended current folder or choose another folder with the Android system picker, then confirm the exact output path.
-5. For a specific extraction range, choose Manage archive..., browse within the management page or tick entries, tap Extract to..., choose the range, and then select the output directory.
+5. To extract the current internal folder, use the extraction button at the right of the path bar. To extract specific entries, touch and hold an entry, select files or folders, and tap Extract in the bottom bar. Use Manage archive... or Extract to... when a password, encoding correction, unsafe-path confirmation, conflict policy, or another destination is required.
 6. To edit an ordinary single-volume ZIP, choose Manage archive... and use Add files..., Add folder... to import a complete folder tree, New folder... to create an empty folder, Rename..., or Delete. Wait for rebuilding, verification, and the success message before leaving the page.
 7. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
 8. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar. To create one archive per item, enable Compress each item separately, review the output preview, and create; this mode always resolves name conflicts with safe automatic numbering. For ZIP, choose No split, a common MiB preset, or a custom whole number from 1 to 4096 MiB; when output exceeds that size, it consists of `.z01`, `.z02`, ... numbered volumes and a final `.zip`, while smaller output remains one `.zip`.
@@ -101,11 +102,22 @@ Unsafe names are exposed only as read-only display text behind opaque IDs; they 
 
 ### Roadmap
 
-The implementation tasks and acceptance criteria for writable formats beyond ordinary ZIP, split-volume reading, per-entry extraction inside the native host page, undo, remaining failure recovery, and the full device matrix live in the Roadmap. Unchecked work is not a current feature.
+The implementation tasks and acceptance criteria for writable formats beyond ordinary ZIP, split-volume reading, native password and filename-encoding prompts, filename encryption during creation, source deletion, undo, and remaining failure recovery live in the Roadmap. Unchecked work is not a current feature.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.3.0
+
+_2026/08/26_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v10 (version code 5276 or newer)
+- `Added` The native archive page can now extract the current internal folder from the path bar or selected entries from the selection bar without opening a separate management page
+- `Added` Native extraction writes through a host-owned output tree with progress, cancellation, safe conflict numbering, and automatic Explorer refresh
+- `Fixed` Leaving an archive on Android 7 no longer crashes while the host cleans its preview cache
+- `Fixed` Labels in the five-action file selection bar are centered below their icons on narrow screens
+- `Improved` Archive selection mode now shows only Exit and Extract, hiding filesystem actions that do not apply inside an archive
 
 #### v2.2.0
 
@@ -127,55 +139,6 @@ _2026/08/25_
 - `Added` Explorer Action v8 rebuilds into host-owned pending output, fully reads the result back, atomically replaces the original only after verification, and refreshes the Explorer row automatically
 - `Improved` Every change is prevalidated as an immutable plan for unsafe paths, duplicate or equivalent names, file/directory collisions, unsupported retained entries, and source changes before replacement output is committed
 - `Improved` ZIP rebuilds retain stored or deflated entry content, usable timestamps, and supported ZipCrypto/AES encryption; cancellation or any validation failure aborts pending output and leaves the original archive unchanged
-
-#### v2.0.0
-
-_2026/08/25_
-
-- `Added` Renamed the product to Archive Manager and the file action to Open archive
-- `Added` Explorer Action v5 browses archives in the native AutoJs6 file list with the existing path bar, theme, and Back navigation
-- `Added` Explorer Action v6 opens supported archive entries with the host document, image, audio, and video viewers
-- `Added` Extract to... shortcut for choosing a destination and extracting the entire archive
-- `Added` Manage archive... opens the management page with whole-archive, current-internal-folder, and current-checkbox-selection extraction ranges while preserving the direct whole-archive shortcut
-- `Added` Ask, skip, overwrite, and auto-rename extraction conflict policies with Apply to all, accurate completion counts, and preservation of existing output folders
-- `Added` Explorer Action v4 adds Compress... to ordinary file and folder menus and to the five-action same-parent multi-selection bar
-- `Added` ZIP creation with default naming, compression levels, progress, cancellation, and automatic conflict numbering
-- `Added` Standard split ZIP creation, including AES-256, with common MiB presets or a custom whole-MiB size; one conflict-safe base name covers every volume, and the final `.zip` appears after the numbered parts
-- `Added` Create one archive per item in a same-parent multi-selection with an output preview, automatic conflict numbering, and explicit preservation and reporting of completed outputs after a later failure or cancellation
-- `Added` Non-solid 7Z creation with levels 0 through 9 and optional AES-256 content encryption; filenames remain visible and filename encryption is not misreported
-- `Added` TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST creation with format-specific levels and complete compound-extension updates
-- `Added` Browse and extract ZipCrypto/AES encrypted ZIP files, retry a wrong password in place, and optionally create AES-256 ZIP files whose names remain visible with matching password confirmation
-- `Added` Browse, preview, and extract ordinary or solid 7Z archives with common compression/filter pipelines, AES content encryption, and header encryption; missing and wrong passwords receive explicit diagnostics
-- `Added` Browse, preview, and extract uncompressed TAR files in the native host list with header-checksum validation; links, device nodes, and sparse entries remain list-only
-- `Added` Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST through the same native host paths; format detection verifies both the compressor signature and inner TAR structure
-- `Added` Compatible, Strict, and Custom extraction budgets; over-budget archives remain read-only browsable and show estimated output, exceeded dimensions, and one-time confirmation before writing
-- `Added` Extraction progress now shows entries, bytes, the current item, transfer rate, and estimated time remaining, with reliable cancellation
-- `Fixed` ZIP listings now use directory metadata and handle self-extracting-style preambles, legacy filename encodings, Windows separators, and more readable ZIP methods
-- `Fixed` Standard `.z01 + .zip` split ZIP files now identify the required earlier volumes instead of reporting the final volume as damaged
-- `Fixed` ZIP filename encoding can be overridden when automatic detection is wrong, and extraction reuses the selected encoding
-- `Fixed` Unknown or imprecise sizes, valid DocumentsProvider URIs, and extra host write grants no longer reject a valid archive before parsing
-- `Fixed` ZIP browsing and extraction now work on Android 7.x without calling runtime APIs that only exist on newer systems
-- `Fixed` ZIP files with Unicode names now open correctly on Android 7, including archives whose UTF-8 filename flag is missing or handled inconsistently
-- `Fixed` Wrong passwords now map consistently to PASSWORD/WRONG_PASSWORD, and AES v2 entries with a zero stored CRC are no longer misreported as damaged
-- `Fixed` Default extraction folders for compound extensions such as TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now remove the complete suffix instead of retaining `.tar`
-- `Fixed` Archives containing parent traversal, absolute, drive-prefixed, or control-character names remain browsable; unsafe names move to a read-only isolation folder, remain previewable when their data is readable, and require explicit skipping before extraction
-- `Fixed` Extraction no longer overwrites existing files or directories when a destination provider treats case or Unicode-equivalent names as identical; equivalent output-folder names are numbered automatically
-- `Fixed` Cancellation and extraction failures roll back the newly created output root in a non-cancellable cleanup phase; if a provider refuses deletion, the possible residual name and URI are listed instead of only a generic cleanup error
-- `Fixed` Encrypted 7Z creation now works on Android 7, and verification matches entries by path so valid backend ordering differences no longer cause false failures
-- `Fixed` The management page now adapts to short portrait and landscape screens: archive and path context move into the toolbar, settings remain available in a compact horizontal row, and entries and actions stay visible at up to 2.0x font scale
-- `Improved` Removed the fixed 4 GiB input cap and browse-time extraction-size/ratio gates while retaining path containment, integrity checks, and failure cleanup
-- `Improved` Added a checkable Roadmap and rewrote README and CHANGELOG to separate current behavior from planned work
-- `Improved` The transitional standalone screen now follows system day/night mode and Material dynamic colors
-- `Improved` ZIP, 7Z, and TAR-family output streams through a UID-bound host session to same-directory temporary output and commits atomically without storage permission or overwriting existing files
-- `Improved` Archive format and entry capabilities are checked consistently across preview, extraction, and creation, so unavailable options stay disabled
-- `Improved` Archive failures identify the format, processing stage, stable code, and reason; debug builds can copy complete diagnostics
-- `Improved` Ordinary archives now browse through independent positional channels over the host's read-only descriptor without a whole-file copy; incompatible inputs or readers (currently including encrypted ZIP) fall back to private cache, which is cleaned on close, failure, or expiry
-- `Improved` Unified ZIP, 7Z, and TAR-family creation output transactions; unreadable sources and reserve, open, write, or commit failures now carry stable stages, while unconfirmed rollback closes the session, shows the intended path, and prevents an unsafe retry
-- `Improved` Archive creation now scans sources before opening temporary output and shows separate scanning, compression, verification, and commit states with total files, bytes read, and unknown-size files
-- `Improved` Created archives are fully read back before publication to verify their format, entries, sizes, CRC values, and content fingerprints; every pending split ZIP volume is also compared byte for byte
-- `Dependency` Added Apache License 2.0 licensed Zip4j 2.11.5 for encrypted ZIP streams, AES-256 creation, and the Android 7.x compatibility path
-- `Dependency` Added 0BSD-licensed XZ for Java 1.12 for pure-Java TAR.XZ/TXZ reading and writing without native ABIs
-- `Dependency` Added BSD-licensed zstd-jni 1.5.7-15 for TAR.ZST/TZST reading and writing; all four Android ABIs pass 16 KiB ELF alignment and RELRO checks
 
 ##### Full history
 

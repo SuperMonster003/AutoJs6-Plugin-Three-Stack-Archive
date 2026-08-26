@@ -5,6 +5,23 @@
   "changelog_label_improvement": "Mejorado",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v2.3.0": {
+      "released_date": "2026/08/26",
+      "hint": [
+        "Esta versión requiere la compilación asociada de AutoJs6 6.8.0 con Explorer Action v10 (código de versión 5276 o posterior)"
+      ],
+      "feature": [
+        "La página nativa de archivos ahora puede extraer la carpeta interna actual desde la barra de ruta o las entradas marcadas desde la barra de selección sin abrir una página de gestión separada",
+        "La extracción nativa escribe mediante un árbol de salida propiedad del host, con progreso, cancelación, numeración segura de conflictos y actualización automática de Explorer"
+      ],
+      "fix": [
+        "Salir de un archivo en Android 7 ya no provoca un fallo mientras el host limpia la caché de vistas previas",
+        "Las etiquetas de la barra de selección de cinco acciones se centran bajo sus iconos en pantallas estrechas"
+      ],
+      "improvement": [
+        "El modo de selección de archivos ahora solo muestra Salir y Extraer, y oculta las acciones del sistema de archivos que no se aplican dentro de un archivo"
+      ]
+    },
     "v2.2.0": {
       "released_date": "2026/08/26",
       "hint": [

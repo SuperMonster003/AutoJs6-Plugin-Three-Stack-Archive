@@ -2,8 +2,8 @@
 
 本文档同时记录两类内容:
 
-- 已经落地并通过验证的 Explorer Action v4 受控文件会话、v5 只读档案列表、v6 条目读取会话、v7 待提交输出校验、v8 原目标替换与 v9 目录输出事务;
-- 当前 ZIP 管理 Activity 的写入边界, 以及为宿主原生档案页按项写出和更多可写格式预留的后续合同.
+- 已经落地并通过验证的 Explorer Action v4 受控文件会话、v5 只读档案列表、v6 条目读取会话、v7 待提交输出校验、v8 原目标替换、v9 目录输出事务与 v10 宿主原生解压;
+- 当前 ZIP 管理 Activity 的写入边界, 以及为宿主原生档案页创建、删除、重命名和更多可写格式预留的后续合同.
 
 完成状态以 [`ROADMAP.md`](../ROADMAP.md) 为准. 文中标记为“当前”的能力可以在现有宿主与插件中使用; 标记为“后续”的内容仍不可当作已发布功能.
 
@@ -23,13 +23,13 @@ AutoJs6 文件管理器现在可以从插件目录动态发现以下动作:
 
 多选操作栏使用五个等宽单元格, 图标在上、文字在下. 当前尺寸为 22 dp 图标与 11 sp 文字, 已在 411 dp 等效窄屏上完成真实点击和截图验证. 320/360/600 dp、大字体、横屏和 RTL 仍属于 Roadmap 中的测试矩阵.
 
-## Explorer Action v4/v5/v6/v7/v8/v9 目录
+## Explorer Action v4/v5/v6/v7/v8/v9/v10 目录
 
-v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再加入呈现方式和只读档案列表, v6 为会话增加受控条目读取, v7 为待提交输出增加只读重开校验, v8 增加经校验的原目标替换, v9 增加受控目录树输出与恢复:
+v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再加入呈现方式和只读档案列表, v6 为会话增加受控条目读取, v7 为待提交输出增加只读重开校验, v8 增加经校验的原目标替换, v9 增加受控目录树输出与恢复, v10 为宿主原生档案页增加按条目解压、进度和取消:
 
 | 字段 | 语义 |
 | --- | --- |
-| `protocolVersion` | 当前为 `9` |
+| `protocolVersion` | 当前为 `10` |
 | `targetKind` | `FILE`、`DIRECTORY` 或 `MIXED` |
 | `cardinality` | `SINGLE` 或 `MULTIPLE` |
 | `accessMode` | `READ_ONLY`、`CREATE_IN_PARENT` 或 `REPLACE_TARGET` |
@@ -40,7 +40,7 @@ v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再�
 
 当前压缩动作使用通配 MIME/扩展名和 `FILE`/`DIRECTORY`/`MIXED` 目标, 因此能覆盖普通文件、目录和同父级混合多选. 打开与整包快捷解压动作匹配 ZIP/JAR/AAR/WAR、7Z、TAR 及已注册的 GZIP/XZ/BZIP2/Zstandard 压缩 TAR 别名. `manage-archive` 目录只按 `.zip` 扩展名初筛, 不匹配 JAR/AAR/WAR、7Z 或 TAR 系列; 标准分卷末卷也以 `.zip` 结尾, 因而必须在插件结构探测后保持不可修改.
 
-每个目录字段都有数量或长度上限. 宿主会拒绝非法目标类型、基数、位置、授权和呈现方式组合, 而不是静默扩大插件权限. `HOST_EXPLORER` 在 v5 及后续版本中只允许 `FILE + SINGLE + READ_ONLY + PRIMARY` 动作, 不能借此获取目录写入或多选能力. v8 的 `REPLACE_TARGET` 只接受 `FILE + SINGLE + OVERFLOW + ACTIVITY`, 且不能同时声明独立输出. v9 目录输出复用 `CREATE_IN_PARENT` 授权; `manage-archive` 的替换授权不会隐式扩大为父目录创建权限.
+每个目录字段都有数量或长度上限. 宿主会拒绝非法目标类型、基数、位置、授权和呈现方式组合, 而不是静默扩大插件权限. `HOST_EXPLORER` 在 v5 及后续版本中只允许 `FILE + SINGLE + READ_ONLY + PRIMARY` 动作, 不能借此获取目录写入或多选能力. v8 的 `REPLACE_TARGET` 只接受 `FILE + SINGLE + OVERFLOW + ACTIVITY`, 且不能同时声明独立输出. v9 目录输出复用 `CREATE_IN_PARENT` 授权; `manage-archive` 的替换授权不会隐式扩大为父目录创建权限. v10 解压请求只传递当前会话内的不透明条目 ID; 实际写入只能通过宿主单独建立的 v9 输出树进行.
 
 ## v4 执行请求
 
@@ -281,7 +281,7 @@ attachClient
 
 ## 路径栏与宿主原生档案页面
 
-宿主的普通文件路径栏已经实现. v4 压缩请求复用它所在页面的父目录并传递规范显示路径; v5-v9 档案页面直接使用同一个路径栏和文件列表, 不创建插件私有导航界面.
+宿主的普通文件路径栏已经实现. v4 压缩请求复用它所在页面的父目录并传递规范显示路径; v5-v10 档案页面直接使用同一个路径栏和文件列表, 不创建插件私有导航界面.
 
 进入档案时, 宿主保存原 Explorer、根页面、当前页面、历史栈和滚动状态, 再切换到只读档案 provider. 当前逻辑状态为:
 
@@ -302,7 +302,7 @@ ArchivePathState
 
 档案名和内部祖先页面可点击跳转. 点击外部层级会先关闭档案会话, 再回到对应文件系统目录. 普通浏览状态下, 返回键先回到档案内部上一级, 到达根目录后再关闭会话并恢复进入前的文件系统页面与滚动状态.
 
-档案目录当前复用宿主的列表、排序、搜索、下拉刷新、加载、错误、空状态、主题、暗色模式、动态色和系统栏. 目录项可以下钻; v6 可读取条目会按宿主原有类型规则使用文档、图片或媒体预览器, 不支持预览的类型仍明确不可用. 宿主原生档案页尚未提供内部选择写出与修改任务接口, 因而内部条目菜单和浮动创建按钮继续禁用. `manage-archive`、`extract-to` 与压缩表单由插件 Activity 呈现, 其中管理动作的目标替换由 v8 宿主会话控制.
+档案目录当前复用宿主的列表、排序、搜索、下拉刷新、加载、错误、空状态、主题、暗色模式、动态色和系统栏. 目录项可以下钻; v6 可读取条目会按宿主原有类型规则使用文档、图片或媒体预览器, 不支持预览的类型仍明确不可用. v10 在路径栏右侧提供当前内部目录解压, 并在条目选择模式中仅显示“退出”和“解压”; 文件系统页面的五项工具栏仍保留原有动作. 档案内创建、删除和重命名仍不可用, 浮动创建按钮继续禁用. `manage-archive`、`extract-to` 与压缩表单由插件 Activity 呈现, 其中管理动作的目标替换由 v8 宿主会话控制.
 
 ## 管理页解压与 ZIP 修改
 
@@ -328,15 +328,30 @@ ArchivePathState
 
 冲突策略不会把本次任务扩展为对既有目录的非事务式修改. 若系统选择目录下已经有同名输出根, 根目录仍自动编号, 原目录及其内容不会被读取、合并、覆盖或删除. 这个边界保证任何后续失败或取消都只需删除本次新建的根, 不会要求在通用 SAF provider 上备份并恢复用户原有内容.
 
-## 后续宿主原生可写档案 provider
+## v10 宿主原生解压与后续可写档案 provider
 
-当前 v8 已为插件 Activity 提供单目标事务替换. 后续若要把相同操作直接放入宿主原生档案页面, 仍需在 v6 只读列表和条目流基础上增加选择能力与任务接口:
+v10 在 `IExplorerArchiveSession` 末尾追加 `extractEntries(request, outputSession, callback)` 与 `cancelExtraction(operationId)`. `request` 只包含 UUID 操作标识和当前会话内有序去重的不透明条目 ID; 单次最多 128 项. 宿主为每个任务单独建立 v9 目录输出会话, 插件不获得父目录路径、URI 或任意写权限.
+
+one-way 回调只允许以下有界事件:
+
+```text
+onProgress(operationId, phase, completedEntries, totalEntries,
+           writtenBytes, totalBytes, currentEntry)
+onCompleted(operationId, outputDisplayName, completedEntries, writtenBytes)
+onFailed(operationId, errorCode, safeMessage)
+```
+
+宿主同时校验插件 UID、操作标识、阶段、单调计数与文本长度; 每个档案会话只允许一个活动解压任务. 取消、插件 Binder 死亡、宿主页面离开或任何失败都关闭并回滚未发布输出; 只有插件完成写入、宿主校验整棵树并提交后, 才显示新目录并刷新 Explorer.
+
+“当前目录”请求传递当前页直接子项, 其中目录由插件展开完整子树; “当前勾选”传递宿主选择栏中的不透明 ID. 需要密码、危险路径确认、编码修正或 SAF 目标的任务仍转入管理/解压 Activity, 不在 Binder 回调中弹出跨进程交互.
+
+v10 只交付了解压. 若要在宿主原生档案页中创建、删除或重命名, 后续仍需扩展选择能力查询和可回滚修改任务:
 
 ```text
 probe(target) -> DetectedFormat + FormatCapabilities
 search(sessionId, query, page) -> entries + nextPage
 capabilities(sessionId, selection) -> SelectionCapabilities
-startExtraction(...)/startMutation(...) -> taskId
+startMutation(...) -> taskId
 observeTask(taskId) -> progress/events
 cancelTask(taskId)
 ```
@@ -401,12 +416,12 @@ FormatCapabilities
 
 任务取消或写出失败后, 解压器进入 `NonCancellable` 清理区并只删除本次创建的输出根, 不碰触目标中原有内容. 如果 DocumentsProvider 拒绝删除或清理本身失败, 解压器同时保留类型化的 `ArchiveCleanupException` 并发出 `CLEANUP_FAILED` 进度事件; 后者不能仅依赖取消异常的 suppressed 链, 因为协程取消传播不保证该链能完整到达 UI. 事件携带完整、稳定的 `ArchiveOutputLocation`, 页面以有界且转义后的显示名和 URI 标识列出残留根, 让用户能够定位并手动处理.
 
-普通文件写出完成后按 reader 声明校验实际写入大小和 CRC; 完成整个选择后还会复核源身份. 任一校验失败都会进入相同回滚链路. v9 同级输出由宿主在提交点刷新, 插件不会发送私有广播. SAF 输出仍由对应 DocumentsProvider 管理可见性; 如果后续动作需要刷新没有参与宿主事务的其他文件系统目录, 仍应扩展公共类型化结果而不是引用宿主私有 action.
+普通文件写出完成后按 reader 声明校验实际写入大小和 CRC; 完成整个选择后还会复核源身份. 任一校验失败都会进入相同回滚链路. v9/v10 同级输出由宿主在提交点刷新, 插件不会发送私有广播. SAF 输出仍由对应 DocumentsProvider 管理可见性; 如果后续动作需要刷新没有参与宿主事务的其他文件系统目录, 仍应扩展公共类型化结果而不是引用宿主私有 action.
 
 ## 兼容与发布边界
 
 - 项目尚未公开发布, 因此直接使用 `archive-manager`、`io.github.supermonster003.autojs6.plugin.archivemanager` 和 Manager 类/资源名, 不保留旧命名别名.
-- 当前插件的原生浏览与条目预览使用 Explorer Action v6, 压缩入口使用 v4 文件会话, 创建后的提交前完整校验要求 v7, ZIP 修改使用 v8, 同目录解压使用 v9; 配套 AutoJs6 版本代码仍为 5276 或更高版本.
+- 当前插件的原生浏览与条目预览使用 Explorer Action v6, 压缩入口使用 v4 文件会话, 创建后的提交前完整校验要求 v7, ZIP 修改使用 v8, 受控目录输出使用 v9, 宿主原生当前目录/选择项解压使用 v10; 配套 AutoJs6 版本代码仍为 5276 或更高版本.
 - 宿主仍可解析 v1-v4 插件目录, 但本插件不会发布旧动作、旧协议目录或旧 applicationId 的兼容入口.
 - 后续协议字段必须保持显式版本与上限; 未知可选字段可以忽略, 未知必需能力必须明确拒绝.
 
