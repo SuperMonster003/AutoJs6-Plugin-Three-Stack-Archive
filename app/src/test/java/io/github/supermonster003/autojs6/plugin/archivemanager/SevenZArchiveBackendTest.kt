@@ -50,6 +50,10 @@ class SevenZArchiveBackendTest {
         )
 
         val entry = snapshot.entries.single { it.path == "plain.txt" }
+        assertEquals(
+            listOf("资料", "empty.bin", "plain.txt", "资料/说明.md"),
+            snapshot.entries.map(ArchiveEntry::path),
+        )
         val output = ByteArrayOutputStream()
         ArchiveEntryStreamer(source, snapshot).stream(entry, output)
 
@@ -140,6 +144,10 @@ class SevenZArchiveBackendTest {
         )
         assertEquals(ArchiveFormat.SEVEN_Z, snapshot.format)
         assertTrue(snapshot.entries.any(ArchiveEntry::isEncrypted))
+        val entry = snapshot.entries.single { it.path == "plain.txt" }
+        val output = ByteArrayOutputStream()
+        ArchiveEntryStreamer(source, snapshot).stream(entry, output)
+        assertArrayEquals(EXPECTED_PLAIN_BYTES, output.toByteArray())
         snapshot.readerOptions.clearPassword()
     }
 

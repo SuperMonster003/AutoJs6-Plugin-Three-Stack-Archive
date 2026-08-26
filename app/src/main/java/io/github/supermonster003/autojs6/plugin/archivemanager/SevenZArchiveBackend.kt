@@ -78,16 +78,27 @@ internal object SevenZArchiveBackend : ArchiveBackend {
 
     private fun openArchive(source: ArchiveReadSource, password: CharArray?): SevenZFile {
         val channel = source.openSeekableChannel()
+        val encodedPassword = password?.toSevenZPasswordBytes()
         return try {
             SevenZFile.builder()
                 .setSeekableByteChannel(channel)
                 .setDefaultName(source.displayName)
                 .setMaxMemoryLimitKiB(DECODER_MEMORY_LIMIT_KIB)
-                .apply { if (password != null) setPassword(password) }
+                .apply { if (encodedPassword != null) setPassword(encodedPassword) }
                 .get()
         } catch (error: Throwable) {
             runCatching { channel.close() }.exceptionOrNull()?.let(error::addSuppressed)
             throw error
+        } finally {
+            encodedPassword?.fill(0)
+        }
+    }
+
+    private fun CharArray.toSevenZPasswordBytes(): ByteArray = ByteArray(size * 2).also { bytes ->
+        forEachIndexed { index, character ->
+            val value = character.code
+            bytes[index * 2] = value.toByte()
+            bytes[index * 2 + 1] = (value ushr 8).toByte()
         }
     }
 

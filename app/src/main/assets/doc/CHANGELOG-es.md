@@ -1,5 +1,17 @@
 # Notas de la versión
 
+## v2.4.0
+
+_2026/08/26_
+
+- `Nota` Esta versión requiere AutoJs6 6.8.0 con Explorer Action v11, código de versión 5276 o posterior
+- `Añadido` Los archivos RAR4/RAR5 ya se pueden explorar, previsualizar y extraer, incluido el contenido o los encabezados cifrados; RAR sigue siendo deliberadamente de solo lectura
+- `Añadido` La página nativa de AutoJs6 puede pedir una contraseña al abrir por primera vez o durante la extracción y reintentar sin perder la ruta ni la selección
+- `Corregido` El primer volumen de un RAR dividido conserva sus metadatos legibles, pero deja de ofrecer extracción si no están disponibles los volúmenes hermanos
+- `Corregido` Una contraseña errónea borra la entrada anterior y reintenta sobre una instantánea sin cambios sin salir de la página nativa
+- `Mejorado` RAR lee directamente el descriptor seekable del host cuando es posible, no añade ABI nativas y reutiliza las comprobaciones de seguridad comunes
+- `Dependencia` Se añadieron Junrar 8.1.0 y SLF4J 2.0.17 para RAR de solo lectura bajo sus licencias incluidas
+
 ## v2.3.0
 
 _2026/08/26_

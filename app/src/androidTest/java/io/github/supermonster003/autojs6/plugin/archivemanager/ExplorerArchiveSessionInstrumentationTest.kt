@@ -306,6 +306,54 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertFalse(directory.exists())
     }
 
+    @Test
+    fun unavailableOnlySnapshotDoesNotAdvertiseHostExtraction() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = File(context.cacheDir, "archive-input-unavailable-session-test-${UUID.randomUUID()}")
+        assertTrue(directory.mkdirs())
+        val archive = File(directory, "source.zip")
+        ZipOutputStream(FileOutputStream(archive)).use { output ->
+            output.putNextEntry(ZipEntry("split-member.bin"))
+            output.write(byteArrayOf(1, 2, 3))
+            output.closeEntry()
+        }
+        val scanned = ArchiveScanner().scan(archive)
+        val unavailable = scanned.entries.single().copy(
+            capabilities = ArchiveEntryCapabilities(
+                canOpen = false,
+                canExtract = false,
+                canDelete = false,
+                canRename = false,
+                limitations = setOf(
+                    ArchiveEntryLimitation.MISSING_VOLUME,
+                    ArchiveEntryLimitation.MUTATION_UNAVAILABLE,
+                ),
+            ),
+        )
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "split-part01.rar",
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
+            snapshot = scanned.copy(entries = listOf(unavailable)),
+            onClosed = {},
+        )
+
+        try {
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES))
+            val item = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
+            assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+        } finally {
+            session.close()
+        }
+
+        assertFalse(archive.exists())
+        assertFalse(directory.exists())
+    }
+
     private fun createArchive(target: File) {
         ZipOutputStream(FileOutputStream(target)).use { output ->
             output.putNextEntry(ZipEntry("folder/"))

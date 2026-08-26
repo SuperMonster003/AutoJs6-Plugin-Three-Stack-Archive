@@ -132,6 +132,24 @@ class ArchiveExtractorTest {
     }
 
     @Test
+    fun `split archive extraction preserves the missing volume diagnosis`() {
+        val source = copyFixture("winrar-6.10-store-split.part1.rar")
+        val snapshot = ArchiveScanner().scan(source)
+
+        expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.MISSING_VOLUME) {
+            runBlocking {
+                ArchiveExtractor().extractToWriter(
+                    source = source,
+                    snapshot = snapshot,
+                    selectedPaths = listOf(ArchivePathPolicy.ROOT_PATH),
+                    rootName = "split-output",
+                    writer = FakeArchiveOutputWriter(),
+                )
+            }
+        }
+    }
+
+    @Test
     fun `extraction reuses a manually selected filename encoding`() = runBlocking {
         val source = temporaryFolder.newFile("manual-encoding.zip")
         val expected = "兼容内容".toByteArray()

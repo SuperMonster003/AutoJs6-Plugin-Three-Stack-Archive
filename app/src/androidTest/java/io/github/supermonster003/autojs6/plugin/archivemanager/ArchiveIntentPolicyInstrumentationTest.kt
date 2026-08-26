@@ -317,10 +317,10 @@ class ArchiveIntentPolicyInstrumentationTest {
             ArchiveIntentPolicy.resolve(
                 Intent(validIntent())
                     .setDataAndType(archiveUri, "text/plain")
-                    .putExtra(ExplorerActionIntentExtras.DISPLAY_NAME, "archive.rar")
+                    .putExtra(ExplorerActionIntentExtras.DISPLAY_NAME, "archive.cab")
                     .putParcelableArrayListExtra(
                         ExplorerActionIntentExtras.TARGETS,
-                        arrayListOf(targetBundle(displayName = "archive.rar", mimeType = "text/plain")),
+                        arrayListOf(targetBundle(displayName = "archive.cab", mimeType = "text/plain")),
                     ),
             ),
         )

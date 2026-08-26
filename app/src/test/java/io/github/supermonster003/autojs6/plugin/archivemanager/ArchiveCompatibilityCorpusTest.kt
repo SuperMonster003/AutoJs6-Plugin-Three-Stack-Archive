@@ -58,25 +58,113 @@ class ArchiveCompatibilityCorpusTest {
     }
 
     @Test
-    fun `RAR corpus remains explicitly unsupported until a backend is registered`() {
+    fun `WinRAR plain RAR4 and RAR5 samples preserve unicode names and content`() {
         listOf(
             WINRAR_RAR4_FIXTURE to EXPECTED_WINRAR_RAR4_SHA256,
             WINRAR_RAR5_FIXTURE to EXPECTED_WINRAR_RAR5_SHA256,
-            WINRAR_RAR5_AES_FIXTURE to EXPECTED_WINRAR_RAR5_AES_SHA256,
-            WINRAR_RAR5_HEADER_AES_FIXTURE to EXPECTED_WINRAR_RAR5_HEADER_AES_SHA256,
-            WINRAR_RAR5_SPLIT_FIRST_FIXTURE to EXPECTED_WINRAR_RAR5_SPLIT_FIRST_SHA256,
         ).forEach { (fixture, expectedSha256) ->
             val source = copyFixture(fixture)
 
             assertEquals(expectedSha256, source.sha256())
-            val error = expectArchiveFailure<ArchiveValidationException>(
-                ArchiveFailureCode.INVALID_SIGNATURE,
-            ) {
-                ArchiveScanner().scan(source)
-            }
+            val snapshot = ArchiveScanner().scan(source)
 
-            assertEquals("$fixture format", null, error.format)
-            assertEquals("$fixture stage", ArchiveFailureStage.FORMAT_DETECTION, error.stage)
+            assertEquals("$fixture format", ArchiveFormat.RAR, snapshot.format)
+            assertEquals(
+                "$fixture paths",
+                listOf("ascii.txt", "文件.txt"),
+                snapshot.entries.map(ArchiveEntry::path),
+            )
+            assertTrue(snapshot.entries.all(ArchiveEntry::canExtract))
+            assertFixtureText(snapshot, source, "文件.txt")
+        }
+    }
+
+    @Test
+    fun `WinRAR encrypted RAR5 sample recovers through typed password failures`() {
+        val source = copyFixture(WINRAR_RAR5_AES_FIXTURE)
+        assertEquals(EXPECTED_WINRAR_RAR5_AES_SHA256, source.sha256())
+
+        val withoutPassword = ArchiveScanner().scan(source)
+        assertEquals(ArchiveFormat.RAR, withoutPassword.format)
+        assertTrue(withoutPassword.entries.all(ArchiveEntry::isEncrypted))
+        assertTrue(withoutPassword.entries.none(ArchiveEntry::canExtract))
+
+        val wrong = expectArchiveFailure<ArchiveValidationException>(
+            ArchiveFailureCode.WRONG_PASSWORD,
+        ) {
+            ArchiveScanner().scan(
+                source,
+                ArchiveReaderOptions(password = "wrong-password".toCharArray()),
+            )
+        }
+        assertEquals(ArchiveFormat.RAR, wrong.format)
+        assertEquals(ArchiveFailureStage.PASSWORD, wrong.stage)
+
+        val snapshot = ArchiveScanner().scan(
+            source,
+            ArchiveReaderOptions(password = FIXTURE_PASSWORD.toCharArray()),
+        )
+        try {
+            assertTrue(snapshot.entries.all(ArchiveEntry::canExtract))
+            assertTrue(snapshot.entries.all { it.crc32 == null })
+            assertFixtureText(snapshot, source, "文件.txt")
+        } finally {
+            snapshot.readerOptions.clearPassword()
+        }
+    }
+
+    @Test
+    fun `WinRAR header encrypted RAR5 sample requires a password before listing`() {
+        val source = copyFixture(WINRAR_RAR5_HEADER_AES_FIXTURE)
+        assertEquals(EXPECTED_WINRAR_RAR5_HEADER_AES_SHA256, source.sha256())
+
+        val required = expectArchiveFailure<ArchiveValidationException>(
+            ArchiveFailureCode.PASSWORD_REQUIRED,
+        ) {
+            ArchiveScanner().scan(source)
+        }
+        assertEquals(ArchiveFormat.RAR, required.format)
+        assertEquals(ArchiveFailureStage.PASSWORD, required.stage)
+
+        val wrong = expectArchiveFailure<ArchiveValidationException>(
+            ArchiveFailureCode.WRONG_PASSWORD,
+        ) {
+            ArchiveScanner().scan(
+                source,
+                ArchiveReaderOptions(password = "wrong-password".toCharArray()),
+            )
+        }
+        assertEquals(ArchiveFormat.RAR, wrong.format)
+
+        val snapshot = ArchiveScanner().scan(
+            source,
+            ArchiveReaderOptions(password = FIXTURE_PASSWORD.toCharArray()),
+        )
+        try {
+            assertEquals(listOf("ascii.txt", "文件.txt"), snapshot.entries.map(ArchiveEntry::path))
+            assertFixtureText(snapshot, source, "文件.txt")
+        } finally {
+            snapshot.readerOptions.clearPassword()
+        }
+    }
+
+    @Test
+    fun `WinRAR split set exposes first-volume metadata without claiming extraction`() {
+        val source = copyFixture(WINRAR_RAR5_SPLIT_FIRST_FIXTURE)
+        assertEquals(EXPECTED_WINRAR_RAR5_SPLIT_FIRST_SHA256, source.sha256())
+
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.RAR, snapshot.format)
+        assertTrue(snapshot.entries.isNotEmpty())
+        assertTrue(snapshot.entries.none(ArchiveEntry::canExtract))
+        assertTrue(snapshot.entries.all { entry ->
+            ArchiveEntryLimitation.MISSING_VOLUME in entry.capabilities.limitations
+        })
+        ArchiveEngine.DEFAULT.openReader(source, ArchiveFormat.RAR).use { reader ->
+            expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.MISSING_VOLUME) {
+                reader.openEntry(reader.entries.first())
+            }
         }
     }
 

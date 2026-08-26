@@ -29,6 +29,43 @@ Archive Manager also builds `SevenZFile` and `SevenZOutputFile` on seekable chan
 
 Commons Compress and its three runtime dependencies were already part of the application before the TAR and 7Z backends. TAR.BZ2 and 7Z support add no Maven artifact or native ABI. The resolved Commons Compress JAR is 1,117,221 bytes with SHA-256 `E1522945218456F3649A39BC4AFD70CE4BD466221519DBA7D378F2141A4642CA`; R8 can continue removing formats unused by the application. The only 7Z packaging increase comes from application code, localized resources, and the upstream license text that was already packaged, not from another dependency or ABI.
 
+## Junrar 8.1.0
+
+- Component: `com.github.junrar:junrar:8.1.0`; the production build packages a locally generated reader-only variant with the password-hygiene changes described below
+- Project: <https://github.com/junrar/junrar>
+- Purpose here: read-only structure detection, listing, preview, and extraction for single-volume RAR4/RAR5 archives, including RAR5 content and header encryption
+- License: UnRAR license; the exact upstream [`LICENSE`](third_party/junrar/LICENSE) and the local modification [`NOTICE`](third_party/junrar/NOTICE) are retained in this repository and packaged with the application
+- License restriction: the bundled or modified UnRAR-derived source may handle RAR archives but must not be used to develop a RAR (WinRAR) compatible archiver. Archive Manager does not register a RAR writer and does not create or modify RAR archives.
+- Runtime support: the patched reader uses the already resolved Commons IO 2.20.0 plus SLF4J 2.0.17 API/NOP; it adds no native code or ABI
+
+### Security and password-hygiene review
+
+Review date: 2026-08-26.
+
+- GitHub Advisory Database records path traversal advisory GHSA-j273-m5qq-6825 as affecting Junrar versions before 7.5.8. The selected 8.1.0 version is outside that affected range.
+- Archive Manager does not call Junrar's filesystem extraction API. It supplies a host-descriptor-backed read-only seekable channel and keeps path validation, unsafe-name isolation, source identity, declared/actual size, available CRC, resource-budget, output-transaction, cancellation, and cleanup checks in the format-neutral application layer.
+- Junrar's maximum RAR dictionary size is capped at 256 MiB. A larger request is rejected with a typed unsupported/resource diagnostic instead of attempting an unbounded allocation.
+- The build replaces `ArchiveOptions` with a source-derived variant that clears builder password arrays after construction and retained option arrays on close. It also replaces `Rar5Crypt` with a source-derived variant that disables Junrar's JVM-global RAR5 key-derivation cache. Both replacements are guarded by exact upstream source matches so an upgrade fails closed until the patch is reviewed again.
+- These changes reduce how long password and derived-key material remains reachable, but Java, Binder, and cryptographic implementations can still create short-lived copies that the application cannot reliably overwrite. The project therefore promises best-effort clearing, not absolute absence of runtime copies.
+- Future upgrades must review the upstream release and advisory history, verify the original Maven artifact and source hashes, rebase both source-derived password patches, and rerun malformed input, RAR4/RAR5, encrypted header/content, split-volume, dictionary-limit, API 24, host-session, and real-device tests.
+
+Split archives remain bounded by Explorer Action v11: the host grants only the selected volume descriptor. Archive Manager may display safe metadata from a first RAR volume, but marks its entries `MISSING_VOLUME` and exposes no preview or extraction action until a host-owned sibling-volume contract exists. Junrar is never allowed to discover sibling files by local path.
+
+### Artifact measurement
+
+The original Junrar JAR is 243,519 bytes with SHA-256 `53C23CC8A11C932B7336D8109257C14B1D8981B789B0792FC3F78AC567B645E7`. The build derives the production JAR from that artifact and the matching source artifact, replacing only `ArchiveOptions` and `Rar5Crypt` classes and removing signature metadata. This generated JAR contains no native library.
+
+## SLF4J 2.0.17 API and NOP provider
+
+- Components: `org.slf4j:slf4j-api:2.0.17` and `org.slf4j:slf4j-nop:2.0.17`
+- Project: <https://www.slf4j.org/>
+- Purpose here: satisfy Junrar's logging API with an intentionally silent provider; Archive Manager does not route Junrar messages into user or diagnostic logs
+- License: MIT; the exact upstream [`LICENSE`](third_party/slf4j/LICENSE) is retained in this repository and packaged with the application
+- Transitive dependencies: `slf4j-nop` resolves only the matching `slf4j-api`
+- Native code/ABI impact: none; both components are Java libraries
+
+The SLF4J API JAR is 69,908 bytes with SHA-256 `7B751D952061954D5ABFED7181C1F645D336091B679891591D63329C622EB832`. The NOP provider JAR is 4,982 bytes with SHA-256 `3716F83649EC66161A2EDEFD4F49DF34D1DD1C51CDCF941996C6987260F0A829`. Release R8 may remove unused logging surface, so dependency JAR sizes are not treated as packaged cost. The final signed and resource-shrunk Archive Manager 2.4.0 APK is 4,285,257 bytes, compared with the 4,212,527-byte 2.3.0 baseline: a net increase of 72,730 bytes, or approximately 1.73%. This delta also includes Explorer Action v11 application code, localized resources, documentation, and the RAR integration itself; it is not an isolated SLF4J or Junrar measurement. The APK retains the same four zstd-jni ABIs and adds no native library.
+
 ## XZ for Java 1.12
 
 - Component: `org.tukaani:xz:1.12`

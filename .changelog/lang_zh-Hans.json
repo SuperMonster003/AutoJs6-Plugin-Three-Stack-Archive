@@ -5,6 +5,26 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
+    "v2.4.0": {
+      "released_date": "2026/08/26",
+      "hint": [
+        "本版本需要 AutoJs6 6.8.0 Explorer Action v11, 版本代码 5276 或更高"
+      ],
+      "feature": [
+        "支持浏览、预览和解压 RAR4/RAR5, 包括内容加密与头部加密档案; RAR 明确保持只读",
+        "AutoJs6 原生档案页可在首次打开或解压过程中请求密码, 并在不丢失当前路径或选择的情况下重试"
+      ],
+      "fix": [
+        "RAR 分卷首卷仍可显示可读元数据, 但同级卷不可用时不再展示虚假的解压入口",
+        "密码错误后会清空上次输入, 并针对未变化的档案快照重试, 无需离开原生页面"
+      ],
+      "improvement": [
+        "RAR 在可用时直接读取宿主的可 seek 描述符, 不增加原生 ABI, 并复用其他格式的路径、资源与输出安全检查"
+      ],
+      "dependency": [
+        "附加 Junrar 8.1.0 与 SLF4J 2.0.17, 在随附许可条款下提供只读 RAR 支持"
+      ]
+    },
     "v2.3.0": {
       "released_date": "2026/08/26",
       "hint": [

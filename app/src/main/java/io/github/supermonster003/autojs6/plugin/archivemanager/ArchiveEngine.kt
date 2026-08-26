@@ -35,6 +35,18 @@ enum class ArchiveFormat(
         extensions = setOf("7z"),
         mimeTypes = setOf("application/x-7z-compressed"),
     ),
+    RAR(
+        id = "rar",
+        displayName = "RAR",
+        primaryExtension = "rar",
+        primaryMimeType = "application/vnd.rar",
+        extensions = setOf("rar"),
+        mimeTypes = setOf(
+            "application/vnd.rar",
+            "application/x-rar",
+            "application/x-rar-compressed",
+        ),
+    ),
     TAR(
         id = "tar",
         displayName = "TAR",
@@ -201,6 +213,7 @@ enum class ArchiveEntryLimitation {
     ENCRYPTED,
     UNSUPPORTED_COMPRESSION_METHOD,
     UNSUPPORTED_ENTRY_TYPE,
+    MISSING_VOLUME,
     MUTATION_UNAVAILABLE,
 }
 
@@ -485,6 +498,7 @@ internal class ArchiveEngine private constructor(
             listOf(
                 ZipArchiveBackend,
                 SevenZArchiveBackend,
+                RarArchiveBackend,
                 TarArchiveBackend,
                 TarGzipArchiveBackend,
                 TarXzArchiveBackend,

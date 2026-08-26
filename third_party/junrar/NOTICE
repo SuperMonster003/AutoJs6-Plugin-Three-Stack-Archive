@@ -1,0 +1,8 @@
+Archive Manager includes Junrar 8.1.0 for read-only RAR handling.
+
+The build replaces Junrar's ArchiveOptions and Rar5Crypt classes with source-derived variants.
+ArchiveOptions clears builder and options password arrays as soon as their copies have been
+transferred. Rar5Crypt disables Junrar's JVM-global RAR5 key-derivation cache so passwords and
+derived keys do not remain reachable across archive sessions. These modifications do not implement
+compression. Under the UnRAR license, neither these modifications nor the bundled reader code may
+be used to develop a RAR (WinRAR) compatible archiver.

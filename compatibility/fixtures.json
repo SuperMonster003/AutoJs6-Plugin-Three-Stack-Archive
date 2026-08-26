@@ -384,7 +384,6 @@
       "platform": "Windows 11",
       "command": "Rar.exe a -ma4 -m3 -ep1 -tsc- -tsa- -cfg- -inul -y <output> ascii.txt .\\目录\\文件.txt",
       "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
-      "expectedPluginCapability": "unsupported",
       "sha256": "a12fc3e2f14a946ecb983efb3a4c808909ef22f9e150d0d2ace61e0dd95047ea",
       "entries": [
         {
@@ -406,7 +405,6 @@
       "platform": "Windows 11",
       "command": "Rar.exe a -ma5 -m3 -ep1 -tsc- -tsa- -cfg- -inul -y <output> ascii.txt .\\目录\\文件.txt",
       "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
-      "expectedPluginCapability": "unsupported",
       "sha256": "c009be6f80980f6bba3856125f5e107d93fbd30fcaa87b22d0d6a78c67026599",
       "entries": [
         {
@@ -431,7 +429,6 @@
       "encryptionMethod": "RAR5 AES-256 content",
       "headerEncryption": false,
       "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
-      "expectedPluginCapability": "unsupported",
       "sha256": "05cdd95a68d8a5a1afac7b9961d0323e7a1a9fa6224418f388ba0cba918d7f7f",
       "entries": [
         {
@@ -454,7 +451,6 @@
       "encryptionMethod": "RAR5 AES-256 content and header",
       "headerEncryption": true,
       "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
-      "expectedPluginCapability": "unsupported",
       "sha256": "d27f8ddc47eca0777cdbe00819bb69f740f60b1dc1d757af5e6656b779177007",
       "entries": [
         {
@@ -490,7 +486,8 @@
       "sourceDescription": "70,000 deterministic bytes where byte[i] = (i * 31 + i / 251 + 17) & 0xFF",
       "sourceSha256": "030ed3574b4b1765d225a5472fc85f33d447fde24968f38e499d57165110c851",
       "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
-      "expectedPluginCapability": "unsupported",
+      "expectedPluginCapability": "metadata-only",
+      "readLimitation": "Sibling volumes are not available through Explorer Action v11",
       "split": true,
       "volumeSize": 32768,
       "volumeIndex": 0,

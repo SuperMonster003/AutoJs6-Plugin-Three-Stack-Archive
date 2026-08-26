@@ -2,9 +2,11 @@
 
 This directory records reproducible, privacy-free archive samples produced by external tools. A sample is accepted only when its producer, exact command, contents and SHA-256 digest are recorded. Tests consume the committed files from `app/src/test/resources/archive-fixtures`.
 
-The corpus may include formats for which no plugin backend is registered yet. Those samples carry `expectedPluginCapability: "unsupported"` and lock down an explicit unsupported result; their presence never advertises a user-facing capability.
+Supported samples normally omit `expectedPluginCapability`. A sample that intentionally exercises a narrower behavior records the deviation explicitly. For example, the split RAR fixture uses `metadata-only` because Explorer Action v11 grants the selected volume descriptor but cannot yet grant its sibling volumes. An unregistered format may still use `unsupported`; merely committing a fixture never advertises a user-facing capability.
 
 Manifest schema v2 retains `file` as the primary/final archive file and records any required split companions in `companionVolumes`, with an independent size, volume index and SHA-256 for every physical file.
+
+RAR fixtures are reader regressions only. Archive Manager can browse, preview and extract supported single-volume RAR4/RAR5 input, including content- and header-encrypted RAR5, but deliberately does not create or modify RAR archives. Split RAR first volumes expose safe metadata without an extraction action until the host adds a bounded sibling-volume contract.
 
 The corpus is intentionally incremental. A producer listed in the Roadmap is not considered covered until at least one independently generated sample and its relevant edge cases are committed and verified.
 

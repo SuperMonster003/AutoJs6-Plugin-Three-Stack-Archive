@@ -5,7 +5,7 @@
 
   <h1>Archive Manager</h1>
 
-  <p>{{ text_plugin_synopsis }}</p>
+  <p>{{ text_plugin_synopsis_current }}</p>
 
   <p>
     <a href="{{ repo_url }}/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/{{ repo_slug }}?label=Release"/></a>
@@ -22,7 +22,7 @@
 
 ### {{ h3_introduction }}
 
-{{ p_introduction }}
+{{ p_introduction_current }}
 
 ### {{ h3_functions }}
 
@@ -42,7 +42,7 @@
 {{ creatable_formats }}
 ```
 
-> {{ p_plugin_scope }}
+> {{ p_current_limits }}
 
 ### {{ h3_usage }}
 
@@ -50,15 +50,11 @@
 
 ### {{ h3_security }}
 
-{{ p_security }}
-
-{{ p_security_split }}
-
-{{ p_security_unsafe_names }}
+{{ p_security_summary }}
 
 ### Roadmap
 
-{{ p_roadmap }}
+{{ p_roadmap_current }}
 
 - [ROADMAP.md]({{ repo_url }}/blob/master/ROADMAP.md)
 

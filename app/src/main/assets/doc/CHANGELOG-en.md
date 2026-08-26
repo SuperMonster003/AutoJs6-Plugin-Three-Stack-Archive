@@ -1,5 +1,17 @@
 # Release notes
 
+## v2.4.0
+
+_2026/08/26_
+
+- `Note` This release requires AutoJs6 6.8.0 with Explorer Action v11, version code 5276 or newer
+- `Added` RAR4/RAR5 archives can now be browsed, previewed, and extracted, including content- and header-encrypted input; RAR remains deliberately read-only
+- `Added` The native AutoJs6 archive page can request a password while first opening an archive or during extraction, then retry without losing the current path or selection
+- `Fixed` Split RAR first volumes keep their readable metadata but no longer advertise extraction when sibling volumes are unavailable
+- `Fixed` A wrong password clears the previous input and retries against an unchanged archive snapshot instead of leaving the native page
+- `Improved` RAR uses direct reads from the host's seekable descriptor when available, adds no native ABI, and applies the same path, resource, and output safety checks as other formats
+- `Dependency` Added Junrar 8.1.0 and SLF4J 2.0.17 for read-only RAR support under their bundled license terms
+
 ## v2.3.0
 
 _2026/08/26_

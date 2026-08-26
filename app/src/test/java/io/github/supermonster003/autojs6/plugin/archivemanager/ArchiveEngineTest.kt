@@ -39,6 +39,7 @@ class ArchiveEngineTest {
             listOf(
                 ArchiveFormat.ZIP,
                 ArchiveFormat.SEVEN_Z,
+                ArchiveFormat.RAR,
                 ArchiveFormat.TAR,
                 ArchiveFormat.TAR_GZIP,
                 ArchiveFormat.TAR_XZ,
@@ -47,7 +48,10 @@ class ArchiveEngineTest {
             ),
             engine.readableFormats,
         )
-        assertEquals(engine.readableFormats, engine.creatableFormats)
+        assertEquals(
+            engine.readableFormats.filterNot { it == ArchiveFormat.RAR },
+            engine.creatableFormats,
+        )
         assertEquals(
             engine.readableFormats.flatMap(ArchiveFormat::catalogExtensions).toSet(),
             ArchiveManagerPlugin.EXTENSIONS.toSet(),
@@ -94,6 +98,7 @@ class ArchiveEngineTest {
                     -> (1..9).toList()
                     ArchiveFormat.ZIP,
                     ArchiveFormat.SEVEN_Z,
+                    ArchiveFormat.RAR,
                     -> error("Non-TAR format is outside this assertion")
                 },
                 capabilities.compressionLevels,

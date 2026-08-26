@@ -32,6 +32,7 @@ internal class ExplorerArchiveSession(
     private val stagedArchive: StagedArchive,
     private val snapshot: ArchiveSnapshot,
     private val isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
+    private val extractionResourceBudget: ArchiveResourceBudget = ArchiveResourceBudget.COMPATIBLE,
     private val onClosed: (ExplorerArchiveSession) -> Unit,
 ) : IExplorerArchiveSession.Stub() {
 
@@ -110,7 +111,7 @@ internal class ExplorerArchiveSession(
             )
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES,
-                formatCapabilities.canExtract,
+                canRequestAnyExtraction(),
             )
         }
     }
@@ -198,11 +199,12 @@ internal class ExplorerArchiveSession(
             val sessionNode = requireNotNull(nodesById[entryId]) {
                 "Archive extraction target does not exist"
             }
-            require(sessionNode.node.canRequestExtraction()) {
+            require(sessionNode.canRequestExtraction()) {
                 "Archive extraction target is unavailable"
             }
             sessionNode.node.path
         }
+        val extractionOptions = request.extractionOptions()
 
         lateinit var state: ExtractionOperationState
         val job = operationScope.launch(start = CoroutineStart.LAZY) {
@@ -213,10 +215,13 @@ internal class ExplorerArchiveSession(
                     source = stagedArchive.source,
                     snapshot = snapshot,
                     selectedPaths = selectedPaths,
+                    options = extractionOptions,
+                    resourceBudget = extractionResourceBudget,
                     outputSession = outputSession,
                     callback = callback,
                 ).run()
             } finally {
+                extractionOptions.close()
                 finishOperation(operationId, state)
             }
         }
@@ -236,6 +241,7 @@ internal class ExplorerArchiveSession(
             synchronized(operationLock) { activeOperations.remove(operationId) }
             runCatching { callback.asBinder().unlinkToDeath(deathRecipient, 0) }
             job.cancel()
+            extractionOptions.close()
             throw error
         }
     }
@@ -275,6 +281,7 @@ internal class ExplorerArchiveSession(
             runCatching { writer.closeWithError(STREAM_CLOSED_MESSAGE) }
         }
         streamExecutor.shutdownNow()
+        snapshot.readerOptions.clearPassword()
         stagedArchive.close()
         onClosed(this)
     }
@@ -339,17 +346,67 @@ internal class ExplorerArchiveSession(
             putLong(ExplorerArchiveSessionKeys.COMPRESSED_SIZE, entry?.compressedSize ?: -1L)
             putLong(ExplorerArchiveSessionKeys.LAST_MODIFIED, entry?.modifiedTimeMillis ?: 0L)
             putBoolean(
+                ExplorerArchiveSessionKeys.CAN_OPEN,
+                formatCapabilities.canPreview && entry?.canOpen == true,
+            )
+            putBoolean(
                 ExplorerArchiveSessionKeys.CAN_EXTRACT,
-                node.canRequestExtraction(),
+                canRequestExtraction(),
             )
         }
     }
 
-    private fun ArchiveNode.canRequestExtraction(): Boolean = when {
-        path == ArchivePathPolicy.ROOT_PATH -> formatCapabilities.canExtract
-        snapshot.isIsolatedPath(path) -> false
-        isDirectory -> formatCapabilities.canExtract
-        else -> formatCapabilities.canExtract && entry?.canExtract == true
+    private fun canRequestAnyExtraction(): Boolean = formatCapabilities.canExtract &&
+        nodesById.values.any { sessionNode ->
+            val node = sessionNode.node
+            when {
+                node.path == ArchivePathPolicy.ROOT_PATH -> false
+                !node.isDirectory -> sessionNode.canRequestExtraction()
+                childrenByParentId[sessionNode.id].orEmpty().isNotEmpty() -> false
+                snapshot.isIsolatedPath(node.path) -> false
+                else -> node.entry?.canExtract == true
+            }
+        }
+
+    private fun SessionNode.canRequestExtraction(): Boolean {
+        val archiveNode = node
+        return when {
+            archiveNode.path == ArchivePathPolicy.ROOT_PATH -> canRequestAnyExtraction()
+            snapshot.isIsolatedPath(archiveNode.path) -> false
+            archiveNode.isDirectory -> formatCapabilities.canExtract
+            else -> formatCapabilities.canExtract && archiveNode.entry?.let { entry ->
+                entry.canExtract || entry.isPasswordRecoverable()
+            } == true
+        }
+    }
+
+    private fun ArchiveEntry.isPasswordRecoverable(): Boolean = isEncrypted &&
+        ArchiveEntryLimitation.MISSING_VOLUME !in capabilities.limitations &&
+        ArchiveEntryLimitation.UNSUPPORTED_COMPRESSION_METHOD !in capabilities.limitations &&
+        ArchiveEntryLimitation.UNSUPPORTED_ENTRY_TYPE !in capabilities.limitations
+
+    private fun Bundle.extractionOptions(): ExplorerArchiveExtractionRequestOptions {
+        val transientPassword = getCharArray(ExplorerArchiveOperationKeys.PASSWORD)
+        return try {
+            require(
+                transientPassword == null ||
+                    transientPassword.size in 1..ExplorerActionProtocol.MAX_ARCHIVE_PASSWORD_LENGTH,
+            ) { "Archive extraction password length is invalid" }
+            ExplorerArchiveExtractionRequestOptions(
+                password = transientPassword,
+                skipUnsafePaths = getBoolean(
+                    ExplorerArchiveOperationKeys.SKIP_UNSAFE_PATHS,
+                    false,
+                ),
+                allowResourceBudgetOverride = getBoolean(
+                    ExplorerArchiveOperationKeys.ALLOW_RESOURCE_BUDGET_OVERRIDE,
+                    false,
+                ),
+            )
+        } finally {
+            transientPassword?.fill('\u0000')
+            remove(ExplorerArchiveOperationKeys.PASSWORD)
+        }
     }
 
     private fun requireCanonicalOperationId(value: String?): String {

@@ -420,6 +420,7 @@ internal class CreatedArchiveVerifier(
         ArchiveFormat.TAR_ZSTD -> TarContainer.ZSTD
         ArchiveFormat.ZIP,
         ArchiveFormat.SEVEN_Z,
+        ArchiveFormat.RAR,
         -> error("$displayName is not a TAR-family format")
     }
 

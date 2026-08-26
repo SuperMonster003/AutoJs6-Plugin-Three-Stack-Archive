@@ -122,10 +122,10 @@ foreach ($locale in $locales) {
     )
     $readme = $readme.Replace(
         '{{ placeholder_features }}',
-        [string]::Join("`n", @($language.features | ForEach-Object { "- $_" }))
+        [string]::Join("`n", @($language.highlights_current | ForEach-Object { "- $_" }))
     )
     $usageIndex = 0
-    $usageLines = @($language.usage_steps | ForEach-Object {
+    $usageLines = @($language.quick_start | ForEach-Object {
         $usageIndex += 1
         "$usageIndex. $_"
     })

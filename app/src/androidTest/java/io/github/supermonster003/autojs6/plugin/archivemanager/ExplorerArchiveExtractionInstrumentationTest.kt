@@ -5,6 +5,11 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import net.lingala.zip4j.io.outputstream.ZipOutputStream as Zip4jOutputStream
+import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.model.enums.AesKeyStrength
+import net.lingala.zip4j.model.enums.CompressionMethod
+import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
@@ -187,6 +192,248 @@ class ExplorerArchiveExtractionInstrumentationTest {
         outputDirectory.deleteRecursively()
     }
 
+    @Test
+    fun encryptedEntryRetriesReportTypedInteractionsAndClearRequestPasswords() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sourceDirectory = File(context.cacheDir, "archive-session-password-source-${UUID.randomUUID()}")
+        val outputDirectory = File(context.cacheDir, "archive-session-password-output-${UUID.randomUUID()}")
+        assertTrue(sourceDirectory.mkdirs())
+        assertTrue(outputDirectory.mkdirs())
+        val archive = File(sourceDirectory, "encrypted.zip")
+        val expected = "encrypted native host extraction".encodeToByteArray()
+        writeEncryptedZip(archive, "secret.txt", expected, PASSWORD)
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "encrypted.zip",
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
+            snapshot = ArchiveScanner().scan(archive),
+            onClosed = {},
+        )
+        val entry = session.listChildren(
+            "root",
+            0,
+            ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+        ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+            .orEmpty()
+            .single { it.getString(ExplorerArchiveSessionKeys.NAME) == "secret.txt" }
+        assertTrue(entry.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+        val entryId = requireNotNull(entry.getString(ExplorerArchiveSessionKeys.ID))
+
+        val missingHost = DirectoryOutputHost(outputDirectory, "encrypted")
+        val missing = runExtractionAttempt(session, entryId, missingHost)
+        assertNull(missing.completed)
+        assertEquals(
+            ExplorerArchiveSessionValues.EXTRACTION_ERROR_INTERACTION_REQUIRED,
+            missing.failed?.getInt(ExplorerArchiveOperationKeys.ERROR_CODE),
+        )
+        assertEquals(
+            ExplorerArchiveSessionValues.EXTRACTION_INTERACTION_PASSWORD_REQUIRED,
+            missing.failed?.getInt(ExplorerArchiveOperationKeys.INTERACTION_KIND),
+        )
+        assertTrue(!missingHost.root.exists())
+
+        awaitSessionOperationCleanup()
+        val wrongPassword = "wrong-password".toCharArray()
+        val wrongHost = DirectoryOutputHost(outputDirectory, "encrypted")
+        val wrong = runExtractionAttempt(session, entryId, wrongHost, wrongPassword)
+        assertTrue(wrongPassword.all { it == '\u0000' })
+        assertNull(wrong.completed)
+        assertEquals(
+            ExplorerArchiveSessionValues.EXTRACTION_INTERACTION_WRONG_PASSWORD,
+            wrong.failed?.getInt(ExplorerArchiveOperationKeys.INTERACTION_KIND),
+        )
+        assertTrue(!wrongHost.root.exists())
+
+        awaitSessionOperationCleanup()
+        val correctPassword = PASSWORD.toCharArray()
+        val correctHost = DirectoryOutputHost(outputDirectory, "encrypted")
+        val correct = runExtractionAttempt(session, entryId, correctHost, correctPassword)
+        assertTrue(correctPassword.all { it == '\u0000' })
+        assertNull(correct.failed)
+        assertArrayEquals(expected, File(correctHost.root, "secret.txt").readBytes())
+
+        session.close()
+        assertTrue(!archive.exists())
+        outputDirectory.deleteRecursively()
+    }
+
+    @Test
+    fun unsafePathsRequireTypedSkipConfirmationBeforeSafeEntriesAreWritten() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sourceDirectory = File(context.cacheDir, "archive-session-unsafe-source-${UUID.randomUUID()}")
+        val outputDirectory = File(context.cacheDir, "archive-session-unsafe-output-${UUID.randomUUID()}")
+        assertTrue(sourceDirectory.mkdirs())
+        assertTrue(outputDirectory.mkdirs())
+        val archive = File(sourceDirectory, "unsafe.zip")
+        val expected = "safe entry".encodeToByteArray()
+        ZipOutputStream(FileOutputStream(archive)).use { output ->
+            output.putNextEntry(ZipEntry("safe.txt"))
+            output.write(expected)
+            output.closeEntry()
+            output.putNextEntry(ZipEntry("../outside.txt"))
+            output.write("must not escape".encodeToByteArray())
+            output.closeEntry()
+        }
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "unsafe.zip",
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
+            snapshot = ArchiveScanner().scan(archive),
+            onClosed = {},
+        )
+        val blockedHost = DirectoryOutputHost(outputDirectory, "unsafe")
+        val blocked = runExtractionAttempt(session, "root", blockedHost)
+        assertNull(blocked.completed)
+        assertEquals(
+            ExplorerArchiveSessionValues.EXTRACTION_INTERACTION_UNSAFE_PATHS,
+            blocked.failed?.getInt(ExplorerArchiveOperationKeys.INTERACTION_KIND),
+        )
+        assertTrue(!blockedHost.root.exists())
+
+        awaitSessionOperationCleanup()
+        val confirmedHost = DirectoryOutputHost(outputDirectory, "unsafe")
+        val confirmed = runExtractionAttempt(
+            session = session,
+            entryId = "root",
+            host = confirmedHost,
+            skipUnsafePaths = true,
+        )
+        assertNull(confirmed.failed)
+        assertArrayEquals(expected, File(confirmedHost.root, "safe.txt").readBytes())
+        assertTrue(!File(outputDirectory, "outside.txt").exists())
+
+        session.close()
+        assertTrue(!archive.exists())
+        outputDirectory.deleteRecursively()
+    }
+
+    @Test
+    fun resourceBudgetRequiresTypedConfirmationBeforeExpandedExtraction() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sourceDirectory = File(context.cacheDir, "archive-session-budget-source-${UUID.randomUUID()}")
+        val outputDirectory = File(context.cacheDir, "archive-session-budget-output-${UUID.randomUUID()}")
+        assertTrue(sourceDirectory.mkdirs())
+        assertTrue(outputDirectory.mkdirs())
+        val archive = File(sourceDirectory, "budget.zip")
+        val expected = ByteArray(64 * 1_024) { index -> (index % 4).toByte() }
+        ZipOutputStream(FileOutputStream(archive)).use { output ->
+            output.putNextEntry(ZipEntry("payload.bin"))
+            output.write(expected)
+            output.closeEntry()
+        }
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "budget.zip",
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
+            snapshot = ArchiveScanner().scan(archive),
+            extractionResourceBudget = ArchiveResourceBudget.COMPATIBLE.copy(
+                maxCompressionRatio = 1L,
+            ),
+            onClosed = {},
+        )
+        val blockedHost = DirectoryOutputHost(outputDirectory, "budget")
+        val blocked = runExtractionAttempt(session, "root", blockedHost)
+        assertNull(blocked.completed)
+        assertEquals(
+            ExplorerArchiveSessionValues.EXTRACTION_INTERACTION_RESOURCE_BUDGET,
+            blocked.failed?.getInt(ExplorerArchiveOperationKeys.INTERACTION_KIND),
+        )
+        assertTrue(!blockedHost.root.exists())
+
+        awaitSessionOperationCleanup()
+        val confirmedHost = DirectoryOutputHost(outputDirectory, "budget")
+        val confirmed = runExtractionAttempt(
+            session = session,
+            entryId = "root",
+            host = confirmedHost,
+            allowResourceBudgetOverride = true,
+        )
+        assertNull(confirmed.failed)
+        assertArrayEquals(expected, File(confirmedHost.root, "payload.bin").readBytes())
+
+        session.close()
+        assertTrue(!archive.exists())
+        outputDirectory.deleteRecursively()
+    }
+
+    private fun runExtractionAttempt(
+        session: ExplorerArchiveSession,
+        entryId: String,
+        host: DirectoryOutputHost,
+        password: CharArray? = null,
+        skipUnsafePaths: Boolean = false,
+        allowResourceBudgetOverride: Boolean = false,
+    ): ExtractionAttemptResult {
+        val terminal = CountDownLatch(1)
+        val completed = AtomicReference<Bundle?>()
+        val failed = AtomicReference<Bundle?>()
+        val callback = object : IExplorerArchiveOperationCallback.Stub() {
+            override fun onProgress(update: Bundle) = Unit
+
+            override fun onCompleted(result: Bundle) {
+                completed.set(result)
+                terminal.countDown()
+            }
+
+            override fun onFailed(failure: Bundle) {
+                failed.set(failure)
+                terminal.countDown()
+            }
+        }
+        val request = Bundle().apply {
+            putString(ExplorerArchiveOperationKeys.OPERATION_ID, UUID.randomUUID().toString())
+            putStringArrayList(ExplorerArchiveOperationKeys.ENTRY_IDS, arrayListOf(entryId))
+            password?.let { putCharArray(ExplorerArchiveOperationKeys.PASSWORD, it) }
+            putBoolean(ExplorerArchiveOperationKeys.SKIP_UNSAFE_PATHS, skipUnsafePaths)
+            putBoolean(
+                ExplorerArchiveOperationKeys.ALLOW_RESOURCE_BUDGET_OVERRIDE,
+                allowResourceBudgetOverride,
+            )
+        }
+        session.extractEntries(request, host, callback)
+        assertTrue(!request.containsKey(ExplorerArchiveOperationKeys.PASSWORD))
+        assertTrue("Timed out waiting for archive extraction", terminal.await(30, TimeUnit.SECONDS))
+        return ExtractionAttemptResult(completed.get(), failed.get())
+    }
+
+    private fun writeEncryptedZip(
+        target: File,
+        entryName: String,
+        payload: ByteArray,
+        password: String,
+    ) {
+        val passwordChars = password.toCharArray()
+        try {
+            Zip4jOutputStream(FileOutputStream(target), passwordChars).use { output ->
+                output.putNextEntry(
+                    ZipParameters().apply {
+                        fileNameInZip = entryName
+                        compressionMethod = CompressionMethod.DEFLATE
+                        isEncryptFiles = true
+                        encryptionMethod = EncryptionMethod.AES
+                        aesKeyStrength = AesKeyStrength.KEY_STRENGTH_256
+                    },
+                )
+                output.write(payload)
+                output.closeEntry()
+            }
+        } finally {
+            passwordChars.fill('\u0000')
+        }
+    }
+
+    private fun awaitSessionOperationCleanup() {
+        Thread.sleep(50L)
+    }
+
+    private data class ExtractionAttemptResult(
+        val completed: Bundle?,
+        val failed: Bundle?,
+    )
+
     private class DirectoryOutputHost(
         private val parent: File,
         rootName: String = "native",
@@ -278,5 +525,9 @@ class ExplorerArchiveExtractionInstrumentationTest {
                 root.walkTopDown().filter(File::isFile).sumOf(File::length),
             )
         }
+    }
+
+    private companion object {
+        const val PASSWORD = "archive-test-2026"
     }
 }

@@ -693,11 +693,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
         selection.files.forEach { entry ->
             if (!entry.canExtract) {
                 throw ArchiveExtractionException(
-                    if (entry.isEncrypted && !passwordProvided) {
-                        ArchiveFailureCode.PASSWORD_REQUIRED
-                    } else {
-                        ArchiveFailureCode.UNSUPPORTED_METHOD
-                    },
+                    entry.unavailableExtractionCode(passwordProvided),
                     "Selected archive entry data is unavailable to this backend",
                     format = format,
                 )
@@ -812,11 +808,7 @@ internal class ArchiveExtractor @JvmOverloads constructor(
     ) {
         if (requireExtractable && !liveEntry.capabilities.canExtract) {
             throw ArchiveExtractionException(
-                if (liveEntry.isEncrypted && !passwordProvided) {
-                    ArchiveFailureCode.PASSWORD_REQUIRED
-                } else {
-                    ArchiveFailureCode.UNSUPPORTED_METHOD
-                },
+                liveEntry.unavailableExtractionCode(passwordProvided),
                 "Archive entry data is unavailable to this backend",
                 format = format,
             )
@@ -876,6 +868,22 @@ internal class ArchiveExtractor @JvmOverloads constructor(
             )
         }
     }
+
+    private fun ArchiveEntry.unavailableExtractionCode(passwordProvided: Boolean): ArchiveFailureCode =
+        when {
+            ArchiveEntryLimitation.MISSING_VOLUME in capabilities.limitations ->
+                ArchiveFailureCode.MISSING_VOLUME
+            isEncrypted && !passwordProvided -> ArchiveFailureCode.PASSWORD_REQUIRED
+            else -> ArchiveFailureCode.UNSUPPORTED_METHOD
+        }
+
+    private fun ArchiveReaderEntry.unavailableExtractionCode(passwordProvided: Boolean): ArchiveFailureCode =
+        when {
+            ArchiveEntryLimitation.MISSING_VOLUME in capabilities.limitations ->
+                ArchiveFailureCode.MISSING_VOLUME
+            isEncrypted && !passwordProvided -> ArchiveFailureCode.PASSWORD_REQUIRED
+            else -> ArchiveFailureCode.UNSUPPORTED_METHOD
+        }
 
     private fun verifySourceIdentity(source: ArchiveReadSource, snapshot: ArchiveSnapshot) {
         val identity = try {

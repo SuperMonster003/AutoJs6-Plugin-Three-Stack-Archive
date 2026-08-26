@@ -230,6 +230,7 @@ internal class TarArchiveCreator(
             ArchiveFormat.TAR_ZSTD -> ZstdOutputStream(output, compressionLevel).setChecksum(true)
             ArchiveFormat.ZIP,
             ArchiveFormat.SEVEN_Z,
+            ArchiveFormat.RAR,
             -> error("${format.displayName} does not use the TAR writer")
         }
     } catch (error: LinkageError) {
