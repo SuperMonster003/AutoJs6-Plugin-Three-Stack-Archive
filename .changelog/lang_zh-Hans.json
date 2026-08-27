@@ -5,6 +5,19 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
+    "v2.6.0": {
+      "released_date": "2026/08/27",
+      "hint": [
+        "本版本需要配套的 AutoJs6 6.8.0 Explorer Action v13 构建 (版本代码 5276 或更高)"
+      ],
+      "feature": [
+        "宿主原生档案页现在可从路径栏直接选择 ZIP 文件名编码, 无需进入管理页; 切换后保留当前内部目录与仍存在的已选条目",
+        "Explorer Action v13 在同一只读会话中重新索引暂存源, 并以稳定条目 ID 恢复最深可用路径和仍存在的条目"
+      ],
+      "improvement": [
+        "替换索引只有完整构造后才会发布; 无效选择、扫描失败、活动预览或解压均保留旧索引, 已输入密码继续只驻留在可清理内存中"
+      ]
+    },
     "v2.5.0": {
       "released_date": "2026/08/27",
       "hint": [

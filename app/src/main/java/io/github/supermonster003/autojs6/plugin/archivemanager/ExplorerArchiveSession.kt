@@ -33,7 +33,8 @@ internal class ExplorerArchiveSession(
     private val stagedArchive: StagedArchive,
     private val source: ArchiveReadSource = stagedArchive.source,
     private val volumeLease: Closeable? = null,
-    private val snapshot: ArchiveSnapshot,
+    snapshot: ArchiveSnapshot,
+    initialFilenameCharsetOverride: String? = null,
     private val isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
     private val extractionResourceBudget: ArchiveResourceBudget = ArchiveResourceBudget.COMPATIBLE,
     private val onClosed: (ExplorerArchiveSession) -> Unit,
@@ -45,12 +46,21 @@ internal class ExplorerArchiveSession(
         val node: ArchiveNode,
     )
 
+    private data class SessionIndexState(
+        val snapshot: ArchiveSnapshot,
+        val formatCapabilities: FormatCapabilities,
+        val filenameCharsetOverride: String?,
+        val nodesById: Map<String, SessionNode>,
+        val childrenByParentId: Map<String, List<SessionNode>>,
+    )
+
     private val closed = AtomicBoolean(false)
-    private val formatCapabilities = ArchiveEngine.DEFAULT.capabilities(snapshot.format)
     private val sessionId = UUID.randomUUID().toString()
     private val rootId = ROOT_ID
-    private val nodesById: Map<String, SessionNode>
-    private val childrenByParentId: Map<String, List<SessionNode>>
+    private val sessionStateLock = Any()
+    @Volatile
+    private var sessionState = buildIndexState(snapshot, initialFilenameCharsetOverride)
+    private var reindexing = false
     private val streamLock = Any()
     private val activeStreamWriters = LinkedHashSet<ParcelFileDescriptor>()
     private val streamExecutor = Executors.newSingleThreadExecutor { runnable ->
@@ -60,7 +70,10 @@ internal class ExplorerArchiveSession(
     private val operationLock = Any()
     private val activeOperations = LinkedHashMap<String, ExtractionOperationState>()
 
-    init {
+    private fun buildIndexState(
+        snapshot: ArchiveSnapshot,
+        filenameCharsetOverride: String?,
+    ): SessionIndexState {
         val index = ArchiveIndex(snapshot, isolatedPathDisplayName)
         val nodesByPath = LinkedHashMap<String, SessionNode>()
         val mutableNodesById = LinkedHashMap<String, SessionNode>()
@@ -77,7 +90,7 @@ internal class ExplorerArchiveSession(
             val parentSessionNode = nodesByPath.getValue(parent.path)
             val children = index.children(parent.path).map { child ->
                 val sessionNode = SessionNode(
-                    id = stableEntryId(child.path),
+                    id = stableEntryId(child, index),
                     parentId = parentSessionNode.id,
                     node = child,
                 )
@@ -92,13 +105,29 @@ internal class ExplorerArchiveSession(
             }
             mutableChildren[parentSessionNode.id] = children.toMutableList()
         }
-        nodesById = mutableNodesById.toMap()
-        childrenByParentId = mutableChildren.mapValues { (_, value) -> value.toList() }
+        return SessionIndexState(
+            snapshot = snapshot,
+            formatCapabilities = ArchiveEngine.DEFAULT.capabilities(snapshot.format),
+            filenameCharsetOverride = filenameCharsetOverride,
+            nodesById = mutableNodesById.toMap(),
+            childrenByParentId = mutableChildren.mapValues { (_, value) -> value.toList() },
+        )
     }
 
     override fun getInfo(): Bundle {
         checkCaller()
-        checkOpen()
+        val state = readyState()
+        return state.toInfoBundle()
+    }
+
+    private fun SessionIndexState.toInfoBundle(): Bundle {
+        check(
+            formatCapabilities.filenameCharsetNames.size <=
+                ExplorerActionProtocol.MAX_ARCHIVE_FILENAME_CHARSET_NAMES,
+        ) { "Archive backend returned too many filename charsets" }
+        check(formatCapabilities.filenameCharsetNames.all { name ->
+            name.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_FILENAME_CHARSET_NAME_LENGTH
+        }) { "Archive backend returned an invalid filename charset" }
         return Bundle().apply {
             putString(ExplorerArchiveSessionKeys.SESSION_ID, sessionId)
             putString(ExplorerArchiveSessionKeys.ROOT_ID, rootId)
@@ -114,14 +143,25 @@ internal class ExplorerArchiveSession(
             )
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES,
-                canRequestAnyExtraction(),
+                canRequestAnyExtraction(this@toInfoBundle),
             )
+            putStringArrayList(
+                ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAMES,
+                ArrayList(formatCapabilities.filenameCharsetNames),
+            )
+            putString(
+                ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAME,
+                snapshot.readerOptions.filenameCharsetName,
+            )
+            filenameCharsetOverride?.let { override ->
+                putString(ExplorerArchiveSessionKeys.FILENAME_CHARSET_OVERRIDE, override)
+            }
         }
     }
 
     override fun listChildren(parentId: String?, offset: Int, limit: Int): Bundle {
         checkCaller()
-        checkOpen()
+        val state = readyState()
         require(parentId != null && parentId.length <= ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH) {
             "Archive parent ID is invalid"
         }
@@ -129,13 +169,13 @@ internal class ExplorerArchiveSession(
         require(limit in 1..ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE) {
             "Archive page limit is invalid"
         }
-        val children = requireNotNull(childrenByParentId[parentId]) {
+        val children = requireNotNull(state.childrenByParentId[parentId]) {
             "Archive directory does not exist"
         }
         require(offset <= children.size) { "Archive page offset is out of range" }
         val end = (offset.toLong() + limit).coerceAtMost(children.size.toLong()).toInt()
         val items = ArrayList<Bundle>(end - offset)
-        children.subList(offset, end).forEach { child -> items += child.toBundle() }
+        children.subList(offset, end).forEach { child -> items += child.toBundle(state) }
         return Bundle().apply {
             putParcelableArrayList(ExplorerArchiveSessionKeys.ITEMS, items)
             putInt(ExplorerArchiveSessionKeys.NEXT_OFFSET, end)
@@ -145,25 +185,28 @@ internal class ExplorerArchiveSession(
 
     override fun openEntry(entryId: String?): ParcelFileDescriptor {
         checkCaller()
-        checkOpen()
         require(entryId != null && entryId.length <= ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH) {
             "Archive entry ID is invalid"
-        }
-        val node = requireNotNull(nodesById[entryId]) { "Archive entry does not exist" }.node
-        val entry = requireNotNull(node.entry?.takeUnless(ArchiveEntry::isDirectory)) {
-            "Archive entry is not a regular file"
-        }
-        require(formatCapabilities.canPreview && entry.canOpen) {
-            "Archive entry data is unavailable to this backend"
         }
 
         val (readEnd, writeEnd) = ParcelFileDescriptor.createReliablePipe()
         try {
-            synchronized(streamLock) {
-                checkOpen()
-                activeStreamWriters += writeEnd
-                streamExecutor.execute {
-                    streamEntry(entry, writeEnd)
+            synchronized(sessionStateLock) {
+                val state = readyStateLocked()
+                val node = requireNotNull(state.nodesById[entryId]) {
+                    "Archive entry does not exist"
+                }.node
+                val entry = requireNotNull(node.entry?.takeUnless(ArchiveEntry::isDirectory)) {
+                    "Archive entry is not a regular file"
+                }
+                require(state.formatCapabilities.canPreview && entry.canOpen) {
+                    "Archive entry data is unavailable to this backend"
+                }
+                synchronized(streamLock) {
+                    activeStreamWriters += writeEnd
+                    streamExecutor.execute {
+                        streamEntry(entry, state.snapshot, writeEnd)
+                    }
                 }
             }
         } catch (error: Throwable) {
@@ -181,8 +224,6 @@ internal class ExplorerArchiveSession(
         callback: IExplorerArchiveOperationCallback,
     ) {
         checkCaller()
-        checkOpen()
-        check(formatCapabilities.canExtract) { "Archive format cannot be extracted" }
         val operationId = requireCanonicalOperationId(
             request.getString(ExplorerArchiveOperationKeys.OPERATION_ID),
         )
@@ -195,55 +236,80 @@ internal class ExplorerArchiveSession(
         require(entryIds.distinct().size == entryIds.size) {
             "Archive extraction contains duplicate target IDs"
         }
-        val selectedPaths = entryIds.mapTo(LinkedHashSet()) { entryId ->
-            require(entryId.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH) {
-                "Archive extraction target ID is invalid"
-            }
-            val sessionNode = requireNotNull(nodesById[entryId]) {
-                "Archive extraction target does not exist"
-            }
-            require(sessionNode.canRequestExtraction()) {
-                "Archive extraction target is unavailable"
-            }
-            sessionNode.node.path
-        }
         val extractionOptions = request.extractionOptions()
 
-        lateinit var state: ExtractionOperationState
-        val job = operationScope.launch(start = CoroutineStart.LAZY) {
-            try {
-                ExplorerArchiveExtractionOperation(
-                    operationId = operationId,
-                    displayName = displayName,
-                    source = source,
-                    snapshot = snapshot,
-                    selectedPaths = selectedPaths,
-                    options = extractionOptions,
-                    resourceBudget = extractionResourceBudget,
-                    outputSession = outputSession,
-                    callback = callback,
-                ).run()
-            } finally {
-                extractionOptions.close()
-                finishOperation(operationId, state)
-            }
-        }
-        val deathRecipient = IBinder.DeathRecipient {
-            job.cancel(CancellationException("Archive extraction host callback was released"))
-        }
-        state = ExtractionOperationState(job, callback.asBinder(), deathRecipient)
+        var job: Job? = null
+        var operationState: ExtractionOperationState? = null
+        var deathRecipient: IBinder.DeathRecipient? = null
         try {
-            synchronized(operationLock) {
-                checkOpen()
-                check(activeOperations.isEmpty()) { "Another archive extraction is already running" }
-                callback.asBinder().linkToDeath(deathRecipient, 0)
-                activeOperations[operationId] = state
+            synchronized(sessionStateLock) {
+                val indexState = readyStateLocked()
+                check(indexState.formatCapabilities.canExtract) {
+                    "Archive format cannot be extracted"
+                }
+                val selectedPaths = entryIds.mapTo(LinkedHashSet()) { entryId ->
+                    require(entryId.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH) {
+                        "Archive extraction target ID is invalid"
+                    }
+                    val sessionNode = requireNotNull(indexState.nodesById[entryId]) {
+                        "Archive extraction target does not exist"
+                    }
+                    require(sessionNode.canRequestExtraction(indexState)) {
+                        "Archive extraction target is unavailable"
+                    }
+                    sessionNode.node.path
+                }
+                val createdJob = operationScope.launch(start = CoroutineStart.LAZY) {
+                    try {
+                        ExplorerArchiveExtractionOperation(
+                            operationId = operationId,
+                            displayName = displayName,
+                            source = source,
+                            snapshot = indexState.snapshot,
+                            selectedPaths = selectedPaths,
+                            options = extractionOptions,
+                            resourceBudget = extractionResourceBudget,
+                            outputSession = outputSession,
+                            callback = callback,
+                        ).run()
+                    } finally {
+                        extractionOptions.close()
+                        operationState?.let { expected -> finishOperation(operationId, expected) }
+                    }
+                }
+                val createdDeathRecipient = IBinder.DeathRecipient {
+                    createdJob.cancel(
+                        CancellationException("Archive extraction host callback was released"),
+                    )
+                }
+                val createdState = ExtractionOperationState(
+                    createdJob,
+                    callback.asBinder(),
+                    createdDeathRecipient,
+                )
+                synchronized(operationLock) {
+                    check(activeOperations.isEmpty()) {
+                        "Another archive extraction is already running"
+                    }
+                    callback.asBinder().linkToDeath(createdDeathRecipient, 0)
+                    activeOperations[operationId] = createdState
+                }
+                job = createdJob
+                deathRecipient = createdDeathRecipient
+                operationState = createdState
             }
-            job.start()
+            requireNotNull(job).start()
         } catch (error: Throwable) {
-            synchronized(operationLock) { activeOperations.remove(operationId) }
-            runCatching { callback.asBinder().unlinkToDeath(deathRecipient, 0) }
-            job.cancel()
+            val expected = operationState
+            synchronized(operationLock) {
+                if (expected != null && activeOperations[operationId] === expected) {
+                    activeOperations.remove(operationId)
+                }
+            }
+            deathRecipient?.let { recipient ->
+                runCatching { callback.asBinder().unlinkToDeath(recipient, 0) }
+            }
+            job?.cancel()
             extractionOptions.close()
             throw error
         }
@@ -258,6 +324,68 @@ internal class ExplorerArchiveSession(
             ?.cancel(CancellationException("Archive extraction was cancelled by the host"))
     }
 
+    override fun reindexFilenameCharset(filenameCharsetName: String?): Bundle {
+        checkCaller()
+        val (previousState, canonicalOverride) = synchronized(sessionStateLock) {
+            val current = readyStateLocked()
+            val supportedNames = current.formatCapabilities.filenameCharsetNames
+            check(supportedNames.isNotEmpty()) {
+                "Archive format does not support filename charset overrides"
+            }
+            val canonical = canonicalFilenameCharset(filenameCharsetName, supportedNames)
+            if (canonical == current.filenameCharsetOverride) {
+                return current.toInfoBundle()
+            }
+            check(synchronized(streamLock) { activeStreamWriters.isEmpty() }) {
+                "Archive entries are still being read"
+            }
+            check(synchronized(operationLock) { activeOperations.isEmpty() }) {
+                "Archive extraction is still running"
+            }
+            reindexing = true
+            current to canonical
+        }
+
+        val password = previousState.snapshot.readerOptions.passwordChars()
+        val options = try {
+            ArchiveReaderOptions(
+                filenameCharsetName = canonicalOverride,
+                password = password,
+            )
+        } finally {
+            password?.fill('\u0000')
+        }
+        var replacementSnapshot: ArchiveSnapshot? = null
+        try {
+            val scanned = ArchiveScanner().scan(source, options) {
+                check(!closed.get()) { "Archive session is closed" }
+            }
+            replacementSnapshot = scanned
+            check(scanned.format == previousState.snapshot.format) {
+                "Archive format changed while rebuilding the filename index"
+            }
+            val replacementState = buildIndexState(scanned, canonicalOverride)
+            val replacementInfo = replacementState.toInfoBundle()
+            synchronized(sessionStateLock) {
+                checkOpen()
+                check(reindexing) { "Archive filename reindex state changed unexpectedly" }
+                sessionState = replacementState
+                reindexing = false
+            }
+            replacementSnapshot = null
+            previousState.snapshot.readerOptions.clearPassword()
+            return replacementInfo
+        } catch (error: Throwable) {
+            replacementSnapshot?.readerOptions?.clearPassword()
+            synchronized(sessionStateLock) {
+                reindexing = false
+            }
+            throw error
+        } finally {
+            options.clearPassword()
+        }
+    }
+
     override fun close() {
         checkCaller()
         closeInternal()
@@ -269,6 +397,7 @@ internal class ExplorerArchiveSession(
 
     private fun closeInternal() {
         if (!closed.compareAndSet(false, true)) return
+        val currentSnapshot = synchronized(sessionStateLock) { sessionState.snapshot }
         val operations = synchronized(operationLock) {
             activeOperations.values.toList().also { activeOperations.clear() }
         }
@@ -284,7 +413,7 @@ internal class ExplorerArchiveSession(
             runCatching { writer.closeWithError(STREAM_CLOSED_MESSAGE) }
         }
         streamExecutor.shutdownNow()
-        snapshot.readerOptions.clearPassword()
+        currentSnapshot.readerOptions.clearPassword()
         runCatching { volumeLease?.close() }
         stagedArchive.close()
         onClosed(this)
@@ -299,7 +428,11 @@ internal class ExplorerArchiveSession(
         runCatching { removed.callbackBinder.unlinkToDeath(removed.deathRecipient, 0) }
     }
 
-    private fun streamEntry(entry: ArchiveEntry, writeEnd: ParcelFileDescriptor) {
+    private fun streamEntry(
+        entry: ArchiveEntry,
+        snapshot: ArchiveSnapshot,
+        writeEnd: ParcelFileDescriptor,
+    ) {
         val output = ParcelFileDescriptor.AutoCloseOutputStream(writeEnd)
         try {
             ArchiveEntryStreamer(source, snapshot).stream(entry, output) {
@@ -329,7 +462,17 @@ internal class ExplorerArchiveSession(
         check(!closed.get()) { "Archive session is closed" }
     }
 
-    private fun SessionNode.toBundle(): Bundle {
+    private fun readyState(): SessionIndexState = synchronized(sessionStateLock) {
+        readyStateLocked()
+    }
+
+    private fun readyStateLocked(): SessionIndexState {
+        checkOpen()
+        check(!reindexing) { "Archive filename index is being rebuilt" }
+        return sessionState
+    }
+
+    private fun SessionNode.toBundle(state: SessionIndexState): Bundle {
         val entry = node.entry
         return Bundle().apply {
             putString(ExplorerArchiveSessionKeys.ID, id)
@@ -351,34 +494,34 @@ internal class ExplorerArchiveSession(
             putLong(ExplorerArchiveSessionKeys.LAST_MODIFIED, entry?.modifiedTimeMillis ?: 0L)
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_OPEN,
-                formatCapabilities.canPreview && entry?.canOpen == true,
+                state.formatCapabilities.canPreview && entry?.canOpen == true,
             )
             putBoolean(
                 ExplorerArchiveSessionKeys.CAN_EXTRACT,
-                canRequestExtraction(),
+                canRequestExtraction(state),
             )
         }
     }
 
-    private fun canRequestAnyExtraction(): Boolean = formatCapabilities.canExtract &&
-        nodesById.values.any { sessionNode ->
+    private fun canRequestAnyExtraction(state: SessionIndexState): Boolean =
+        state.formatCapabilities.canExtract && state.nodesById.values.any { sessionNode ->
             val node = sessionNode.node
             when {
                 node.path == ArchivePathPolicy.ROOT_PATH -> false
-                !node.isDirectory -> sessionNode.canRequestExtraction()
-                childrenByParentId[sessionNode.id].orEmpty().isNotEmpty() -> false
-                snapshot.isIsolatedPath(node.path) -> false
+                !node.isDirectory -> sessionNode.canRequestExtraction(state)
+                state.childrenByParentId[sessionNode.id].orEmpty().isNotEmpty() -> false
+                state.snapshot.isIsolatedPath(node.path) -> false
                 else -> node.entry?.canExtract == true
             }
         }
 
-    private fun SessionNode.canRequestExtraction(): Boolean {
+    private fun SessionNode.canRequestExtraction(state: SessionIndexState): Boolean {
         val archiveNode = node
         return when {
-            archiveNode.path == ArchivePathPolicy.ROOT_PATH -> canRequestAnyExtraction()
-            snapshot.isIsolatedPath(archiveNode.path) -> false
-            archiveNode.isDirectory -> formatCapabilities.canExtract
-            else -> formatCapabilities.canExtract && archiveNode.entry?.let { entry ->
+            archiveNode.path == ArchivePathPolicy.ROOT_PATH -> canRequestAnyExtraction(state)
+            state.snapshot.isIsolatedPath(archiveNode.path) -> false
+            archiveNode.isDirectory -> state.formatCapabilities.canExtract
+            else -> state.formatCapabilities.canExtract && archiveNode.entry?.let { entry ->
                 entry.canExtract || entry.isPasswordRecoverable()
             } == true
         }
@@ -422,9 +565,52 @@ internal class ExplorerArchiveSession(
         return normalized
     }
 
-    private fun stableEntryId(path: String): String = MessageDigest.getInstance("SHA-256")
-        .digest(path.toByteArray(UTF_8))
-        .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }
+    private fun canonicalFilenameCharset(
+        requestedName: String?,
+        supportedNames: List<String>,
+    ): String? {
+        if (requestedName == null) return null
+        require(
+            requestedName.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_FILENAME_CHARSET_NAME_LENGTH &&
+                requestedName == requestedName.trim() &&
+                requestedName.all { character ->
+                    character.isLetterOrDigit() || character == '-' || character == '_' || character == '.'
+                },
+        ) { "Archive filename charset name is invalid" }
+        return requireNotNull(supportedNames.firstOrNull { supported ->
+            supported.equals(requestedName, ignoreCase = true)
+        }) { "Archive filename charset is not supported" }
+    }
+
+    private fun stableEntryId(node: ArchiveNode, index: ArchiveIndex): String {
+        val identity = node.entry?.let { entry ->
+            "entry:${entry.ordinal}"
+        } ?: buildString {
+            val ordinals = ArrayList<Int>()
+            collectDescendantOrdinals(node, index, ordinals)
+            check(ordinals.isNotEmpty()) { "Synthetic archive directory has no source entries" }
+            append("directory:")
+            append(node.path.count { character -> character == '/' } + 1)
+            append(':')
+            append(ordinals.joinToString(","))
+        }
+        return MessageDigest.getInstance("SHA-256")
+            .digest(identity.toByteArray(UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }
+    }
+
+    private fun collectDescendantOrdinals(
+        node: ArchiveNode,
+        index: ArchiveIndex,
+        destination: MutableList<Int>,
+    ) {
+        node.entry?.let { entry -> destination += entry.ordinal }
+        if (node.isDirectory) {
+            index.children(node.path).forEach { child ->
+                collectDescendantOrdinals(child, index, destination)
+            }
+        }
+    }
 
     private companion object {
         const val ROOT_ID = "root"

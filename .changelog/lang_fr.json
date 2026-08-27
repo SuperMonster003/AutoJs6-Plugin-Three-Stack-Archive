@@ -5,6 +5,19 @@
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v2.6.0": {
+      "released_date": "2026/08/27",
+      "hint": [
+        "Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v13 (code de version 5276 ou supérieur)"
+      ],
+      "feature": [
+        "La page d'archive native permet maintenant de choisir l'encodage des noms ZIP depuis la barre de chemin sans ouvrir la page de gestion; le dossier interne et les éléments encore présents restent sélectionnés après le changement",
+        "Explorer Action v13 réindexe la source mise en cache dans la même session en lecture seule et utilise des ID stables pour restaurer le chemin disponible le plus profond et les éléments encore présents"
+      ],
+      "improvement": [
+        "Un index de remplacement n'est publié qu'une fois complet; un choix invalide, un échec d'analyse, un aperçu ou une extraction active conserve l'ancien index, et le mot de passe reste uniquement dans une mémoire effaçable"
+      ]
+    },
     "v2.5.0": {
       "released_date": "2026/08/27",
       "hint": [

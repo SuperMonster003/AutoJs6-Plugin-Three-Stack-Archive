@@ -16,8 +16,11 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,6 +28,7 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
 import java.util.UUID
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -346,6 +350,100 @@ class ExplorerArchiveSessionInstrumentationTest {
                 ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
             ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
             assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+        } finally {
+            session.close()
+        }
+
+        assertFalse(archive.exists())
+        assertFalse(directory.exists())
+    }
+
+    @Test
+    fun filenameCharsetReindexPreservesStableIdsAndRollsBackInvalidRequests() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val directory = File(context.cacheDir, "archive-input-filename-charset-${UUID.randomUUID()}")
+        assertTrue(directory.mkdirs())
+        val archive = File(directory, "legacy.zip")
+        val expected = "legacy filename content".encodeToByteArray()
+        ZipOutputStream(FileOutputStream(archive), Charset.forName("GB18030")).use { output ->
+            output.putNextEntry(ZipEntry("目录/文件.txt"))
+            output.write(expected)
+            output.closeEntry()
+        }
+        val snapshot = ArchiveScanner().scan(archive)
+        assertEquals("GB18030", snapshot.readerOptions.filenameCharsetName)
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "legacy.zip",
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
+            snapshot = snapshot,
+            onClosed = {},
+        )
+
+        try {
+            val initialInfo = session.info
+            assertEquals(
+                "GB18030",
+                initialInfo.getString(ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAME),
+            )
+            assertNull(initialInfo.getString(ExplorerArchiveSessionKeys.FILENAME_CHARSET_OVERRIDE))
+            assertTrue(
+                initialInfo
+                    .getStringArrayList(ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAMES)
+                    .orEmpty()
+                    .containsAll(listOf("UTF-8", "GB18030", "IBM437")),
+            )
+            val initialFolder = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
+            val stableFolderId = requireNotNull(
+                initialFolder.getString(ExplorerArchiveSessionKeys.ID),
+            )
+            assertEquals("目录", initialFolder.getString(ExplorerArchiveSessionKeys.NAME))
+
+            val overriddenInfo = session.reindexFilenameCharset("ibm437")
+            assertEquals(
+                "IBM437",
+                overriddenInfo.getString(ExplorerArchiveSessionKeys.FILENAME_CHARSET_OVERRIDE),
+            )
+            val mojibakeFolder = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
+            assertEquals(stableFolderId, mojibakeFolder.getString(ExplorerArchiveSessionKeys.ID))
+            assertNotEquals("目录", mojibakeFolder.getString(ExplorerArchiveSessionKeys.NAME))
+
+            assertTrue(runCatching { session.reindexFilenameCharset("not-a-charset") }.isFailure)
+            assertEquals(
+                "IBM437",
+                session.info.getString(ExplorerArchiveSessionKeys.FILENAME_CHARSET_OVERRIDE),
+            )
+
+            val automaticInfo = session.reindexFilenameCharset(null)
+            assertEquals(
+                "GB18030",
+                automaticInfo.getString(ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAME),
+            )
+            assertFalse(automaticInfo.containsKey(ExplorerArchiveSessionKeys.FILENAME_CHARSET_OVERRIDE))
+            val restoredFolder = session.listChildren(
+                "root",
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
+            assertEquals(stableFolderId, restoredFolder.getString(ExplorerArchiveSessionKeys.ID))
+            assertEquals("目录", restoredFolder.getString(ExplorerArchiveSessionKeys.NAME))
+            val nested = session.listChildren(
+                stableFolderId,
+                0,
+                ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+            ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
+            val actual = ParcelFileDescriptor.AutoCloseInputStream(
+                session.openEntry(requireNotNull(nested.getString(ExplorerArchiveSessionKeys.ID))),
+            ).use { input -> input.readBytes() }
+            assertArrayEquals(expected, actual)
         } finally {
             session.close()
         }

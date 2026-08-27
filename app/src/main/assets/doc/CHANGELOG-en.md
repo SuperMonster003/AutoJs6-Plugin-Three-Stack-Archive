@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.6.0
+
+_2026/08/27_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v13 (version code 5276 or newer)
+- `Added` The native archive page can now select a ZIP filename encoding from the path bar without opening the management page; changing it preserves the current internal folder and available selected entries
+- `Added` Explorer Action v13 rebuilds the staged source inside the same read-only session and uses stable entry IDs to restore the deepest available path and entries that still exist
+- `Improved` A replacement index is published only after it is complete; invalid choices, scan failures, active previews, or active extraction keep the previous index, while any existing password remains only in clearable memory
+
 ## v2.5.0
 
 _2026/08/27_
