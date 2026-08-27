@@ -16,6 +16,7 @@
         android:title="@string/app_name"
         android:titleTextColor="?attr/colorOnSurface"
         app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationContentDescription="@string/text_navigate_up"
         app:navigationIconTint="?attr/colorOnSurface" />
 
     <TextView

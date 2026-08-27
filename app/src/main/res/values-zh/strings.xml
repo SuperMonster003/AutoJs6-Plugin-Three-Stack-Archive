@@ -90,6 +90,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">正在加载压缩包...</string>
     <string name="text_loading_progress">%1$s / %2$s</string>
     <string name="text_modified">修改时间: %1$s</string>
+    <string name="text_navigate_up">返回上一级</string>
     <string name="text_no_entries">没有匹配的条目</string>
     <string name="text_creation_conflict_policy">压缩档案名称不可用时</string>
     <string name="text_creation_conflict_policy_auto_rename_details">由宿主预留可用的编号名称. 既有压缩档案始终不会被替换. 事务式覆盖需要新版宿主 API.</string>

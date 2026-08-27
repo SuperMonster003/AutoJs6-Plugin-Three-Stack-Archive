@@ -43,6 +43,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Chargement de l\'archive...</string>
     <string name="text_loading_progress">%1$s sur %2$s</string>
     <string name="text_modified">Modification: %1$s</string>
+    <string name="text_navigate_up">Remonter d\'un niveau</string>
     <string name="text_no_entries">Aucune entrée correspondante</string>
     <string name="text_parent_directory">Dossier parent</string>
     <string name="text_search_hint">Rechercher dans l\'archive</string>

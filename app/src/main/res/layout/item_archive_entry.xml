@@ -17,13 +17,16 @@
         android:id="@+id/selected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/text_select_entry" />
+        android:contentDescription="@string/text_select_entry"
+        android:minWidth="48dp"
+        android:minHeight="48dp" />
 
     <TextView
         android:id="@+id/kind"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:gravity="center"
+        android:importantForAccessibility="no"
         android:textAppearance="?attr/textAppearanceHeadline6" />
 
     <LinearLayout
@@ -31,6 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:importantForAccessibility="no"
         android:orientation="vertical">
 
         <TextView
@@ -38,6 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="middle"
+            android:importantForAccessibility="no"
             android:maxLines="2"
             android:textAppearance="?attr/textAppearanceSubtitle1" />
 
@@ -46,6 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:importantForAccessibility="no"
             android:maxLines="2"
             android:textAppearance="?attr/textAppearanceCaption" />
 

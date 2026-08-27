@@ -56,6 +56,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Loading archive...</string>
     <string name="text_loading_progress">%1$s of %2$s</string>
     <string name="text_modified">Modified: %1$s</string>
+    <string name="text_navigate_up">Navigate up</string>
     <string name="text_no_entries">No matching entries</string>
     <string name="text_parent_directory">Parent directory</string>
     <string name="text_search_hint">Search archive</string>

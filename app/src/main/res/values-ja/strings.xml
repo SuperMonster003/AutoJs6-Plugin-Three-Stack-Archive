@@ -43,6 +43,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">アーカイブを読み込み中...</string>
     <string name="text_loading_progress">%2$s 中 %1$s</string>
     <string name="text_modified">更新日時: %1$s</string>
+    <string name="text_navigate_up">上の階層へ移動</string>
     <string name="text_no_entries">一致するエントリはありません</string>
     <string name="text_parent_directory">親ディレクトリ</string>
     <string name="text_search_hint">アーカイブを検索</string>

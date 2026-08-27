@@ -43,6 +43,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">압축 파일을 불러오는 중...</string>
     <string name="text_loading_progress">%2$s 중 %1$s</string>
     <string name="text_modified">수정: %1$s</string>
+    <string name="text_navigate_up">상위 폴더로 이동</string>
     <string name="text_no_entries">일치하는 항목이 없습니다</string>
     <string name="text_parent_directory">상위 디렉터리</string>
     <string name="text_search_hint">압축 파일 검색</string>

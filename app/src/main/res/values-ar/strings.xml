@@ -43,6 +43,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">جار تحميل الأرشيف...</string>
     <string name="text_loading_progress">%1$s من %2$s</string>
     <string name="text_modified">التعديل: %1$s</string>
+    <string name="text_navigate_up">الانتقال إلى الأعلى</string>
     <string name="text_no_entries">لا توجد عناصر مطابقة</string>
     <string name="text_parent_directory">الدليل الأصل</string>
     <string name="text_search_hint">البحث في الأرشيف</string>

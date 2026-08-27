@@ -43,6 +43,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Загрузка архива...</string>
     <string name="text_loading_progress">%1$s из %2$s</string>
     <string name="text_modified">Изменено: %1$s</string>
+    <string name="text_navigate_up">Перейти на уровень выше</string>
     <string name="text_no_entries">Нет совпадающих записей</string>
     <string name="text_parent_directory">Родительский каталог</string>
     <string name="text_search_hint">Поиск в архиве</string>

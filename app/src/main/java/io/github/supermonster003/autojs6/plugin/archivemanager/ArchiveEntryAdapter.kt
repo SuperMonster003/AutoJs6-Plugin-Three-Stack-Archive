@@ -1,7 +1,13 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.CheckBox
+import androidx.core.view.AccessibilityDelegateCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -38,12 +44,42 @@ internal class ArchiveEntryAdapter(
             selected.setOnCheckedChangeListener(null)
             selected.isEnabled = !row.isBlocked
             selected.isChecked = row.isSelected
+            selected.contentDescription = buildString {
+                append(root.context.getString(R.string.text_select_entry))
+                append(": ")
+                append(row.displayName)
+            }
+            selected.importantForAccessibility = if (row.isDirectory) {
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            } else {
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
             selected.setOnCheckedChangeListener { _, checked ->
                 onSelectionChanged(row, checked)
             }
             kind.text = if (row.isDirectory) FOLDER_SYMBOL else FILE_SYMBOL
             name.text = row.displayName
             details.text = row.details
+            root.contentDescription = listOf(row.displayName, row.details)
+                .filter(String::isNotBlank)
+                .joinToString(", ")
+            root.isEnabled = row.isDirectory || !row.isBlocked
+            root.isSelected = !row.isDirectory && row.isSelected
+            ViewCompat.setAccessibilityDelegate(root, object : AccessibilityDelegateCompat() {
+                override fun onInitializeAccessibilityNodeInfo(
+                    host: View,
+                    info: AccessibilityNodeInfoCompat,
+                ) {
+                    super.onInitializeAccessibilityNodeInfo(host, info)
+                    if (row.isDirectory) {
+                        info.className = Button::class.java.name
+                    } else {
+                        info.className = CheckBox::class.java.name
+                        info.isCheckable = true
+                        info.isChecked = row.isSelected
+                    }
+                }
+            })
             root.alpha = if (row.isBlocked) BLOCKED_ALPHA else 1F
             content.setOnClickListener {
                 if (row.isDirectory) {

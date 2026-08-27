@@ -41,6 +41,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">正在載入壓縮檔...</string>
     <string name="text_loading_progress">%1$s / %2$s</string>
     <string name="text_modified">修改時間: %1$s</string>
+    <string name="text_navigate_up">返回上一層</string>
     <string name="text_no_entries">沒有符合的項目</string>
     <string name="text_parent_directory">上一層目錄</string>
     <string name="text_search_hint">搜尋壓縮檔</string>

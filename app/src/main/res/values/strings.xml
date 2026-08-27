@@ -140,6 +140,7 @@
     <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Loading archive...</string>
     <string name="text_loading_progress">%1$s of %2$s</string>
     <string name="text_modified">Modified: %1$s</string>
+    <string name="text_navigate_up">Navigate up</string>
     <string name="text_no_entries">No matching entries</string>
     <string name="text_creation_conflict_policy">If the archive name is unavailable</string>
     <string name="text_creation_conflict_policy_auto_rename_details">Reserve an available numbered name. Existing archives are never replaced. Transactional overwrite requires a newer host API.</string>
