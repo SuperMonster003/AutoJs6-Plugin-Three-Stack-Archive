@@ -1,5 +1,15 @@
 # Notes de version
 
+## v2.9.0
+
+_2026/08/27_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v16 (code de version 5276 ou supérieur)
+- `Ajout` Le formulaire de compression ajoute l'option désactivée par défaut Déplacer les sources vers la corbeille après compression, exécutée seulement après vérification et validation de toutes les sorties physiques
+- `Ajout` Explorer Action v16 accepte uniquement la sélection originale complète et ordonnée ainsi que toutes les transactions de sortie validées, puis l'hôte revérifie les identités avant d'utiliser sa corbeille
+- `Correction` L'hôte synchronise désormais une copie récupérable et persiste son entrée de corbeille avant de retirer une source; si un dossier n'est retiré que partiellement, la copie récupérable est conservée
+- `Amélioration` La phase de corbeille ne peut pas être annulée et distingue les résultats validé, récupération requise, échec et inconnu; une réponse Binder perdue interroge l'état terminal de l'hôte sans recommencer aveuglément
+
 ## v2.8.0
 
 _2026/08/27_

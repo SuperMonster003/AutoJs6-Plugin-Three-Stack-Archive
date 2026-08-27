@@ -45,6 +45,7 @@ Archive Manager funciona dentro del gestor de archivos de AutoJs6 en lugar de su
 - Los ZIP divididos estándar y la compresión por elemento publican todas las salidas físicas verificadas mediante un lote recuperable; un fallo o reinicio del host nunca se presenta como un resultado parcial correcto.
 - Editar un ZIP ordinario de un solo volumen mediante reconstrucción verificada: añadir archivos o árboles de carpetas, crear carpetas vacías, renombrar y eliminar, y sustituir la fuente de forma atómica.
 - Aislar en modo de solo lectura los nombres peligrosos, aplicar límites estructurales y de recursos antes de escribir y leer directamente el descriptor seekable del host cuando sea posible.
+- Mover opcionalmente toda la selección de origen a la papelera del host solo después de verificar y confirmar todas las salidas físicas; la opción está desactivada de forma predeterminada y una fuente modificada o una prueba incompleta detiene la operación antes de retirar datos de origen.
 
 ### Formatos actuales
 
@@ -60,29 +61,39 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v15 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura; la edición se limita a `.zip` ordinarios de un solo volumen. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear, la eliminación de fuentes y la edición interna de 7Z, RAR o TAR no están disponibles.
+> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v16 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura; la edición se limita a `.zip` ordinarios de un solo volumen. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de 7Z, RAR o TAR no están disponibles.
 
 ### Uso
 
 1. Instala Archive Manager y actívalo en el Centro de plugins de AutoJs6.
 2. Pulsa la acción principal de un archivo compatible o elige Abrir archivo, y navega como por una carpeta con la barra de ruta del host.
 3. Usa la acción de extracción de la barra de ruta para la carpeta interna actual o la acción de codificación para corregir nombres ZIP, mantén pulsado para extraer una selección o elige Extraer en... en el menú del archivo para extraerlo completo. La contraseña se solicita cuando hace falta.
-4. Elige Comprimir... para un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa la acción de la barra inferior.
+4. Elige Comprimir... para un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa la acción de la barra inferior. Para limpiar las fuentes después del éxito, activa expresamente la opción desactivada de forma predeterminada que las mueve a la papelera tras comprimir.
 5. Elige Gestionar archivo... solo para añadir, renombrar o eliminar contenido de un ZIP ordinario de un solo volumen.
 
 ### Permisos y datos
 
 Archive Manager no solicita permisos de almacenamiento ni de red. El host entrega descriptores de solo lectura de corta duración y transacciones vinculadas al UID del plugin, por lo que este no puede elegir rutas arbitrarias. Explorer Action v11 transporta la contraseña solo en una solicitud síncrona acotada y nunca la persiste. Explorer Action v12 añade únicamente un catálogo acotado y ligado a la sesión de volúmenes hermanos aprobados, con ID opacos y revalidación de identidad. Explorer Action v13 solo reindexa la misma fuente preparada y conserva el estado anterior hasta que el índice completo está listo. Explorer Action v14 solo coincide con sufijos compuestos acotados como `.zip.001` y `.7z.001`, nunca con cualquier archivo `.001`, y reutiliza el catálogo v12 sin conceder acceso a rutas o directorios. Las rutas peligrosas siguen aisladas, la salida se verifica antes de publicarse y confirmar un presupuesto nunca desactiva la seguridad estructural.
 
-Explorer Action v15 agrupa solo salidas de archivos nuevos ya verificadas de una sesión en un lote recuperable de hasta 128 miembros. El host registra de forma duradera el directorio padre y la identidad de los archivos antes de publicar, y tras un fallo o reinicio limpia solo los miembros cuya identidad aún coincide; los archivos modificados externamente se conservan para recuperación manual. El protocolo no concede capacidad de sobrescritura, eliminación de fuentes, árboles de directorios ni rutas arbitrarias.
+Explorer Action v15 agrupa solo salidas nuevas verificadas de una sesión en un lote recuperable de hasta 128 miembros. Explorer Action v16 permite que el host revalide fuentes y salidas y mueva las fuentes a la papelera solo cuando el plugin aporta la selección original completa y ordenada y todas las transacciones de salida confirmadas. El host sincroniza una copia recuperable y persiste su registro antes de retirar datos de origen; el plugin no recibe rutas arbitrarias ni eliminación directa. Si se pierde una respuesta Binder se consulta el mismo resultado terminal idempotente, sin repetir el movimiento.
 
 ### Roadmap
 
-El trabajo restante se sigue con casillas verificables: reconstrucciones editables más allá de ZIP, deshacer o eliminar fuentes mediante transacciones, accesibilidad, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
+El trabajo restante se sigue con casillas verificables: reconstrucciones editables más allá de ZIP, deshacer en grupo e historial de la papelera, accesibilidad, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.9.0
+
+_2026/08/27_
+
+- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v16 (código de versión 5276 o posterior)
+- `Añadido` El formulario de compresión añade la opción desactivada de forma predeterminada para mover las fuentes a la papelera tras comprimir, y solo se ejecuta después de verificar y confirmar todas las salidas físicas
+- `Añadido` Explorer Action v16 acepta únicamente la selección original completa y ordenada y todas las transacciones de salida confirmadas; después el host vuelve a validar las identidades antes de usar su papelera
+- `Corregido` El host ahora sincroniza una copia recuperable y persiste su entrada de papelera antes de retirar una fuente; si un directorio solo se retira en parte, conserva la copia recuperable
+- `Mejorado` La fase de papelera no se puede cancelar y distingue los resultados confirmado, requiere recuperación, fallido y desconocido; si se pierde una respuesta Binder se consulta el estado terminal del host sin repetir a ciegas
 
 #### v2.8.0
 
@@ -103,15 +114,6 @@ _2026/08/27_
 - `Añadido` Explorer Action v14 añade coincidencia acotada de sufijos compuestos y reutiliza la fuente de volúmenes hermanos v12 vinculada al UID, sin coincidir con archivos `.001` arbitrarios
 - `Corregido` Android 7 combina los volúmenes ZIP numerados autorizados por el host en un archivo local privado antes de usar la ruta compatible con Zip4j, por lo que los conjuntos válidos ya no se notifican como dañados
 - `Mejorado` Los números de volúmenes hermanos se limitan de `.002` a `.128` y todos los volúmenes presentes deben ser contiguos; el lector informa el siguiente ausente, revalida la identidad al materializar y nunca anuncia modificación interna
-
-#### v2.6.0
-
-_2026/08/27_
-
-- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v13 (código de versión 5276 o posterior)
-- `Añadido` La página nativa del archivo ahora permite elegir la codificación de nombres ZIP desde la barra de ruta sin abrir la página de gestión; el cambio conserva la carpeta interna y los elementos seleccionados que aún existen
-- `Añadido` Explorer Action v13 reindexa la fuente almacenada en la misma sesión de solo lectura y usa ID estables para restaurar la ruta disponible más profunda y los elementos que aún existen
-- `Mejorado` El índice de reemplazo se publica solo cuando está completo; una opción inválida, un fallo de análisis, una vista previa o una extracción activa conserva el índice anterior, y la contraseña permanece solo en memoria borrable
 
 ##### Historial completo
 

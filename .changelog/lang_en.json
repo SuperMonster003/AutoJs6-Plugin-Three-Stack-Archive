@@ -5,6 +5,22 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v2.9.0": {
+      "released_date": "2026/08/27",
+      "hint": [
+        "This release requires the paired AutoJs6 6.8.0 build with Explorer Action v16 (version code 5276 or newer)"
+      ],
+      "feature": [
+        "The compression form adds an off-by-default Move source items to Trash after compression option that runs only after every physical output is verified and committed",
+        "Explorer Action v16 accepts only the exact ordered original selection and every committed output transaction, then lets the host revalidate source and output identities before using its Trash"
+      ],
+      "fix": [
+        "The host now syncs a recovery copy and persists its Trash record before removing a source; if a directory is removed only partly, its recoverable copy is retained instead of deleting the only recovery data"
+      ],
+      "improvement": [
+        "The Trash phase cannot be cancelled and reports committed, recovery-required, failed, and unknown outcomes separately; a lost Binder response queries the host terminal state instead of blindly retrying"
+      ]
+    },
     "v2.8.0": {
       "released_date": "2026/08/27",
       "hint": [

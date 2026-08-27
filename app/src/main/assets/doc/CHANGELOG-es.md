@@ -1,5 +1,15 @@
 # Notas de la versión
 
+## v2.9.0
+
+_2026/08/27_
+
+- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v16 (código de versión 5276 o posterior)
+- `Añadido` El formulario de compresión añade la opción desactivada de forma predeterminada para mover las fuentes a la papelera tras comprimir, y solo se ejecuta después de verificar y confirmar todas las salidas físicas
+- `Añadido` Explorer Action v16 acepta únicamente la selección original completa y ordenada y todas las transacciones de salida confirmadas; después el host vuelve a validar las identidades antes de usar su papelera
+- `Corregido` El host ahora sincroniza una copia recuperable y persiste su entrada de papelera antes de retirar una fuente; si un directorio solo se retira en parte, conserva la copia recuperable
+- `Mejorado` La fase de papelera no se puede cancelar y distingue los resultados confirmado, requiere recuperación, fallido y desconocido; si se pierde una respuesta Binder se consulta el estado terminal del host sin repetir a ciegas
+
 ## v2.8.0
 
 _2026/08/27_

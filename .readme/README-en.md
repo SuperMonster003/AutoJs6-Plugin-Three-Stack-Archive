@@ -45,6 +45,7 @@ Archive Manager works inside the AutoJs6 file manager instead of replacing it. S
 - Standard split ZIP and Compress each item separately publish all verified physical outputs through one recoverable batch; failure or host restart is never presented as a successful partial result.
 - Edit ordinary single-volume ZIP files through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
 - Keep unsafe archive names read-only and isolated, apply structural and resource limits before writing, and prefer direct reads from the host's seekable descriptor over whole-file copies.
+- Optionally move the complete source selection to the host Trash only after every physical output is verified and committed; this option is off by default, and changed sources or incomplete output proof stop before source data is removed.
 
 ### Current formats
 
@@ -60,29 +61,39 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v15 (version code 5276 or newer). RAR and split archives are deliberately read-only; editing is limited to ordinary single-volume `.zip` files. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation, source deletion after compression, and in-archive editing for 7Z, RAR, and TAR-family formats are not current capabilities.
+> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v16 (version code 5276 or newer). RAR and split archives are deliberately read-only; editing is limited to ordinary single-volume `.zip` files. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for 7Z, RAR, and TAR-family formats are not current capabilities.
 
 ### Usage
 
 1. Install Archive Manager and enable it in the AutoJs6 Plugin Center.
 2. Tap the primary archive action or choose Open archive for a supported file. Browse it like a normal directory with the host path bar.
 3. Use the path-bar extraction action for the current internal folder or the filename-encoding action to correct ZIP names, long-press entries to extract a selection, or choose Extract to... from the archive's file menu for the whole archive. Password prompts appear when required.
-4. Choose Compress... for a file or folder, or select several items in one directory and use Compress... in the bottom action bar.
+4. Choose Compress... for a file or folder, or select several items in one directory and use Compress... in the bottom action bar. To clean up sources after success, explicitly enable the off-by-default Move source items to Trash after compression option.
 5. Choose Manage archive... only for an ordinary single-volume ZIP when you need to add, rename, or delete content.
 
 ### Permissions and data
 
 Archive Manager requests neither storage nor network permission. The host supplies short-lived read-only descriptors and UID-pinned output transactions, so the plugin cannot choose arbitrary filesystem paths. Explorer Action v11 carries a password only in a bounded synchronous retry request; both sides immediately remove and clear retained buffers and never persist it. Explorer Action v12 adds only a bounded, session-scoped catalog of host-approved sibling volumes: the plugin receives opaque IDs instead of paths, and caller UID, file identity, size, modification time, and lifecycle are revalidated before use. Explorer Action v13 only reindexes the same staged source and retains the old state until a complete replacement index is ready. Explorer Action v14 matches only bounded compound suffixes such as `.zip.001` and `.7z.001`, never arbitrary `.001` files, and reuses the v12 catalog without granting directory or path access. Android and Java libraries can still create unavoidable short-lived runtime copies, so password cleanup is best-effort memory hygiene rather than an absolute claim. Path traversal and unsafe names remain isolated, output is verified before publication, and resource-budget confirmation never disables structural safety checks.
 
-Explorer Action v15 groups only verified new-file outputs from one session into a recoverable batch of at most 128 members. The host durably records the parent and file identities before publication, then cleans only members whose identity still matches after failure or restart; externally changed files are preserved and marked for manual recovery. The protocol grants no overwrite, source-deletion, directory-tree, or arbitrary-path capability.
+Explorer Action v15 groups only verified new-file outputs from one session into a recoverable batch of at most 128 members. Explorer Action v16 lets the host revalidate sources and outputs and move sources to Trash only after the plugin supplies the exact ordered original selection and every committed output transaction. The host syncs a recovery copy and persists its record before removing source data; the plugin receives no arbitrary-path or direct-delete capability. A lost Binder response is resolved by querying the same idempotent terminal result, not by retrying the move.
 
 ### Roadmap
 
-The remaining work is tracked as checkable items: writable rebuilds beyond ordinary ZIP, undo or source-deletion transactions, accessibility review, the rest of the device and producer matrix, and first-public-release material.
+The remaining work is tracked as checkable items: writable rebuilds beyond ordinary ZIP, grouped Trash undo and history, accessibility review, the rest of the device and producer matrix, and first-public-release material.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.9.0
+
+_2026/08/27_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v16 (version code 5276 or newer)
+- `Added` The compression form adds an off-by-default Move source items to Trash after compression option that runs only after every physical output is verified and committed
+- `Added` Explorer Action v16 accepts only the exact ordered original selection and every committed output transaction, then lets the host revalidate source and output identities before using its Trash
+- `Fixed` The host now syncs a recovery copy and persists its Trash record before removing a source; if a directory is removed only partly, its recoverable copy is retained instead of deleting the only recovery data
+- `Improved` The Trash phase cannot be cancelled and reports committed, recovery-required, failed, and unknown outcomes separately; a lost Binder response queries the host terminal state instead of blindly retrying
 
 #### v2.8.0
 
@@ -103,15 +114,6 @@ _2026/08/27_
 - `Added` Explorer Action v14 adds bounded compound filename-suffix matching and reuses the UID-bound v12 sibling-volume source without matching arbitrary `.001` files
 - `Fixed` Android 7 combines host-authorized numbered ZIP volumes into one private local file before the Zip4j compatibility path, so valid sets are no longer reported as damaged
 - `Improved` Companion numbers are bounded to `.002` through `.128` and every supplied volume must be contiguous; the reader reports the exact next missing volume, revalidates identity around materialization, and never advertises in-archive modification
-
-#### v2.6.0
-
-_2026/08/27_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v13 (version code 5276 or newer)
-- `Added` The native archive page can now select a ZIP filename encoding from the path bar without opening the management page; changing it preserves the current internal folder and available selected entries
-- `Added` Explorer Action v13 rebuilds the staged source inside the same read-only session and uses stable entry IDs to restore the deepest available path and entries that still exist
-- `Improved` A replacement index is published only after it is complete; invalid choices, scan failures, active previews, or active extraction keep the previous index, while any existing password remains only in clearable memory
 
 ##### Full history
 
