@@ -5,6 +5,22 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "相依性",
   "$data": {
+    "v2.7.0": {
+      "released_date": "2026/08/27",
+      "hint": [
+        "此版本需要搭配 AutoJs6 6.8.0 Explorer Action v14 建置 (版本代碼 5276 或更新版本)"
+      ],
+      "feature": [
+        "現在可從 `.001` 首卷瀏覽、預覽與解壓縮完整的編號 `.zip.001` 與 `.7z.001` 卷組; 編號卷組維持唯讀",
+        "Explorer Action v14 新增有界複合檔名後綴比對, 並重用綁定外掛 UID 的 v12 同層卷來源, 不會把任意 `.001` 檔案識別為壓縮檔"
+      ],
+      "fix": [
+        "Android 7 會在進入 Zip4j 相容路徑前把主程式授權的編號 ZIP 卷組合成一個私有本機檔案, 不再把有效卷組誤報為損壞"
+      ],
+      "improvement": [
+        "伴隨卷編號限定在 `.002` 至 `.128`, 且已提供的卷必須連續; reader 精確回報下一個缺少的卷, 在具體化前後重複驗證卷身分, 且始終不公布壓縮檔內修改能力"
+      ]
+    },
     "v2.6.0": {
       "released_date": "2026/08/27",
       "hint": [

@@ -100,38 +100,58 @@ class ExplorerActionService : Service() {
                 request.remove(ExplorerArchiveRequestKeys.VOLUME_SOURCE_BINDER)
             }
             staged = ArchiveCacheStager.stage(source, cacheDir, reportedSize)
-            var sessionSource = sourceWithVolumes(staged.source, displayName, volumeClient)
-            val splitZip = ZipSplitArchiveDetector.inspect(sessionSource)
-            if (splitZip != null && volumeClient != null) {
-                val requiredNames = splitZip.materializationVolumeNames(
-                    displayName = displayName,
-                    availableNames = volumeClient.volumes.map(ArchiveVolumeIdentity::displayName),
-                )
-                if (requiredNames != null) {
-                    val group = ArchiveCacheStager.materializeVolumeGroup(
-                        primary = staged,
-                        primaryDisplayName = displayName,
-                        volumeSet = volumeClient,
-                        requiredVolumeNames = requiredNames,
-                        cacheDirectory = cacheDir,
+            var numberedResolution: NumberedArchiveVolumeResolution? = null
+            val numberedInfo = NumberedArchiveVolumePolicy.inspectFirstVolume(displayName)
+            var sessionSource = if (numberedInfo == null) {
+                sourceWithVolumes(staged.source, displayName, volumeClient)
+            } else {
+                numberedInfo.resolve(staged.source, volumeClient).also { resolution ->
+                    numberedResolution = resolution
+                }.source
+            }
+            if (numberedInfo == null) {
+                val splitZip = ZipSplitArchiveDetector.inspect(sessionSource)
+                if (splitZip != null && volumeClient != null) {
+                    val requiredNames = splitZip.materializationVolumeNames(
+                        displayName = displayName,
+                        availableNames = volumeClient.volumes.map(ArchiveVolumeIdentity::displayName),
                     )
-                    if (group != null) {
-                        staged.close()
-                        volumeClient.close()
-                        volumeClient = null
-                        staged = group
-                        sessionSource = group.source
+                    if (requiredNames != null) {
+                        val group = ArchiveCacheStager.materializeVolumeGroup(
+                            primary = staged,
+                            primaryDisplayName = displayName,
+                            volumeSet = volumeClient,
+                            requiredVolumeNames = requiredNames,
+                            cacheDirectory = cacheDir,
+                        )
+                        if (group != null) {
+                            staged.close()
+                            volumeClient.close()
+                            volumeClient = null
+                            staged = group
+                            sessionSource = group.source
+                        }
                     }
                 }
             }
             snapshot = try {
-                ArchiveScanner().scan(sessionSource, readerOptions)
+                scanSessionSource(sessionSource, readerOptions, numberedResolution)
             } catch (_: ArchiveLocalFileRequiredException) {
-                val cached = ArchiveCacheStager.materialize(staged, cacheDir)
+                val cached = if (numberedResolution == null) {
+                    ArchiveCacheStager.materialize(staged, cacheDir)
+                } else {
+                    ArchiveCacheStager.materialize(sessionSource, cacheDir)
+                }
                 staged.close()
                 staged = cached
-                sessionSource = sourceWithVolumes(cached.source, displayName, volumeClient)
-                ArchiveScanner().scan(sessionSource, readerOptions)
+                sessionSource = numberedResolution?.let { resolution ->
+                    volumeClient?.close()
+                    volumeClient = null
+                    resolution.info.wrapMaterialized(cached.source).also {
+                        numberedResolution = resolution.copy(source = it)
+                    }
+                } ?: sourceWithVolumes(cached.source, displayName, volumeClient)
+                scanSessionSource(sessionSource, readerOptions, numberedResolution)
             }
             return ExplorerArchiveSession(
                 ownerUid = ownerUid,
@@ -171,6 +191,28 @@ class ExplorerActionService : Service() {
         NamedArchiveReadSource(source, displayName)
     } else {
         VolumeAwareArchiveReadSource(source, displayName, volumeSet)
+    }
+
+    private fun scanSessionSource(
+        source: ArchiveReadSource,
+        options: ArchiveReaderOptions,
+        numberedResolution: NumberedArchiveVolumeResolution?,
+    ): ArchiveSnapshot = try {
+        ArchiveScanner().scan(source, options)
+    } catch (error: ArchiveValidationException) {
+        if (
+            numberedResolution != null &&
+            error.code in setOf(
+                ArchiveFailureCode.INVALID_SIGNATURE,
+                ArchiveFailureCode.MALFORMED_ARCHIVE,
+            )
+        ) {
+            throw numberedResolution.info.incompleteOrDamaged(
+                error = error,
+                lastVolumeIndex = numberedResolution.lastVolumeIndex,
+            )
+        }
+        throw error
     }
 
     override fun onBind(intent: Intent?): IBinder = binder

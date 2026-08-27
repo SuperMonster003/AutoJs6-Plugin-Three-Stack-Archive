@@ -36,6 +36,8 @@ internal interface ArchiveReadSource {
     val isRegularFile: Boolean
     val localFile: File?
     val displayName: String
+    val isMultiVolumeArchive: Boolean
+        get() = false
     val volumeSet: ArchiveVolumeSet?
         get() = null
 
@@ -58,6 +60,8 @@ internal class VolumeAwareArchiveReadSource(
         get() = source.isRegularFile
     override val localFile: File?
         get() = source.localFile
+    override val isMultiVolumeArchive: Boolean
+        get() = source.isMultiVolumeArchive
 
     override fun identity(): ArchiveSourceIdentity = source.identity()
 

@@ -165,7 +165,9 @@ internal object ArchiveIntentPolicy {
     fun isSupportedArchive(mimeType: String?, displayName: String): Boolean {
         val normalizedMimeType = normalizeMimeType(mimeType)
         val extensionMatches = supportedFormats.any { format -> format.matchesFileName(displayName) }
-        return normalizedMimeType in supportedMimeTypes || extensionMatches
+        return normalizedMimeType in supportedMimeTypes ||
+            extensionMatches ||
+            NumberedArchiveVolumePolicy.matchesFirstVolume(displayName)
     }
 
     private fun isSupportedZipArchive(displayName: String): Boolean =

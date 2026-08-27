@@ -71,6 +71,10 @@ class ArchiveIntentPolicyTest {
             ArchiveIntentPolicy.isSupportedArchive("application/zstd", "standalone.zst"),
         )
         assertTrue(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.rar"))
+        assertTrue(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.zip.001"))
+        assertTrue(ArchiveIntentPolicy.isSupportedArchive("text/plain", "ARCHIVE.7Z.001"))
+        assertFalse(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.001"))
+        assertFalse(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.zip.002"))
         assertFalse(ArchiveIntentPolicy.isSupportedArchive("text/plain", "archive.cab"))
     }
 }

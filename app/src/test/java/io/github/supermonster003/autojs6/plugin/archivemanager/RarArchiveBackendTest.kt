@@ -34,6 +34,7 @@ class RarArchiveBackendTest {
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.splitVolumes)
+        assertTrue(capabilities.canReadSplitVolumes)
         assertTrue(capabilities.compressionLevels.isEmpty())
         assertTrue(ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT in capabilities.limitations)
         assertFalse(

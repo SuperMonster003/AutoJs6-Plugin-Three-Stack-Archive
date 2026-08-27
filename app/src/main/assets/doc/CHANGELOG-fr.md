@@ -1,5 +1,15 @@
 # Notes de version
 
+## v2.7.0
+
+_2026/08/27_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v14 (code de version 5276 ou supérieur)
+- `Ajout` Les ensembles numérotés `.zip.001` et `.7z.001` complets peuvent désormais être parcourus, prévisualisés et extraits en ouvrant leur volume `.001`; ils restent en lecture seule
+- `Ajout` Explorer Action v14 ajoute la correspondance bornée des suffixes composés et réutilise la source de volumes frères v12 liée à l'UID sans reconnaître les fichiers `.001` arbitraires
+- `Correction` Android 7 regroupe les volumes ZIP numérotés autorisés par l'hôte dans un fichier local privé avant le chemin de compatibilité Zip4j, afin qu'un ensemble valide ne soit plus signalé comme endommagé
+- `Amélioration` Les numéros de volumes frères sont bornés de `.002` à `.128` et tous les volumes fournis doivent être contigus; le lecteur indique le prochain volume absent, revérifie l'identité autour de la matérialisation et n'annonce jamais de modification interne
+
 ## v2.6.0
 
 _2026/08/27_

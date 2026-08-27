@@ -38,6 +38,7 @@ internal object ArchiveManagerPlugin {
     const val COMPRESS_ACTION_PRIORITY = 60
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
     val MANAGE_EXTENSIONS = arrayOf(ArchiveFormat.ZIP.primaryExtension)
+    val NUMBERED_VOLUME_FILE_NAME_SUFFIXES = NumberedArchiveVolumePolicy.fileNameSuffixes.clone()
 
     val MIME_TYPES = ArchiveEngine.DEFAULT.readableFormats
         .flatMap(ArchiveFormat::mimeTypes)
@@ -96,6 +97,7 @@ internal fun archiveManagerActionCatalog(): Bundle {
             accessMode = ExplorerActionValues.ACCESS_MANAGE_TARGET,
             mimeTypes = emptyArray(),
             extensions = ArchiveManagerPlugin.MANAGE_EXTENSIONS,
+            fileNameSuffixes = emptyArray(),
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID,
@@ -116,6 +118,7 @@ internal fun archiveManagerActionCatalog(): Bundle {
             placement = ExplorerActionValues.PLACEMENT_OVERFLOW,
             mimeTypes = arrayOf("*/*"),
             extensions = emptyArray(),
+            fileNameSuffixes = emptyArray(),
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_COMPRESS_MULTIPLE_ID,
@@ -129,6 +132,7 @@ internal fun archiveManagerActionCatalog(): Bundle {
             placement = ExplorerActionValues.PLACEMENT_SELECTION_TOOLBAR,
             mimeTypes = arrayOf("*/*"),
             extensions = emptyArray(),
+            fileNameSuffixes = emptyArray(),
         ),
     )
     return Bundle().apply {
@@ -150,6 +154,7 @@ private fun archiveManagerAction(
     presentation: Int = ExplorerActionValues.PRESENTATION_ACTIVITY,
     mimeTypes: Array<String> = ArchiveManagerPlugin.MIME_TYPES,
     extensions: Array<String> = ArchiveManagerPlugin.EXTENSIONS,
+    fileNameSuffixes: Array<String> = ArchiveManagerPlugin.NUMBERED_VOLUME_FILE_NAME_SUFFIXES,
 ) = Bundle().apply {
     putString(ExplorerActionCatalogKeys.ID, id)
     putString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME, labelResourceName)
@@ -168,5 +173,9 @@ private fun archiveManagerAction(
     putStringArrayList(
         ExplorerActionCatalogKeys.EXTENSIONS,
         ArrayList(extensions.asList()),
+    )
+    putStringArrayList(
+        ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES,
+        ArrayList(fileNameSuffixes.asList()),
     )
 }

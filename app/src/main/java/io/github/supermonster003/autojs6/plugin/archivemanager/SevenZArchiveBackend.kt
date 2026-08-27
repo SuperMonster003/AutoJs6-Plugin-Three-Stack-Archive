@@ -31,10 +31,11 @@ internal object SevenZArchiveBackend : ArchiveBackend {
         limitations = setOf(
             ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT,
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
-            ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE,
+            ArchiveFormatLimitation.SPLIT_CREATION_UNAVAILABLE,
             ArchiveFormatLimitation.SOLID_CREATION_UNAVAILABLE,
             ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
         ),
+        canReadSplitVolumes = true,
     )
 
     override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {

@@ -58,6 +58,7 @@ internal object RarArchiveBackend : ArchiveBackend {
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
             ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
         ),
+        canReadSplitVolumes = true,
     )
 
     override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {

@@ -8,7 +8,7 @@
 - `[ ]`: 尚未完成; 括号中的 `宿主`/`API` 或 `插件` 表示主要落点.
 - 插件代码位于本仓库, 宿主文件管理器/多选操作栏和插件协议位于配套的 AutoJs6 仓库. 跨仓库任务只有在两侧代码和联合验证同时完成后才可勾选.
 - 宿主路径栏已经实现; 档案内部页面应直接向现有路径栏提供档案与内部目录层级, 不再创建插件私有路径栏.
-- 已部署的 Explorer Action v4 受控文件会话、v5 只读档案列表、v6 条目读取会话、v7 待提交输出只读校验、v8 受控目标替换、v9 受控目录输出、v10 宿主原生解压任务、v11 原生密码恢复、v12 有界同级分卷输入与 v13 原生文件名编码重建, 以及后续可写 provider/能力模型/事务和宿主职责见 [`docs/HOST_INTEGRATION.md`](docs/HOST_INTEGRATION.md).
+- 已部署的 Explorer Action v4 受控文件会话、v5 只读档案列表、v6 条目读取会话、v7 待提交输出只读校验、v8 受控目标替换、v9 受控目录输出、v10 宿主原生解压任务、v11 原生密码恢复、v12 有界同级分卷输入、v13 原生文件名编码重建与 v14 有界复合文件名后缀匹配, 以及后续可写 provider/能力模型/事务和宿主职责见 [`docs/HOST_INTEGRATION.md`](docs/HOST_INTEGRATION.md).
 
 ## 已确认的技术事实
 
@@ -34,7 +34,7 @@
 
 验收条件: 全仓检索中不再存在非兼容用途的旧产品名; 一个失败样本可以从用户提示或日志定位到输入/格式识别/索引/密码/条目或输出阶段.
 
-## M1: 宿主插件协议 v4/v5/v6/v7/v8/v9/v10/v11/v12/v13
+## M1: 宿主插件协议 v4/v5/v6/v7/v8/v9/v10/v11/v12/v13/v14
 
 - [x] (API) 动作目标支持 `FILE`/`DIRECTORY`/`MIXED`, 以及 `SINGLE`/`MULTIPLE` 基数.
 - [x] (API) 动作权限支持只读及 "在父目录创建输出" 两种最小授权模式.
@@ -55,14 +55,15 @@
 - [x] (API/插件/宿主) v11 增加结构化首次打开结果与有界、瞬态的密码重试请求; 宿主原生密码框可恢复头部加密档案索引, 解压回调也可在原页面请求或重试密码, 同时保持当前内部路径、选中条目和源快照不变. 密码不会进入状态、偏好设置、日志或诊断, 双方在同步调用后立即移除并尽力清理各自缓冲.
 - [x] (API/插件/宿主) v12 增加由宿主持有、绑定插件 UID 与档案会话的有界同级分卷源. 宿主只按所选 ZIP/RAR 名称生成候选, 最多授权 127 个实际存在、可读、非符号链接的普通文件; 插件只通过不透明 ID 取得只读描述符, 不获得目录、路径或任意名称查询. 双方在目录、打开、扫描和条目读取边界重复校验卷身份, 会话关闭或 Binder 连接失败后立即撤销.
 - [x] (API/插件/宿主) v13 在同一只读档案会话末尾追加文件名编码重建请求. 插件只重新扫描既有暂存源, 返回有界编码名称和有效/覆盖值, 并以源条目序号构造跨编码稳定的不透明 ID; 宿主从路径栏发起切换并恢复当前内部路径、滚动/折叠状态和仍存在的选择. 无效编码、重建失败、活跃预览或解压均不会发布部分索引, 既有密码继续只保存在可清理内存中.
+- [x] (API/插件/宿主) v14 增加有界复合文件名后缀匹配. 动作目录可精确声明 `.zip.001` 与 `.7z.001`, 宿主仅把完整文件名交给策略匹配, 不把任意 `.001` 文件误识别为档案; 匹配后的同级卷仍复用 v12 的 UID 绑定、不透明 ID、普通文件校验和最多 127 个伴随卷授权, 没有新增路径或目录访问能力.
 - [x] (宿主) 受控文件会话成功提交同级输出后由宿主自身清理 Explorer 目录缓存并发布新增文件事件; ZIP/7Z/TAR 及逐项/分卷压缩返回文件列表时无需手动刷新.
 - [ ] (API) 定义宿主主题合同: 日/夜模式/动态色开关/主色/强调色/背景/表面/文字色/字体缩放/Locale 与边到边窗口策略.
 - [ ] (API) 扩展通用可写虚拟目录合同: 创建/删除/重命名和选择能力查询; v10 已为解压任务提供进度与取消, 但尚未提供通用档案修改任务.
 - [x] (API/宿主) 只读档案 provider 以会话 ID/条目 ID 和页面祖先链表达内部路径, 供现有宿主路径栏绘制与跳转.
 - [x] (API/宿主) v8 目标替换在宿主 `commitOutput` 成功后发布原条目变更事件并刷新大小、时间及预览状态; 插件无需返回私有刷新结果或发送广播. 只读 Activity 的通用类型化结果仍可按未来动作需求单独扩展.
 - [x] (插件/API 审计) 已核对 Explorer Action v7/v8: 只读 Activity 请求不伪造结果/刷新字段; 创建同级输出与替换原目标均由宿主在提交点可靠刷新. v8 替换强制先读回待提交输出, 不允许旧客户端跳过校验直接替换.
-- [x] (API) v4-v13 请求/目标/分页/输出/目录树/条目流/待提交输出/目标替换/解压任务/密码恢复/分卷目录/文件名编码字段均有版本与长度/数量上限; v1-v3 目录仍按各自能力解析.
-- [x] (测试) 覆盖 v1-v13 目录解析、目标/基数/位置/授权/呈现方式配对、恶意请求字段、ZIP 文件会话、只读档案分页、条目读取、待提交输出只读重开、目标替换、目录输出、原生解压成功/取消、首次打开/解压密码恢复、有界分卷目录及原位编码重建闭环; v4 创建输出客户端仍可不经只读重开直接提交, v8 替换与 v9/v10 目录树则必须校验.
+- [x] (API) v4-v14 请求/目标/分页/输出/目录树/条目流/待提交输出/目标替换/解压任务/密码恢复/分卷目录/文件名编码/复合文件名后缀字段均有版本与长度/数量上限; v1-v3 目录仍按各自能力解析.
+- [x] (测试) 覆盖 v1-v14 目录解析、目标/基数/位置/授权/呈现方式配对、恶意请求字段、ZIP 文件会话、只读档案分页、条目读取、待提交输出只读重开、目标替换、目录输出、原生解压成功/取消、首次打开/解压密码恢复、有界分卷目录、原位编码重建与复合文件名后缀闭环; v4 创建输出客户端仍可不经只读重开直接提交, v8 替换与 v9/v10 目录树则必须校验.
 - [ ] (测试) 补齐 URI grant、超大多选 Binder 负载和长期过期输出回收的跨进程测试; v9 的插件进程死亡、启动恢复及深层目录提交/回滚已完成自动化与真实设备验证.
 
 验收条件: 插件不拥有独立文件列表 Activity 也能让宿主展示档案目录; 同一动作实现可接收一个文件/一个目录或多选目标, 并只获得完成操作所需的 URI 权限.
@@ -95,7 +96,7 @@
 - [x] (插件) 能力按操作声明: 识别/列表/预览/打开/解压/创建/添加/删除/重命名/密码/文件名加密/分卷; 格式与条目能力分别表达且由测试防止误报.
 - [x] (插件) 使用文件签名和结构探测确认格式; 错误 `.zip` 后缀不会覆盖无签名诊断, 带较长自解压式前导数据的真实 ZIP 仍可识别.
 - [ ] (宿主/API) 扩展名缺失或错误时由宿主请求插件复核, 并在原生档案页面提示实际格式; 当前插件引擎收到文件后已经可以识别改名的 ZIP/7Z/RAR/TAR/TAR.GZ/TAR.XZ/TAR.BZ2/TAR.ZST.
-- [ ] (宿主/API) 档案动作目录支持 `tar.gz` 等复合后缀; 当前协议只接受叶扩展名, 插件暂以 `gz`/`xz`/`bz2`/`zst` 发布候选动作并在打开后执行外层签名与内部 TAR 二次验证.
+- [ ] (插件) 将 v14 复合文件名后缀进一步用于 `tar.gz`/`tar.xz`/`tar.bz2`/`tar.zst`. 当前协议能力已经落地, 但插件只以该字段精确发布 `.zip.001` 与 `.7z.001`; TAR 族仍暂以 `gz`/`xz`/`bz2`/`zst` 叶扩展名发布候选动作, 并在打开后执行完整文件名、外层签名与内部 TAR 二次验证.
 - [x] (插件) 浏览阶段只读取目录元数据, 不再为生成列表而完整解压所有文件.
 - [x] (插件) 单个不支持的条目显示为不可提取并给出原因, 不再阻止其余条目浏览.
 - [x] (插件) 父级穿越、绝对路径、驱动器前缀、控制字符及双向文本控制符等无法安全写出的名称进入独立只读隔离目录; 原始名称经可见转义后仍可浏览和预览, 虚拟 ID 不复用原始路径. 普通选择不会包含危险项, 整包解压必须明确选择“跳过并继续”; 解压器的非 UI 调用同样需要显式 `skipUnsafePaths`, 且仅隔离 `INVALID_PATH`, 不把路径长度、层级或条目数资源上限降级为可忽略警告.
@@ -107,7 +108,8 @@
 - [x] (插件) ZIP 后端支持 Zip64/数据描述符/合法前导与尾随数据/常见时间和 Unicode 附加字段; 强制 Zip64、Java 数据描述符和 7-Zip NTFS/UTF-8 样本均有回归测试.
 - [x] (插件) ZIP 后端支持传统 ZipCrypto 与 AES; 无密码仍可浏览目录, 正确密码解锁预览/解压, 错误密码映射到 `PASSWORD/WRONG_PASSWORD` 而不是档案损坏.
 - [x] (插件) 合法的自解压式前导数据/Windows 反斜杠路径/无害 `.`/重复分隔符/大小写不同路径和 Unicode 拼写变体均有回归测试.
-- [x] (插件/API/宿主) 识别并只读打开完整的标准 `.z01 + .zip` 卷组. v12 从最终 `.zip` 的 EOCD/Zip64 元数据推导精确前序卷名, 只复制已获宿主授权的完整卷组到插件私有平面目录并强制使用 Zip4j; 缺卷返回稳定的 `INDEX/MISSING_VOLUME`, 卷变化返回 `SOURCE_CHANGED`, 分卷条目不声明删除或重命名. `.zip.001` 连续分片仍属于后续工作.
+- [x] (插件/API/宿主) 识别并只读打开完整的标准 `.z01 + .zip` 卷组. v12 从最终 `.zip` 的 EOCD/Zip64 元数据推导精确前序卷名, 只复制已获宿主授权的完整卷组到插件私有平面目录并强制使用 Zip4j; 缺卷返回稳定的 `INDEX/MISSING_VOLUME`, 卷变化返回 `SOURCE_CHANGED`, 分卷条目不声明删除或重命名.
+- [x] (插件/API/宿主) 识别并只读打开连续编号的 `.zip.001` 与 `.7z.001` 卷组. v14 只在完整文件名精确匹配首卷后授权同级 `.002` 至 `.128`, 插件要求编号连续, 通过只读多通道拼接执行浏览、预览和解压; Android 7 的 ZIP 兼容后端会先把已授权卷组合为一个私有本地文件. 缺卷报告下一个预期名称, 卷身份在暂存前后重复核对, 编号分卷不声明档案内修改能力.
 - [x] (插件) 7Z 后端通过 seekable channel 支持普通与 solid 档案、常见压缩/过滤器链、AES 内容加密和头部加密; 读取设置 262,144 KiB 解码内存上限. writer 创建非 solid 7Z, 级别 0 使用 Copy、1 至 9 使用 LZMA2, 可选 AES-256 内容加密; 文件名加密、分卷及档案内增删改保持禁用并给出准确能力说明.
 - [x] (插件) 未压缩 `tar` 支持真实结构探测、宿主原生浏览、路径栏、预览和解压; 符号链接、硬链接、设备节点及稀疏项只读列出, 不会伪装成普通文件写出.
 - [x] (插件) `tar.gz`/`tgz` 与 `tar.xz`/`txz` 已接入缓冲压缩流, 复用 TAR 条目能力、头校验和、特殊条目隔离、路径栏、预览与解压语义; GZIP/XZ 外层签名和内部 TAR 结构均需通过验证.
@@ -250,6 +252,7 @@
 - [x] (本地发布) `Archive Manager 2.4.0` 使用无后缀正式版本号和 versionCode 10 构建; Release/R8 APK 为 4,285,257 bytes, SHA-256 为 `9D78BF37C98D37595AEB98C5F3D91B7A4CE3184AF7EA26E11EAD22D876E1425A`, 本地产物名为 `autojs6-plugin-archive-manager-v2.4.0-91d067f3.apk`. APK 使用与 AutoJs6 宿主一致的证书 SHA-256 `31A681FCFFFB3E428420CAE280DED89292B12A3B0F59E19B7A73E32A8AE4C213` 和 v2 签名, `zipalign -P 16` 通过; Release 清单为 applicationId `io.github.supermonster003.autojs6.plugin.archivemanager`、minSdk 24、targetSdk 36, 不含 Debug/test 标记, 且仍只包含四个 zstd-jni ABI. Lint 为 0 errors、51 warnings, 固定清单中的 20 个逻辑样本/23 个物理文件全部通过哈希核验, 179 项插件 JVM 测试与 1,578 项宿主 JVM 测试均无失败. 最终签名 Release 已在 Android 7 API 24 AVD 和 G8441 Android 9 上安装验证; RAR4 原生浏览/解压以及头部加密 RAR5 的缺少密码、错误密码清空重试、使用 `archive-test-2026` 正确恢复和解压均通过, 输出 547 bytes 文件的 SHA-256 为 `8D94EF79E32233D326553DE00255A20EB6CDF8A709FAA9E38BC00582D42DDBB3`; 分卷 RAR 首卷只显示安全元数据且不暴露解压入口.
 - [x] (本地发布) `Archive Manager 2.5.0` 使用无后缀正式版本号和 versionCode 11 构建; Release/R8 APK 为 4,290,241 bytes, SHA-256 为 `D267C898252D84A5095EFD8A93CECA94255D418F25C819F0807279F4AB236BB1`, 本地产物名为 `autojs6-plugin-archive-manager-v2.5.0.apk`. APK 使用与 AutoJs6 宿主一致的证书 SHA-256 `31A681FCFFFB3E428420CAE280DED89292B12A3B0F59E19B7A73E32A8AE4C213` 和 v2 签名, `zipalign -P 16` 通过; Release 清单为不可翻译名称 `Archive Manager`、applicationId `io.github.supermonster003.autojs6.plugin.archivemanager`、minSdk 24、targetSdk 36、compileSdk 37, 不含 Debug/test 标记并继续包含四个 zstd-jni ABI. 最终签名 APK 已在 Android 7 API 24/API 25 AVD、G8441 Android 9 和 Android 15 小米平板安装, 四端均公布 Explorer Action 服务且版本信息为 2.5.0/11. 配套 Explorer Action v12 AAR 在宿主与插件中的长度均为 45,918 bytes, SHA-256 均为 `B7DCCFF3B3296CC61607CDC8B47B244429560C32A4925BEA038C3352EED06851`; 最低宿主版本继续保持 AutoJs6 6.8.0 (5276).
 - [x] (本地发布) `Archive Manager 2.6.0` 使用无后缀正式版本号和 versionCode 12 构建; Release/R8 APK 为 4,293,025 bytes, SHA-256 为 `DB49D102772022C49BA59EB2BD82283426EFE6DA0B514D4BA878DF8CCE57694B`, 本地产物名为 `autojs6-plugin-archive-manager-v2.6.0.apk`. APK 使用与 AutoJs6 宿主一致的证书 SHA-256 `31A681FCFFFB3E428420CAE280DED89292B12A3B0F59E19B7A73E32A8AE4C213` 和 v2 签名, `zipalign -P 16` 通过; Release 清单为不可翻译名称 `Archive Manager`、applicationId `io.github.supermonster003.autojs6.plugin.archivemanager`、minSdk 24、targetSdk 36、compileSdk 37, 不含 Debug/test 标记并继续只包含四个 zstd-jni ABI. APK 内四个 ELF 与 Release 中间产物 SHA-256 逐一一致, 每个均有 3 个对齐为 `0x4000` 的 `LOAD` 段并含 `GNU_RELRO`; Lint 为 0 errors、51 warnings, 20 个逻辑样本/23 个物理文件清单全部通过哈希核验. 最终签名 AutoJs6 宿主与插件已在 Android 7 API 24/API 25 AVD、G8441 Android 9 和 Android 15 小米平板安装, 四端均公布 Explorer Action 服务且插件版本为 2.6.0/12. 配套 Explorer Action v13 AAR 在宿主与插件中的长度均为 46,351 bytes, SHA-256 均为 `06AF5BEE8AF128A809CF7750A7F25913C5954D458D9E25E53089009D3C0EF02A`; 最低宿主版本继续保持 AutoJs6 6.8.0 (5276).
+- [x] (本地发布) `Archive Manager 2.7.0` 使用无后缀正式版本号和 versionCode 13 构建; Release/R8 APK 为 4,296,877 bytes, SHA-256 为 `F92D12F7A9F4184D72CBEEB233C9E91D94915E3A2595E2185329DC278C4AA181`, 本地产物名为 `autojs6-plugin-archive-manager-v2.7.0.apk`. APK 使用与 AutoJs6 宿主一致的证书 SHA-256 `31A681FCFFFB3E428420CAE280DED89292B12A3B0F59E19B7A73E32A8AE4C213` 和 v2 签名, `zipalign -P 16` 通过; Release 清单为不可翻译名称 `Archive Manager`、applicationId `io.github.supermonster003.autojs6.plugin.archivemanager`、minSdk 24、targetSdk 36、compileSdk 37, 不含 Debug/test 标记并继续只包含四个 zstd-jni ABI. APK 内四个 ELF 与 Release 中间产物 SHA-256 逐一一致, 每个均有 3 个对齐为 `0x4000` 的 `LOAD` 段并含 `GNU_RELRO`; Lint 为 0 errors、51 warnings, 22 个逻辑样本/29 个物理文件清单全部通过哈希核验. 最终签名 AutoJs6 宿主与插件已在 Android 7 API 24/API 25 AVD、G8441 Android 9 和 Android 15 小米平板安装; 四端的安装包大小与 MD5 均和相应 x86/arm64 宿主及插件发布 APK 完全一致, 插件版本为 2.7.0/13 且没有 `DEBUGGABLE` 标志. 配套 Explorer Action v14 AAR 在宿主与插件中的长度均为 46,399 bytes, SHA-256 均为 `36A18CDC21A72C275BF6579459116AA8E58CDE901B2E9E9068AE4239405F32E1`; 最低宿主版本继续保持 AutoJs6 6.8.0 (5276).
 - [x] (验证) M7 可配置解压资源预算阶段的 107 项 JVM 测试与 35 项仪器测试全部通过; 硬结构上限、兼容/严格/自定义档位、六种超限维度、未知压缩大小、精确确认放行、浏览与解压预算分离以及路径隔离不受确认影响均已覆盖. AutoJs6 6.8.0 (5276) 在 `emulator-5554` 中以自定义 1 条目预算打开 2 条目的外部 7-Zip ZIP 样本时仍可完整浏览, 写出前会列出预计输出、选中条目、目标空间提醒和实际超限维度; 本次确认后成功解压, 两个输出的 SHA-256 与档案内预期内容逐一一致, 测试目录随后已精确清理. Lint 无错误, Release/R8 APK 为 3,979,807 bytes, SHA-256 为 `07CA86D816772CCB0F7A728E86D6D13115A4D3F03255781309B6AE8425B149B3`, 四个 zstd-jni ABI 均与 APK 内条目哈希一致, `LOAD` 对齐均为 `0x4000` 且含 `GNU_RELRO`, `zipalign -P 16` 复核通过; 全程未操作实体设备.
 - [x] (验证) M7 可 seek 描述符直读阶段的 107 项 JVM 测试与 43 项仪器测试全部通过; 其中 8 项专项仪器测试覆盖七种当前 reader 的只读描述符直读、独立逻辑位置且不改变宿主文件偏移、源名称移除后的租约可用性、管道/可写输入回退、大小变化、取消/失败清理、活跃/过期缓存生命周期, 以及加密 ZIP 由后端请求本地文件后才延迟物化并完成 AES 解密. AutoJs6 6.8.0 (5276) 在 `emulator-5554` 通过最终 Debug 构建打开外部普通 ZIP 时, 路径栏显示 `Scripts / ArchiveManagerDirectFdE2E-20260823-2115 / direct-fd.zip`, Unicode 条目 `文件.txt` 与 `ascii.txt` 均正常列出; 插件持有 flags 为 `02100000` 的只读源描述符且浏览期间没有 `archive-input-*` 缓存, 返回父目录后源描述符链接归零, 两个固定 SHA-256 测试目录随后已逐项核对并精确清理. Lint 为 0 errors、36 warnings, Release/R8 APK 为 3,982,711 bytes, SHA-256 为 `55B8B41E1A8C9EEBA39BF1208AE109590A46D5595736DD6D588DA9530E275B8E`, v2 签名与 `zipalign -P 16` 复核通过; APK 仍只包含四个 zstd-jni ABI, 条目哈希与审计 ELF 一致, `LOAD` 对齐均为 `0x4000` 且含 `GNU_RELRO`; 全程只操作 `emulator-5554`, 未操作实体设备.
 - [x] (验证) M7 压力与对抗样本阶段的 113 项 JVM 测试与 44 项仪器测试全部通过; 新增 6 项 JVM 用例验证高压缩比 ZIP 只读索引与预算告警、20,001 条目索引、深目录软预算/硬上限、畸形非关键 ZIP extra field 的兼容读取、恶意 TAR 链接保持不可打开/不可解压, 以及 4 GiB old GNU sparse 条目只列元数据而不暴露虚拟内容. 新增仪器用例在未知大小管道复制超过确定性缓存预算时验证 `INPUT/CACHE_SPACE_UNAVAILABLE`、描述符关闭、写端退出和部分缓存清理; 完整 Android 套件仅在 `emulator-5554` 运行. Lint 为 0 errors、36 warnings, Release/R8 APK 为 3,982,711 bytes, SHA-256 为 `10A2ADCC65301DA221D9D782EE99E12409A8D98130D2C6B8CC3895993F6431A7`, v2 签名与 `zipalign -P 16` 复核通过, APK 仍只包含四个 zstd-jni ABI; 未操作实体设备.
@@ -275,6 +278,7 @@
 - [x] (验证) Explorer Action v11 与 RAR 只读后端完成联合门禁. API 24 AVD 的完整插件仪器套件为 125 项且全部通过; API 24、API 25 与 Android 15 小米平板各通过 RAR reader、首次打开恢复和会话能力 3 项专项测试, G8441 通过 RAR reader 与会话能力专项测试. AutoJs6 原生页面已在 API 24、G8441 Android 9 与 Android 15 上显示 RAR 内部路径和条目; G8441 的 RAR4 从原生路径栏解压后得到 547 bytes 文件, SHA-256 为 `8D94EF79E32233D326553DE00255A20EB6CDF8A709FAA9E38BC00582D42DDBB3`. 头部加密 RAR5 的错误密码会清空输入并保留页面, 使用正确密码后成功解压同一内容; 分卷首卷仅显示元数据且不提供解压入口. 最低宿主版本继续保持 AutoJs6 6.8.0 (5276).
 - [x] (验证) Explorer Action v12 的宿主分卷源与插件 ZIP/RAR 多卷 reader 完成联合门禁. 184 项插件 JVM 测试全部通过; 完整插件仪器套件在 Android 7/API 24、Android 7.1/API 25 与 G8441 Android 9 分别通过 132 项, Android 15 小米平板的常规运行通过 132 项并按尺寸条件跳过 1 项短横屏测试, 该项随后在临时 1080 x 1920 逻辑尺寸下单独通过并恢复物理尺寸, 因而四端发现的 529 个设备测试实例最终均已执行并通过. 宿主策略专项 23 项 JVM 测试通过, 分卷源 4 项设备测试在 API 24 与 Android 15 各自通过, 覆盖允许名称与逐字节描述符、错误 UID、未知 ID、关闭会话、卷变化、符号链接及目录拒绝. 真实两卷 ZIP 从宿主 Binder 目录进入插件服务并完成列表、条目管道与 70,000 bytes 精确比对; 固定三卷 WinRAR RAR5 样本验证完整内容 SHA-256、缺少最终卷 `MISSING_VOLUME`、伴随卷变化 `SOURCE_CHANGED`, 并确认分卷片段 CRC 不会误报完整条目损坏. 最终 2.5.0 Release 与当前 AutoJs6 6.8.0 又在 G8441 和 Android 15 平板完成真实 UI 冒烟: 宿主原生扩展按钮分别打开 `.z01 + .zip` 与 `part01/part02.rar`, 路径栏、内部条目和当前目录解压按钮保持宿主原生呈现; 会话日志无应用崩溃或档案错误, 精确测试目录随后已清理.
 - [x] (验证) Explorer Action v13 的宿主原生文件名编码重建与 `Archive Manager 2.6.0` 完成联合门禁. 186 项插件 JVM 测试和 26 项宿主 Explorer Action 专项 JVM 测试全部通过; 完整插件仪器套件在 Android 7/API 24、Android 7.1/API 25、G8441 Android 9 与 Android 15 小米平板各有 133 项实际执行并通过, 合计 532 项且 0 fail. 小米平板常规运行中唯一按尺寸条件跳过的短横屏项随后在临时 1080 x 1920 逻辑尺寸下单独通过并恢复为 1800 x 2880. G8441 与小米平板的最终签名宿主/插件真实 UI 均完成自动检测 GB18030 -> 手动 IBM437 -> 恢复默认闭环: 深层内部路径按稳定条目 ID 保持, 文件名随编码切换并在恢复后还原, 自动状态显示检测结果, 手动覆盖状态不再把覆盖值误标为默认值, 日志无应用崩溃或档案错误. 用户提供的 macOS Archive Utility `hello-dolly.zip` 以 SHA-256 `DF3CFBC607582BCDD3E529800AC5559C90D9CA0C4C24179A1178F69A5D6A9DC4` 验证 6 个条目和局部/中央头差异兼容; zipkirei `test.zip` 以 SHA-256 `676C57107BDC3C70C0E93EAADAD5CCDFFF4E1829AFF23B7045F9C1C7D7B8F9E5` 验证 43 个未置 UTF-8 标志的多语言、emoji 与 NFD 路径. 两个样本均进入生产 reader 回归, G8441 原生页面实际显示 `hello-dolly/hello.php`、emoji 及 `パンダ.jpg` 等 NFD 名称, Android 15 平板也完整显示 zipkirei 的 7 个多语言根目录. 最低宿主版本继续保持 AutoJs6 6.8.0 (5276).
+- [x] (验证) Explorer Action v14 与 `Archive Manager 2.7.0` 的编号 ZIP/7Z 联合门禁完成. 插件 28 个 JVM 测试套件共 191 项全部通过, 两个用户提供的 macOS ZIP 环境回归均实际执行; 宿主 Explorer Action 14 个 JVM 测试套件共 80 项全部通过, API 24 与 Android 15 的宿主编号卷源设备测试各 5 项通过. 完整插件仪器套件在 Android 7/API 24、Android 7.1/API 25、G8441 Android 9 与 Android 15 小米平板各报告 134 项且无失败; 小米平板中按短横屏尺寸条件跳过的用例另在临时 1080 x 1920 逻辑尺寸下精确执行 1/1 通过, 随后恢复为 1800 x 2880 并重新安装最终 Release. 固定兼容清单的 22 个逻辑样本/29 个物理文件全部通过, 包括 7-Zip 22.00 生成的三卷 `.zip.001` 与 `.7z.001`. G8441 与小米平板的最终签名宿主/插件真实 UI 均确认 `.001` 为档案入口而 `.002`/`.003` 保持普通文件, 原生路径栏、列表和 Markdown 预览可用; 两类卷组分别解压到去除 `.001` 与档案扩展名的 `numbered-zip`/`numbered-7z`, 两端输出 SHA-256 均为 `E42D8009B2338CA40CBF92C34B50FEFC96B4EBAFA6EDEB2ED18156504B41A385`. 精确设备测试目录已删除, 本地固定样本保留.
 - [x] (验证) AutoJs6 6.8.0 (5276) 与插件在 `emulator-5554` 完成真实 v7 宿主入口闭环: `payload.txt` 的溢出菜单进入 `Archive Manager: Compress...`, 待提交 ZIP 经插件完整读回后由宿主原子发布, 返回文件列表立即显示自动编号结果而无需手动刷新; 宿主原生路径栏随后显示外部目录、`payload.txt.zip` 和内部条目, 桌面 7-Zip 22.00 完整性测试通过, 解压条目与源文件 SHA-256 均为 `9221C2F936159B8446D329249FB4C0F25BE510F447383A0F13336AC7985668A3`.
 - [x] (验证) Explorer Action v8 的宿主策略已通过 64 项 Explorer Action JVM 测试; G8441 上精确运行的 5 项宿主仪器测试覆盖未授权替换拒绝、待提交输出仅可读回一次、v4 兼容、原目标竞态保留和校验后替换/条目刷新. 宿主完整 Android 仪器套件当前仍被同一工作树中另一批 Python Runtime 测试缺少 `onHeartbeat` 回调实现阻断在编译阶段, 因而本记录只声明精确筛选的 Explorer Action 套件, 不把无关套件写成已通过.
 - [x] (验证) 用户提供的 `archive-test-2026` 样本目录中 14 个档案原件已建立并复核 SHA-256 基线. 插件生产 reader 对 Bandizip ZIP、WinRAR ZIP、MT 管理器 ZIP/7Z/TAR、历史问题 ZIP、单卷 RAR4/RAR5、加密 RAR5 及完整三卷 RAR5 完成索引和可用条目数据读取; 密码使用用户提供的 `archive-test-2026`, 错误密码与缺少密码均返回类型化密码诊断, 分卷缺少最终卷与伴随卷变化分别返回 `MISSING_VOLUME` 和 `SOURCE_CHANGED`. 独立 GZ/XZ 不会被误报为 TAR 档案. G8441 上的 4 个普通 ZIP 副本各自完成新增 -> 重命名 -> 删除的 3 次校验替换闭环; 真实 AutoJs6 6.8.0 (5276) v8 文件菜单另对 Bandizip ZIP 副本完成新建/删除目录、宿主原子替换和列表大小/时间自动刷新. 回传档案通过 7-Zip 完整性测试, RAR 解压条目的 SHA-256 与原件一致; 设备测试目录和副本已精确清理, 14 个原件哈希保持不变.
@@ -288,6 +292,6 @@
 
 ## 后续推荐交付顺序
 
-1. 调研 `.zip.001` 连续分片与 7Z 分卷, 继续沿用 v12 的有界卷目录而不扩大到任意同级文件访问.
-2. 评估普通 ZIP 之外的可写重建, 并优先补齐批次提交、撤销和经验证后的源文件删除事务.
-3. 完成 320/360/600 dp、大字体、横屏、RTL、TalkBack 与其余外部生产工具样本矩阵, 再准备首次公开发布资料.
+1. 评估普通 ZIP 之外的可写重建, 并优先补齐批次提交、撤销和经验证后的源文件删除事务.
+2. 完成 320/360/600 dp、大字体、横屏、RTL、TalkBack 与其余外部生产工具样本矩阵.
+3. 补齐首次公开发布所需的安装说明、演示素材、问题模板与最终回归矩阵.

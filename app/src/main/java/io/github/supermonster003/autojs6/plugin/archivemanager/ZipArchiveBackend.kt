@@ -32,6 +32,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE,
             ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE,
         ),
+        canReadSplitVolumes = true,
     )
 
     override fun openReader(source: ArchiveReadSource, options: ArchiveReaderOptions): ArchiveReader {
@@ -69,7 +70,7 @@ internal object ZipArchiveBackend : ArchiveBackend {
             ZipArchiveReader(
                 archive = archive,
                 options = resolvedOptions,
-                canMutate = !splitReady,
+                canMutate = !splitReady && !source.isMultiVolumeArchive,
             )
         } catch (error: Exception) {
             resolvedOptions.clearPassword()

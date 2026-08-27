@@ -40,7 +40,7 @@ Archive Manager funciona dentro del gestor de archivos de AutoJs6 en lugar de su
 - Extraer el archivo completo, la carpeta interna actual o una selección con progreso, cancelación, nombres de conflicto seguros, verificación y reversión antes de publicar.
 - Abrir y extraer ZIP, 7Z y RAR cifrados con una solicitud de contraseña nativa; una contraseña errónea puede corregirse sin perder la ruta actual.
 - Corregir la codificación de nombres ZIP directamente desde la barra de ruta; la misma sesión de solo lectura reconstruye su índice y conserva cuando es posible la ruta interna y la selección disponibles.
-- Explorar, previsualizar y extraer conjuntos completos estándar `.z01 + .zip` y conjuntos modernos WinRAR `partN.rar` mediante descriptores hermanos acotados y autorizados por el host; los volúmenes ausentes o modificados fallan de forma explícita.
+- Explorar, previsualizar y extraer conjuntos completos estándar `.z01 + .zip`, WinRAR modernos `partN.rar`, `.zip.001` numerados y `.7z.001` numerados mediante descriptores hermanos acotados y autorizados por el host; los volúmenes ausentes o modificados fallan de forma explícita.
 - Crear ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST desde un elemento o una selección con el mismo padre; ZIP también admite AES-256, volúmenes estándar y un archivo por elemento.
 - Editar un ZIP ordinario de un solo volumen mediante reconstrucción verificada: añadir archivos o árboles de carpetas, crear carpetas vacías, renombrar y eliminar, y sustituir la fuente de forma atómica.
 - Aislar en modo de solo lectura los nombres peligrosos, aplicar límites estructurales y de recursos antes de escribir y leer directamente el descriptor seekable del host cuando sea posible.
@@ -50,7 +50,7 @@ Archive Manager funciona dentro del gestor de archivos de AutoJs6 en lugar de su
 La versión actual reconoce estas extensiones explorables y extraíbles:
 
 ```text
-zip, jar, aar, war, 7z, rar, tar, tar.gz, tgz, tar.xz, txz, tar.bz2, tbz2, tar.zst, tzst
+zip, zip.001, jar, aar, war, 7z, 7z.001, rar, tar, tar.gz, tgz, tar.xz, txz, tar.bz2, tbz2, tar.zst, tzst
 ```
 
 La versión actual puede crear estos formatos:
@@ -59,7 +59,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v13 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura; la edición se limita a `.zip` ordinarios de un solo volumen. Abre un ZIP dividido estándar desde su `.zip` final o un conjunto WinRAR moderno desde su primer `partN.rar`, con todos los volúmenes necesarios en el mismo directorio. Las secuencias `.zip.001`, 7Z dividido, el cifrado de nombres al crear, la eliminación de fuentes y la edición interna de 7Z, RAR o TAR no están disponibles.
+> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v14 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura; la edición se limita a `.zip` ordinarios de un solo volumen. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear, la eliminación de fuentes y la edición interna de 7Z, RAR o TAR no están disponibles.
 
 ### Uso
 
@@ -71,15 +71,25 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 ### Permisos y datos
 
-Archive Manager no solicita permisos de almacenamiento ni de red. El host entrega descriptores de solo lectura de corta duración y transacciones vinculadas al UID del plugin, por lo que este no puede elegir rutas arbitrarias. Explorer Action v11 transporta la contraseña solo en una solicitud síncrona acotada; ambos lados eliminan y borran inmediatamente sus búferes y nunca la persisten. Explorer Action v12 añade únicamente un catálogo acotado y ligado a la sesión de volúmenes hermanos aprobados: el plugin recibe ID opacos, no rutas, y se revalidan el UID llamante, la identidad, el tamaño, la fecha y el ciclo de vida. Explorer Action v13 solo reindexa la misma fuente preparada, limita la lista y los nombres de codificación y conserva el estado anterior hasta que el índice de reemplazo completo está listo. Las copias breves inevitables de Android o Java hacen que la limpieza de contraseñas sea de mejor esfuerzo. Las rutas peligrosas siguen aisladas, la salida se verifica antes de publicarse y confirmar un presupuesto nunca desactiva la seguridad estructural.
+Archive Manager no solicita permisos de almacenamiento ni de red. El host entrega descriptores de solo lectura de corta duración y transacciones vinculadas al UID del plugin, por lo que este no puede elegir rutas arbitrarias. Explorer Action v11 transporta la contraseña solo en una solicitud síncrona acotada y nunca la persiste. Explorer Action v12 añade únicamente un catálogo acotado y ligado a la sesión de volúmenes hermanos aprobados, con ID opacos y revalidación de identidad. Explorer Action v13 solo reindexa la misma fuente preparada y conserva el estado anterior hasta que el índice completo está listo. Explorer Action v14 solo coincide con sufijos compuestos acotados como `.zip.001` y `.7z.001`, nunca con cualquier archivo `.001`, y reutiliza el catálogo v12 sin conceder acceso a rutas o directorios. Las rutas peligrosas siguen aisladas, la salida se verifica antes de publicarse y confirmar un presupuesto nunca desactiva la seguridad estructural.
 
 ### Roadmap
 
-El trabajo restante se sigue con casillas verificables: investigación de `.zip.001` y 7Z dividido, reconstrucciones editables más allá de ZIP, deshacer o eliminar fuentes mediante transacciones, accesibilidad y el resto de la matriz de dispositivos y productores.
+El trabajo restante se sigue con casillas verificables: reconstrucciones editables más allá de ZIP, deshacer o eliminar fuentes mediante transacciones, accesibilidad, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.7.0
+
+_2026/08/27_
+
+- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v14 (código de versión 5276 o posterior)
+- `Añadido` Los conjuntos numerados completos `.zip.001` y `.7z.001` ya se pueden explorar, previsualizar y extraer abriendo su volumen `.001`; permanecen de solo lectura
+- `Añadido` Explorer Action v14 añade coincidencia acotada de sufijos compuestos y reutiliza la fuente de volúmenes hermanos v12 vinculada al UID, sin coincidir con archivos `.001` arbitrarios
+- `Corregido` Android 7 combina los volúmenes ZIP numerados autorizados por el host en un archivo local privado antes de usar la ruta compatible con Zip4j, por lo que los conjuntos válidos ya no se notifican como dañados
+- `Mejorado` Los números de volúmenes hermanos se limitan de `.002` a `.128` y todos los volúmenes presentes deben ser contiguos; el lector informa el siguiente ausente, revalida la identidad al materializar y nunca anuncia modificación interna
 
 #### v2.6.0
 
@@ -100,18 +110,6 @@ _2026/08/27_
 - `Corregido` Los metadatos del directorio del volumen ZIP final se aceptan correctamente en Android 7 y posteriores, y los datos se leen en todos los volúmenes autorizados sin considerar dañado el volumen final
 - `Corregido` Los CRC de segmentos RAR ya no se comparan con los datos reconstruidos; los volúmenes ausentes o modificados después de abrir producen errores tipados estables
 - `Mejorado` La cantidad, los nombres, los ID, las aperturas, el UID llamante, la identidad de archivo y la vida de sesión están acotados y se revalidan; una copia interrumpida elimina todos los fragmentos de caché privada
-
-#### v2.4.0
-
-_2026/08/26_
-
-- `Nota` Esta versión requiere AutoJs6 6.8.0 con Explorer Action v11, código de versión 5276 o posterior
-- `Añadido` Los archivos RAR4/RAR5 ya se pueden explorar, previsualizar y extraer, incluido el contenido o los encabezados cifrados; RAR sigue siendo deliberadamente de solo lectura
-- `Añadido` La página nativa de AutoJs6 puede pedir una contraseña al abrir por primera vez o durante la extracción y reintentar sin perder la ruta ni la selección
-- `Corregido` El primer volumen de un RAR dividido conserva sus metadatos legibles, pero deja de ofrecer extracción si no están disponibles los volúmenes hermanos
-- `Corregido` Una contraseña errónea borra la entrada anterior y reintenta sobre una instantánea sin cambios sin salir de la página nativa
-- `Mejorado` RAR lee directamente el descriptor seekable del host cuando es posible, no añade ABI nativas y reutiliza las comprobaciones de seguridad comunes
-- `Dependencia` Se añadieron Junrar 8.1.0 y SLF4J 2.0.17 para RAR de solo lectura bajo sus licencias incluidas
 
 ##### Historial completo
 

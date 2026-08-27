@@ -32,6 +32,7 @@ class ArchiveEngineTest {
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.splitVolumes)
+        assertTrue(capabilities.canReadSplitVolumes)
         assertEquals((0..9).toList(), capabilities.compressionLevels)
         assertTrue(Charset.forName("GB18030").name() in capabilities.filenameCharsetNames)
         assertTrue(Charset.forName("IBM437").name() in capabilities.filenameCharsetNames)
@@ -88,6 +89,7 @@ class ArchiveEngineTest {
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.password)
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
+            assertFalse(capabilities.canReadSplitVolumes)
             assertEquals(
                 when (format) {
                     ArchiveFormat.TAR -> listOf(0)
@@ -125,6 +127,7 @@ class ArchiveEngineTest {
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
+        assertTrue(capabilities.canReadSplitVolumes)
         assertEquals((0..9).toList(), capabilities.compressionLevels)
         assertTrue(capabilities.filenameCharsetNames.isEmpty())
         assertTrue(ArchiveFormatLimitation.ENTRY_METHOD_DEPENDENT in capabilities.limitations)
@@ -133,6 +136,12 @@ class ArchiveEngineTest {
         )
         assertTrue(
             ArchiveFormatLimitation.FILENAME_ENCRYPTION_UNAVAILABLE in capabilities.limitations,
+        )
+        assertTrue(
+            ArchiveFormatLimitation.SPLIT_CREATION_UNAVAILABLE in capabilities.limitations,
+        )
+        assertFalse(
+            ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations,
         )
         assertEquals("application/x-7z-compressed", ArchiveFormat.SEVEN_Z.primaryMimeType)
         assertEquals(setOf("7z"), ArchiveFormat.SEVEN_Z.extensions)

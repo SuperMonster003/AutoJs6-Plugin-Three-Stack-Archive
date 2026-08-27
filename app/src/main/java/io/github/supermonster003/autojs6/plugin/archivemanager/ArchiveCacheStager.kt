@@ -232,6 +232,33 @@ internal object ArchiveCacheStager {
         onProgress = {},
     )
 
+    /** Copies a virtual seekable source, including numbered volumes, into one private file. */
+    fun materialize(
+        source: ArchiveReadSource,
+        cacheDirectory: File,
+    ): StagedArchive {
+        val identityBeforeCopy = source.inputIdentity()
+        cleanupStaleInputs(cacheDirectory)
+        val materialized = copyToPrivateCache(
+            source = source.openInputStream(),
+            cacheDirectory = cacheDirectory,
+            reportedSize = identityBeforeCopy.primary.length,
+            checkCancelled = {},
+            onProgress = {},
+        )
+        return try {
+            if (source.inputIdentity() != identityBeforeCopy) {
+                throw ArchiveVolumeChangedException(
+                    "Archive volume set changed while it was being materialized",
+                )
+            }
+            materialized
+        } catch (error: Throwable) {
+            materialized.close()
+            throw error
+        }
+    }
+
     /** Copies one complete, host-authorized volume group into a single private directory. */
     fun materializeVolumeGroup(
         primary: StagedArchive,

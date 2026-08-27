@@ -1,0 +1,2 @@
+app/src/test/resources/archive-fixtures/7zip-22-*-numbered.* -text
+compatibility/fixture-sources/7zip-22/numbered-volume-payload.md -text whitespace=-blank-at-eof

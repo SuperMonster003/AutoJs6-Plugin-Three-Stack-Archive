@@ -4,15 +4,15 @@ This directory records reproducible, privacy-free archive samples produced by ex
 
 Supported samples normally omit `expectedPluginCapability`. A sample that intentionally exercises a narrower behavior records the deviation explicitly. For example, the split RAR fixture uses `metadata-only` because Explorer Action v11 grants the selected volume descriptor but cannot yet grant its sibling volumes. An unregistered format may still use `unsupported`; merely committing a fixture never advertises a user-facing capability.
 
-Manifest schema v2 retains `file` as the primary/final archive file and records any required split companions in `companionVolumes`, with an independent size, volume index and SHA-256 for every physical file.
+Manifest schema v2 uses `file` for the volume selected to open. That file may be a terminal ZIP volume, a first RAR volume or a numbered `.zip.001` / `.7z.001` volume. Required siblings are recorded in `companionVolumes`, with an independent size, volume index and SHA-256 for every physical file.
 
-RAR fixtures are reader regressions only. Archive Manager can browse, preview and extract supported single-volume or complete split RAR4/RAR5 input, including content- and header-encrypted RAR5, but deliberately does not create or modify RAR archives. A fixture that contains only a first volume remains metadata-only; complete sets are exercised separately through the bounded sibling-volume contract.
+RAR fixtures are reader regressions only. Archive Manager can browse, preview and extract supported single-volume or complete split RAR4/RAR5 input, including content- and header-encrypted RAR5, but deliberately does not create or modify RAR archives. A fixture that contains only a first volume remains metadata-only; complete sets are exercised separately through the bounded sibling-volume contract. Numbered ZIP and 7Z fixtures exercise ordered byte-volume concatenation through that same bounded contract and remain read-only.
 
 The corpus is intentionally incremental. A producer listed in the Roadmap is not considered covered until at least one independently generated sample and its relevant edge cases are committed and verified.
 
 ## Source material
 
-All fixture inputs are synthetic text owned by this project. They contain no user paths, account names or device data. Input modification times are normalized before an archive is generated.
+All fixture inputs are synthetic text owned by this project. They contain no user paths, account names or device data. Input modification times are normalized before an archive is generated. The numbered-volume payload is intentionally a frozen 2.6.0 README snapshot so its committed volumes remain reproducible as documentation evolves; its text is inert test data, not a statement of current capability.
 
 ## Regeneration
 

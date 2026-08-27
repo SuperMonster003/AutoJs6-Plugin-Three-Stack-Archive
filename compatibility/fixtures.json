@@ -24,6 +24,84 @@
       ]
     },
     {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-store-numbered.zip.001",
+      "companionVolumes": [
+        {
+          "file": "app/src/test/resources/archive-fixtures/7zip-22-store-numbered.zip.002",
+          "volumeIndex": 1,
+          "size": 4096,
+          "sha256": "174e82a44a0707805805e86f87e7d9124bea56088aab525e4be6350ed81969d7"
+        },
+        {
+          "file": "app/src/test/resources/archive-fixtures/7zip-22-store-numbered.zip.003",
+          "volumeIndex": 2,
+          "size": 1963,
+          "sha256": "e069436d65da77aa0bbdcc5ad56dca2def8794b631b04255a2e4c77d7e5acc25"
+        }
+      ],
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -tzip <output.zip> .\\numbered-volume-payload.md -mx=0 -v4k -mcu=on -mtm=off -mtc=off -mta=off",
+      "sourceDescription": "Project-owned frozen 2.6.0 README snapshot stored as compatibility/fixture-sources/7zip-22/numbered-volume-payload.md",
+      "sourceSha256": "e42d8009b2338ca40cbf92c34b50fefc96b4ebafa6edeb2ed18156504b41a385",
+      "split": true,
+      "volumeSize": 4096,
+      "volumeIndex": 0,
+      "volumes": 3,
+      "size": 4096,
+      "totalPhysicalSize": 10155,
+      "sha256": "a26223c01c3d0bd50e25bcb284146d741268416f219bad95d168c834ab5e5a1f",
+      "entries": [
+        {
+          "name": "numbered-volume-payload.md",
+          "method": "Store",
+          "size": 10005,
+          "crc32": "6D1CAB14",
+          "volumeIndex": 0
+        }
+      ]
+    },
+    {
+      "file": "app/src/test/resources/archive-fixtures/7zip-22-copy-numbered.7z.001",
+      "companionVolumes": [
+        {
+          "file": "app/src/test/resources/archive-fixtures/7zip-22-copy-numbered.7z.002",
+          "volumeIndex": 1,
+          "size": 4096,
+          "sha256": "8951ad82a3ca0530723233f83fb7ed85cbaf3eba8b1035c8c88e401222ce4409"
+        },
+        {
+          "file": "app/src/test/resources/archive-fixtures/7zip-22-copy-numbered.7z.003",
+          "volumeIndex": 2,
+          "size": 1959,
+          "sha256": "501296adb34bb8dae3d95b4a24480bc2f1a97761910dbc8a7c41e4dd3051f647"
+        }
+      ],
+      "producer": "7-Zip",
+      "producerVersion": "22.00 x64",
+      "platform": "Windows 11",
+      "command": "7z a -t7z <output.7z> .\\numbered-volume-payload.md -m0=Copy -mx=0 -ms=off -v4k -mtm=off -mtc=off -mta=off",
+      "sourceDescription": "Project-owned frozen 2.6.0 README snapshot stored as compatibility/fixture-sources/7zip-22/numbered-volume-payload.md",
+      "sourceSha256": "e42d8009b2338ca40cbf92c34b50fefc96b4ebafa6edeb2ed18156504b41a385",
+      "split": true,
+      "volumeSize": 4096,
+      "volumeIndex": 0,
+      "volumes": 3,
+      "size": 4096,
+      "totalPhysicalSize": 10151,
+      "sha256": "ec8ff4a135a7905ca214203d5a7a481006ebaeb3e3d3bc03c13f274ea7e6ff9e",
+      "entries": [
+        {
+          "name": "numbered-volume-payload.md",
+          "method": "Copy",
+          "size": 10005,
+          "crc32": "6D1CAB14",
+          "volumeIndex": 0
+        }
+      ]
+    },
+    {
       "file": "app/src/test/resources/archive-fixtures/7zip-22-aes256-unicode.zip",
       "producer": "7-Zip",
       "producerVersion": "22.00 x64",

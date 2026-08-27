@@ -159,6 +159,7 @@ enum class ArchiveFormatLimitation {
     PASSWORD_UNAVAILABLE,
     FILENAME_ENCRYPTION_UNAVAILABLE,
     SPLIT_VOLUMES_UNAVAILABLE,
+    SPLIT_CREATION_UNAVAILABLE,
     SOLID_CREATION_UNAVAILABLE,
     MUTATION_REQUIRES_REWRITE,
 }
@@ -180,6 +181,7 @@ data class FormatCapabilities(
     /** Supported manual filename-decoding overrides. An empty list means no override UI. */
     val filenameCharsetNames: List<String> = emptyList(),
     val limitations: Set<ArchiveFormatLimitation>,
+    val canReadSplitVolumes: Boolean = false,
 ) {
     init {
         require(!canPreview || canList)

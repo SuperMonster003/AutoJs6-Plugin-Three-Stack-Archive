@@ -1,5 +1,15 @@
 # Release notes
 
+## v2.7.0
+
+_2026/08/27_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v14 (version code 5276 or newer)
+- `Added` Complete numbered `.zip.001` and `.7z.001` sets can now be browsed, previewed, and extracted by opening their `.001` volume; numbered sets remain read-only
+- `Added` Explorer Action v14 adds bounded compound filename-suffix matching and reuses the UID-bound v12 sibling-volume source without matching arbitrary `.001` files
+- `Fixed` Android 7 combines host-authorized numbered ZIP volumes into one private local file before the Zip4j compatibility path, so valid sets are no longer reported as damaged
+- `Improved` Companion numbers are bounded to `.002` through `.128` and every supplied volume must be contiguous; the reader reports the exact next missing volume, revalidates identity around materialization, and never advertises in-archive modification
+
 ## v2.6.0
 
 _2026/08/27_

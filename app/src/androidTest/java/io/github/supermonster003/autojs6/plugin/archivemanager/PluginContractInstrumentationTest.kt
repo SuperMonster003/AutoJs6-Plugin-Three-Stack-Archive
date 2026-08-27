@@ -131,6 +131,11 @@ class PluginContractInstrumentationTest {
         )
         assertEquals(listOf("*/*"), action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES))
         assertTrue(action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS).orEmpty().isEmpty())
+        assertTrue(
+            action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES)
+                .orEmpty()
+                .isEmpty(),
+        )
     }
 
     private fun assertManageFileAction(action: Bundle) {
@@ -160,6 +165,11 @@ class PluginContractInstrumentationTest {
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
             action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS),
         )
+        assertTrue(
+            action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES)
+                .orEmpty()
+                .isEmpty(),
+        )
     }
 
     private fun assertCommonFileAction(
@@ -187,6 +197,10 @@ class PluginContractInstrumentationTest {
         assertEquals(
             ArchiveManagerPlugin.EXTENSIONS.toList(),
             action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS),
+        )
+        assertEquals(
+            ArchiveManagerPlugin.NUMBERED_VOLUME_FILE_NAME_SUFFIXES.toList(),
+            action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES),
         )
     }
 

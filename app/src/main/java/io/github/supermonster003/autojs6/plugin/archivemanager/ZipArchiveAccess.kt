@@ -72,7 +72,7 @@ internal object ZipArchiveAccess {
                 ?.let(Charset::forName)
                 ?: detectCharset(source, forceZip4j = forceZip4j)
             return if (forceZip4j || requiresZip4jBackend()) {
-                Zip4jOpenZipArchive(requireNotNull(source.localFile), charset, password)
+                Zip4jOpenZipArchive(requireLocalFile(source), charset, password)
             } else {
                 openCommons(source, charset, password)
             }
@@ -134,9 +134,7 @@ internal object ZipArchiveAccess {
      * that platform version. Candidate scoring preserves the same filename-encoding behavior.
      */
     private fun detectZip4jCharset(source: ArchiveReadSource, locale: Locale): Charset {
-        val localFile = requireNotNull(source.localFile) {
-            "Zip4j requires a process-readable archive file"
-        }
+        val localFile = requireLocalFile(source)
         ZipCentralDirectoryNameReader.readNonUtf8Names(localFile)?.let { rawNames ->
             // Zip4j on Android 7 can expose UTF-8-flagged names through its configured fallback
             // charset. UTF-8 is therefore the only lossless default when every legacy name is
@@ -158,6 +156,11 @@ internal object ZipArchiveAccess {
             ?.first
             ?: CP437
     }
+
+    private fun requireLocalFile(source: ArchiveReadSource): File =
+        source.localFile ?: throw ArchiveLocalFileRequiredException(
+            "ZIP access requires a process-readable archive file",
+        )
 
     /** Uses round-trip-safe central-directory bytes instead of backend-decoded candidate names. */
     internal fun detectRawFilenameCharset(
