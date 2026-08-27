@@ -44,6 +44,7 @@ internal object ArchiveIntentPolicy {
     private val supportedFormats = ArchiveEngine.DEFAULT.readableFormats
 
     fun resolve(intent: Intent): ArchiveOpenRequest? {
+        if (!ExplorerActionIntentSizePolicy.isSafe(intent)) return null
         if (intent.action != ExplorerActionPluginActions.EXECUTE) return null
         val requestedAction = when (intent.getStringExtra(ExplorerActionIntentExtras.ACTION_ID)) {
             ArchiveManagerPlugin.ACTION_OPEN_ID -> ArchiveRequestedAction.OPEN

@@ -37,6 +37,7 @@ internal data class ArchiveCompressionRequest(
 internal object ArchiveCompressionIntentPolicy {
 
     fun resolve(intent: Intent): ArchiveCompressionRequest? {
+        if (!ExplorerActionIntentSizePolicy.isSafe(intent)) return null
         if (intent.action != ExplorerActionPluginActions.EXECUTE) return null
         val actionId = intent.getStringExtra(ExplorerActionIntentExtras.ACTION_ID)
         if (
