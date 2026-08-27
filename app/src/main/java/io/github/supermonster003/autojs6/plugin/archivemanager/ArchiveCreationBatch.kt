@@ -155,9 +155,9 @@ internal data class ArchiveCreationBatchResult(
 /**
  * A later output failed after at least one earlier output had already been committed.
  *
- * Explorer Action v6 commits each output independently and has no batch rollback primitive. The
- * completed list is therefore part of the public failure state and callers must not offer a blind
- * whole-plan retry.
+ * This remains the explicit fallback contract for legacy or deliberately non-batching writers.
+ * Explorer Action v15-capable production writers defer a multi-output plan to one recoverable host
+ * batch instead.
  */
 internal class ArchiveCreationPartialFailureException(
     val completedOutputs: List<ArchiveCreationResult>,
@@ -190,6 +190,24 @@ internal object ArchiveCreationBatchExecutor {
         require(writer.format == plan.format) {
             "Archive writer and creation plan formats differ"
         }
+        val batchCommitter = if (
+            writer.supportsOutputBatching &&
+            (
+                plan.separateArchives ||
+                    plan.jobs.any { job -> job.options.splitVolumeSizeBytes != null }
+                )
+        ) {
+            ArchiveOutputBatchCommitter(plan.format)
+        } else {
+            null
+        }
+        if (batchCommitter != null && plan.separateArchives) {
+            batchCommitter.requireCapacity(
+                additionalOutputs = plan.jobs.size,
+                outputDisplayName = plan.jobs.first().options.outputDisplayName,
+            )
+        }
+        val outputCommitter = batchCommitter ?: ImmediateArchiveOutputCommitter
         val completed = ArrayList<ArchiveCreationResult>(plan.jobs.size)
         plan.jobs.forEachIndexed { index, job ->
             try {
@@ -209,8 +227,10 @@ internal object ArchiveCreationBatchExecutor {
                             ),
                         )
                     },
+                    outputCommitter = outputCommitter,
                 )
             } catch (error: Throwable) {
+                if (batchCommitter != null) throw batchCommitter.abortPending(error)
                 if (completed.isEmpty() || error is Error) throw error
                 throw ArchiveCreationPartialFailureException(
                     completedOutputs = completed.toList(),
@@ -220,6 +240,13 @@ internal object ArchiveCreationBatchExecutor {
                     failedSourceDisplayName = job.sourceDisplayName,
                     operationFailure = error,
                 )
+            }
+        }
+        if (batchCommitter != null) {
+            try {
+                batchCommitter.commitAll(checkCancelled)
+            } catch (error: Throwable) {
+                throw batchCommitter.abortPending(error)
             }
         }
         return ArchiveCreationBatchResult(completed.toList())

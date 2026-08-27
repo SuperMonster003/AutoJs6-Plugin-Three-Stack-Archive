@@ -5,6 +5,22 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依賴",
   "$data": {
+    "v2.8.0": {
+      "released_date": "2026/08/27",
+      "hint": [
+        "此版本需要配套的 AutoJs6 6.8.0 Explorer Action v15 建置 (版本代碼 5276 或以上)"
+      ],
+      "feature": [
+        "標準分卷 ZIP 及「單獨壓縮每個項目」現在會先完成所有輸出的寫入及逐項讀回驗證, 再透過 Explorer Action v15 作為一個可恢復批次統一發佈"
+      ],
+      "fix": [
+        "多輸出建立不再於正常故障路徑留下已提交的部分結果; 只有完整批次提交後才重新整理 Explorer 並報告成功",
+        "壓縮選項開關現在可在 Android 7 上正確繪製並保持可點按, 不再只顯示為普通文字標籤"
+      ],
+      "improvement": [
+        "宿主在發佈前持久記錄父目錄及每個暫存檔案的身份; 失敗或重新啟動時只回滾身份仍相符的成員, 外部改寫的檔案會保留並報告需要手動復原"
+      ]
+    },
     "v2.7.0": {
       "released_date": "2026/08/27",
       "hint": [

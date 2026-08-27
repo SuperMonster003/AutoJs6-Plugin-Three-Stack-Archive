@@ -60,7 +60,7 @@ internal class ArchiveCreationRollbackException(
     }
 }
 
-/** A split archive stopped after one or more physical volumes were already committed. */
+/** A legacy immediate publisher stopped after one or more physical volumes were committed. */
 internal class ArchiveCreationPartialOutputException(
     val committedOutputs: List<HostOutputTransaction>,
     val totalOutputs: Int,
@@ -98,7 +98,7 @@ internal class ArchiveCreationOutputGroupRollbackException(
 ) {
     init {
         require(residualOutputs.isNotEmpty())
-        require(rollbackFailures.size == residualOutputs.size)
+        require(rollbackFailures.isNotEmpty())
         require(totalOutputs >= committedOutputs.size + residualOutputs.size)
         rollbackFailures.forEach { failure ->
             if (failure !== operationFailure) addSuppressed(failure)
@@ -146,6 +146,7 @@ internal fun <Preparation, T> ExplorerActionHostSessionClient.writeArchiveOutput
     write: (ParcelFileDescriptor, Preparation) -> T,
     verify: (ParcelFileDescriptor, Preparation, T) -> Unit,
     beforeCommit: (Preparation, T) -> Unit,
+    outputCommitter: ArchiveOutputCommitter = ImmediateArchiveOutputCommitter,
 ): CommittedArchiveOutput<T> {
     val prepared = try {
         prepareOutput(outputDisplayName, format, conflictPolicy)
@@ -199,7 +200,7 @@ internal fun <Preparation, T> ExplorerActionHostSessionClient.writeArchiveOutput
             outputDisplayName = prepared.displayName,
             format = format,
         ) {
-            commitOutput(prepared.id, format)
+            outputCommitter.commitOutput(this, prepared, format)
         }
         return CommittedArchiveOutput(committed, value)
     } catch (operationFailure: Throwable) {

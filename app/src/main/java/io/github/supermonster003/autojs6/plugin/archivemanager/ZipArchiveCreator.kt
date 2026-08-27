@@ -33,6 +33,7 @@ internal class ZipArchiveCreator(
         options: ArchiveCreationOptions,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        outputCommitter: ArchiveOutputCommitter,
     ): ArchiveCreationResult {
         val splitVolumeSizeBytes = options.splitVolumeSizeBytes
         val outputName = ArchiveCompressionPolicy.normalizeCreationOutputDisplayName(
@@ -61,6 +62,7 @@ internal class ZipArchiveCreator(
                     password = passwordChars,
                     checkCancelled = checkCancelled,
                     progress = progress,
+                    outputCommitter = outputCommitter,
                 )
             } else {
                 createSplitOutput(
@@ -72,6 +74,7 @@ internal class ZipArchiveCreator(
                     splitVolumeSizeBytes = splitVolumeSizeBytes,
                     checkCancelled = checkCancelled,
                     progress = progress,
+                    outputCommitter = outputCommitter,
                 )
             }
         } finally {
@@ -87,6 +90,7 @@ internal class ZipArchiveCreator(
         password: CharArray?,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        outputCommitter: ArchiveOutputCommitter,
     ): ArchiveCreationResult {
         val completed = session.writeArchiveOutput(
             outputDisplayName = outputName,
@@ -125,6 +129,7 @@ internal class ZipArchiveCreator(
                 progress.reportCommitting(manifest, counters)
                 checkCancelled()
             },
+            outputCommitter = outputCommitter,
         )
         val counters = completed.value
         val committed = completed.transaction
@@ -146,6 +151,7 @@ internal class ZipArchiveCreator(
         splitVolumeSizeBytes: Long,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        outputCommitter: ArchiveOutputCommitter,
     ): ArchiveCreationResult {
         val resolvedCacheDirectory = requireNotNull(cacheDirectory) {
             "ZIP split creation requires a private cache directory"
@@ -155,6 +161,7 @@ internal class ZipArchiveCreator(
             requestedTerminalDisplayName = outputName,
             conflictPolicy = options.conflictPolicy,
             splitVolumeSizeBytes = splitVolumeSizeBytes,
+            outputCommitter = outputCommitter,
         )
         publisher.reserveTerminalBeforeSourceAccess()
         var workspace: ZipSplitArchiveWorkspace? = null

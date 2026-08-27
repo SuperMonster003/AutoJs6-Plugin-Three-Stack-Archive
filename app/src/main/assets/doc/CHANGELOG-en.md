@@ -1,5 +1,15 @@
 # Release notes
 
+## v2.8.0
+
+_2026/08/27_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v15 (version code 5276 or newer)
+- `Added` Standard split ZIP and Compress each item separately now finish writing and read-back verification for every output before one recoverable Explorer Action v15 batch publication
+- `Fixed` Multi-output creation no longer leaves committed partial results on normal failure paths; Explorer refreshes and success is reported only after the complete batch commits
+- `Fixed` Compression option switches now render correctly and remain tappable on Android 7 instead of appearing as plain labels
+- `Improved` The host durably records the parent and each staged file identity before publication; failure or restart rolls back only matching members, while externally changed files are preserved and reported for manual recovery
+
 ## v2.7.0
 
 _2026/08/27_

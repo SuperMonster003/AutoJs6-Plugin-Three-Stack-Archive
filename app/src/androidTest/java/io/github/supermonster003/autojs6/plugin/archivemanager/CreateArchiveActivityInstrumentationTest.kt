@@ -11,6 +11,7 @@ import android.os.ParcelFileDescriptor
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
+import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
@@ -296,7 +297,7 @@ class CreateArchiveActivityInstrumentationTest {
         val hostSession = RecordingHostSession()
         ActivityScenario.launch<CreateArchiveActivity>(multipleCompressionIntent(hostSession)).use { scenario ->
             scenario.onActivity { activity ->
-                val separate = activity.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                val separate = activity.findViewById<SwitchMaterial>(
                     R.id.separateArchives,
                 )
                 val preview = activity.findViewById<android.widget.TextView>(
@@ -311,6 +312,9 @@ class CreateArchiveActivityInstrumentationTest {
                 )
 
                 assertTrue(separate.isEnabled)
+                assertTrue(separate.isClickable)
+                assertTrue(separate.thumbDrawable != null)
+                assertTrue(separate.trackDrawable != null)
                 assertFalse(separate.isChecked)
                 assertFalse(preview.isShown)
                 assertEquals("Documents.zip", activity.findViewById<android.widget.EditText>(
@@ -354,7 +358,7 @@ class CreateArchiveActivityInstrumentationTest {
             scenario.recreate()
 
             scenario.onActivity { activity ->
-                val separate = activity.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                val separate = activity.findViewById<SwitchMaterial>(
                     R.id.separateArchives,
                 )
                 val policy = activity.findViewById<android.widget.AutoCompleteTextView>(

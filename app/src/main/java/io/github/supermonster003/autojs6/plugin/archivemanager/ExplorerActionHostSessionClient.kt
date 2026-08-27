@@ -40,6 +40,14 @@ internal data class HostOutputTransaction(
     val outputBytes: Long = 0L,
 )
 
+internal data class HostOutputBatch(
+    val id: String,
+    val state: Int,
+    val transactionIds: List<String>,
+    val publishedCount: Int,
+    val outputs: List<HostOutputTransaction> = emptyList(),
+)
+
 internal class ExplorerActionHostSessionClient(
     private val remote: IExplorerActionHostSession,
 ) {
@@ -212,17 +220,80 @@ internal class ExplorerActionHostSessionClient(
     }
 
     fun abortIncompleteOutputs(): Int {
+        val batches = listOutputBatches().filter { batch ->
+            batch.state == ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_PREPARED ||
+                batch.state == ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTING ||
+                batch.state == ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_RECOVERY_REQUIRED
+        }
+        val batchedTransactionIds = batches.flatMapTo(HashSet()) { batch -> batch.transactionIds }
+        batches.forEach { batch -> remote.abortOutputBatch(batch.id) }
         val incomplete = listOutputs().filter { output ->
-            output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_PREPARED ||
-                output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_WRITING ||
-                output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_VERIFYING
+            output.id !in batchedTransactionIds &&
+                (
+                    output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_PREPARED ||
+                        output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_WRITING ||
+                        output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_VERIFYING
+                    )
         }
         incomplete.forEach { output -> remote.abortOutput(output.id) }
-        return incomplete.size
+        return incomplete.size + batchedTransactionIds.size
     }
 
     fun abortOutput(transactionId: String) {
         remote.abortOutput(transactionId)
+    }
+
+    fun prepareOutputBatch(transactions: List<HostOutputTransaction>): HostOutputBatch {
+        require(transactions.size in 2..ExplorerActionProtocol.MAX_OUTPUT_BATCH_ENTRIES) {
+            "Host output batch size is invalid"
+        }
+        require(transactions.map(HostOutputTransaction::id).distinct().size == transactions.size) {
+            "Host output batch contains duplicate transactions"
+        }
+        val result = remote.prepareOutputBatch(
+            transactions.map(HostOutputTransaction::id).toMutableList(),
+        ) ?: error("Host returned no output batch")
+        return decodeOutputBatch(
+            result,
+            expectedTransactionIds = transactions.map(HostOutputTransaction::id),
+        )
+    }
+
+    fun commitOutputBatch(batchId: String, expectedTransactions: List<HostOutputTransaction>): HostOutputBatch {
+        val result = remote.commitOutputBatch(batchId) ?: error("Host returned no output batch commit result")
+        return decodeOutputBatch(
+            result,
+            expectedBatchId = batchId,
+            expectedTransactionIds = expectedTransactions.map(HostOutputTransaction::id),
+            requireOutputs = true,
+        )
+    }
+
+    fun queryOutputBatch(batchId: String): HostOutputBatch? {
+        require(isCanonicalUuid(batchId)) { "Host output batch ID is invalid" }
+        val result = remote.queryOutputBatch(batchId) ?: error("Host returned no output batch state")
+        val returnedId = result.getString(ExplorerActionHostSessionKeys.OUTPUT_BATCH_ID)
+            ?.takeIf(::isCanonicalUuid)
+            ?: error("Host output batch ID is invalid")
+        require(returnedId == batchId) { "Host output batch ID changed" }
+        val state = result.getInt(
+            ExplorerActionHostSessionKeys.OUTPUT_BATCH_STATE,
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_UNKNOWN,
+        )
+        if (state == ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_UNKNOWN) return null
+        return decodeOutputBatch(result, expectedBatchId = batchId)
+    }
+
+    fun listOutputBatches(): List<HostOutputBatch> {
+        val result = remote.listOutputBatches() ?: error("Host returned no output batch list")
+        return result.parcelableBundleArrayList(ExplorerActionHostSessionKeys.OUTPUT_BATCHES)
+            .orEmpty()
+            .take(ExplorerActionProtocol.MAX_OUTPUT_BATCH_RESULTS)
+            .mapNotNull { bundle -> runCatching { decodeOutputBatch(bundle) }.getOrNull() }
+    }
+
+    fun abortOutputBatch(batchId: String) {
+        remote.abortOutputBatch(batchId)
     }
 
     fun close() {
@@ -348,6 +419,69 @@ internal class ExplorerActionHostSessionClient(
         )
     }
 
+    private fun decodeOutputBatch(
+        bundle: Bundle,
+        expectedBatchId: String? = null,
+        expectedTransactionIds: List<String>? = null,
+        requireOutputs: Boolean = false,
+    ): HostOutputBatch {
+        val id = bundle.getString(ExplorerActionHostSessionKeys.OUTPUT_BATCH_ID)
+            ?.takeIf(::isCanonicalUuid)
+            ?: error("Host output batch ID is invalid")
+        expectedBatchId?.let { expected ->
+            require(id == expected) { "Host output batch ID changed" }
+        }
+        val state = bundle.getInt(
+            ExplorerActionHostSessionKeys.OUTPUT_BATCH_STATE,
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_UNKNOWN,
+        )
+        require(state in VALID_OUTPUT_BATCH_STATES) { "Host output batch state is invalid" }
+        val transactionIds = bundle.getStringArrayList(
+            ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_IDS,
+        )?.toList() ?: error("Host output batch has no transaction list")
+        require(transactionIds.size in 2..ExplorerActionProtocol.MAX_OUTPUT_BATCH_ENTRIES) {
+            "Host output batch transaction count is invalid"
+        }
+        require(transactionIds.all(::isCanonicalUuid) && transactionIds.distinct().size == transactionIds.size) {
+            "Host output batch transaction IDs are invalid"
+        }
+        expectedTransactionIds?.let { expected ->
+            require(transactionIds == expected) { "Host output batch membership changed" }
+        }
+        val publishedCount = bundle.getInt(
+            ExplorerActionHostSessionKeys.OUTPUT_BATCH_PUBLISHED_COUNT,
+            -1,
+        )
+        require(publishedCount in 0..transactionIds.size) {
+            "Host output batch published count is invalid"
+        }
+        val outputBundles = bundle.parcelableBundleArrayList(ExplorerActionHostSessionKeys.OUTPUTS)
+        if (requireOutputs) {
+            require(outputBundles?.size == transactionIds.size) {
+                "Host output batch commit result is incomplete"
+            }
+        }
+        val outputs = outputBundles.orEmpty().map { output ->
+            decodeRawOutput(
+                output,
+                defaultKind = ExplorerActionHostSessionValues.OUTPUT_KIND_FILE,
+                defaultState = ExplorerActionHostSessionValues.OUTPUT_STATE_COMMITTED,
+            )
+        }
+        if (outputs.isNotEmpty()) {
+            require(outputs.map(HostOutputTransaction::id) == transactionIds) {
+                "Host output batch results do not match its membership"
+            }
+        }
+        if (requireOutputs) {
+            require(outputs.all { output ->
+                output.kind == ExplorerActionHostSessionValues.OUTPUT_KIND_FILE &&
+                    output.state == ExplorerActionHostSessionValues.OUTPUT_STATE_COMMITTED
+            }) { "Host output batch contains an uncommitted result" }
+        }
+        return HostOutputBatch(id, state, transactionIds, publishedCount, outputs)
+    }
+
     @Suppress("DEPRECATION")
     private fun Bundle.parcelableBundleArrayList(name: String): ArrayList<Bundle>? =
         getParcelableArrayList(name)
@@ -366,6 +500,13 @@ internal class ExplorerActionHostSessionClient(
             ExplorerActionHostSessionValues.OUTPUT_STATE_VERIFYING,
             ExplorerActionHostSessionValues.OUTPUT_STATE_COMMITTED,
             ExplorerActionHostSessionValues.OUTPUT_STATE_ABORTED,
+        )
+        val VALID_OUTPUT_BATCH_STATES = setOf(
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_PREPARED,
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTING,
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTED,
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_ABORTED,
+            ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_RECOVERY_REQUIRED,
         )
     }
 }

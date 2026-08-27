@@ -73,7 +73,7 @@ Explorer Action v14 增加有界复合文件名后缀字段, 当前用于精确�
 
 ZIP 加密原型已满足 API 24、真实 AES/ZipCrypto 样本、错误密码分类、无新增 ABI 和 Release 体积门禁, 因此 Zip4j 2.11.5 已进入生产依赖. 它不替换 Commons Compress: 非加密条目仍优先走 Commons, 只有加密数据流以及 Android 7.x 兼容路径交给 Zip4j. 普通单卷 ZIP 修改共用两者的已验证读取能力, 先把所选文件或目录树固化为有界不可变计划, 再把保留与新增条目重建到 v8 宿主待提交输出; Stored/Deflate、ZipCrypto/AES、可用时间戳与实际内容会被校验, 注释、非必要 extra metadata 和 Unix 权限属性则会规范化.
 
-标准 ZIP 分卷创建继续复用 Zip4j 2.11.5 的 `SplitOutputStream`, 不引入新的依赖或 ABI. 该 API 需要本地可寻址文件, 所以 writer 在插件私有缓存的平面工作区完整生成卷组并通过 Zip4j 读回校验, 再把实际 `.zNN` 与最终 `.zip` 逐个复制到 Explorer Action v7 宿主待提交事务. 如果压缩结果未超过所选大小, Zip4j 合法地产生单个最终 `.zip`, writer 不人为填充或制造空编号卷. 整组名称在发布前精确预留, 自动冲突编号对所有实际输出一致; 每个宿主待提交卷都以只读描述符和本地卷逐字节比对, 全部通过后才清理私有工作区, 编号卷先提交且最终 `.zip` 最后提交. v7 没有批次原子提交或撤销已提交文件, 因而中途提交失败必须返回已提交卷、失败卷和可能的待提交残留, 不能宣称整组已回滚.
+标准 ZIP 分卷创建继续复用 Zip4j 2.11.5 的 `SplitOutputStream`, 不引入新的依赖或 ABI. 该 API 需要本地可寻址文件, 所以 writer 在插件私有缓存的平面工作区完整生成卷组并通过 Zip4j 读回校验, 再把实际 `.zNN` 与最终 `.zip` 逐个复制到宿主待提交事务. 如果压缩结果未超过所选大小, Zip4j 合法地产生单个最终 `.zip`, writer 不人为填充或制造空编号卷. 整组名称在发布前精确预留, 自动冲突编号对所有实际输出一致; 每个宿主待提交卷都以 v7 只读描述符和本地卷逐字节比对, 全部通过后才清理私有工作区. 两个及以上卷通过 Explorer Action v15 一次登记为可恢复输出批次; 宿主先持久记录父目录和文件身份, 再顺序发布并同步目录, 失败或重启时仅回滚身份仍匹配的成员. 该方案不宣称底层多文件改名原子, 但消除了正常故障路径中的部分成功语义; 外部改写会保留并进入人工恢复状态.
 
 7Z 复用既有 Commons Compress 1.28.0, 不新增 Maven 组件或 ABI. 官方 `SevenZFile`/`SevenZOutputFile` API 与 1.28.0 源码确认 reader 支持 seekable channel、solid 档案、AES-256-SHA256 及常见方法链, writer 的密码构造器会对条目内容加入 AES 层, 但仍把文件名写入未加密头部. 因此 reader 公布普通/solid/内容加密/头部加密能力, writer 只公布非 solid 与可选内容加密, 不公布创建文件名加密或分卷. reader 与 writer 都从宿主文件描述符构造自有 seekable channel, 不依赖 Android API 26 才提供的 `Path` 路线; reader 把 Commons 的最大内存限制固定为 262,144 KiB. solid 档案按随机条目打开时可能需要重放同一 solid block, 这是当前 Java 后端的性能边界, 不伪装为常数时间访问.
 

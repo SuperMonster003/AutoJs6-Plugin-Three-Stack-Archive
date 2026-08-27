@@ -1,5 +1,15 @@
 # Notes de version
 
+## v2.8.0
+
+_2026/08/27_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v15 (code de version 5276 ou supérieur)
+- `Ajout` Les ZIP fractionnés standard et l'option Compresser chaque élément séparément terminent désormais l'écriture et la relecture de toutes les sorties avant une publication groupée récupérable par Explorer Action v15
+- `Correction` La création de plusieurs sorties ne laisse plus de résultats partiellement validés lors des échecs normaux; Explorer n'est actualisé et la réussite annoncée qu'après la validation du lot complet
+- `Correction` Les interrupteurs des options de compression s'affichent désormais correctement et restent tactiles sous Android 7, au lieu d'apparaître comme de simples libellés
+- `Amélioration` L'hôte journalise durablement le dossier parent et l'identité de chaque fichier préparé avant publication; un échec ou redémarrage annule uniquement les membres identiques, tandis que les fichiers modifiés de l'extérieur sont conservés pour récupération manuelle
+
 ## v2.7.0
 
 _2026/08/27_

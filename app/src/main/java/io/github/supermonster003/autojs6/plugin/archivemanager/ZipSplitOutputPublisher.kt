@@ -10,15 +10,16 @@ import java.security.MessageDigest
 /**
  * Reserves, fills, and commits every physical file in one standard split ZIP as a coherent group.
  *
- * Explorer Action v7 has no batch commit primitive. All names are therefore reserved exactly
- * before any host output is opened, part files are committed first, and the terminal `.zip` file
- * is committed last. If a later commit fails, callers receive an explicit partial-output state.
+ * Names are reserved exactly before any host output is opened. A v15 creation plan supplies a
+ * deferred committer and publishes the verified group through one recoverable host batch. Direct
+ * legacy callers retain the explicit v7 partial-output fallback.
  */
 internal class ZipSplitOutputPublisher(
     private val session: ExplorerActionHostSessionClient,
     private val requestedTerminalDisplayName: String,
     private val conflictPolicy: ArchiveCreationConflictPolicy,
     private val splitVolumeSizeBytes: Long,
+    private val outputCommitter: ArchiveOutputCommitter = ImmediateArchiveOutputCommitter,
 ) {
     private val pending = LinkedHashMap<String, HostOutputTransaction>()
     private val committed = mutableListOf<HostOutputTransaction>()
@@ -191,6 +192,10 @@ internal class ZipSplitOutputPublisher(
         checkCancelled: () -> Unit,
     ): List<HostOutputTransaction> {
         require(volumes.size == pending.size)
+        (outputCommitter as? ArchiveOutputBatchCommitter)?.requireCapacity(
+            volumes.size,
+            terminalDisplayName,
+        )
         volumes.forEach { volume ->
             val displayName = volume.outputDisplayName(terminalDisplayName)
             val transaction = requireNotNull(pending[displayName])
@@ -201,7 +206,12 @@ internal class ZipSplitOutputPublisher(
                     outputDisplayName = displayName,
                     format = ArchiveFormat.ZIP,
                 ) {
-                    session.commitExactOutput(transaction.id, displayName)
+                    outputCommitter.commitExactOutput(
+                        session = session,
+                        transaction = transaction,
+                        expectedDisplayName = displayName,
+                        format = ArchiveFormat.ZIP,
+                    )
                 }
                 pending.remove(displayName)
                 committed += result
@@ -213,7 +223,7 @@ internal class ZipSplitOutputPublisher(
                     error = error,
                 )
                 abortPendingOrThrow(mapped)
-                if (committed.isNotEmpty()) {
+                if (committed.isNotEmpty() && outputCommitter === ImmediateArchiveOutputCommitter) {
                     throw ArchiveCreationPartialOutputException(
                         committedOutputs = committed.toList(),
                         totalOutputs = expectedOutputCount,

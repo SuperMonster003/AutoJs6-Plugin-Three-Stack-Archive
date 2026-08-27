@@ -314,12 +314,15 @@ internal interface ArchiveReader : Closeable {
 internal interface ArchiveWriter {
     val format: ArchiveFormat
     val formatCapabilities: FormatCapabilities
+    val supportsOutputBatching: Boolean
+        get() = true
 
     fun create(
         request: ArchiveCompressionRequest,
         options: ArchiveCreationOptions,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        outputCommitter: ArchiveOutputCommitter = ImmediateArchiveOutputCommitter,
     ): ArchiveCreationResult
 }
 

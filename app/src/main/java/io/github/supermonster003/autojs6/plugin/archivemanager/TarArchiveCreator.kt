@@ -44,6 +44,7 @@ internal class TarArchiveCreator(
         options: ArchiveCreationOptions,
         checkCancelled: () -> Unit,
         progress: ArchiveCreationProgressListener,
+        outputCommitter: ArchiveOutputCommitter,
     ): ArchiveCreationResult {
         val outputName = ArchiveCompressionPolicy.normalizeOutputDisplayName(
             options.outputDisplayName,
@@ -93,6 +94,7 @@ internal class TarArchiveCreator(
                 progress.reportCommitting(manifest, counters)
                 checkCancelled()
             },
+            outputCommitter = outputCommitter,
         )
         val counters = completed.value
         val committed = completed.transaction

@@ -24,6 +24,18 @@ internal abstract class TestExplorerActionHostSession : IExplorerActionHostSessi
         error("Output recovery is not used by this test host session")
 
     override fun listOutputs(): Bundle = Bundle()
+
+    override fun prepareOutputBatch(transactionIds: MutableList<String>): Bundle =
+        error("Output batches are not used by this test host session")
+
+    override fun commitOutputBatch(batchId: String): Bundle =
+        error("Output batches are not used by this test host session")
+
+    override fun abortOutputBatch(batchId: String) = Unit
+
+    override fun queryOutputBatch(batchId: String): Bundle = Bundle()
+
+    override fun listOutputBatches(): Bundle = Bundle()
 }
 
 internal open class UnusedTestExplorerActionHostSession : TestExplorerActionHostSession() {

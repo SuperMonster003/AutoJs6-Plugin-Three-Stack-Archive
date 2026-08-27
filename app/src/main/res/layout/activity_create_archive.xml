@@ -199,7 +199,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.materialswitch.MaterialSwitch
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/encryptFileNames"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -209,7 +209,7 @@
                 android:text="@string/text_encrypt_file_names"
                 app:showText="false" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/separateArchives"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -231,7 +231,7 @@
                 tools:text="3 archives will be created in this folder.&#10;- report.txt.zip&#10;- photos.zip&#10;- notes.md.zip&#10;Existing and repeated names are numbered automatically; nothing is overwritten."
                 tools:visibility="visible" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/deleteSources"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

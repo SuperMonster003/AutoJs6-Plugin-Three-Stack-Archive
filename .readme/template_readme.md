@@ -52,6 +52,8 @@
 
 {{ p_security_summary }}
 
+{{ p_security_batch }}
+
 ### Roadmap
 
 {{ p_roadmap_current }}

@@ -42,6 +42,7 @@ Archive Manager fonctionne dans le gestionnaire de fichiers AutoJs6 au lieu de l
 - Corriger l'encodage des noms ZIP directement depuis la barre de chemin; la même session en lecture seule reconstruit son index et conserve si possible le chemin interne et la sélection disponibles.
 - Parcourir, prévisualiser et extraire les ensembles complets `.z01 + .zip`, WinRAR modernes `partN.rar`, `.zip.001` numérotés et `.7z.001` numérotés via des descripteurs frères bornés et autorisés par l'hôte; un volume absent ou modifié échoue explicitement.
 - Créer ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST depuis un élément ou une sélection de même parent; ZIP prend aussi en charge AES-256, les volumes standard et une archive par élément.
+- Les ZIP fractionnés standard et la compression séparée publient toutes les sorties physiques vérifiées dans un lot récupérable; un échec ou redémarrage de l'hôte n'est jamais présenté comme un résultat partiel réussi.
 - Modifier un ZIP ordinaire à volume unique par reconstruction vérifiée: ajouter des fichiers ou un arbre de dossiers, créer un dossier vide, renommer et supprimer, puis remplacer atomiquement la source.
 - Isoler en lecture seule les noms dangereux, appliquer les limites structurelles et de ressources avant l'écriture, et lire directement le descripteur seekable de l'hôte lorsque possible.
 
@@ -59,7 +60,7 @@ La version actuelle peut créer les formats suivants:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> L'intégration native exige la build AutoJs6 6.8.0 associée avec Explorer Action v14 (code de version 5276 ou supérieur). RAR et les archives fractionnées restent volontairement en lecture seule; la modification est limitée aux `.zip` ordinaires à volume unique. Ouvrez un ZIP fractionné standard par son `.zip` final, un ensemble WinRAR moderne par son premier `partN.rar`, et un ZIP ou 7Z numéroté par son volume `.001`, avec tous les volumes requis dans le même dossier. Le chiffrement des noms à la création, la suppression des sources et la modification interne de 7Z, RAR ou TAR ne sont pas disponibles.
+> L'intégration native exige la build AutoJs6 6.8.0 associée avec Explorer Action v15 (code de version 5276 ou supérieur). RAR et les archives fractionnées restent volontairement en lecture seule; la modification est limitée aux `.zip` ordinaires à volume unique. Ouvrez un ZIP fractionné standard par son `.zip` final, un ensemble WinRAR moderne par son premier `partN.rar`, et un ZIP ou 7Z numéroté par son volume `.001`, avec tous les volumes requis dans le même dossier. Le chiffrement des noms à la création, la suppression des sources et la modification interne de 7Z, RAR ou TAR ne sont pas disponibles.
 
 ### Utilisation
 
@@ -73,6 +74,8 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 Archive Manager ne demande aucune autorisation de stockage ou de réseau. L'hôte fournit des descripteurs en lecture seule de courte durée et des transactions liées à l'UID du plugin; celui-ci ne peut donc pas choisir un chemin arbitraire. Explorer Action v11 transporte le mot de passe uniquement dans une requête synchrone bornée et ne le persiste jamais. Explorer Action v12 ajoute seulement un catalogue borné, lié à la session, de volumes frères approuvés, avec identifiants opaques et revalidation de l'identité. Explorer Action v13 réindexe uniquement la même source préparée et conserve l'ancien état jusqu'à ce qu'un index complet soit prêt. Explorer Action v14 ne reconnaît que des suffixes composés bornés tels que `.zip.001` et `.7z.001`, jamais n'importe quel fichier `.001`, et réutilise le catalogue v12 sans donner accès au dossier ni aux chemins. Les chemins dangereux restent isolés, la sortie est vérifiée avant publication et la confirmation d'un budget ne désactive jamais la sécurité structurelle.
 
+Explorer Action v15 regroupe uniquement les nouveaux fichiers vérifiés d'une même session dans un lot récupérable de 128 membres au maximum. L'hôte journalise durablement le dossier parent et l'identité des fichiers avant publication, puis ne nettoie après échec ou redémarrage que les membres dont l'identité correspond encore; les fichiers modifiés de l'extérieur sont conservés pour récupération manuelle. Le protocole n'accorde aucun droit d'écrasement, de suppression des sources, d'arborescence ou de chemin arbitraire.
+
 ### Roadmap
 
 Les travaux restants sont suivis par cases à cocher: reconstructions modifiables au-delà de ZIP, annulation ou suppression transactionnelle des sources, accessibilité, reste de la matrice des appareils et producteurs, et ressources de la première publication publique.
@@ -80,6 +83,16 @@ Les travaux restants sont suivis par cases à cocher: reconstructions modifiable
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notes de version
+
+#### v2.8.0
+
+_2026/08/27_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v15 (code de version 5276 ou supérieur)
+- `Ajout` Les ZIP fractionnés standard et l'option Compresser chaque élément séparément terminent désormais l'écriture et la relecture de toutes les sorties avant une publication groupée récupérable par Explorer Action v15
+- `Correction` La création de plusieurs sorties ne laisse plus de résultats partiellement validés lors des échecs normaux; Explorer n'est actualisé et la réussite annoncée qu'après la validation du lot complet
+- `Correction` Les interrupteurs des options de compression s'affichent désormais correctement et restent tactiles sous Android 7, au lieu d'apparaître comme de simples libellés
+- `Amélioration` L'hôte journalise durablement le dossier parent et l'identité de chaque fichier préparé avant publication; un échec ou redémarrage annule uniquement les membres identiques, tandis que les fichiers modifiés de l'extérieur sont conservés pour récupération manuelle
 
 #### v2.7.0
 
@@ -99,17 +112,6 @@ _2026/08/27_
 - `Ajout` La page d'archive native permet maintenant de choisir l'encodage des noms ZIP depuis la barre de chemin sans ouvrir la page de gestion; le dossier interne et les éléments encore présents restent sélectionnés après le changement
 - `Ajout` Explorer Action v13 réindexe la source mise en cache dans la même session en lecture seule et utilise des ID stables pour restaurer le chemin disponible le plus profond et les éléments encore présents
 - `Amélioration` Un index de remplacement n'est publié qu'une fois complet; un choix invalide, un échec d'analyse, un aperçu ou une extraction active conserve l'ancien index, et le mot de passe reste uniquement dans une mémoire effaçable
-
-#### v2.5.0
-
-_2026/08/27_
-
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v12 (code de version 5276 ou supérieur)
-- `Ajout` Les ensembles standard `.z01 + .zip` complets et les ensembles WinRAR modernes `partN.rar` peuvent désormais être parcourus, prévisualisés et extraits dans la page native; les archives fractionnées restent en lecture seule
-- `Ajout` Explorer Action v12 fournit uniquement un catalogue borné de volumes frères approuvés par l'hôte et ouvre chacun par identifiant opaque comme descripteur en lecture seule, sans exposer de dossier ni de chemin système
-- `Correction` Les métadonnées du répertoire du volume ZIP final sont correctement acceptées sous Android 7 et versions ultérieures, et les données sont lues sur tous les volumes autorisés sans déclarer le dernier volume endommagé
-- `Correction` Les CRC de segments RAR ne sont plus comparés aux données reconstituées; les volumes manquants ou modifiés après l'ouverture produisent des erreurs typées stables
-- `Amélioration` Le nombre de volumes, les noms, identifiants, ouvertures, UID appelant, identités de fichiers et durées de session sont bornés et revérifiés; une copie interrompue supprime tous les fragments du cache privé
 
 ##### Historique complet
 

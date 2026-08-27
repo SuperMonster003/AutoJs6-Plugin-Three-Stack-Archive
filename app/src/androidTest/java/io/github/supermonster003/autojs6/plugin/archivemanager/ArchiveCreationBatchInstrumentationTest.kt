@@ -242,7 +242,8 @@ class ArchiveCreationBatchInstrumentationTest {
                 it.outputDisplayName
             })
             assertEquals(2L, result.filesCompressed)
-            assertEquals(2, host.commitCalls)
+            assertEquals(0, host.commitCalls)
+            assertEquals(1, host.batchCommitCalls)
             assertEquals(0, host.abortCalls)
             assertEquals(
                 listOf(
@@ -253,6 +254,195 @@ class ArchiveCreationBatchInstrumentationTest {
             )
             assertZipContains(host.committedFile("alpha.txt.zip"), "alpha.txt", "A")
             assertZipContains(host.committedFile("beta.txt.zip"), "beta.txt", "BB")
+        } finally {
+            cacheRoot.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun laterSourceFailureAbortsEveryDeferredOutputBeforeBatchPreparation() {
+        val cacheRoot = File(
+            InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
+            "archive-batch-source-failure-${UUID.randomUUID()}",
+        ).apply { check(mkdirs()) }
+        try {
+            val host = MultiOutputHostSession(
+                root = cacheRoot,
+                sourceContents = listOf("A", "BB"),
+                failSourceIndex = 1,
+            )
+            val plan = ArchiveCreationPlanner.plan(
+                request = request("alpha.txt", "beta.txt", hostSession = host),
+                format = ArchiveFormat.ZIP,
+                options = ArchiveCreationOptions(
+                    outputDisplayName = "Documents.zip",
+                    compressionLevel = 6,
+                    conflictPolicy = ArchiveCreationConflictPolicy.ASK,
+                ),
+                separateArchives = true,
+                fallbackStem = "Archive",
+            )
+
+            assertThrows(ArchiveCreationSourceException::class.java) {
+                ArchiveCreationBatchExecutor.execute(
+                    writer = ZipArchiveCreator(host, cacheRoot),
+                    plan = plan,
+                    checkCancelled = { },
+                    progress = ArchiveCreationBatchProgressListener { },
+                )
+            }
+
+            assertEquals(0, host.commitCalls)
+            assertEquals(0, host.batchCommitCalls)
+            assertEquals(2, host.abortCalls)
+            assertEquals(0, host.batchAbortCalls)
+            assertEquals(0, host.pendingCount)
+            assertEquals(0, host.committedCount)
+        } finally {
+            cacheRoot.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun failedBatchCommitIsAbortedWithoutPublishingAnyArchive() {
+        val cacheRoot = File(
+            InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
+            "archive-batch-commit-failure-${UUID.randomUUID()}",
+        ).apply { check(mkdirs()) }
+        try {
+            val host = MultiOutputHostSession(
+                root = cacheRoot,
+                sourceContents = listOf("A", "BB"),
+                batchCommitFailure = BatchCommitFailure.BEFORE_PUBLICATION,
+            )
+            val plan = ArchiveCreationPlanner.plan(
+                request = request("alpha.txt", "beta.txt", hostSession = host),
+                format = ArchiveFormat.ZIP,
+                options = ArchiveCreationOptions(
+                    outputDisplayName = "Documents.zip",
+                    compressionLevel = 6,
+                    conflictPolicy = ArchiveCreationConflictPolicy.ASK,
+                ),
+                separateArchives = true,
+                fallbackStem = "Archive",
+            )
+
+            assertThrows(ArchiveCreationOutputException::class.java) {
+                ArchiveCreationBatchExecutor.execute(
+                    writer = ZipArchiveCreator(host, cacheRoot),
+                    plan = plan,
+                    checkCancelled = { },
+                    progress = ArchiveCreationBatchProgressListener { },
+                )
+            }
+
+            assertEquals(0, host.commitCalls)
+            assertEquals(1, host.batchCommitCalls)
+            assertEquals(0, host.abortCalls)
+            assertEquals(1, host.batchAbortCalls)
+            assertEquals(0, host.pendingCount)
+            assertEquals(0, host.committedCount)
+        } finally {
+            cacheRoot.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun ambiguousBatchCommitUsesDurableCommittedStateInsteadOfDuplicatingOutputs() {
+        val cacheRoot = File(
+            InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
+            "archive-batch-ambiguous-commit-${UUID.randomUUID()}",
+        ).apply { check(mkdirs()) }
+        try {
+            val host = MultiOutputHostSession(
+                root = cacheRoot,
+                sourceContents = listOf("A", "BB"),
+                batchCommitFailure = BatchCommitFailure.AFTER_PUBLICATION,
+            )
+            val plan = ArchiveCreationPlanner.plan(
+                request = request("alpha.txt", "beta.txt", hostSession = host),
+                format = ArchiveFormat.ZIP,
+                options = ArchiveCreationOptions(
+                    outputDisplayName = "Documents.zip",
+                    compressionLevel = 6,
+                    conflictPolicy = ArchiveCreationConflictPolicy.ASK,
+                ),
+                separateArchives = true,
+                fallbackStem = "Archive",
+            )
+
+            val result = ArchiveCreationBatchExecutor.execute(
+                writer = ZipArchiveCreator(host, cacheRoot),
+                plan = plan,
+                checkCancelled = { },
+                progress = ArchiveCreationBatchProgressListener { },
+            )
+
+            assertEquals(listOf("alpha.txt.zip", "beta.txt.zip"), result.outputs.map {
+                it.outputDisplayName
+            })
+            assertEquals(1, host.batchCommitCalls)
+            assertEquals(1, host.batchQueryCalls)
+            assertEquals(0, host.abortCalls)
+            assertEquals(0, host.batchAbortCalls)
+            assertEquals(0, host.pendingCount)
+            assertEquals(2, host.committedCount)
+            assertZipContains(host.committedFile("alpha.txt.zip"), "alpha.txt", "A")
+            assertZipContains(host.committedFile("beta.txt.zip"), "beta.txt", "BB")
+        } finally {
+            cacheRoot.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun cancellationWhileStagingSplitVolumesIsRolledBackWithoutAFalsePartialResult() {
+        val cacheRoot = File(
+            InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
+            "archive-batch-split-cancel-${UUID.randomUUID()}",
+        ).apply { check(mkdirs()) }
+        try {
+            val host = MultiOutputHostSession(cacheRoot, listOf("unused source"))
+            val session = ExplorerActionHostSessionClient(host)
+            val committer = ArchiveOutputBatchCommitter(ArchiveFormat.ZIP)
+            val publisher = ZipSplitOutputPublisher(
+                session = session,
+                requestedTerminalDisplayName = "bundle.zip",
+                conflictPolicy = ArchiveCreationConflictPolicy.ASK,
+                splitVolumeSizeBytes = 1_048_576L,
+                outputCommitter = committer,
+            )
+            publisher.reserveTerminalBeforeSourceAccess()
+            val volumes = listOf(
+                StagedZipVolume(
+                    file = File(cacheRoot, "staged.z01").apply { writeText("first volume") },
+                    suffix = ".z01",
+                    terminal = false,
+                ),
+                StagedZipVolume(
+                    file = File(cacheRoot, "staged.zip").apply { writeText("terminal volume") },
+                    suffix = ".zip",
+                    terminal = true,
+                ),
+            )
+            val terminalName = publisher.reserveCompleteGroup(volumes)
+            publisher.writePendingVolumes(volumes, terminalName) { }
+            publisher.verifyPendingVolumes(volumes, terminalName) { }
+            var cancellationChecks = 0
+
+            val cancellation = assertThrows(CancellationException::class.java) {
+                publisher.commitVolumes(volumes, terminalName) {
+                    cancellationChecks++
+                    if (cancellationChecks == 2) {
+                        throw CancellationException("Injected split staging cancellation")
+                    }
+                }
+            }
+
+            assertSame(cancellation, committer.abortPending(cancellation))
+            assertEquals(2, host.abortCalls)
+            assertEquals(0, host.batchCommitCalls)
+            assertEquals(0, host.pendingCount)
+            assertEquals(0, host.committedCount)
         } finally {
             cacheRoot.deleteRecursively()
         }
@@ -329,12 +519,14 @@ class ArchiveCreationBatchInstrumentationTest {
     ) : ArchiveWriter {
         override val format = ArchiveFormat.ZIP
         override val formatCapabilities = ZipArchiveBackend.capabilities
+        override val supportsOutputBatching = false
 
         override fun create(
             request: ArchiveCompressionRequest,
             options: ArchiveCreationOptions,
             checkCancelled: () -> Unit,
             progress: ArchiveCreationProgressListener,
+            outputCommitter: ArchiveOutputCommitter,
         ): ArchiveCreationResult = write(request, options, progress)
     }
 
@@ -367,6 +559,8 @@ class ArchiveCreationBatchInstrumentationTest {
     private class MultiOutputHostSession(
         private val root: File,
         sourceContents: List<String>,
+        private val failSourceIndex: Int? = null,
+        private val batchCommitFailure: BatchCommitFailure = BatchCommitFailure.NONE,
     ) : TestExplorerActionHostSession() {
         private data class PendingOutput(
             val id: String,
@@ -382,8 +576,17 @@ class ArchiveCreationBatchInstrumentationTest {
         val conflictPolicies = mutableListOf<Int>()
         var commitCalls = 0
             private set
+        var batchCommitCalls = 0
+            private set
+        var batchAbortCalls = 0
+            private set
+        var batchQueryCalls = 0
+            private set
         var abortCalls = 0
             private set
+        private var batchId: String? = null
+        private var batchMembers = emptyList<String>()
+        private var batchState = ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_UNKNOWN
 
         override fun listChildren(
             targetId: String,
@@ -395,6 +598,7 @@ class ArchiveCreationBatchInstrumentationTest {
         override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor {
             require(relativePath.isEmpty())
             val index = targetId.removePrefix("target-").toInt() - 1
+            if (index == failSourceIndex) throw IOException("Injected source failure")
             return ParcelFileDescriptor.open(sources[index], ParcelFileDescriptor.MODE_READ_ONLY)
         }
 
@@ -403,7 +607,10 @@ class ArchiveCreationBatchInstrumentationTest {
             mimeType: String,
             conflictPolicy: Int,
         ): Bundle {
-            assertEquals(ArchiveFormat.ZIP.primaryMimeType, mimeType)
+            assertEquals(
+                true,
+                mimeType == ArchiveFormat.ZIP.primaryMimeType || mimeType == "application/octet-stream",
+            )
             conflictPolicies += conflictPolicy
             val id = UUID.randomUUID().toString()
             val output = PendingOutput(id, displayName, File(root, "$id.part"))
@@ -440,9 +647,67 @@ class ArchiveCreationBatchInstrumentationTest {
             abortCalls++
         }
 
+        override fun prepareOutputBatch(transactionIds: MutableList<String>): Bundle {
+            require(transactionIds.size >= 2 && transactionIds.all(pending::containsKey))
+            check(batchId == null)
+            batchId = UUID.randomUUID().toString()
+            batchMembers = transactionIds.toList()
+            batchState = ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_PREPARED
+            return batchBundle()
+        }
+
+        override fun commitOutputBatch(batchId: String): Bundle {
+            require(batchId == this.batchId)
+            batchCommitCalls++
+            batchState = ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTING
+            if (batchCommitFailure == BatchCommitFailure.BEFORE_PUBLICATION) {
+                throw IOException("Injected batch commit failure")
+            }
+            val results = ArrayList<Bundle>(batchMembers.size)
+            batchMembers.forEach { transactionId ->
+                val output = requireNotNull(pending.remove(transactionId))
+                check(output.file.isFile)
+                committed[output.displayName] = output.file
+                results += outputBundle(output).apply {
+                    putInt(
+                        ExplorerActionHostSessionKeys.OUTPUT_STATE,
+                        ExplorerActionHostSessionValues.OUTPUT_STATE_COMMITTED,
+                    )
+                }
+            }
+            batchState = ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTED
+            if (batchCommitFailure == BatchCommitFailure.AFTER_PUBLICATION) {
+                throw IOException("Injected ambiguous batch commit result")
+            }
+            return batchBundle().apply {
+                putParcelableArrayList(ExplorerActionHostSessionKeys.OUTPUTS, results)
+            }
+        }
+
+        override fun abortOutputBatch(batchId: String) {
+            require(batchId == this.batchId)
+            batchMembers.forEach { transactionId ->
+                pending.remove(transactionId)?.file?.delete()
+            }
+            batchState = ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_ABORTED
+            batchAbortCalls++
+        }
+
+        override fun queryOutputBatch(batchId: String): Bundle {
+            require(batchId == this.batchId)
+            batchQueryCalls++
+            return batchBundle()
+        }
+
         override fun close() = Unit
 
         fun committedFile(displayName: String): File = requireNotNull(committed[displayName])
+
+        val pendingCount: Int
+            get() = pending.size
+
+        val committedCount: Int
+            get() = committed.size
 
         private fun outputBundle(output: PendingOutput): Bundle = Bundle().apply {
             putString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID, output.id)
@@ -452,5 +717,28 @@ class ArchiveCreationBatchInstrumentationTest {
                 "/Documents/${output.displayName}",
             )
         }
+
+        private fun batchBundle(): Bundle = Bundle().apply {
+            putString(ExplorerActionHostSessionKeys.OUTPUT_BATCH_ID, batchId)
+            putInt(ExplorerActionHostSessionKeys.OUTPUT_BATCH_STATE, batchState)
+            putStringArrayList(
+                ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_IDS,
+                ArrayList(batchMembers),
+            )
+            putInt(
+                ExplorerActionHostSessionKeys.OUTPUT_BATCH_PUBLISHED_COUNT,
+                if (batchState == ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTED) {
+                    batchMembers.size
+                } else {
+                    0
+                },
+            )
+        }
+    }
+
+    private enum class BatchCommitFailure {
+        NONE,
+        BEFORE_PUBLICATION,
+        AFTER_PUBLICATION,
     }
 }
