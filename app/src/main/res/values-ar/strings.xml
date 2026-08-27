@@ -83,6 +83,11 @@
     <string name="text_create_archive">إنشاء أرشيف</string>
     <string name="text_default_archive_name">أرشيف</string>
     <string name="text_move_sources_to_trash_after_compression">نقل العناصر المصدر إلى المهملات بعد الضغط</string>
+    <string name="text_moving_sources_to_trash">جار نقل العناصر المصدر إلى المهملات</string>
+    <string name="text_sources_moved_to_trash">تم نقل %1$d من عناصر المصدر إلى المهملات.</string>
+    <string name="warning_sources_trash_recovery_required">تم إنشاء الأرشيف، لكن تنظيف المصادر يحتاج إلى مراجعة. تتوفر نسخ قابلة للاسترداد في مهملات AutoJs6.</string>
+    <string name="warning_sources_trash_failed">تم إنشاء الأرشيف، لكن تعذر نقل العناصر المصدر إلى المهملات.</string>
+    <string name="warning_sources_trash_unknown">تم إنشاء الأرشيف، لكن AutoJs6 لم يتمكن من تأكيد وصول كل العناصر المصدر إلى المهملات. تحقق من المجلد الحالي والمهملات قبل إعادة المحاولة.</string>
     <string name="text_encrypt_file_names">تشفير أسماء الملفات</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">إذا كان اسم الأرشيف غير متاح</string>

@@ -83,6 +83,11 @@
     <string name="text_create_archive">Créer l\'archive</string>
     <string name="text_default_archive_name">Archive</string>
     <string name="text_move_sources_to_trash_after_compression">Déplacer les éléments sources vers la corbeille après compression</string>
+    <string name="text_moving_sources_to_trash">Déplacement des éléments sources vers la corbeille</string>
+    <string name="text_sources_moved_to_trash">%1$d éléments sources déplacés vers la corbeille.</string>
+    <string name="warning_sources_trash_recovery_required">L\'archive a été créée, mais le nettoyage des sources nécessite une intervention. Des copies récupérables sont disponibles dans la corbeille AutoJs6.</string>
+    <string name="warning_sources_trash_failed">L\'archive a été créée, mais les éléments sources n\'ont pas pu être déplacés vers la corbeille.</string>
+    <string name="warning_sources_trash_unknown">L\'archive a été créée, mais AutoJs6 n\'a pas pu confirmer que tous les éléments sources ont atteint la corbeille. Vérifiez le dossier courant et la corbeille avant de réessayer.</string>
     <string name="text_encrypt_file_names">Chiffrer les noms de fichiers</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">Si le nom de l’archive est indisponible</string>

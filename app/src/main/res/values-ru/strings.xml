@@ -83,6 +83,11 @@
     <string name="text_create_archive">Создать архив</string>
     <string name="text_default_archive_name">Архив</string>
     <string name="text_move_sources_to_trash_after_compression">Переместить исходные элементы в корзину после сжатия</string>
+    <string name="text_moving_sources_to_trash">Перемещение исходных элементов в корзину</string>
+    <string name="text_sources_moved_to_trash">Исходных элементов перемещено в корзину: %1$d.</string>
+    <string name="warning_sources_trash_recovery_required">Архив создан, но очистка исходных элементов требует внимания. Восстанавливаемые копии доступны в корзине AutoJs6.</string>
+    <string name="warning_sources_trash_failed">Архив создан, но исходные элементы не удалось переместить в корзину.</string>
+    <string name="warning_sources_trash_unknown">Архив создан, но AutoJs6 не удалось подтвердить перемещение всех исходных элементов в корзину. Перед повторной попыткой проверьте текущую папку и корзину.</string>
     <string name="text_encrypt_file_names">Шифровать имена файлов</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">Если имя архива недоступно</string>

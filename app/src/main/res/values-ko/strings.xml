@@ -83,6 +83,11 @@
     <string name="text_create_archive">압축 파일 만들기</string>
     <string name="text_default_archive_name">압축 파일</string>
     <string name="text_move_sources_to_trash_after_compression">압축 후 원본 항목을 휴지통으로 이동</string>
+    <string name="text_moving_sources_to_trash">원본 항목을 휴지통으로 이동 중</string>
+    <string name="text_sources_moved_to_trash">원본 항목 %1$d개를 휴지통으로 이동했습니다.</string>
+    <string name="warning_sources_trash_recovery_required">압축 파일은 생성되었지만 원본 정리에 확인이 필요합니다. 복구 가능한 사본은 AutoJs6 휴지통에 있습니다.</string>
+    <string name="warning_sources_trash_failed">압축 파일은 생성되었지만 원본 항목을 휴지통으로 이동하지 못했습니다.</string>
+    <string name="warning_sources_trash_unknown">압축 파일은 생성되었지만 모든 원본 항목이 휴지통에 도달했는지 AutoJs6에서 확인하지 못했습니다. 다시 시도하기 전에 현재 폴더와 휴지통을 확인하세요.</string>
     <string name="text_encrypt_file_names">파일 이름 암호화</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">압축 파일 이름을 사용할 수 없는 경우</string>

@@ -81,6 +81,11 @@
     <string name="text_create_archive">建立壓縮檔</string>
     <string name="text_default_archive_name">壓縮檔</string>
     <string name="text_move_sources_to_trash_after_compression">壓縮完成後將來源項目移入垃圾桶</string>
+    <string name="text_moving_sources_to_trash">正在將來源項目移入垃圾桶</string>
+    <string name="text_sources_moved_to_trash">已將 %1$d 個來源項目移入垃圾桶.</string>
+    <string name="warning_sources_trash_recovery_required">壓縮檔案已建立, 但來源清理需要注意. 可恢復副本位於 AutoJs6 垃圾桶.</string>
+    <string name="warning_sources_trash_failed">壓縮檔案已建立, 但無法將來源項目移入垃圾桶.</string>
+    <string name="warning_sources_trash_unknown">壓縮檔案已建立, 但 AutoJs6 無法確認所有來源項目是否已移入垃圾桶. 重新嘗試前請檢查目前資料夾及垃圾桶.</string>
     <string name="text_encrypt_file_names">同時加密檔案名稱</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">壓縮檔案名稱不可用時</string>

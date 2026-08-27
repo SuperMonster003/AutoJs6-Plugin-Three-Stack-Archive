@@ -83,6 +83,11 @@
     <string name="text_create_archive">Crear archivo comprimido</string>
     <string name="text_default_archive_name">Archivo</string>
     <string name="text_move_sources_to_trash_after_compression">Mover los elementos de origen a la papelera después de comprimir</string>
+    <string name="text_moving_sources_to_trash">Moviendo los elementos de origen a la papelera</string>
+    <string name="text_sources_moved_to_trash">Se movieron %1$d elementos de origen a la papelera.</string>
+    <string name="warning_sources_trash_recovery_required">El archivo se creó, pero la limpieza de los elementos de origen requiere atención. Hay copias recuperables en la papelera de AutoJs6.</string>
+    <string name="warning_sources_trash_failed">El archivo se creó, pero no se pudieron mover los elementos de origen a la papelera.</string>
+    <string name="warning_sources_trash_unknown">El archivo se creó, pero AutoJs6 no pudo confirmar que todos los elementos de origen llegaran a la papelera. Revisa la carpeta actual y la papelera antes de volver a intentarlo.</string>
     <string name="text_encrypt_file_names">Cifrar nombres de archivo</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">Si el nombre del archivo no está disponible</string>

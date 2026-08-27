@@ -83,6 +83,11 @@
     <string name="text_create_archive">アーカイブを作成</string>
     <string name="text_default_archive_name">アーカイブ</string>
     <string name="text_move_sources_to_trash_after_compression">圧縮後に元の項目をゴミ箱へ移動</string>
+    <string name="text_moving_sources_to_trash">元の項目をゴミ箱へ移動しています</string>
+    <string name="text_sources_moved_to_trash">元の項目 %1$d 件をゴミ箱へ移動しました。</string>
+    <string name="warning_sources_trash_recovery_required">アーカイブは作成されましたが、元項目の整理には確認が必要です。復旧可能なコピーは AutoJs6 のゴミ箱にあります。</string>
+    <string name="warning_sources_trash_failed">アーカイブは作成されましたが、元の項目をゴミ箱へ移動できませんでした。</string>
+    <string name="warning_sources_trash_unknown">アーカイブは作成されましたが、すべての元項目がゴミ箱へ移動したか AutoJs6 で確認できませんでした。再試行する前に現在のフォルダーとゴミ箱を確認してください。</string>
     <string name="text_encrypt_file_names">ファイル名を暗号化</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">アーカイブ名を使用できない場合</string>
