@@ -211,6 +211,43 @@ class ArchiveCreationBatchInstrumentationTest {
     }
 
     @Test
+    fun committedOutputProofPreservesArchiveAndSplitVolumeOrder() {
+        val firstPartId = UUID.randomUUID().toString()
+        val firstTerminalId = UUID.randomUUID().toString()
+        val secondOutputId = UUID.randomUUID().toString()
+        val result = ArchiveCreationBatchResult(
+            outputs = listOf(
+                ArchiveCreationResult(
+                    outputDisplayName = "one.zip",
+                    outputDisplayPath = "/one.zip",
+                    filesCompressed = 1,
+                    directoriesAdded = 0,
+                    sourceBytesRead = 1,
+                    committedOutputTransactionIds = listOf(firstPartId, firstTerminalId),
+                    createdOutputs = listOf(
+                        CreatedArchiveOutput("one.z01", "/one.z01"),
+                        CreatedArchiveOutput("one.zip", "/one.zip"),
+                    ),
+                ),
+                ArchiveCreationResult(
+                    outputDisplayName = "two.zip",
+                    outputDisplayPath = "/two.zip",
+                    filesCompressed = 1,
+                    directoriesAdded = 0,
+                    sourceBytesRead = 2,
+                    committedOutputTransactionIds = listOf(secondOutputId),
+                ),
+            ),
+        )
+
+        assertEquals(3L, result.physicalOutputsCreated)
+        assertEquals(
+            listOf(firstPartId, firstTerminalId, secondOutputId),
+            result.committedOutputTransactionIds,
+        )
+    }
+
+    @Test
     fun separatePlanCreatesTwoRealZipOutputsThroughOneHostSession() {
         val cacheRoot = File(
             InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,
@@ -241,6 +278,7 @@ class ArchiveCreationBatchInstrumentationTest {
             assertEquals(listOf("alpha.txt.zip", "beta.txt.zip"), result.outputs.map {
                 it.outputDisplayName
             })
+            assertEquals(host.batchMemberIds, result.committedOutputTransactionIds)
             assertEquals(2L, result.filesCompressed)
             assertEquals(0, host.commitCalls)
             assertEquals(1, host.batchCommitCalls)
@@ -708,6 +746,9 @@ class ArchiveCreationBatchInstrumentationTest {
 
         val committedCount: Int
             get() = committed.size
+
+        val batchMemberIds: List<String>
+            get() = batchMembers.toList()
 
         private fun outputBundle(output: PendingOutput): Bundle = Bundle().apply {
             putString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID, output.id)

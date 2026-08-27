@@ -65,7 +65,7 @@
     <string name="error_separate_compression_partial_failure">La creación se detuvo después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para el elemento fallido y los restantes.\nSalida fallida: %3$s\nMotivo: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">Se crearon %1$d de %2$d archivos antes de que fallara una salida posterior y no se pudo confirmar la limpieza de su salida temporal. Los archivos completados se conservaron. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %3$s\nMotivo original: %4$s</string>
     <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>
-    <string name="text_advanced_compression_pending">El cifrado de nombres y la eliminación de fuentes permanecen desactivados hasta que estén disponibles sus sistemas transaccionales.</string>
+    <string name="text_archive_creation_safety_note">Los elementos de origen solo se mueven a la papelera de AutoJs6 después de verificar y confirmar todas las salidas. El cifrado de nombres sigue sin estar disponible.</string>
     <string name="text_archive_file_name">Nombre del archivo</string>
     <string name="text_archive_format">Formato</string>
     <string name="text_compress_separately">Comprimir cada elemento por separado</string>
@@ -82,7 +82,7 @@
     <string name="text_compression_level_normal">Normal</string>
     <string name="text_create_archive">Crear archivo comprimido</string>
     <string name="text_default_archive_name">Archivo</string>
-    <string name="text_delete_sources_after_compression">Eliminar los elementos de origen después de comprimir</string>
+    <string name="text_move_sources_to_trash_after_compression">Mover los elementos de origen a la papelera después de comprimir</string>
     <string name="text_encrypt_file_names">Cifrar nombres de archivo</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">Si el nombre del archivo no está disponible</string>

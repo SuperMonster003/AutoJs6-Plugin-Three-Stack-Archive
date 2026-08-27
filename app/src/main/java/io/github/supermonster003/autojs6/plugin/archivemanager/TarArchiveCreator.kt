@@ -104,6 +104,7 @@ internal class TarArchiveCreator(
             filesCompressed = counters.files,
             directoriesAdded = counters.directories,
             sourceBytesRead = counters.bytesRead,
+            committedOutputTransactionIds = listOf(committed.id),
         )
     }
 

@@ -38,6 +38,7 @@ class ZipSplitArchiveCreatorInstrumentationTest {
             assertEquals("Documents.zip", names.last())
             assertTrue(names.dropLast(1).all { SPLIT_PART_PATTERN.matches(it) })
             assertEquals(names, session.commitOrder)
+            assertEquals(session.commitTransactionIds, result.committedOutputTransactionIds)
             assertEquals(names.last(), session.commitOrder.last())
             names.dropLast(1).forEach { name ->
                 assertTrue(session.outputFile(name).length() in 1..SPLIT_SIZE_BYTES)
@@ -334,6 +335,7 @@ class ZipSplitArchiveCreatorInstrumentationTest {
         val prepareOrder = mutableListOf<String>()
         val commitAttemptOrder = mutableListOf<String>()
         val commitOrder = mutableListOf<String>()
+        val commitTransactionIds = mutableListOf<String>()
         val abortOrder = mutableListOf<String>()
         val committedNames = mutableSetOf<String>()
         var sourceOpenCalls = 0
@@ -416,6 +418,7 @@ class ZipSplitArchiveCreatorInstrumentationTest {
             transaction.committed = true
             committedNames += transaction.displayName
             commitOrder += transaction.displayName
+            commitTransactionIds += transaction.id
             return transaction.bundle()
         }
 

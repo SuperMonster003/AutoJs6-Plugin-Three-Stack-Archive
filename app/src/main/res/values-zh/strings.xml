@@ -44,7 +44,7 @@
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="plugin_description">文件管理器插件. 浏览、解压和创建 ZIP 与 TAR 档案</string>
     <string name="text_cancelled">已取消</string>
-    <string name="text_advanced_compression_pending">文件名加密及删除源文件将在相应的事务后端可用后开放.</string>
+    <string name="text_archive_creation_safety_note">只有全部压缩输出完成校验并提交后, 源项目才会移入 AutoJs6 回收站. 文件名加密目前仍不可用.</string>
     <string name="text_apply_password">应用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在应用密码...</string>
     <string name="text_archive_file_name">文件名</string>
@@ -65,7 +65,12 @@
     <string name="text_compression_level_normal">普通</string>
     <string name="text_create_archive">创建压缩档案</string>
     <string name="text_default_archive_name">压缩档案</string>
-    <string name="text_delete_sources_after_compression">压缩后删除源文件</string>
+    <string name="text_move_sources_to_trash_after_compression">压缩完成后将源项目移入回收站</string>
+    <string name="text_moving_sources_to_trash">正在将源项目移入回收站</string>
+    <string name="text_sources_moved_to_trash">已将 %1$d 个源项目移入回收站.</string>
+    <string name="warning_sources_trash_recovery_required">压缩档案已创建, 但源项目清理需要处理. AutoJs6 回收站中已保留恢复副本.</string>
+    <string name="warning_sources_trash_failed">压缩档案已创建, 但源项目未能移入回收站.</string>
+    <string name="warning_sources_trash_unknown">压缩档案已创建, 但 AutoJs6 无法确认所有源项目是否均已进入回收站. 再次操作前请检查当前文件夹和回收站.</string>
     <string name="text_encrypt_file_names">同时加密文件名</string>
     <string name="dialog_title_extraction_scope">解压范围</string>
     <string name="text_extraction_scope_entire_archive">整个档案</string>

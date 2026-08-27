@@ -13,9 +13,11 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityCreateArchiveBinding
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -33,6 +35,8 @@ class CreateArchiveActivity : AppCompatActivity() {
     private var compressionLevel = ArchiveCompressionPolicy.DEFAULT_COMPRESSION_LEVEL
     private var selectedConflictPolicy = ArchiveCreationConflictPolicy.AUTO_RENAME
     private var createSeparateArchives = false
+    private var moveSourcesToTrash = false
+    private var operationCancellable = true
     private var selectedSplitVolumeSizeMiB: Long? = null
     private var splitVolumeChoices: List<SplitVolumeChoice> = emptyList()
     private var renderingSplitVolume = false
@@ -52,6 +56,7 @@ class CreateArchiveActivity : AppCompatActivity() {
             }
             ?: ArchiveCreationConflictPolicy.AUTO_RENAME
         createSeparateArchives = savedInstanceState?.getBoolean(STATE_SEPARATE_ARCHIVES) == true
+        moveSourcesToTrash = savedInstanceState?.getBoolean(STATE_MOVE_SOURCES_TO_TRASH) == true
         selectedSplitVolumeSizeMiB = savedInstanceState
             ?.takeIf { it.containsKey(STATE_SPLIT_VOLUME_SIZE_MIB) }
             ?.getLong(STATE_SPLIT_VOLUME_SIZE_MIB)
@@ -78,6 +83,7 @@ class CreateArchiveActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(STATE_CONFLICT_POLICY, selectedConflictPolicy.name)
         outState.putBoolean(STATE_SEPARATE_ARCHIVES, createSeparateArchives)
+        outState.putBoolean(STATE_MOVE_SOURCES_TO_TRASH, moveSourcesToTrash)
         selectedSplitVolumeSizeMiB?.let {
             outState.putLong(STATE_SPLIT_VOLUME_SIZE_MIB, it)
         }
@@ -174,13 +180,17 @@ class CreateArchiveActivity : AppCompatActivity() {
             createSeparateArchives = checked && request.targets.size > 1
             renderCreationModeControls()
         }
+        moveSourcesToTrash.isChecked = this@CreateArchiveActivity.moveSourcesToTrash
+        moveSourcesToTrash.setOnCheckedChangeListener { _, checked ->
+            this@CreateArchiveActivity.moveSourcesToTrash = checked
+        }
         renderCreationModeControls()
 
         createButton.setOnClickListener { createArchive() }
         cancelButton.setOnClickListener {
-            if (operationJob?.isActive == true) {
+            if (operationJob?.isActive == true && operationCancellable) {
                 operationJob?.cancel()
-            } else {
+            } else if (operationJob?.isActive != true) {
                 finish()
             }
         }
@@ -208,9 +218,9 @@ class CreateArchiveActivity : AppCompatActivity() {
     }
 
     private fun handleBack() {
-        if (operationJob?.isActive == true) {
+        if (operationJob?.isActive == true && operationCancellable) {
             operationJob?.cancel()
-        } else {
+        } else if (operationJob?.isActive != true) {
             finish()
         }
     }
@@ -223,6 +233,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         if (operationJob?.isActive == true) return
         val creationFormat = selectedFormat
         val separateArchives = createSeparateArchives && resolvedRequest.targets.size > 1
+        val trashSourcesAfterCreation = moveSourcesToTrash
         val splitSelection = resolveSplitVolumeSelection(creationFormat)
         if (!splitSelection.valid) {
             binding.splitVolumeLayout.error = getString(
@@ -341,7 +352,39 @@ class CreateArchiveActivity : AppCompatActivity() {
                         },
                     )
                 }
-                val message = if (plan.separateArchives) {
+                val targetTrashResult = if (trashSourcesAfterCreation) {
+                    setBusy(
+                        busy = true,
+                        message = getString(R.string.text_moving_sources_to_trash),
+                        cancellable = false,
+                    )
+                    if (result.committedOutputTransactionIds.isEmpty()) {
+                        HostTargetTrashResult(
+                            state = ExplorerActionHostSessionValues.TARGET_TRASH_STATE_FAILED,
+                            trashItemIds = emptyList(),
+                            movedCount = 0,
+                            recoveryCount = 0,
+                        )
+                    } else withContext(NonCancellable + Dispatchers.IO) {
+                        try {
+                            ExplorerActionHostSessionClient(resolvedRequest.hostSession)
+                                .moveTargetsToTrash(
+                                    targetIds = resolvedRequest.targets.map(ArchiveCompressionTarget::id),
+                                    outputTransactionIds = result.committedOutputTransactionIds,
+                                )
+                        } catch (_: Exception) {
+                            HostTargetTrashResult(
+                                state = ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN,
+                                trashItemIds = emptyList(),
+                                movedCount = 0,
+                                recoveryCount = 0,
+                            )
+                        }
+                    }
+                } else {
+                    null
+                }
+                val archiveMessage = if (plan.separateArchives) {
                     if (
                         splitVolumeSizeBytes == null ||
                         result.physicalOutputsCreated == result.outputs.size.toLong()
@@ -378,6 +421,7 @@ class CreateArchiveActivity : AppCompatActivity() {
                         )
                     }
                 }
+                val message = appendTargetTrashResult(archiveMessage, targetTrashResult)
                 Toast.makeText(this@CreateArchiveActivity, message, Toast.LENGTH_LONG).show()
                 closeHostSession()
                 finish()
@@ -760,6 +804,7 @@ class CreateArchiveActivity : AppCompatActivity() {
             separateArchives.isChecked = false
         }
         separateArchives.isEnabled = !busy && supportsSeparateArchives
+        moveSourcesToTrash.isEnabled = !busy
         outputNameLayout.isVisible = !createSeparateArchives
         outputNameLayout.isEnabled = !busy && !createSeparateArchives
         creationConflictPolicyLayout.isEnabled = !busy && !createSeparateArchives
@@ -900,7 +945,12 @@ class CreateArchiveActivity : AppCompatActivity() {
         -> format.displayName
     }
 
-    private fun setBusy(busy: Boolean, message: String) = with(binding) {
+    private fun setBusy(
+        busy: Boolean,
+        message: String,
+        cancellable: Boolean = true,
+    ) = with(binding) {
+        operationCancellable = !busy || cancellable
         progress.isVisible = busy
         status.isVisible = true
         status.text = message
@@ -917,8 +967,27 @@ class CreateArchiveActivity : AppCompatActivity() {
         renderSplitVolumeControl(selectedFormat, busy)
         renderCreationModeControls(busy)
         createButton.isEnabled = !busy
-        cancelButton.isEnabled = true
+        cancelButton.isEnabled = !busy || cancellable
         cancelButton.text = getString(R.string.dialog_button_cancel)
+    }
+
+    private fun appendTargetTrashResult(
+        archiveMessage: String,
+        result: HostTargetTrashResult?,
+    ): String {
+        if (result == null) return archiveMessage
+        val detail = when (result.state) {
+            ExplorerActionHostSessionValues.TARGET_TRASH_STATE_COMMITTED -> getString(
+                R.string.text_sources_moved_to_trash,
+                result.movedCount,
+            )
+            ExplorerActionHostSessionValues.TARGET_TRASH_STATE_RECOVERY_REQUIRED ->
+                getString(R.string.warning_sources_trash_recovery_required)
+            ExplorerActionHostSessionValues.TARGET_TRASH_STATE_FAILED ->
+                getString(R.string.warning_sources_trash_failed)
+            else -> getString(R.string.warning_sources_trash_unknown)
+        }
+        return "$archiveMessage\n$detail"
     }
 
     private fun renderTerminalFailure(message: String) = with(binding) {
@@ -939,6 +1008,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         splitVolumeLayout.isEnabled = false
         splitVolume.isEnabled = false
         separateArchives.isEnabled = false
+        moveSourcesToTrash.isEnabled = false
         createButton.isEnabled = false
         cancelButton.text = getString(android.R.string.ok)
     }
@@ -970,6 +1040,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         const val MAX_SEPARATE_ARCHIVE_PREVIEW_NAMES = 5
         const val STATE_CONFLICT_POLICY = "creation_conflict_policy"
         const val STATE_SEPARATE_ARCHIVES = "separate_archives"
+        const val STATE_MOVE_SOURCES_TO_TRASH = "move_sources_to_trash"
         const val STATE_SPLIT_VOLUME_SIZE_MIB = "split_volume_size_mib"
         const val STATE_TERMINAL_FAILURE = "terminal_creation_failure"
     }

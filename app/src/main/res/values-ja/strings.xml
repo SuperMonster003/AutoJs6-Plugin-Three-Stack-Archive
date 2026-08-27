@@ -65,7 +65,7 @@
     <string name="error_separate_compression_partial_failure">%2$d 件中 %1$d 件のアーカイブを作成した後に処理が停止しました。作成済みのアーカイブは保持されます。重複出力を防ぐため、このセッションは閉じられました。失敗した項目と残りの項目に対して「圧縮」を開き直してください。\n失敗した出力: %3$s\n理由: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">%2$d 件中 %1$d 件のアーカイブを作成した後、後続の出力が失敗し、その一時出力のクリーンアップを確認できませんでした。作成済みのアーカイブは保持されます。追加の書き込みを防ぐため、ホストセッションを閉じました。既存のアーカイブは上書きされていません。\n予定されていた出力: %3$s\n元の理由: %4$s</string>
     <string name="error_compression_request_invalid">圧縮要求またはホストセッションが無効です</string>
-    <string name="text_advanced_compression_pending">ファイル名暗号化と元項目の削除は、安全なトランザクション処理が利用可能になるまで無効です.</string>
+    <string name="text_archive_creation_safety_note">すべての書庫出力を検証して確定した後にのみ、元の項目を AutoJs6 のゴミ箱へ移動します. ファイル名の暗号化は現在利用できません.</string>
     <string name="text_archive_file_name">ファイル名</string>
     <string name="text_archive_format">形式</string>
     <string name="text_compress_separately">各項目を個別に圧縮</string>
@@ -82,7 +82,7 @@
     <string name="text_compression_level_normal">標準</string>
     <string name="text_create_archive">アーカイブを作成</string>
     <string name="text_default_archive_name">アーカイブ</string>
-    <string name="text_delete_sources_after_compression">圧縮後に元の項目を削除</string>
+    <string name="text_move_sources_to_trash_after_compression">圧縮後に元の項目をゴミ箱へ移動</string>
     <string name="text_encrypt_file_names">ファイル名を暗号化</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">アーカイブ名を使用できない場合</string>

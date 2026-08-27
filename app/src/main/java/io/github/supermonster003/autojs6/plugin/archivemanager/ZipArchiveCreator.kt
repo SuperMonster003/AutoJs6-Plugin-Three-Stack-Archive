@@ -139,6 +139,7 @@ internal class ZipArchiveCreator(
             filesCompressed = counters.files,
             directoriesAdded = counters.directories,
             sourceBytesRead = counters.bytesRead,
+            committedOutputTransactionIds = listOf(committed.id),
         )
     }
 
@@ -223,6 +224,7 @@ internal class ZipArchiveCreator(
                 filesCompressed = counters.files,
                 directoriesAdded = counters.directories,
                 sourceBytesRead = counters.bytesRead,
+                committedOutputTransactionIds = committed.map(HostOutputTransaction::id),
                 createdOutputs = committed.map { output ->
                     CreatedArchiveOutput(output.displayName, output.displayPath)
                 },

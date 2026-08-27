@@ -65,7 +65,7 @@
     <string name="error_separate_compression_partial_failure">Создание остановлено после %1$d из %2$d архивов. Готовые архивы сохранены, а этот сеанс закрыт во избежание дублирования вывода. Повторно откройте действие «Сжать» для сбойного и оставшихся элементов.\nСбойный вывод: %3$s\nПричина: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">Было создано %1$d из %2$d архивов, после чего следующий вывод завершился сбоем, а очистку его временного файла подтвердить не удалось. Готовые архивы сохранены. Сеанс хоста закрыт, чтобы предотвратить повторную запись. Существующие архивы не перезаписаны.\nПланируемый вывод: %3$s\nИсходная причина: %4$s</string>
     <string name="error_compression_request_invalid">Недопустимый запрос на сжатие или сеанс хоста</string>
-    <string name="text_advanced_compression_pending">Шифрование имён и удаление исходников отключены до появления безопасной транзакционной реализации.</string>
+    <string name="text_archive_creation_safety_note">Исходные элементы перемещаются в корзину AutoJs6 только после проверки и фиксации всех выходных архивов. Шифрование имён пока недоступно.</string>
     <string name="text_archive_file_name">Имя файла</string>
     <string name="text_archive_format">Формат</string>
     <string name="text_compress_separately">Сжимать каждый элемент отдельно</string>
@@ -82,7 +82,7 @@
     <string name="text_compression_level_normal">Обычный</string>
     <string name="text_create_archive">Создать архив</string>
     <string name="text_default_archive_name">Архив</string>
-    <string name="text_delete_sources_after_compression">Удалить исходные элементы после сжатия</string>
+    <string name="text_move_sources_to_trash_after_compression">Переместить исходные элементы в корзину после сжатия</string>
     <string name="text_encrypt_file_names">Шифровать имена файлов</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">Если имя архива недоступно</string>

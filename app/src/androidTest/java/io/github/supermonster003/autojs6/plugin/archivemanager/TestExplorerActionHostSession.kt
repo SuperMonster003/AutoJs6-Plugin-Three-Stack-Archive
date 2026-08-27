@@ -36,6 +36,13 @@ internal abstract class TestExplorerActionHostSession : IExplorerActionHostSessi
     override fun queryOutputBatch(batchId: String): Bundle = Bundle()
 
     override fun listOutputBatches(): Bundle = Bundle()
+
+    override fun moveTargetsToTrash(
+        targetIds: MutableList<String>,
+        outputTransactionIds: MutableList<String>,
+    ): Bundle = error("Target Trash is not used by this test host session")
+
+    override fun queryTargetTrash(): Bundle = Bundle()
 }
 
 internal open class UnusedTestExplorerActionHostSession : TestExplorerActionHostSession() {

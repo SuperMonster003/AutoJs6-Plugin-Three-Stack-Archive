@@ -65,7 +65,7 @@
     <string name="error_separate_compression_partial_failure">توقف الإنشاء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعنصر الذي فشل والعناصر المتبقية.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">تم إنشاء %1$d من أصل %2$d أرشيفات قبل فشل إخراج لاحق، وتعذر تأكيد تنظيف إخراجه المؤقت. تم الاحتفاظ بالأرشيفات المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %3$s\nالسبب الأصلي: %4$s</string>
     <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>
-    <string name="text_advanced_compression_pending">يظل تشفير أسماء الملفات وحذف المصدر معطلين حتى تتوفر الواجهات الخلفية الآمنة الخاصة بهما.</string>
+    <string name="text_archive_creation_safety_note">لا تُنقل العناصر المصدر إلى مهملات AutoJs6 إلا بعد التحقق من جميع مخرجات الأرشيف وتثبيتها. يظل تشفير أسماء الملفات غير متاح.</string>
     <string name="text_archive_file_name">اسم الملف</string>
     <string name="text_archive_format">التنسيق</string>
     <string name="text_compress_separately">ضغط كل عنصر في أرشيف منفصل</string>
@@ -82,7 +82,7 @@
     <string name="text_compression_level_normal">عادي</string>
     <string name="text_create_archive">إنشاء أرشيف</string>
     <string name="text_default_archive_name">أرشيف</string>
-    <string name="text_delete_sources_after_compression">حذف العناصر المصدر بعد الضغط</string>
+    <string name="text_move_sources_to_trash_after_compression">نقل العناصر المصدر إلى المهملات بعد الضغط</string>
     <string name="text_encrypt_file_names">تشفير أسماء الملفات</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">إذا كان اسم الأرشيف غير متاح</string>

@@ -48,6 +48,13 @@ internal data class HostOutputBatch(
     val outputs: List<HostOutputTransaction> = emptyList(),
 )
 
+internal data class HostTargetTrashResult(
+    val state: Int,
+    val trashItemIds: List<String>,
+    val movedCount: Int,
+    val recoveryCount: Int,
+)
+
 internal class ExplorerActionHostSessionClient(
     private val remote: IExplorerActionHostSession,
 ) {
@@ -296,6 +303,55 @@ internal class ExplorerActionHostSessionClient(
         remote.abortOutputBatch(batchId)
     }
 
+    fun moveTargetsToTrash(
+        targetIds: List<String>,
+        outputTransactionIds: List<String>,
+    ): HostTargetTrashResult {
+        require(targetIds.isNotEmpty() && targetIds.size <= ExplorerActionProtocol.MAX_TARGETS_PER_REQUEST) {
+            "Host target Trash selection is invalid"
+        }
+        require(targetIds.distinct().size == targetIds.size) {
+            "Host target Trash selection contains duplicates"
+        }
+        require(
+            outputTransactionIds.isNotEmpty() &&
+                outputTransactionIds.size <= ExplorerActionProtocol.MAX_OUTPUT_TRANSACTION_RESULTS,
+        ) { "Host target Trash output proof is invalid" }
+        require(outputTransactionIds.distinct().size == outputTransactionIds.size) {
+            "Host target Trash output proof contains duplicates"
+        }
+        require(outputTransactionIds.all(::isCanonicalUuid)) {
+            "Host target Trash output proof contains an invalid transaction ID"
+        }
+        val result = try {
+            remote.moveTargetsToTrash(
+                targetIds.toMutableList(),
+                outputTransactionIds.toMutableList(),
+            ) ?: error("Host returned no target Trash result")
+        } catch (error: Exception) {
+            val recovered = try {
+                remote.queryTargetTrash()?.let { bundle ->
+                    decodeTargetTrash(bundle, targetIds.size)
+                }
+            } catch (_: Exception) {
+                null
+            }
+            if (
+                recovered != null &&
+                recovered.state != ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN
+            ) {
+                return recovered
+            }
+            throw error
+        }
+        return decodeTargetTrash(result, targetIds.size)
+    }
+
+    fun queryTargetTrash(expectedTargetCount: Int): HostTargetTrashResult = decodeTargetTrash(
+        remote.queryTargetTrash() ?: error("Host returned no target Trash state"),
+        expectedTargetCount,
+    )
+
     fun close() {
         remote.close()
     }
@@ -330,6 +386,62 @@ internal class ExplorerActionHostSessionClient(
             readable = bundle.getBoolean(ExplorerActionHostSessionKeys.READABLE, false),
             symbolicLink = bundle.getBoolean(ExplorerActionHostSessionKeys.SYMBOLIC_LINK, true),
         )
+    }
+
+    private fun decodeTargetTrash(bundle: Bundle, expectedTargetCount: Int): HostTargetTrashResult {
+        require(expectedTargetCount in 1..ExplorerActionProtocol.MAX_TARGETS_PER_REQUEST)
+        val state = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_STATE,
+            ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN,
+        )
+        require(
+            state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_COMMITTED ||
+                state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_RECOVERY_REQUIRED ||
+                state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_FAILED ||
+                state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN,
+        ) { "Host target Trash state is invalid" }
+        val trashItemIds = bundle.getStringArrayList(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_IDS,
+        ).orEmpty()
+        require(
+            trashItemIds.size <= expectedTargetCount &&
+                trashItemIds.distinct().size == trashItemIds.size &&
+                trashItemIds.all(::isCanonicalUuid),
+        ) { "Host target Trash item list is invalid" }
+        val movedCount = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT,
+            -1,
+        )
+        val recoveryCount = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT,
+            -1,
+        )
+        require(movedCount in 0..expectedTargetCount && recoveryCount in 0..expectedTargetCount) {
+            "Host target Trash counts are invalid"
+        }
+        if (state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_COMMITTED) {
+            require(
+                movedCount == expectedTargetCount &&
+                    recoveryCount == 0 &&
+                    trashItemIds.size == expectedTargetCount,
+            ) { "Host target Trash commit is incomplete" }
+        }
+        if (
+            state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_FAILED ||
+            state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN
+        ) {
+            require(movedCount == 0 && recoveryCount == 0 && trashItemIds.isEmpty()) {
+                "Empty host target Trash state contains results"
+            }
+        }
+        if (state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_RECOVERY_REQUIRED) {
+            require(
+                trashItemIds.isNotEmpty() &&
+                    movedCount <= trashItemIds.size &&
+                    recoveryCount <= trashItemIds.size,
+            ) { "Host target Trash recovery state is inconsistent" }
+        }
+        return HostTargetTrashResult(state, trashItemIds, movedCount, recoveryCount)
     }
 
     private fun decodeOutput(

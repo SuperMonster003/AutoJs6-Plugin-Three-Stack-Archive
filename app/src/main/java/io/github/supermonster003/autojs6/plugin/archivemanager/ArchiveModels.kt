@@ -262,6 +262,8 @@ internal data class ArchiveCreationResult(
     val filesCompressed: Long,
     val directoriesAdded: Long,
     val sourceBytesRead: Long,
+    /** Host-owned transaction IDs proving that every physical output reached COMMITTED. */
+    val committedOutputTransactionIds: List<String> = emptyList(),
     /** Ordered physical outputs. Split ZIP parts precede the terminal `.zip` volume. */
     val createdOutputs: List<CreatedArchiveOutput> = listOf(
         CreatedArchiveOutput(outputDisplayName, outputDisplayPath),
@@ -272,6 +274,13 @@ internal data class ArchiveCreationResult(
         require(createdOutputs.map(CreatedArchiveOutput::displayName).distinct().size == createdOutputs.size)
         require(createdOutputs.last().displayName == outputDisplayName)
         require(createdOutputs.last().displayPath == outputDisplayPath)
+        require(
+            committedOutputTransactionIds.isEmpty() ||
+                (
+                    committedOutputTransactionIds.size == createdOutputs.size &&
+                        committedOutputTransactionIds.distinct().size == committedOutputTransactionIds.size
+                    )
+        )
     }
 }
 

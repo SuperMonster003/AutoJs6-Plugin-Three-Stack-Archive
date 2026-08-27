@@ -65,7 +65,7 @@
     <string name="error_separate_compression_partial_failure">La création s’est arrêtée après %1$d archives sur %2$d. Les archives terminées ont été conservées et cette session a été fermée pour éviter des sorties en double. Rouvrez Compresser pour l’élément en échec et les éléments restants.\nSortie en échec : %3$s\nMotif : %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">%1$d archives sur %2$d ont été créées avant l’échec d’une sortie ultérieure, dont le nettoyage temporaire n’a pas pu être confirmé. Les archives terminées ont été conservées. La session hôte a été fermée pour empêcher une nouvelle écriture. Aucune archive existante n’a été remplacée.\nSortie prévue : %3$s\nMotif initial : %4$s</string>
     <string name="error_compression_request_invalid">La demande de compression ou la session de l\'hôte est invalide</string>
-    <string name="text_advanced_compression_pending">Le chiffrement des noms et la suppression des sources restent désactivés jusqu\'à la disponibilité de leurs systèmes transactionnels.</string>
+    <string name="text_archive_creation_safety_note">Les éléments sources ne sont déplacés vers la corbeille AutoJs6 qu\'après vérification et validation de toutes les sorties. Le chiffrement des noms reste indisponible.</string>
     <string name="text_archive_file_name">Nom du fichier</string>
     <string name="text_archive_format">Format</string>
     <string name="text_compress_separately">Compresser chaque élément séparément</string>
@@ -82,7 +82,7 @@
     <string name="text_compression_level_normal">Normal</string>
     <string name="text_create_archive">Créer l\'archive</string>
     <string name="text_default_archive_name">Archive</string>
-    <string name="text_delete_sources_after_compression">Supprimer les éléments sources après compression</string>
+    <string name="text_move_sources_to_trash_after_compression">Déplacer les éléments sources vers la corbeille après compression</string>
     <string name="text_encrypt_file_names">Chiffrer les noms de fichiers</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">Si le nom de l’archive est indisponible</string>

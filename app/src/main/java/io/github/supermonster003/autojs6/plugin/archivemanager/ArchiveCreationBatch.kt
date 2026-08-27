@@ -150,6 +150,14 @@ internal data class ArchiveCreationBatchResult(
     val physicalOutputsCreated: Long = outputs.sumSaturated { result ->
         result.createdOutputs.size.toLong()
     }
+    val committedOutputTransactionIds: List<String> = outputs.flatMap(
+        ArchiveCreationResult::committedOutputTransactionIds,
+    ).also { transactionIds ->
+        require(transactionIds.distinct().size == transactionIds.size)
+        require(
+            transactionIds.isEmpty() || transactionIds.size.toLong() == physicalOutputsCreated,
+        )
+    }
 }
 
 /**

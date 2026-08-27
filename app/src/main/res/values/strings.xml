@@ -51,7 +51,7 @@
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
     <string name="plugin_description">File manager plugin. Browse, extract, and create ZIP and TAR archives</string>
     <string name="text_cancelled">Cancelled</string>
-    <string name="text_advanced_compression_pending">Filename encryption and source deletion remain disabled until their transactional backends are available.</string>
+    <string name="text_archive_creation_safety_note">Source items are moved to AutoJs6 Trash only after every archive output is verified and committed. Filename encryption remains unavailable.</string>
     <string name="text_apply_password">Apply</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>
     <string name="text_archive_file_name">File name</string>
@@ -90,7 +90,12 @@
     <string name="text_create_archive">Create archive</string>
     <string name="text_custom_budget_zero_note">Use 0 for the hard structural maximum (entry count, path length, and depth) or for no resource warning threshold (sizes and compression ratio). Structural path safety cannot be disabled.</string>
     <string name="text_default_archive_name">Archive</string>
-    <string name="text_delete_sources_after_compression">Delete source items after compression</string>
+    <string name="text_move_sources_to_trash_after_compression">Move source items to Trash after compression</string>
+    <string name="text_moving_sources_to_trash">Moving source items to Trash</string>
+    <string name="text_sources_moved_to_trash">%1$d source items moved to Trash.</string>
+    <string name="warning_sources_trash_recovery_required">The archive was created, but source cleanup needs attention. Recovery copies are available in AutoJs6 Trash.</string>
+    <string name="warning_sources_trash_failed">The archive was created, but the source items could not be moved to Trash.</string>
+    <string name="warning_sources_trash_unknown">The archive was created, but AutoJs6 could not confirm whether every source item reached Trash. Check the current folder and Trash before retrying.</string>
     <string name="text_encrypt_file_names">Encrypt file names</string>
     <string name="dialog_title_extraction_scope">Extraction range</string>
     <string name="dialog_title_extraction_destination">Extraction destination</string>

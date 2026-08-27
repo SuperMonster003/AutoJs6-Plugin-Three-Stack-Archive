@@ -232,19 +232,19 @@
                 tools:visibility="visible" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/deleteSources"
+                android:id="@+id/moveSourcesToTrash"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="false"
                 android:minHeight="48dp"
-                android:text="@string/text_delete_sources_after_compression"
+                android:text="@string/text_move_sources_to_trash_after_compression"
                 app:showText="false" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="4dp"
-                android:text="@string/text_advanced_compression_pending"
+                android:text="@string/text_archive_creation_safety_note"
                 android:textAppearance="?attr/textAppearanceCaption" />
 
             <com.google.android.material.progressindicator.LinearProgressIndicator

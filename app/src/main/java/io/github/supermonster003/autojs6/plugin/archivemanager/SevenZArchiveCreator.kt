@@ -93,6 +93,7 @@ internal class SevenZArchiveCreator(
                 filesCompressed = counters.files,
                 directoriesAdded = counters.directories,
                 sourceBytesRead = counters.bytesRead,
+                committedOutputTransactionIds = listOf(committed.id),
             )
         } finally {
             password?.fill('\u0000')

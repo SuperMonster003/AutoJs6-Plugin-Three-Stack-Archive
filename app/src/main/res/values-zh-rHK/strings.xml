@@ -63,7 +63,7 @@
     <string name="error_separate_compression_partial_failure">已建立 %1$d/%2$d 個壓縮檔案後停止. 已完成的壓縮檔案會保留; 為防止產生重複輸出, 本次工作階段現已關閉. 請為失敗及其餘項目重新開啟「壓縮」.\n失敗的輸出: %3$s\n原因: %4$s</string>
     <string name="error_separate_compression_cleanup_unconfirmed">已建立 %1$d/%2$d 個壓縮檔案, 隨後的輸出失敗且無法確認其臨時輸出已清理. 已完成的壓縮檔案會保留. 為避免繼續寫入, 目前的宿主工作階段已關閉. 現有檔案未被覆蓋.\n預定輸出: %3$s\n原始原因: %4$s</string>
     <string name="error_compression_request_invalid">壓縮要求或主程式工作階段無效</string>
-    <string name="text_advanced_compression_pending">檔案名稱加密及刪除來源項目會在相應的交易式後端可用後開放.</string>
+    <string name="text_archive_creation_safety_note">只有全部壓縮輸出完成驗證並提交後, 來源項目才會移入 AutoJs6 垃圾桶. 檔案名稱加密目前仍不可用.</string>
     <string name="text_archive_file_name">檔案名稱</string>
     <string name="text_archive_format">格式</string>
     <string name="text_compress_separately">個別壓縮每個檔案和資料夾</string>
@@ -80,7 +80,7 @@
     <string name="text_compression_level_normal">一般</string>
     <string name="text_create_archive">建立壓縮檔</string>
     <string name="text_default_archive_name">壓縮檔</string>
-    <string name="text_delete_sources_after_compression">壓縮後刪除來源項目</string>
+    <string name="text_move_sources_to_trash_after_compression">壓縮完成後將來源項目移入垃圾桶</string>
     <string name="text_encrypt_file_names">同時加密檔案名稱</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">壓縮檔案名稱不可用時</string>

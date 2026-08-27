@@ -4,6 +4,7 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.content.ClipData
 import android.content.ClipDescription
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -28,13 +29,65 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.io.File
 import java.util.UUID
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 @RunWith(AndroidJUnit4::class)
 class CreateArchiveActivityInstrumentationTest {
+
+    @Test
+    fun sourceTrashIsOptInRestoredAndRunsOnlyAfterVerifiedOutputCommit() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val context = instrumentation.targetContext
+        val hostSession = SuccessfulTargetTrashHostSession(context)
+        try {
+            ActivityScenario.launch<CreateArchiveActivity>(compressionIntent(hostSession)).use { scenario ->
+                scenario.onActivity { activity ->
+                    val moveToTrash = activity.findViewById<SwitchMaterial>(
+                        R.id.moveSourcesToTrash,
+                    )
+                    assertTrue(moveToTrash.isEnabled)
+                    assertFalse(moveToTrash.isChecked)
+                    moveToTrash.isChecked = true
+                }
+
+                scenario.recreate()
+                scenario.onActivity { activity ->
+                    val moveToTrash = activity.findViewById<SwitchMaterial>(
+                        R.id.moveSourcesToTrash,
+                    )
+                    assertTrue(moveToTrash.isEnabled)
+                    assertTrue(moveToTrash.isChecked)
+                    activity.findViewById<android.view.View>(R.id.createButton).performClick()
+                }
+
+                assertTrue(hostSession.moveStarted.await(10, TimeUnit.SECONDS))
+                instrumentation.waitForIdleSync()
+                scenario.onActivity { activity ->
+                    assertEquals(
+                        activity.getString(R.string.text_moving_sources_to_trash),
+                        activity.findViewById<android.widget.TextView>(R.id.status).text.toString(),
+                    )
+                    assertFalse(activity.findViewById<android.view.View>(R.id.cancelButton).isEnabled)
+                    assertFalse(activity.findViewById<android.view.View>(R.id.moveSourcesToTrash).isEnabled)
+                    assertFalse(activity.isFinishing)
+                }
+                hostSession.allowMove.countDown()
+                assertTrue(hostSession.closeCalled.await(10, TimeUnit.SECONDS))
+                assertTrue(hostSession.outputCommittedBeforeMove.get())
+                assertEquals(listOf("target-1"), hostSession.receivedTargetIds)
+                assertEquals(listOf(hostSession.transactionId), hostSession.receivedOutputIds)
+            }
+        } finally {
+            hostSession.allowMove.countDown()
+            hostSession.close()
+            hostSession.cleanup()
+        }
+    }
 
     @Test
     fun mismatchedPasswordConfirmationStaysInTheFormAndDoesNotPrepareOutput() {
@@ -838,6 +891,139 @@ class CreateArchiveActivityInstrumentationTest {
 
         override fun close() {
             closeCalls++
+        }
+    }
+
+    private class SuccessfulTargetTrashHostSession(context: Context) : TestExplorerActionHostSession() {
+        val transactionId: String = UUID.randomUUID().toString()
+        private val trashItemId = UUID.randomUUID().toString()
+        private val root = File(context.cacheDir, "create-archive-v16-${System.nanoTime()}").apply {
+            check(mkdirs())
+        }
+        private val source = File(root, "report.txt").apply { writeText("source") }
+        private val pending = File(root, ".pending")
+        private val committed = File(root, "report.txt.zip")
+        private val outputCommitted = AtomicBoolean()
+        val outputCommittedBeforeMove = AtomicBoolean()
+        val moveStarted = CountDownLatch(1)
+        val allowMove = CountDownLatch(1)
+        val closeCalled = CountDownLatch(1)
+        var receivedTargetIds: List<String> = emptyList()
+            private set
+        var receivedOutputIds: List<String> = emptyList()
+            private set
+        private var trashResult: Bundle? = null
+
+        override fun listChildren(
+            targetId: String,
+            relativePath: String,
+            offset: Int,
+            limit: Int,
+        ): Bundle = error("Directory access is not expected")
+
+        override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor {
+            assertEquals("target-1", targetId)
+            assertEquals("", relativePath)
+            return ParcelFileDescriptor.open(source, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        override fun prepareOutput(
+            displayName: String,
+            mimeType: String,
+            conflictPolicy: Int,
+        ): Bundle {
+            assertEquals("report.txt.zip", displayName)
+            assertEquals(ArchiveFormat.ZIP.primaryMimeType, mimeType)
+            return outputBundle(
+                state = ExplorerActionHostSessionValues.OUTPUT_STATE_PREPARED,
+                includeSize = false,
+            )
+        }
+
+        override fun openOutput(transactionId: String): ParcelFileDescriptor {
+            assertEquals(this.transactionId, transactionId)
+            return ParcelFileDescriptor.open(
+                pending,
+                ParcelFileDescriptor.MODE_CREATE or
+                    ParcelFileDescriptor.MODE_TRUNCATE or
+                    ParcelFileDescriptor.MODE_READ_WRITE,
+            )
+        }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            assertEquals(this.transactionId, transactionId)
+            return ParcelFileDescriptor.open(pending, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        override fun commitOutput(transactionId: String): Bundle {
+            assertEquals(this.transactionId, transactionId)
+            check(pending.renameTo(committed))
+            outputCommitted.set(true)
+            return outputBundle(
+                state = ExplorerActionHostSessionValues.OUTPUT_STATE_COMMITTED,
+                includeSize = true,
+            )
+        }
+
+        override fun abortOutput(transactionId: String) {
+            pending.delete()
+        }
+
+        override fun moveTargetsToTrash(
+            targetIds: MutableList<String>,
+            outputTransactionIds: MutableList<String>,
+        ): Bundle {
+            receivedTargetIds = targetIds.toList()
+            receivedOutputIds = outputTransactionIds.toList()
+            outputCommittedBeforeMove.set(outputCommitted.get() && committed.isFile)
+            moveStarted.countDown()
+            check(allowMove.await(10, TimeUnit.SECONDS))
+            return targetTrashBundle(
+                ExplorerActionHostSessionValues.TARGET_TRASH_STATE_COMMITTED,
+            ).also { trashResult = Bundle(it) }
+        }
+
+        override fun queryTargetTrash(): Bundle = trashResult?.let(::Bundle) ?: targetTrashBundle(
+            ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN,
+        )
+
+        override fun commitOutputBatch(batchId: String): Bundle =
+            error("Output batches are not expected")
+
+        override fun close() {
+            closeCalled.countDown()
+        }
+
+        fun cleanup() {
+            root.deleteRecursively()
+        }
+
+        private fun outputBundle(state: Int, includeSize: Boolean): Bundle = Bundle().apply {
+            putString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID, transactionId)
+            putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME, "report.txt.zip")
+            putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH, "/Documents/report.txt.zip")
+            putInt(ExplorerActionHostSessionKeys.OUTPUT_STATE, state)
+            if (includeSize) {
+                putLong(ExplorerActionHostSessionKeys.SIZE, committed.length())
+                putLong(ExplorerActionHostSessionKeys.LAST_MODIFIED, committed.lastModified())
+            }
+        }
+
+        private fun targetTrashBundle(state: Int): Bundle = Bundle().apply {
+            putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_STATE, state)
+            putStringArrayList(
+                ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_IDS,
+                if (state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN) {
+                    arrayListOf()
+                } else {
+                    arrayListOf(trashItemId)
+                },
+            )
+            putInt(
+                ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT,
+                if (state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN) 0 else 1,
+            )
+            putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, 0)
         }
     }
 
