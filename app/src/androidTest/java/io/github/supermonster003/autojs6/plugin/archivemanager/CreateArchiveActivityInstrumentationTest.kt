@@ -590,6 +590,7 @@ class CreateArchiveActivityInstrumentationTest {
             }
 
             assertTrue(hostSession.abortAttempt.await(5, TimeUnit.SECONDS))
+            assertTrue(hostSession.closeAttempt.await(5, TimeUnit.SECONDS))
             instrumentation.waitForIdleSync()
             lateinit var expectedMessage: String
             scenario.onActivity { activity ->
@@ -1036,6 +1037,7 @@ class CreateArchiveActivityInstrumentationTest {
         var closeCalls = 0
             private set
         val abortAttempt = CountDownLatch(1)
+        val closeAttempt = CountDownLatch(1)
 
         override fun listChildren(
             targetId: String,
@@ -1090,6 +1092,7 @@ class CreateArchiveActivityInstrumentationTest {
 
         override fun close() {
             closeCalls++
+            closeAttempt.countDown()
         }
     }
 
