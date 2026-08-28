@@ -78,6 +78,7 @@
     "Créer ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST depuis un élément ou une sélection de même parent; ZIP prend aussi en charge AES-256, les volumes standard et une archive par élément.",
     "Les ZIP fractionnés standard et la compression séparée publient toutes les sorties physiques vérifiées dans un lot récupérable; un échec ou redémarrage de l'hôte n'est jamais présenté comme un résultat partiel réussi.",
     "Modifier un ZIP ordinaire à volume unique par reconstruction vérifiée: ajouter des fichiers ou un arbre de dossiers, créer un dossier vide, renommer et supprimer, puis remplacer atomiquement la source.",
+    "La page de gestion regroupe le format réel, les totaux du contenu, les modifications disponibles et la raison exacte du mode lecture seule; avant de réserver une sortie, chaque modification ZIP présente le travail réel, la reconstruction complète et les effets sur les métadonnées, tandis qu'une annulation ne crée aucune sortie en attente.",
     "Isoler en lecture seule les noms dangereux, appliquer les limites structurelles et de ressources avant l'écriture, et lire directement le descripteur seekable de l'hôte lorsque possible.",
     "Déplacer facultativement la sélection source complète vers la corbeille de l'hôte uniquement après vérification et validation de toutes les sorties physiques; cette option est désactivée par défaut et toute source modifiée ou preuve incomplète arrête l'opération avant la suppression des données source."
   ],

@@ -7,8 +7,10 @@ _2026/08/28_
 - `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v17 (código de versión 5276 o posterior)
 - `Añadido` Un archivo cuyo nombre o extensión no se reconoce ahora puede usar Abrir como archivo comprimido...; tras detectar la estructura, la barra de ruta nativa indica el formato real cuando difiere del nombre
 - `Añadido` Explorer Action v17 añade una acción secundaria de solo lectura y sin coincidencias, vinculada a una acción principal normal, y devuelve metadatos acotados del formato detectado desde la sesión existente
+- `Añadido` La página de gestión añade información que reúne el formato real, los totales de contenido, las modificaciones disponibles y el motivo exacto del modo de solo lectura
 - `Corregido` TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST ahora usan sufijos exactos del nombre completo en vez de las extensiones genéricas `gz`, `xz`, `bz2` o `zst`, de modo que los flujos comprimidos ordinarios no reciben la acción principal de archivo
 - `Mejorado` El host no examina archivos en segundo plano al crear los menús; solo una elección explícita ejecuta una llamada existente de apertura de solo lectura, sin autoridad nueva sobre rutas, directorios o escritura
+- `Mejorado` Añadir, importar, crear carpetas, renombrar y eliminar ahora revisan el trabajo real, la reconstrucción completa y los efectos en metadatos antes de reservar una salida; cancelar no crea ninguna salida pendiente
 
 ## v2.9.0
 
