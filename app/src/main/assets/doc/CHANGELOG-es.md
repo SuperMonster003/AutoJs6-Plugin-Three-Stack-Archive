@@ -1,5 +1,13 @@
 # Notas de la versión
 
+## v2.11.0
+
+_2026/08/28_
+
+- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Añadido` Tras editar un ZIP correctamente, Restaurar versión anterior está disponible en el mensaje de éxito y en el menú de gestión para una restauración durante la retención limitada del host
+- `Mejorado` El host conserva el archivo anterior en almacenamiento privado persistente, solo lo restaura si el destino sigue siendo el reemplazo exacto confirmado y conserva la evidencia de recuperación interrumpida sin sobrescribir cambios externos
+
 ## v2.10.0
 
 _2026/08/28_

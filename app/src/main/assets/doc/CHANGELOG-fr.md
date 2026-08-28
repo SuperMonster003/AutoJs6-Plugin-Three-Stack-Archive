@@ -1,5 +1,13 @@
 # Notes de version
 
+## v2.11.0
+
+_2026/08/28_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+- `Ajout` Après une modification ZIP réussie, Restaurer la version précédente est proposé dans le message de réussite et le menu de gestion pour une restauration pendant la rétention limitée de l'hôte
+- `Amélioration` L'hôte conserve l'archive précédente dans un stockage privé durable, ne la restaure que si la cible est toujours le remplacement exact validé et garde les preuves d'une récupération interrompue sans écraser les changements externes
+
 ## v2.10.0
 
 _2026/08/28_
