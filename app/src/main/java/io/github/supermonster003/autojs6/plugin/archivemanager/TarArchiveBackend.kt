@@ -18,7 +18,19 @@ import java.io.InputStream
 internal object TarArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR,
     container = TarContainer.PLAIN,
-)
+    canMutate = true,
+), ArchiveMutationBackend {
+    override val mutationCapabilities = TAR_MUTATION_CAPABILITIES
+
+    override fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        tarMutationAvailability(snapshot)
+
+    override fun createMutationProvider(
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+        engine: ArchiveEngine,
+    ): ArchiveMutationProvider = TarArchiveMutationProvider(session, cacheDirectory, engine)
+}
 
 internal object TarGzipArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR_GZIP,
@@ -43,12 +55,13 @@ internal object TarZstdArchiveBackend : TarArchiveBackendBase(
 internal abstract class TarArchiveBackendBase(
     override val format: ArchiveFormat,
     private val container: TarContainer,
+    private val canMutate: Boolean = false,
 ) : ArchiveBackend {
     init {
         require(format.isTarFamily)
     }
 
-    override val capabilities = tarCapabilities(container)
+    override val capabilities = tarCapabilities(container, canMutate)
 
     override fun createWriter(
         session: IExplorerActionHostSession,
@@ -70,11 +83,12 @@ internal abstract class TarArchiveBackendBase(
             container.requirePlausibleStructure(source)
             TarArchiveReader(
                 source = source,
-                entries = TarArchiveAccess.readEntries(source, container),
+                entries = TarArchiveAccess.readEntries(source, container, canMutate),
                 options = resolvedOptions,
                 format = format,
                 formatCapabilities = capabilities,
                 container = container,
+                canMutate = canMutate,
             )
         } catch (error: TarPayloadSignatureException) {
             resolvedOptions.clearPassword()
@@ -119,16 +133,19 @@ internal abstract class TarArchiveBackendBase(
     }
 }
 
-private fun tarCapabilities(container: TarContainer) = FormatCapabilities(
+private fun tarCapabilities(
+    container: TarContainer,
+    canMutate: Boolean,
+) = FormatCapabilities(
     canDetect = true,
     canList = true,
     canPreview = true,
     canOpen = true,
     canExtract = true,
     canCreate = true,
-    canAdd = false,
-    canDelete = false,
-    canRename = false,
+    canAdd = canMutate,
+    canDelete = canMutate,
+    canRename = canMutate,
     password = ArchiveOptionMode.UNSUPPORTED,
     filenameEncryption = ArchiveOptionMode.UNSUPPORTED,
     splitVolumes = ArchiveOptionMode.UNSUPPORTED,
@@ -155,6 +172,7 @@ private class TarArchiveReader(
     override val format: ArchiveFormat,
     override val formatCapabilities: FormatCapabilities,
     private val container: TarContainer,
+    private val canMutate: Boolean,
 ) : ArchiveReader {
 
     override fun openEntry(entry: ArchiveReaderEntry): InputStream {
@@ -196,6 +214,7 @@ private class TarArchiveReader(
                     entry = liveTarEntry,
                     ordinal = ordinal,
                     container = container,
+                    canMutate = canMutate,
                 )
                 if (ordinal == token.ordinal) {
                     if (!sameMetadata(liveEntry, entry)) {
@@ -382,13 +401,14 @@ internal object TarArchiveAccess {
     fun readEntries(
         source: ArchiveReadSource,
         container: TarContainer = TarContainer.PLAIN,
+        canMutate: Boolean = false,
     ): List<ArchiveReaderEntry> = open(source, container).use { input ->
         buildList {
             var ordinal = 0
             while (true) {
                 val entry = input.nextEntry ?: break
                 requireValidChecksum(entry)
-                add(toReaderEntry(input, entry, ordinal, container))
+                add(toReaderEntry(input, entry, ordinal, container, canMutate))
                 ordinal++
             }
         }
@@ -434,6 +454,7 @@ internal object TarArchiveAccess {
         entry: TarArchiveEntry,
         ordinal: Int,
         container: TarContainer = TarContainer.PLAIN,
+        canMutate: Boolean = false,
     ): ArchiveReaderEntry {
         val entryType = entryType(entry)
         val canReadFile = entryType == TarEntryType.REGULAR_FILE &&
@@ -450,8 +471,27 @@ internal object TarArchiveAccess {
             else -> size
         }
         val capabilities = when {
-            entry.isDirectory -> ArchiveEntryCapabilities.DIRECTORY
-            canReadFile -> ArchiveEntryCapabilities.READABLE_FILE
+            entry.isDirectory -> ArchiveEntryCapabilities(
+                canOpen = false,
+                canExtract = true,
+                canDelete = canMutate,
+                canRename = canMutate,
+                limitations = buildSet {
+                    add(ArchiveEntryLimitation.DIRECTORY_HAS_NO_DATA)
+                    if (!canMutate) add(ArchiveEntryLimitation.MUTATION_UNAVAILABLE)
+                },
+            )
+            canReadFile -> ArchiveEntryCapabilities(
+                canOpen = true,
+                canExtract = true,
+                canDelete = canMutate,
+                canRename = canMutate,
+                limitations = if (canMutate) {
+                    emptySet()
+                } else {
+                    setOf(ArchiveEntryLimitation.MUTATION_UNAVAILABLE)
+                },
+            )
             else -> ArchiveEntryCapabilities(
                 canOpen = false,
                 canExtract = false,

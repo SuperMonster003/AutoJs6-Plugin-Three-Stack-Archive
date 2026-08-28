@@ -42,6 +42,14 @@ class TarArchiveBackendTest {
         assertNull(file.crc32)
         assertTrue(file.canOpen)
         assertTrue(file.canExtract)
+        assertTrue(file.capabilities.canDelete)
+        assertTrue(file.capabilities.canRename)
+        assertTrue(snapshot.entries.first().capabilities.canDelete)
+        assertTrue(snapshot.entries.first().capabilities.canRename)
+        assertEquals(
+            TAR_MUTATION_CAPABILITIES,
+            ArchiveEngine.DEFAULT.mutationAvailability(snapshot).capabilities,
+        )
 
         val output = ByteArrayOutputStream()
         ArchiveEntryStreamer(source, snapshot).stream(file, output)
@@ -101,6 +109,10 @@ class TarArchiveBackendTest {
                 ArchiveEntryLimitation.UNSUPPORTED_ENTRY_TYPE in entry.capabilities.limitations,
             )
         }
+        assertEquals(
+            ArchiveMutationUnavailableReason.UNSUPPORTED_ENTRY_METHOD,
+            ArchiveEngine.DEFAULT.mutationAvailability(snapshot).unavailableReason,
+        )
         assertEquals("SYMBOLIC_LINK", symbolicLink.compressionMethodId)
         assertEquals("HARD_LINK", hardLink.compressionMethodId)
     }

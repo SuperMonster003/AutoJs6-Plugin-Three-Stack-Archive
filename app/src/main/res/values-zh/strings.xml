@@ -247,7 +247,7 @@
     <string name="text_archive_metadata_effects">重建会影响以下元数据:</string>
     <string name="text_archive_metadata_archive_comment_dropped">不会保留档案注释.</string>
     <string name="text_archive_metadata_entry_comments_dropped">不会保留条目注释.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">ZIP extra 字段可能会被规范化.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">特定于格式的扩展元数据可能会被规范化.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">不会保留 Unix 权限和属性.</string>
     <string name="text_archive_metadata_compression_normalized">每个条目的压缩设置可能会被规范化.</string>
     <string name="text_archive_metadata_encryption_normalized">每个条目的加密设置可能会被规范化.</string>

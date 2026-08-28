@@ -68,7 +68,7 @@ class ArchiveEngineTest {
         )
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
         assertFalse(ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations)
-        assertEquals(listOf(ArchiveFormat.ZIP), engine.mutationFormats)
+        assertEquals(listOf(ArchiveFormat.ZIP, ArchiveFormat.TAR), engine.mutationFormats)
         assertEquals(
             engine.mutationFormats
                 .map(ArchiveFormat::primaryExtension)
@@ -99,7 +99,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `tar capabilities expose creation without claiming mutation or encryption`() {
+    fun `ordinary tar exposes rewrite mutation while compressed tar remains read only`() {
         val engine = ArchiveEngine.DEFAULT
 
         listOf(
@@ -110,15 +110,16 @@ class ArchiveEngineTest {
             ArchiveFormat.TAR_ZSTD,
         ).forEach { format ->
             val capabilities = engine.capabilities(format)
+            val canMutate = format == ArchiveFormat.TAR
             assertTrue(capabilities.supports(ArchiveOperation.DETECT))
             assertTrue(capabilities.supports(ArchiveOperation.LIST))
             assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
             assertTrue(capabilities.supports(ArchiveOperation.OPEN))
             assertTrue(capabilities.supports(ArchiveOperation.EXTRACT))
             assertTrue(capabilities.supports(ArchiveOperation.CREATE))
-            assertFalse(capabilities.supports(ArchiveOperation.ADD))
-            assertFalse(capabilities.supports(ArchiveOperation.DELETE))
-            assertFalse(capabilities.supports(ArchiveOperation.RENAME))
+            assertEquals(canMutate, capabilities.supports(ArchiveOperation.ADD))
+            assertEquals(canMutate, capabilities.supports(ArchiveOperation.DELETE))
+            assertEquals(canMutate, capabilities.supports(ArchiveOperation.RENAME))
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.password)
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
             assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
@@ -141,8 +142,24 @@ class ArchiveEngineTest {
             assertTrue(capabilities.filenameCharsetNames.isEmpty())
             assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
             assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
-            assertEquals(null, engine.mutationCapabilities(format))
+            assertEquals(
+                if (canMutate) TAR_MUTATION_CAPABILITIES else null,
+                engine.mutationCapabilities(format),
+            )
         }
+        assertEquals(
+            setOf(ArchiveOperation.ADD, ArchiveOperation.DELETE, ArchiveOperation.RENAME),
+            TAR_MUTATION_CAPABILITIES.operations,
+        )
+        assertEquals(ArchiveMutationStrategy.FULL_REWRITE, TAR_MUTATION_CAPABILITIES.strategy)
+        assertEquals(8, TAR_MUTATION_CAPABILITIES.minimumHostProtocolVersion)
+        assertEquals(
+            setOf(
+                ArchiveMutationMetadataEffect.EXTRA_FIELDS_NORMALIZED,
+                ArchiveMutationMetadataEffect.UNIX_ATTRIBUTES_DROPPED,
+            ),
+            TAR_MUTATION_CAPABILITIES.metadataEffects,
+        )
     }
 
     @Test

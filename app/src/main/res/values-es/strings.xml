@@ -247,7 +247,7 @@
     <string name="text_archive_metadata_effects">Metadatos afectados por la reconstrucción:</string>
     <string name="text_archive_metadata_archive_comment_dropped">El comentario del archivo no se conservará.</string>
     <string name="text_archive_metadata_entry_comments_dropped">Los comentarios de los elementos no se conservarán.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">Los campos extra de ZIP pueden normalizarse.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Los metadatos extendidos específicos del formato pueden normalizarse.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">Los permisos y atributos Unix no se conservarán.</string>
     <string name="text_archive_metadata_compression_normalized">La configuración de compresión de cada elemento puede normalizarse.</string>
     <string name="text_archive_metadata_encryption_normalized">La configuración de cifrado de cada elemento puede normalizarse.</string>

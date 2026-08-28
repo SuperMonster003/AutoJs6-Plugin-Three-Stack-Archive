@@ -21,6 +21,14 @@ class ArchiveManagementInfoTest {
         ),
     )
 
+    private fun tarSnapshot(): ArchiveSnapshot = ArchiveScanner().scan(
+        writeTar(
+            temporaryFolder.newFile(),
+            TarFixtureEntry("docs/", type = TarFixtureEntryType.DIRECTORY),
+            TarFixtureEntry("docs/readme.txt", "readme".encodeToByteArray()),
+        ),
+    )
+
     @Test
     fun `ordinary zip is writable only in a management session with target replacement`() {
         val archive = snapshot()
@@ -72,6 +80,31 @@ class ArchiveManagementInfoTest {
         assertEquals(
             ArchiveManagementReadOnlyReason.FORMAT_NOT_SUPPORTED,
             status.readOnlyReason,
+        )
+    }
+
+    @Test
+    fun `ordinary tar uses the same management session and replacement boundary`() {
+        val archive = tarSnapshot()
+
+        val writable = ArchiveEngine.DEFAULT.managementStatus(
+            archive,
+            ArchiveRequestedAction.MANAGE,
+            hasHostReplacementSession = true,
+        )
+        val readOnlyOpen = ArchiveEngine.DEFAULT.managementStatus(
+            archive,
+            ArchiveRequestedAction.OPEN,
+            hasHostReplacementSession = true,
+        )
+
+        assertTrue(writable.isWritable)
+        assertEquals(TAR_MUTATION_CAPABILITIES, writable.capabilities)
+        assertEquals(null, writable.readOnlyReason)
+        assertFalse(readOnlyOpen.isWritable)
+        assertEquals(
+            ArchiveManagementReadOnlyReason.CURRENT_SESSION_READ_ONLY,
+            readOnlyOpen.readOnlyReason,
         )
     }
 

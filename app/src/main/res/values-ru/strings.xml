@@ -247,7 +247,7 @@
     <string name="text_archive_metadata_effects">Метаданные, затрагиваемые при пересоздании:</string>
     <string name="text_archive_metadata_archive_comment_dropped">Комментарий архива не будет сохранён.</string>
     <string name="text_archive_metadata_entry_comments_dropped">Комментарии элементов не будут сохранены.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">Поля extra ZIP могут быть нормализованы.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Расширенные метаданные формата могут быть нормализованы.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">Разрешения и атрибуты Unix не будут сохранены.</string>
     <string name="text_archive_metadata_compression_normalized">Параметры сжатия отдельных элементов могут быть нормализованы.</string>
     <string name="text_archive_metadata_encryption_normalized">Параметры шифрования отдельных элементов могут быть нормализованы.</string>

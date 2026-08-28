@@ -98,6 +98,35 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
+    fun manageArchiveAcceptsOrdinaryTarButNotCompressedTarWrappers() {
+        val hostSession = UnusedTestExplorerActionHostSession()
+        fun managedIntent(displayName: String, mimeType: String) =
+            validIntent(displayName, mimeType)
+                .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_MANAGE_ID)
+                .putExtra(
+                    ExplorerActionIntentExtras.HOST_SESSION,
+                    Bundle().apply {
+                        putBinder(ExplorerActionHostSessionKeys.BINDER, hostSession.asBinder())
+                    },
+                )
+
+        val ordinaryTar = ArchiveIntentPolicy.resolve(
+            managedIntent("bundle.tar", "application/x-tar"),
+        )
+
+        assertNotNull(ordinaryTar)
+        assertEquals(ArchiveRequestedAction.MANAGE, ordinaryTar?.requestedAction)
+        listOf(
+            "bundle.tar.gz" to "application/x-compressed-tar",
+            "bundle.tar.xz" to "application/x-xz-compressed-tar",
+            "bundle.tar.bz2" to "application/x-bzip2-compressed-tar",
+            "bundle.tar.zst" to "application/x-zstd-compressed-tar",
+        ).forEach { (displayName, mimeType) ->
+            assertNull(ArchiveIntentPolicy.resolve(managedIntent(displayName, mimeType)))
+        }
+    }
+
+    @Test
     fun manageArchiveRejectsAMissingHostReplacementSession() {
         val resolved = ArchiveIntentPolicy.resolve(
             Intent(validIntent()).putExtra(
