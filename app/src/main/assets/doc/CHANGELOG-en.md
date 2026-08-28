@@ -6,6 +6,7 @@ _2026/08/28_
 
 - `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
 - `Added` After a successful ZIP edit, Restore previous version is available from the success message and the management-page menu for one rollback during bounded host retention
+- `Fixed` SAF output streams now request explicit truncation, preventing shorter overwrites from retaining bytes from the previous content on newer Android versions
 - `Improved` The host keeps the previous archive in private durable storage, restores only while the target is still the exact committed replacement, and preserves interrupted recovery evidence instead of overwriting external changes
 
 ## v2.10.0

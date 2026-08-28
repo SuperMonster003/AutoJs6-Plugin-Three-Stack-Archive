@@ -35,33 +35,20 @@ Archive Manager fonctionne dans le gestionnaire de fichiers AutoJs6 au lieu de l
 
 ### Disponible actuellement
 
-- Ouvrir les archives des familles ZIP, 7Z et TAR directement dans la liste native d'AutoJs6, avec le thème, le mode sombre et les couleurs dynamiques de l'hôte.
-- Afficher le dossier externe, le nom de l'archive et le dossier interne dans la barre de chemin ; toucher un niveau pour y accéder et utiliser Retour pour remonter avant de quitter l'archive.
-- Extraire le dossier interne courant depuis la barre de chemin, ou activer le mode de sélection et extraire les fichiers et dossiers cochés, sans quitter la page native de l'hôte ; la progression est affichée, la tâche peut être annulée et le dossier parent s'actualise à la fin.
-- Ouvrir les documents, images, fichiers audio et vidéos pris en charge avec les visionneuses existantes de l'hôte.
-- Utiliser « Extraire vers... » pour extraire toute l'archive dans le dossier recommandé à côté de celle-ci, ou choisir un autre dossier avec le sélecteur système Android; les noms de dossiers équivalents déjà présents sont numérotés en toute sécurité.
-- Choisir « Gérer l'archive... » pour ouvrir la page de gestion, extraire toute l'archive, le dossier interne actuel ou la sélection cochée, ou modifier un ZIP ordinaire en un seul volume avec « Ajouter des fichiers... », « Ajouter un dossier... », « Nouveau dossier... », « Renommer... » et « Supprimer »; « Extraire vers... » reste le raccourci pour l'archive entière.
-- Les modifications ZIP sont planifiées avant l'écriture, reconstruites dans une sortie en attente détenue par l'hôte, entièrement relues, puis remplacent l'original atomiquement après validation. Une annulation ou un échec laisse la source intacte, et une validation réussie actualise Explorer automatiquement.
-- Pour les noms de sortie équivalents, choisissez Demander à chaque fois, Ignorer, Écraser ou Renommer automatiquement; Appliquer à tout traite les conflits compatibles restants et les dossiers de sortie existants sont toujours numérotés et préservés.
-- Parcourir les dossiers, rechercher et trier le contenu de l'archive.
-- Afficher la liste à partir des métadonnées sans décompresser chaque entrée au préalable.
-- Parcourir les archives ordinaires via le descripteur repositionnable en lecture seule de l'hôte et des canaux à position indépendante, sans copie intégrale ; les tubes, les sources inscriptibles ou non repositionnables, Android 7 et les lecteurs exigeant un fichier local lisible par le processus (actuellement les ZIP chiffrés) utilisent le cache privé, supprimé à la fermeture.
-- Choisir un budget d'extraction Compatible, Strict ou Personnalisé ; une archive qui dépasse les seuils d'entrées, de chemin, de taille de sortie ou de taux de compression reste consultable et affiche l'espace estimé et les risques avant une confirmation unique d'écriture.
-- Afficher la progression par éléments et octets, l'élément actuel, le débit et le temps restant estimé ; une annulation ou un échec restaure la nouvelle racine de sortie, et tout résidu refusé par le fournisseur est indiqué par nom et URI.
-- Placer les noms contenant une remontée vers le dossier parent, un chemin absolu, un préfixe de lecteur ou un caractère de contrôle dans un dossier Chemins non sûrs visible dans la barre de chemin ; les données lisibles restent prévisualisables et l'extraction complète exige d'ignorer explicitement ces entrées sans affecter les autres.
-- Parcourir, prévisualiser et extraire les TAR non compressés ; les liens symboliques ou physiques, les nœuds de périphérique et les entrées creuses restent listés sans être écrits comme des fichiers ordinaires.
-- Parcourir, prévisualiser et extraire les TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST avec les mêmes chemins internes, l'isolation des entrées spéciales et les contrôles d'intégrité.
-- Parcourir, prévisualiser et extraire les 7Z ordinaires ou solid, y compris les chaînes courantes de compression et de filtres ainsi que les entrées chiffrées dans le contenu ou l'en-tête ; un mot de passe absent ou erroné produit un diagnostic explicite.
-- Vérifier la structure ZIP/7Z/TAR réelle et unifier les capacités de prévisualisation, d'extraction et de création, en laissant désactivées les options non prises en charge.
-- Prendre en charge Zip64, les préambules auto-extractibles, les anciens encodages de noms et les séparateurs Windows.
-- Parcourir, prévisualiser et extraire les ensembles `.z01 + .zip` complets via des descripteurs voisins bornés et autorisés par l'hôte ; créer des ZIP fractionnés avec des tailles MiB prédéfinies ou personnalisées et signaler clairement les volumes absents ou modifiés.
-- Parcourir et extraire les ZIP protégés par ZipCrypto ou AES, réessayer un mot de passe erroné sur place et créer au choix des ZIP chiffrés en AES-256 dont les noms restent visibles ; la création chiffrée exige une confirmation identique du mot de passe.
-- Remplacer l'encodage des noms ZIP quand la détection automatique est incorrecte ; la navigation et l'extraction réutilisent le même choix.
-- Afficher le format, l'étape, un code stable et un motif clair en cas d'échec ; les versions de débogage peuvent copier le diagnostic complet.
-- Proposer « Compresser... » pour les fichiers, les dossiers et les sélections multiples de même dossier parent.
-- Créer une archive par élément d’une sélection partageant le même dossier parent ; le formulaire affiche le nombre de sorties et les noms dérivés, tandis que les noms existants ou répétés sont numérotés sans remplacement. Chaque sortie est validée séparément ; une annulation ou un échec conserve et signale les sorties terminées tout en bloquant une relance ambiguë du lot entier.
-- Créer des ZIP ordinaires ou fractionnés standard, ainsi que des 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST, avec un nom configurable et seulement les niveaux et options de mot de passe réellement pris en charge par le format choisi.
-- Écrire d'abord dans un fichier temporaire du même dossier puis valider atomiquement ; choisir la numérotation automatique ou essayer le nom exact et demander avant de réessayer avec un numéro, sans écraser les fichiers existants. Après réservation du nom, un instantané source borné est analysé avant l'ouverture de la sortie temporaire ; le formulaire distingue analyse, compression, vérification et validation, avec le total des fichiers, les octets lus et les tailles inconnues. Avant publication, la sortie encore masquée est relue intégralement pour vérifier le format, les entrées, les tailles, les CRC et les empreintes du contenu. Un échec de création ou de vérification annule la transaction ; si l'hôte ne peut pas confirmer le nettoyage, le formulaire affiche le chemin prévu et interdit une nouvelle tentative.
+- Parcourir ZIP/JAR/AAR/WAR, 7Z, RAR4/RAR5 et la famille TAR dans la liste native AutoJs6, avec chemin interne, recherche, tri et navigation Retour.
+- Quand le nom ne correspond pas à une archive prise en charge, proposer la vérification explicite Ouvrir comme archive... et afficher le format détecté dans la barre de chemin; les suffixes TAR composés exacts n'assimilent plus les flux `.gz`, `.xz`, `.bz2` ou `.zst` ordinaires à des archives TAR.
+- Prévisualiser les documents, images, sons et vidéos lisibles avec les visionneuses existantes de l'hôte, sans extraire toute l'archive.
+- Extraire toute l'archive, le dossier interne courant ou une sélection avec progression, annulation, noms de conflit sûrs, vérification et retour arrière avant publication.
+- Ouvrir et extraire les entrées ZIP, 7Z et RAR chiffrées avec une demande de mot de passe native; une erreur peut être corrigée sans perdre le chemin courant.
+- Corriger l'encodage des noms ZIP directement depuis la barre de chemin; la même session en lecture seule reconstruit son index et conserve si possible le chemin interne et la sélection disponibles.
+- Parcourir, prévisualiser et extraire les ensembles complets `.z01 + .zip`, WinRAR modernes `partN.rar`, `.zip.001` numérotés et `.7z.001` numérotés via des descripteurs frères bornés et autorisés par l'hôte; un volume absent ou modifié échoue explicitement.
+- Créer ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST depuis un élément ou une sélection de même parent; ZIP prend aussi en charge AES-256, les volumes standard et une archive par élément.
+- Les ZIP fractionnés standard et la compression séparée publient toutes les sorties physiques vérifiées dans un lot récupérable; un échec ou redémarrage de l'hôte n'est jamais présenté comme un résultat partiel réussi.
+- Modifier un ZIP ordinaire à volume unique par reconstruction vérifiée: ajouter des fichiers ou un arbre de dossiers, créer un dossier vide, renommer et supprimer, puis remplacer atomiquement la source.
+- Après une modification ZIP réussie, restaurer la version précédente depuis le message de réussite ou le menu de gestion; l'hôte propose une seule restauration pendant une rétention limitée et la refuse si une autre application a modifié la cible.
+- La page de gestion regroupe le format réel, les totaux du contenu, les modifications disponibles et la raison exacte du mode lecture seule; avant de réserver une sortie, chaque modification ZIP présente le travail réel, la reconstruction complète et les effets sur les métadonnées, tandis qu'une annulation ne crée aucune sortie en attente.
+- Isoler en lecture seule les noms dangereux, appliquer les limites structurelles et de ressources avant l'écriture, et lire directement le descripteur seekable de l'hôte lorsque possible.
+- Déplacer facultativement la sélection source complète vers la corbeille de l'hôte uniquement après vérification et validation de toutes les sorties physiques; cette option est désactivée par défaut et toute source modifiée ou preuve incomplète arrête l'opération avant la suppression des données source.
 
 ### Formats actuels
 
@@ -81,14 +68,11 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 ### Utilisation
 
-1. Installez le plugin et activez-le dans le centre de plugins AutoJs6.
-2. Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR.
-3. Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.
-4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu. Utilisez le dossier actuel recommandé ou choisissez-en un autre avec le sélecteur système Android, puis confirmez le chemin de sortie exact.
-5. Pour extraire le dossier interne courant, touchez le bouton d'extraction à droite de la barre de chemin. Pour extraire des entrées précises, maintenez une entrée, cochez les fichiers ou dossiers puis touchez « Extraire » dans la barre inférieure. Utilisez « Gérer l'archive... » ou « Extraire vers... » si un mot de passe, une correction d'encodage, une confirmation de chemin dangereux, une règle de conflit ou une autre destination est nécessaire.
-6. Pour modifier un ZIP ordinaire en un seul volume, choisissez « Gérer l'archive... » puis utilisez « Ajouter des fichiers... », « Ajouter un dossier... » pour importer toute une arborescence, « Nouveau dossier... » pour créer un dossier vide, « Renommer... » ou « Supprimer ». Attendez la reconstruction, la validation et le message de réussite avant de quitter la page.
-7. Avant l'extraction dans la page de gestion, choisissez comment traiter les noms de sortie équivalents. Demander à chaque fois permet d'appliquer une décision d'ignorer, d'écraser ou de renommer automatiquement à tous les conflits compatibles restants.
-8. Pour créer une archive, choisissez « Compresser... » dans le menu d'un fichier ou dossier, ou sélectionnez plusieurs éléments du même dossier et utilisez « Compresser... » dans la barre inférieure. Pour créer une archive par élément, activez « Compresser chaque élément séparément », vérifiez l’aperçu des sorties, puis lancez la création ; ce mode résout toujours les conflits par une numérotation automatique sûre. Pour ZIP, choisissez Aucun fractionnement, une valeur MiB courante ou un entier personnalisé de 1 à 4096 MiB ; si la sortie dépasse cette taille, elle comprend les volumes `.z01`, `.z02`, ... puis un `.zip` final, tandis qu'une sortie plus petite reste un seul `.zip`.
+1. Installez Archive Manager et activez-le dans le Centre de plugins AutoJs6.
+2. Touchez l'action principale d'une archive ou choisissez Ouvrir l'archive. Si son nom n'est pas reconnu, choisissez Ouvrir comme archive... dans le menu. Parcourez-la comme un dossier avec la barre de chemin, qui indique le format détecté lorsque le nom était trompeur.
+3. Utilisez l'action d'extraction de la barre de chemin pour le dossier interne courant ou l'action d'encodage pour corriger les noms ZIP, une pression longue pour extraire une sélection, ou Extraire vers... dans le menu du fichier pour toute l'archive. Le mot de passe est demandé si nécessaire.
+4. Choisissez Compresser... pour un fichier ou dossier, ou sélectionnez plusieurs éléments du même répertoire et utilisez l'action de la barre inférieure. Pour nettoyer les sources après réussite, activez explicitement l'option désactivée par défaut qui déplace les sources vers la corbeille après compression.
+5. Choisissez Gérer l'archive... uniquement pour ajouter, renommer ou supprimer du contenu dans un ZIP ordinaire à volume unique.
 
 ### Autorisations et données
 
@@ -112,6 +96,7 @@ _2026/08/28_
 
 - `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
 - `Ajout` Après une modification ZIP réussie, Restaurer la version précédente est proposé dans le message de réussite et le menu de gestion pour une restauration pendant la rétention limitée de l'hôte
+- `Correction` Les flux de sortie SAF demandent désormais explicitement la troncature, afin qu'un contenu plus court ne conserve pas les anciens octets de fin sur les versions récentes d'Android
 - `Amélioration` L'hôte conserve l'archive précédente dans un stockage privé durable, ne la restaure que si la cible est toujours le remplacement exact validé et garde les preuves d'une récupération interrompue sans écraser les changements externes
 
 #### v2.10.0
