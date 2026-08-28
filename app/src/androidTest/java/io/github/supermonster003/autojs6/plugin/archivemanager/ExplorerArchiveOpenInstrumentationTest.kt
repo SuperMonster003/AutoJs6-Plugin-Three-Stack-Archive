@@ -48,6 +48,71 @@ import java.util.zip.CRC32
 class ExplorerArchiveOpenInstrumentationTest {
 
     @Test
+    fun sessionReportsDetectedFormatForRecognizedAndDisguisedArchiveNames() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val root = File(context.cacheDir, "archive-open-format-${UUID.randomUUID()}")
+        assertTrue(root.mkdirs())
+        val serviceBinder = AtomicReference<IBinder>()
+        val connected = CountDownLatch(1)
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                serviceBinder.set(service)
+                connected.countDown()
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) = Unit
+        }
+        assertTrue(
+            context.bindService(
+                Intent(context, ExplorerActionService::class.java),
+                connection,
+                Context.BIND_AUTO_CREATE,
+            ),
+        )
+
+        try {
+            assertTrue("Timed out binding Explorer Action service", connected.await(10, TimeUnit.SECONDS))
+            val plugin = IExplorerActionPlugin.Stub.asInterface(requireNotNull(serviceBinder.get()))
+            listOf(
+                "recognized.zip" to true,
+                "disguised.data" to false,
+            ).forEach { (fileName, displayNameMatchesFormat) ->
+                val archive = File(root, fileName)
+                createStoredZip(archive, "format metadata".toByteArray())
+                var session: IExplorerArchiveSession? = null
+                try {
+                    val opened = openArchive(plugin, archive)
+                    assertEquals(
+                        opened.getString(ExplorerArchiveOpenKeys.ERROR_MESSAGE),
+                        ExplorerArchiveOpenValues.ERROR_NONE,
+                        opened.getInt(ExplorerArchiveOpenKeys.ERROR_CODE),
+                    )
+                    session = requireNotNull(
+                        IExplorerArchiveSession.Stub.asInterface(
+                            opened.getBinder(ExplorerArchiveOpenKeys.SESSION_BINDER),
+                        ),
+                    )
+                    val info = session.info()
+                    assertEquals(ArchiveFormat.ZIP.id, info.getString(ExplorerArchiveSessionKeys.FORMAT_ID))
+                    assertEquals(
+                        ArchiveFormat.ZIP.displayName,
+                        info.getString(ExplorerArchiveSessionKeys.FORMAT_DISPLAY_NAME),
+                    )
+                    assertEquals(
+                        displayNameMatchesFormat,
+                        info.getBoolean(ExplorerArchiveSessionKeys.DISPLAY_NAME_MATCHES_FORMAT),
+                    )
+                } finally {
+                    session?.close()
+                }
+            }
+        } finally {
+            context.unbindService(connection)
+            root.deleteRecursively()
+        }
+    }
+
+    @Test
     fun externalSolidSevenZStreamsOnTheDeviceRuntime() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val archive = File(context.cacheDir, "archive-open-solid.7z")

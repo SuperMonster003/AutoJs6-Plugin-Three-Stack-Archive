@@ -14,6 +14,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionValues
 internal object ArchiveManagerPlugin {
     const val ID = "archive-manager"
     const val ACTION_OPEN_ID = "open-archive"
+    const val ACTION_OPEN_AS_ARCHIVE_ID = "open-as-archive"
     const val ACTION_MANAGE_ID = "manage-archive"
     const val ACTION_EXTRACT_TO_ID = "extract-to"
     const val ACTION_COMPRESS_SINGLE_ID = "compress"
@@ -22,6 +23,8 @@ internal object ArchiveManagerPlugin {
     const val REQUIRED_HOST_VERSION = 5276L
     const val OPEN_LABEL_RESOURCE_NAME = "action_open_archive"
     const val OPEN_LABEL_FALLBACK = "Open archive"
+    const val OPEN_AS_ARCHIVE_LABEL_RESOURCE_NAME = "action_open_as_archive"
+    const val OPEN_AS_ARCHIVE_LABEL_FALLBACK = "Open as archive..."
     const val MANAGE_LABEL_RESOURCE_NAME = "action_manage_archive"
     const val MANAGE_LABEL_FALLBACK = "Manage archive..."
     const val EXTRACT_TO_LABEL_RESOURCE_NAME = "action_extract_to"
@@ -35,6 +38,7 @@ internal object ArchiveManagerPlugin {
     const val OPEN_ACTION_PRIORITY = 80
     const val MANAGE_ACTION_PRIORITY = 75
     const val EXTRACT_TO_ACTION_PRIORITY = 70
+    const val OPEN_AS_ARCHIVE_ACTION_PRIORITY = 65
     const val COMPRESS_ACTION_PRIORITY = 60
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
     val MANAGE_EXTENSIONS = arrayOf(ArchiveFormat.ZIP.primaryExtension)
@@ -47,6 +51,13 @@ internal object ArchiveManagerPlugin {
         .toTypedArray()
     val EXTENSIONS = ArchiveEngine.DEFAULT.readableFormats
         .flatMap(ArchiveFormat::catalogExtensions)
+        .distinct()
+        .sorted()
+        .toTypedArray()
+    val FILE_NAME_SUFFIXES = (
+        ArchiveEngine.DEFAULT.readableFormats.flatMap(ArchiveFormat::catalogFileNameSuffixes) +
+            NUMBERED_VOLUME_FILE_NAME_SUFFIXES
+        )
         .distinct()
         .sorted()
         .toTypedArray()
@@ -107,6 +118,18 @@ internal fun archiveManagerActionCatalog(): Bundle {
             accessMode = ExplorerActionValues.ACCESS_CREATE_IN_PARENT,
         ),
         archiveManagerAction(
+            id = ArchiveManagerPlugin.ACTION_OPEN_AS_ARCHIVE_ID,
+            labelResourceName = ArchiveManagerPlugin.OPEN_AS_ARCHIVE_LABEL_RESOURCE_NAME,
+            labelFallback = ArchiveManagerPlugin.OPEN_AS_ARCHIVE_LABEL_FALLBACK,
+            priority = ArchiveManagerPlugin.OPEN_AS_ARCHIVE_ACTION_PRIORITY,
+            placement = ExplorerActionValues.PLACEMENT_OVERFLOW,
+            presentation = ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+            mimeTypes = emptyArray(),
+            extensions = emptyArray(),
+            fileNameSuffixes = emptyArray(),
+            probeForActionId = ArchiveManagerPlugin.ACTION_OPEN_ID,
+        ),
+        archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID,
             labelResourceName = ArchiveManagerPlugin.COMPRESS_LABEL_RESOURCE_NAME,
             labelFallback = ArchiveManagerPlugin.COMPRESS_LABEL_FALLBACK,
@@ -154,7 +177,8 @@ private fun archiveManagerAction(
     presentation: Int = ExplorerActionValues.PRESENTATION_ACTIVITY,
     mimeTypes: Array<String> = ArchiveManagerPlugin.MIME_TYPES,
     extensions: Array<String> = ArchiveManagerPlugin.EXTENSIONS,
-    fileNameSuffixes: Array<String> = ArchiveManagerPlugin.NUMBERED_VOLUME_FILE_NAME_SUFFIXES,
+    fileNameSuffixes: Array<String> = ArchiveManagerPlugin.FILE_NAME_SUFFIXES,
+    probeForActionId: String? = null,
 ) = Bundle().apply {
     putString(ExplorerActionCatalogKeys.ID, id)
     putString(ExplorerActionCatalogKeys.LABEL_RESOURCE_NAME, labelResourceName)
@@ -178,4 +202,7 @@ private fun archiveManagerAction(
         ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES,
         ArrayList(fileNameSuffixes.asList()),
     )
+    probeForActionId?.let { actionId ->
+        putString(ExplorerActionCatalogKeys.PROBE_FOR_ACTION_ID, actionId)
+    }
 }

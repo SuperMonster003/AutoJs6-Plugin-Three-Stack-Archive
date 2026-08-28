@@ -132,6 +132,13 @@ internal class ExplorerArchiveSession(
             putString(ExplorerArchiveSessionKeys.SESSION_ID, sessionId)
             putString(ExplorerArchiveSessionKeys.ROOT_ID, rootId)
             putString(ExplorerArchiveSessionKeys.DISPLAY_NAME, displayName)
+            putString(ExplorerArchiveSessionKeys.FORMAT_ID, snapshot.format.id)
+            putString(ExplorerArchiveSessionKeys.FORMAT_DISPLAY_NAME, snapshot.format.displayName)
+            putBoolean(
+                ExplorerArchiveSessionKeys.DISPLAY_NAME_MATCHES_FORMAT,
+                snapshot.format.matchesFileName(displayName) ||
+                    NumberedArchiveVolumePolicy.inspectFirstVolume(displayName)?.format == snapshot.format,
+            )
             putLong(ExplorerArchiveSessionKeys.SOURCE_SIZE, stagedArchive.bytes)
             putLong(
                 ExplorerArchiveSessionKeys.SOURCE_LAST_MODIFIED,

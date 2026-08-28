@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">開啟壓縮檔</string>
+    <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">作為壓縮檔案開啟...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">管理壓縮檔案...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解壓縮到...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">壓縮...</string>

@@ -61,6 +61,11 @@ class ArchiveEngineTest {
             engine.readableFormats.flatMap(ArchiveFormat::mimeTypes).toSet(),
             ArchiveManagerPlugin.MIME_TYPES.toSet(),
         )
+        assertEquals(
+            engine.readableFormats.flatMap(ArchiveFormat::catalogFileNameSuffixes).toSet() +
+                NumberedArchiveVolumePolicy.fileNameSuffixes.toSet(),
+            ArchiveManagerPlugin.FILE_NAME_SUFFIXES.toSet(),
+        )
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
         assertFalse(ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations)
     }
@@ -149,20 +154,24 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `compressed tar formats retain compound suffixes and publish host leaf extensions`() {
+    fun `compressed tar formats publish exact compound suffixes without generic stream leaves`() {
         assertEquals("application/x-tar", ArchiveFormat.TAR.primaryMimeType)
         assertEquals("application/x-compressed-tar", ArchiveFormat.TAR_GZIP.primaryMimeType)
         assertEquals("application/x-xz-compressed-tar", ArchiveFormat.TAR_XZ.primaryMimeType)
         assertEquals("application/x-bzip2-compressed-tar", ArchiveFormat.TAR_BZIP2.primaryMimeType)
         assertEquals("application/x-zstd-compressed-tar", ArchiveFormat.TAR_ZSTD.primaryMimeType)
         assertEquals(setOf("tar.gz", "tgz"), ArchiveFormat.TAR_GZIP.extensions)
-        assertEquals(setOf("gz", "tgz"), ArchiveFormat.TAR_GZIP.catalogExtensions)
+        assertEquals(setOf("tgz"), ArchiveFormat.TAR_GZIP.catalogExtensions)
+        assertEquals(setOf("tar.gz"), ArchiveFormat.TAR_GZIP.catalogFileNameSuffixes)
         assertEquals(setOf("tar.xz", "txz"), ArchiveFormat.TAR_XZ.extensions)
-        assertEquals(setOf("xz", "txz"), ArchiveFormat.TAR_XZ.catalogExtensions)
+        assertEquals(setOf("txz"), ArchiveFormat.TAR_XZ.catalogExtensions)
+        assertEquals(setOf("tar.xz"), ArchiveFormat.TAR_XZ.catalogFileNameSuffixes)
         assertEquals(setOf("tar.bz2", "tbz2"), ArchiveFormat.TAR_BZIP2.extensions)
-        assertEquals(setOf("bz2", "tbz2"), ArchiveFormat.TAR_BZIP2.catalogExtensions)
+        assertEquals(setOf("tbz2"), ArchiveFormat.TAR_BZIP2.catalogExtensions)
+        assertEquals(setOf("tar.bz2"), ArchiveFormat.TAR_BZIP2.catalogFileNameSuffixes)
         assertEquals(setOf("tar.zst", "tzst"), ArchiveFormat.TAR_ZSTD.extensions)
-        assertEquals(setOf("zst", "tzst"), ArchiveFormat.TAR_ZSTD.catalogExtensions)
+        assertEquals(setOf("tzst"), ArchiveFormat.TAR_ZSTD.catalogExtensions)
+        assertEquals(setOf("tar.zst"), ArchiveFormat.TAR_ZSTD.catalogFileNameSuffixes)
         assertTrue(ArchiveFormat.TAR_GZIP.matchesFileName("ARCHIVE.TAR.GZ"))
         assertTrue(ArchiveFormat.TAR_XZ.matchesFileName("archive.txz"))
         assertTrue(ArchiveFormat.TAR_BZIP2.matchesFileName("archive.TAR.BZ2"))

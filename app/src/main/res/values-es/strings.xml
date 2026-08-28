@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Abrir archivo comprimido</string>
+    <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">Abrir como archivo comprimido...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Gestionar archivo...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>

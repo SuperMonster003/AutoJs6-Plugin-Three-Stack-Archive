@@ -51,14 +51,16 @@ class PluginContractInstrumentationTest {
             it.getString(ExplorerActionCatalogKeys.ID)
         }
         val openAction = actionsById[ArchiveManagerPlugin.ACTION_OPEN_ID]
+        val openAsArchiveAction = actionsById[ArchiveManagerPlugin.ACTION_OPEN_AS_ARCHIVE_ID]
         val manageAction = actionsById[ArchiveManagerPlugin.ACTION_MANAGE_ID]
         val extractToAction = actionsById[ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID]
         val compressSingleAction = actionsById[ArchiveManagerPlugin.ACTION_COMPRESS_SINGLE_ID]
         val compressMultipleAction = actionsById[ArchiveManagerPlugin.ACTION_COMPRESS_MULTIPLE_ID]
 
         assertEquals(ExplorerActionProtocol.VERSION, catalog.getInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION))
-        assertEquals(5, actionsById.size)
+        assertEquals(6, actionsById.size)
         assertNotNull(openAction)
+        assertNotNull(openAsArchiveAction)
         assertNotNull(manageAction)
         assertNotNull(extractToAction)
         assertNotNull(compressSingleAction)
@@ -94,6 +96,7 @@ class PluginContractInstrumentationTest {
             ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
             ExplorerActionValues.ACCESS_READ_ONLY,
         )
+        assertUnmatchedFileProbe(requireNotNull(openAsArchiveAction))
         assertManageFileAction(requireNotNull(manageAction))
         assertCommonFileAction(
             requireNotNull(extractToAction),
@@ -135,6 +138,33 @@ class PluginContractInstrumentationTest {
             action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES)
                 .orEmpty()
                 .isEmpty(),
+        )
+    }
+
+    private fun assertUnmatchedFileProbe(action: Bundle) {
+        assertEquals(
+            ArchiveManagerPlugin.ACTIVITY_CLASS_NAME,
+            action.getString(ExplorerActionCatalogKeys.ACTIVITY_CLASS_NAME),
+        )
+        assertEquals(ExplorerActionValues.TARGET_FILE, action.getInt(ExplorerActionCatalogKeys.TARGET_KIND))
+        assertEquals(
+            ExplorerActionValues.CARDINALITY_SINGLE,
+            action.getInt(ExplorerActionCatalogKeys.CARDINALITY),
+        )
+        assertEquals(ExplorerActionValues.ACCESS_READ_ONLY, action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE))
+        assertEquals(ExplorerActionValues.PLACEMENT_OVERFLOW, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
+        assertEquals(
+            ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+            action.getInt(ExplorerActionCatalogKeys.PRESENTATION),
+        )
+        assertTrue(action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES).orEmpty().isEmpty())
+        assertTrue(action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS).orEmpty().isEmpty())
+        assertTrue(
+            action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES).orEmpty().isEmpty(),
+        )
+        assertEquals(
+            ArchiveManagerPlugin.ACTION_OPEN_ID,
+            action.getString(ExplorerActionCatalogKeys.PROBE_FOR_ACTION_ID),
         )
     }
 
@@ -199,7 +229,7 @@ class PluginContractInstrumentationTest {
             action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS),
         )
         assertEquals(
-            ArchiveManagerPlugin.NUMBERED_VOLUME_FILE_NAME_SUFFIXES.toList(),
+            ArchiveManagerPlugin.FILE_NAME_SUFFIXES.toList(),
             action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES),
         )
     }

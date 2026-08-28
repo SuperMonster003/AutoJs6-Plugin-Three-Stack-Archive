@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">Open archive</string>
+    <string name="action_open_as_archive" tools:ignore="TypographyEllipsis,UnusedResources">Open as archive...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Manage archive...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>

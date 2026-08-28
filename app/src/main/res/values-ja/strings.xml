@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_open_archive">アーカイブを開く</string>
+    <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">アーカイブとして開く...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">アーカイブを管理...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">展開先...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">圧縮...</string>

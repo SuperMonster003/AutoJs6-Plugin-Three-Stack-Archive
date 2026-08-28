@@ -95,9 +95,13 @@ enum class ArchiveFormat(
     ),
     ;
 
-    /** Leaf extensions accepted by the host catalog protocol. */
+    /** Leaf extensions accepted by the host catalog protocol without overmatching compound names. */
     val catalogExtensions: Set<String>
-        get() = extensions.mapTo(linkedSetOf()) { it.substringAfterLast('.') }
+        get() = extensions.filterTo(linkedSetOf()) { '.' !in it }
+
+    /** Compound suffixes matched against the complete file name by Explorer Action v14 or later. */
+    val catalogFileNameSuffixes: Set<String>
+        get() = extensions.filterTo(linkedSetOf()) { '.' in it }
 
     val isTarFamily: Boolean
         get() = this == TAR ||
