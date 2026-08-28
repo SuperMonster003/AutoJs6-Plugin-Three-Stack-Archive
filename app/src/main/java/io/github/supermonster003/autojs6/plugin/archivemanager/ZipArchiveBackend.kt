@@ -9,8 +9,9 @@ import java.nio.charset.IllegalCharsetNameException
 import java.nio.charset.UnsupportedCharsetException
 import java.util.zip.ZipException
 
-internal object ZipArchiveBackend : ArchiveBackend {
+internal object ZipArchiveBackend : ArchiveMutationBackend {
     override val format = ArchiveFormat.ZIP
+    override val mutationCapabilities = ZIP_MUTATION_CAPABILITIES
 
     override val capabilities = FormatCapabilities(
         canDetect = true,
@@ -83,6 +84,15 @@ internal object ZipArchiveBackend : ArchiveBackend {
         session: IExplorerActionHostSession,
         cacheDirectory: File?,
     ): ArchiveWriter = ZipArchiveCreator(session, cacheDirectory)
+
+    override fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        zipMutationAvailability(snapshot)
+
+    override fun createMutationProvider(
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+        engine: ArchiveEngine,
+    ): ArchiveMutationProvider = ZipArchiveMutationProvider(session, cacheDirectory, engine)
 
     private fun mapOpenFailure(source: ArchiveReadSource, error: Throwable): ArchiveBackendException {
         if (error is ArchiveBackendException) return error

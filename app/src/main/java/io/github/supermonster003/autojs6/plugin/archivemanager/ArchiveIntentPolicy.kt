@@ -42,6 +42,7 @@ internal object ArchiveIntentPolicy {
 
     private val supportedMimeTypes = ArchiveManagerPlugin.MIME_TYPES.toSet()
     private val supportedFormats = ArchiveEngine.DEFAULT.readableFormats
+    private val mutationFormats = ArchiveEngine.DEFAULT.mutationFormats
 
     fun resolve(intent: Intent): ArchiveOpenRequest? {
         if (!ExplorerActionIntentSizePolicy.isSafe(intent)) return null
@@ -117,7 +118,7 @@ internal object ArchiveIntentPolicy {
         if (!isSupportedArchive(targetMimeType, displayName)) return null
         if (
             requestedAction == ArchiveRequestedAction.MANAGE &&
-            !isSupportedZipArchive(displayName)
+            !isSupportedMutableArchive(displayName)
         ) {
             return null
         }
@@ -171,9 +172,12 @@ internal object ArchiveIntentPolicy {
             NumberedArchiveVolumePolicy.matchesFirstVolume(displayName)
     }
 
-    private fun isSupportedZipArchive(displayName: String): Boolean =
-        displayName.substringAfterLast('.', missingDelimiterValue = "")
-            .equals(ArchiveFormat.ZIP.primaryExtension, ignoreCase = true)
+    private fun isSupportedMutableArchive(displayName: String): Boolean {
+        val normalized = displayName.lowercase(Locale.ROOT)
+        return mutationFormats.any { format ->
+            normalized.endsWith(".${format.primaryExtension}")
+        }
+    }
 
     private fun isUsableContentUri(uri: Uri): Boolean =
         uri.isHierarchical &&

@@ -68,6 +68,34 @@ class ArchiveEngineTest {
         )
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
         assertFalse(ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations)
+        assertEquals(listOf(ArchiveFormat.ZIP), engine.mutationFormats)
+        assertEquals(
+            engine.mutationFormats
+                .map(ArchiveFormat::primaryExtension)
+                .filterNot { '.' in it }
+                .sorted(),
+            ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
+        )
+        assertEquals(
+            engine.mutationFormats
+                .map(ArchiveFormat::primaryExtension)
+                .filter { '.' in it }
+                .sorted(),
+            ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
+        )
+        val mutation = requireNotNull(engine.mutationCapabilities(ArchiveFormat.ZIP))
+        assertEquals(
+            setOf(ArchiveOperation.ADD, ArchiveOperation.DELETE, ArchiveOperation.RENAME),
+            mutation.operations,
+        )
+        assertEquals(ArchiveMutationStrategy.FULL_REWRITE, mutation.strategy)
+        assertEquals(8, mutation.minimumHostProtocolVersion)
+        assertTrue(
+            ArchiveMutationMetadataEffect.EXTRA_FIELDS_NORMALIZED in mutation.metadataEffects,
+        )
+        assertTrue(
+            ArchiveMutationMetadataEffect.UNIX_ATTRIBUTES_DROPPED in mutation.metadataEffects,
+        )
     }
 
     @Test
@@ -113,6 +141,7 @@ class ArchiveEngineTest {
             assertTrue(capabilities.filenameCharsetNames.isEmpty())
             assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
             assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
+            assertEquals(null, engine.mutationCapabilities(format))
         }
     }
 
@@ -129,6 +158,7 @@ class ArchiveEngineTest {
         assertFalse(capabilities.supports(ArchiveOperation.ADD))
         assertFalse(capabilities.supports(ArchiveOperation.DELETE))
         assertFalse(capabilities.supports(ArchiveOperation.RENAME))
+        assertEquals(null, ArchiveEngine.DEFAULT.mutationCapabilities(ArchiveFormat.SEVEN_Z))
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)

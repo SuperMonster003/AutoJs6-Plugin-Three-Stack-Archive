@@ -46,16 +46,16 @@ class SafDirectoryTreeImporterInstrumentationTest {
                 "Bundle/note.txt",
                 "Bundle/Nested/data.bin",
             ),
-            entries.map(ZipArchiveAddedTreeEntry::relativePath),
+            entries.map(ArchiveMutationAddedTreeEntry::relativePath),
         )
-        assertTrue(entries[1] is ZipArchiveAddedTreeEntry.Directory)
-        val note = entries[3] as ZipArchiveAddedTreeEntry.FileEntry
+        assertTrue(entries[1] is ArchiveMutationAddedTreeEntry.Directory)
+        val note = entries[3] as ArchiveMutationAddedTreeEntry.FileEntry
         assertEquals(4L, note.file.size)
         assertArrayEquals(
             byteArrayOf(1, 2, 3, 4),
             note.file.openInputStream().use { it.readBytes() },
         )
-        val nested = entries[4] as ZipArchiveAddedTreeEntry.FileEntry
+        val nested = entries[4] as ArchiveMutationAddedTreeEntry.FileEntry
         assertArrayEquals(
             "nested".encodeToByteArray(),
             nested.file.openInputStream().use { it.readBytes() },

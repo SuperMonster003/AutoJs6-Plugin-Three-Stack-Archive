@@ -9,11 +9,12 @@ import java.util.ArrayDeque
 import java.util.concurrent.CancellationException
 
 /**
- * Takes a bounded, deterministic snapshot of one SAF directory tree for a single ZIP mutation.
+ * Takes a bounded, deterministic snapshot of one SAF directory tree for an archive mutation.
  * File contents remain lazy and are opened only while the replacement archive is written.
  */
 internal class SafDirectoryTreeImporter(
     private val contentResolver: ContentResolver,
+    private val format: ArchiveFormat = ArchiveFormat.ZIP,
     limits: ArchiveStructureLimits = ArchiveStructureLimits.DEFAULT,
     private val maxEntries: Int = minOf(limits.maxEntries, MAX_IMPORT_ENTRIES),
     private val maxPathCharacters: Long = MAX_IMPORT_PATH_CHARACTERS,
@@ -28,7 +29,7 @@ internal class SafDirectoryTreeImporter(
     fun scan(
         treeUri: Uri,
         checkCancelled: () -> Unit,
-    ): List<ZipArchiveAddedTreeEntry> = try {
+    ): List<ArchiveMutationAddedTreeEntry> = try {
         scanChecked(treeUri, checkCancelled)
     } catch (cancelled: CancellationException) {
         throw cancelled
@@ -41,7 +42,7 @@ internal class SafDirectoryTreeImporter(
     private fun scanChecked(
         treeUri: Uri,
         checkCancelled: () -> Unit,
-    ): List<ZipArchiveAddedTreeEntry> {
+    ): List<ArchiveMutationAddedTreeEntry> {
         checkCancelled()
         if (
             !treeUri.isHierarchical ||
@@ -60,8 +61,8 @@ internal class SafDirectoryTreeImporter(
         val rootName = requireLeafName(root.displayName)
         val rootPath = validatedPath(rootName, isDirectory = true)
 
-        val entries = ArrayList<ZipArchiveAddedTreeEntry>(minOf(maxEntries, INITIAL_CAPACITY))
-        entries += ZipArchiveAddedTreeEntry.Directory(rootPath, root.lastModified)
+        val entries = ArrayList<ArchiveMutationAddedTreeEntry>(minOf(maxEntries, INITIAL_CAPACITY))
+        entries += ArchiveMutationAddedTreeEntry.Directory(rootPath, root.lastModified)
         var pathCharacters = rootPath.length.toLong()
         val visitedDocumentIds = hashSetOf(rootId)
         val pending = ArrayDeque<PendingDirectory>()
@@ -100,7 +101,7 @@ internal class SafDirectoryTreeImporter(
                     invalid(ArchiveFailureCode.PATH_LIMIT_EXCEEDED, "Folder path metadata is too large")
                 }
                 if (child.isDirectory) {
-                    entries += ZipArchiveAddedTreeEntry.Directory(
+                    entries += ArchiveMutationAddedTreeEntry.Directory(
                         relativePath = relativePath,
                         lastModified = child.lastModified,
                     )
@@ -110,9 +111,9 @@ internal class SafDirectoryTreeImporter(
                         treeUri,
                         child.documentId,
                     )
-                    entries += ZipArchiveAddedTreeEntry.FileEntry(
+                    entries += ArchiveMutationAddedTreeEntry.FileEntry(
                         relativePath = relativePath,
-                        file = ZipArchiveAddedFile(
+                        file = ArchiveMutationAddedFile(
                             displayName = leaf,
                             size = child.size,
                             lastModified = child.lastModified,
@@ -262,7 +263,7 @@ internal class SafDirectoryTreeImporter(
             code = ArchiveFailureCode.SOURCE_UNREADABLE,
             message = message,
             cause = cause,
-            format = ArchiveFormat.ZIP,
+            format = format,
             stage = ArchiveFailureStage.INPUT,
         )
 
@@ -270,7 +271,7 @@ internal class SafDirectoryTreeImporter(
         throw ArchiveValidationException(
             code = code,
             message = message,
-            format = ArchiveFormat.ZIP,
+            format = format,
             stage = ArchiveFailureStage.INPUT,
         )
 

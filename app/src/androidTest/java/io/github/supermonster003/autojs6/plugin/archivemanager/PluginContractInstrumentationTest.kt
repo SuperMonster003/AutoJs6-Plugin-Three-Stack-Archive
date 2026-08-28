@@ -134,10 +134,9 @@ class PluginContractInstrumentationTest {
         )
         assertEquals(listOf("*/*"), action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES))
         assertTrue(action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS).orEmpty().isEmpty())
-        assertTrue(
-            action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES)
-                .orEmpty()
-                .isEmpty(),
+        assertEquals(
+            ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
+            action.getStringArrayList(ExplorerActionCatalogKeys.FILE_NAME_SUFFIXES),
         )
     }
 

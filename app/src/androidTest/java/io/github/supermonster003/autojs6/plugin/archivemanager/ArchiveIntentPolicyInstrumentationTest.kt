@@ -110,7 +110,7 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
-    fun manageArchiveRejectsNonZipFormatsEvenWithAHostSession() {
+    fun manageArchiveRejectsFormatsWithoutAMutationProvider() {
         val hostSession = UnusedTestExplorerActionHostSession()
         val resolved = ArchiveIntentPolicy.resolve(
             Intent(validIntent())

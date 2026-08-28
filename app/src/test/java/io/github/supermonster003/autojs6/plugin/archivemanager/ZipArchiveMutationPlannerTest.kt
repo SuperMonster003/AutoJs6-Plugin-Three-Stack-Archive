@@ -25,19 +25,72 @@ class ZipArchiveMutationPlannerTest {
 
     @Test
     fun `deleting an implicit directory removes every descendant`() {
+        val source = snapshot()
         val plan = ZipArchiveMutationPlanner.plan(
-            snapshot(),
-            ZipArchiveMutationRequest.Delete(setOf("docs")),
+            source,
+            ArchiveMutationRequest.Delete(setOf("docs")),
         )
 
         assertEquals(listOf("root.bin"), plan.entries.map(ZipArchiveMutationEntry::archivePath))
+        assertEquals(ArchiveFormat.ZIP, plan.format)
+        assertEquals(ArchiveOperation.DELETE, plan.operation)
+        assertEquals(1, plan.workEstimate.resultEntryCount)
+        assertEquals(1, plan.workEstimate.resultFileCount)
+        assertEquals(0, plan.workEstimate.resultDirectoryCount)
+        assertEquals(3L, plan.workEstimate.knownContentBytesToRead)
+        assertEquals(0, plan.workEstimate.unknownContentFileCount)
+        assertTrue(plan.sourceVersion.matches(source))
+        assertFalse(
+            plan.sourceVersion.matches(
+                source.copy(sourceLastModifiedMillis = source.sourceLastModifiedMillis + 1L),
+            ),
+        )
+        assertTrue(
+            ArchiveMutationMetadataEffect.ARCHIVE_COMMENT_DROPPED in plan.metadataEffects,
+        )
+    }
+
+    @Test
+    fun `engine exposes bounded zip mutation availability without overclaiming variants`() {
+        val ordinary = snapshot()
+        val engine = ArchiveEngine.DEFAULT
+
+        val available = engine.mutationAvailability(ordinary)
+        assertTrue(available.isAvailable)
+        assertEquals(ZIP_MUTATION_CAPABILITIES, available.capabilities)
+
+        val multiVolume = ordinary.copy(
+            volumeIdentities = listOf(
+                ArchiveVolumeIdentity("archive.z01", 1L, 2L),
+                ArchiveVolumeIdentity("archive.zip", ordinary.sourceLength, 3L),
+            ),
+        )
+        val multiVolumeAvailability = engine.mutationAvailability(multiVolume)
+        assertFalse(multiVolumeAvailability.isAvailable)
+        assertEquals(
+            ArchiveMutationUnavailableReason.MULTI_VOLUME_ARCHIVE,
+            multiVolumeAvailability.unavailableReason,
+        )
+
+        val unsafe = ordinary.copy(
+            entries = ordinary.entries.mapIndexed { index, entry ->
+                if (index == 0) entry.copy(pathStatus = ArchiveEntryPathStatus.UNSAFE_ISOLATED)
+                else entry
+            },
+        )
+        val unsafeAvailability = engine.mutationAvailability(unsafe)
+        assertFalse(unsafeAvailability.isAvailable)
+        assertEquals(
+            ArchiveMutationUnavailableReason.UNSAFE_ENTRY_PATH,
+            unsafeAvailability.unavailableReason,
+        )
     }
 
     @Test
     fun `renaming an implicit directory rewrites descendant paths in source order`() {
         val plan = ZipArchiveMutationPlanner.plan(
             snapshot(),
-            ZipArchiveMutationRequest.Rename("docs", "manual"),
+            ArchiveMutationRequest.Rename("docs", "manual"),
         )
 
         assertEquals(
@@ -51,7 +104,7 @@ class ZipArchiveMutationPlannerTest {
     fun `adds an explicit directory beneath an implicit parent`() {
         val plan = ZipArchiveMutationPlanner.plan(
             snapshot(),
-            ZipArchiveMutationRequest.AddDirectory("docs", "drafts"),
+            ArchiveMutationRequest.AddDirectory("docs", "drafts"),
         )
 
         val added = plan.entries.last()
@@ -65,10 +118,10 @@ class ZipArchiveMutationPlannerTest {
         var opened = false
         val plan = ZipArchiveMutationPlanner.plan(
             snapshot(),
-            ZipArchiveMutationRequest.AddFiles(
+            ArchiveMutationRequest.AddFiles(
                 parentPath = "docs",
                 files = listOf(
-                    ZipArchiveAddedFile("notes.txt", size = 5L) {
+                    ArchiveMutationAddedFile("notes.txt", size = 5L) {
                         opened = true
                         ByteArrayInputStream("notes".encodeToByteArray())
                     },
@@ -86,14 +139,14 @@ class ZipArchiveMutationPlannerTest {
         var opened = false
         val plan = ZipArchiveMutationPlanner.plan(
             snapshot(),
-            ZipArchiveMutationRequest.AddTree(
+            ArchiveMutationRequest.AddTree(
                 parentPath = "docs",
                 entries = listOf(
-                    ZipArchiveAddedTreeEntry.Directory("bundle", lastModified = 10L),
-                    ZipArchiveAddedTreeEntry.Directory("bundle/empty", lastModified = 20L),
-                    ZipArchiveAddedTreeEntry.FileEntry(
+                    ArchiveMutationAddedTreeEntry.Directory("bundle", lastModified = 10L),
+                    ArchiveMutationAddedTreeEntry.Directory("bundle/empty", lastModified = 20L),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
                         relativePath = "bundle/notes.txt",
-                        file = ZipArchiveAddedFile("notes.txt", size = 5L, lastModified = 30L) {
+                        file = ArchiveMutationAddedFile("notes.txt", size = 5L, lastModified = 30L) {
                             opened = true
                             ByteArrayInputStream("notes".encodeToByteArray())
                         },
@@ -116,13 +169,13 @@ class ZipArchiveMutationPlannerTest {
     fun `auto renames an imported root instead of merging with existing archive content`() {
         val plan = ZipArchiveMutationPlanner.plan(
             snapshot(),
-            ZipArchiveMutationRequest.AddTree(
+            ArchiveMutationRequest.AddTree(
                 parentPath = "",
                 entries = listOf(
-                    ZipArchiveAddedTreeEntry.Directory("docs"),
-                    ZipArchiveAddedTreeEntry.FileEntry(
+                    ArchiveMutationAddedTreeEntry.Directory("docs"),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
                         "docs/new.txt",
-                        ZipArchiveAddedFile("new.txt") {
+                        ArchiveMutationAddedFile("new.txt") {
                             ByteArrayInputStream(byteArrayOf(9))
                         },
                     ),
@@ -138,13 +191,13 @@ class ZipArchiveMutationPlannerTest {
 
     @Test
     fun `rejects folder trees with missing parents or more than one root`() {
-        val missingParent = ZipArchiveMutationRequest.AddTree(
+        val missingParent = ArchiveMutationRequest.AddTree(
             parentPath = "",
             entries = listOf(
-                ZipArchiveAddedTreeEntry.Directory("bundle"),
-                ZipArchiveAddedTreeEntry.FileEntry(
+                ArchiveMutationAddedTreeEntry.Directory("bundle"),
+                ArchiveMutationAddedTreeEntry.FileEntry(
                     "bundle/missing/file.txt",
-                    ZipArchiveAddedFile("file.txt") { ByteArrayInputStream(byteArrayOf(1)) },
+                    ArchiveMutationAddedFile("file.txt") { ByteArrayInputStream(byteArrayOf(1)) },
                 ),
             ),
         )
@@ -152,11 +205,11 @@ class ZipArchiveMutationPlannerTest {
             ZipArchiveMutationPlanner.plan(snapshot(), missingParent)
         }
 
-        val multipleRoots = ZipArchiveMutationRequest.AddTree(
+        val multipleRoots = ArchiveMutationRequest.AddTree(
             parentPath = "",
             entries = listOf(
-                ZipArchiveAddedTreeEntry.Directory("one"),
-                ZipArchiveAddedTreeEntry.Directory("two"),
+                ArchiveMutationAddedTreeEntry.Directory("one"),
+                ArchiveMutationAddedTreeEntry.Directory("two"),
             ),
         )
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
@@ -171,7 +224,7 @@ class ZipArchiveMutationPlannerTest {
         ) {
             ZipArchiveMutationPlanner.plan(
                 snapshot(),
-                ZipArchiveMutationRequest.Rename("docs", "root.bin"),
+                ArchiveMutationRequest.Rename("docs", "root.bin"),
             )
         }
     }
@@ -181,10 +234,10 @@ class ZipArchiveMutationPlannerTest {
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.FILE_DIRECTORY_CONFLICT) {
             ZipArchiveMutationPlanner.plan(
                 snapshot(),
-                ZipArchiveMutationRequest.AddFiles(
+                ArchiveMutationRequest.AddFiles(
                     parentPath = "",
                     files = listOf(
-                        ZipArchiveAddedFile("docs") { ByteArrayInputStream(ByteArray(0)) },
+                        ArchiveMutationAddedFile("docs") { ByteArrayInputStream(ByteArray(0)) },
                     ),
                 ),
             )
@@ -206,10 +259,10 @@ class ZipArchiveMutationPlannerTest {
             expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.DUPLICATE_PATH) {
                 ZipArchiveMutationPlanner.plan(
                     archive,
-                    ZipArchiveMutationRequest.AddFiles(
+                    ArchiveMutationRequest.AddFiles(
                         parentPath = "",
                         files = listOf(
-                            ZipArchiveAddedFile(displayName) {
+                            ArchiveMutationAddedFile(displayName) {
                                 ByteArrayInputStream(byteArrayOf(3))
                             },
                         ),
@@ -231,7 +284,7 @@ class ZipArchiveMutationPlannerTest {
 
         val plan = ZipArchiveMutationPlanner.plan(
             archive,
-            ZipArchiveMutationRequest.AddDirectory("", "other"),
+            ArchiveMutationRequest.AddDirectory("", "other"),
         )
 
         assertEquals(
@@ -253,7 +306,7 @@ class ZipArchiveMutationPlannerTest {
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
             ZipArchiveMutationPlanner.plan(
                 unsafe,
-                ZipArchiveMutationRequest.Rename("safe.txt", "renamed.txt"),
+                ArchiveMutationRequest.Rename("safe.txt", "renamed.txt"),
             )
         }
     }

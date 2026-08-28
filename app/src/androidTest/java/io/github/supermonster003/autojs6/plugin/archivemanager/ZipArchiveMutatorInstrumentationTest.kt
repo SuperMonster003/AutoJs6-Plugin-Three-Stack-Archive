@@ -35,30 +35,34 @@ class ZipArchiveMutatorInstrumentationTest {
             ZipFixture("root.bin", byteArrayOf(1, 2, 3), ZipEntry.STORED),
         )
         val host = ReplacementHostSession(archive, directory)
-        val mutator = ZipArchiveMutator(ExplorerActionHostSessionClient(host), context.cacheDir)
+        val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
+            ArchiveFormat.ZIP,
+            ExplorerActionHostSessionClient(host),
+            context.cacheDir,
+        )
 
         mutate(
             mutator,
             archive,
-            ZipArchiveMutationRequest.Rename("docs", "manual"),
+            ArchiveMutationRequest.Rename("docs", "manual"),
         )
         mutate(
             mutator,
             archive,
-            ZipArchiveMutationRequest.Delete(setOf("root.bin")),
+            ArchiveMutationRequest.Delete(setOf("root.bin")),
         )
         mutate(
             mutator,
             archive,
-            ZipArchiveMutationRequest.AddDirectory("manual", "empty"),
+            ArchiveMutationRequest.AddDirectory("manual", "empty"),
         )
         mutate(
             mutator,
             archive,
-            ZipArchiveMutationRequest.AddFiles(
+            ArchiveMutationRequest.AddFiles(
                 parentPath = "manual",
                 files = listOf(
-                    ZipArchiveAddedFile("notes.txt", size = 5L) {
+                    ArchiveMutationAddedFile("notes.txt", size = 5L) {
                         ByteArrayInputStream("notes".encodeToByteArray())
                     },
                 ),
@@ -67,14 +71,14 @@ class ZipArchiveMutatorInstrumentationTest {
         mutate(
             mutator,
             archive,
-            ZipArchiveMutationRequest.AddTree(
+            ArchiveMutationRequest.AddTree(
                 parentPath = "manual",
                 entries = listOf(
-                    ZipArchiveAddedTreeEntry.Directory("bundle"),
-                    ZipArchiveAddedTreeEntry.Directory("bundle/empty"),
-                    ZipArchiveAddedTreeEntry.FileEntry(
+                    ArchiveMutationAddedTreeEntry.Directory("bundle"),
+                    ArchiveMutationAddedTreeEntry.Directory("bundle/empty"),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
                         "bundle/nested.txt",
-                        ZipArchiveAddedFile("nested.txt", size = 6L) {
+                        ArchiveMutationAddedFile("nested.txt", size = 6L) {
                             ByteArrayInputStream("nested".encodeToByteArray())
                         },
                     ),
@@ -129,7 +133,7 @@ class ZipArchiveMutatorInstrumentationTest {
         )
         val originalBytes = archive.readBytes()
         val host = ReplacementHostSession(archive, directory)
-        val mutator = ZipArchiveMutator(ExplorerActionHostSessionClient(host), context.cacheDir)
+        val mutator = ZipArchiveMutationProvider(ExplorerActionHostSessionClient(host), context.cacheDir)
         val snapshot = ArchiveScanner().scan(archive)
 
         val error = assertThrows(ArchiveValidationException::class.java) {
@@ -138,10 +142,10 @@ class ZipArchiveMutatorInstrumentationTest {
                 snapshot = snapshot,
                 targetId = TARGET_ID,
                 displayName = ARCHIVE_NAME,
-                request = ZipArchiveMutationRequest.AddFiles(
+                request = ArchiveMutationRequest.AddFiles(
                     parentPath = "",
                     files = listOf(
-                        ZipArchiveAddedFile("short.txt", size = 10L) {
+                        ArchiveMutationAddedFile("short.txt", size = 10L) {
                             ByteArrayInputStream("short".encodeToByteArray())
                         },
                     ),
@@ -186,12 +190,12 @@ class ZipArchiveMutatorInstrumentationTest {
             options.clearPassword()
         }
         val host = ReplacementHostSession(archive, directory)
-        ZipArchiveMutator(ExplorerActionHostSessionClient(host), context.cacheDir).mutate(
+        ZipArchiveMutationProvider(ExplorerActionHostSessionClient(host), context.cacheDir).mutate(
             source = archive.asArchiveReadSource(),
             snapshot = snapshot,
             targetId = TARGET_ID,
             displayName = ARCHIVE_NAME,
-            request = ZipArchiveMutationRequest.Rename("secret.txt", "renamed.txt"),
+            request = ArchiveMutationRequest.Rename("secret.txt", "renamed.txt"),
             checkCancelled = {},
         )
 
@@ -216,12 +220,12 @@ class ZipArchiveMutatorInstrumentationTest {
     }
 
     private fun mutate(
-        mutator: ZipArchiveMutator,
+        mutator: ArchiveMutationProvider,
         archive: File,
-        request: ZipArchiveMutationRequest,
+        request: ArchiveMutationRequest,
     ) {
         val snapshot = ArchiveScanner().scan(archive)
-        val phases = mutableListOf<ZipArchiveMutationPhase>()
+        val phases = mutableListOf<ArchiveMutationPhase>()
         val committed = mutator.mutate(
             source = archive.asArchiveReadSource(),
             snapshot = snapshot,
@@ -229,13 +233,13 @@ class ZipArchiveMutatorInstrumentationTest {
             displayName = ARCHIVE_NAME,
             request = request,
             checkCancelled = {},
-            progress = ZipArchiveMutationProgressListener { phases += it.phase },
+            progress = ArchiveMutationProgressListener { phases += it.phase },
         )
         assertEquals(ARCHIVE_NAME, committed.displayName)
         assertEquals(archive.length(), committed.size)
-        assertTrue(ZipArchiveMutationPhase.PREPARING in phases)
-        assertTrue(ZipArchiveMutationPhase.VERIFYING in phases)
-        assertTrue(ZipArchiveMutationPhase.COMMITTING in phases)
+        assertTrue(ArchiveMutationPhase.PREPARING in phases)
+        assertTrue(ArchiveMutationPhase.VERIFYING in phases)
+        assertTrue(ArchiveMutationPhase.COMMITTING in phases)
     }
 
     private fun newTestDirectory(): File = File(

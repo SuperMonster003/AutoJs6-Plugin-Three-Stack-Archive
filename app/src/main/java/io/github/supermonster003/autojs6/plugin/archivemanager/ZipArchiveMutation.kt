@@ -17,98 +17,62 @@ import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import java.util.zip.CRC32
 
-internal sealed interface ZipArchiveMutationRequest {
-    data class Delete(val paths: Set<String>) : ZipArchiveMutationRequest
+internal val ZIP_MUTATION_CAPABILITIES = ArchiveMutationCapabilities(
+    operations = setOf(
+        ArchiveOperation.ADD,
+        ArchiveOperation.DELETE,
+        ArchiveOperation.RENAME,
+    ),
+    strategy = ArchiveMutationStrategy.FULL_REWRITE,
+    minimumHostProtocolVersion = 8,
+    metadataEffects = setOf(
+        ArchiveMutationMetadataEffect.ARCHIVE_COMMENT_DROPPED,
+        ArchiveMutationMetadataEffect.ENTRY_COMMENTS_DROPPED,
+        ArchiveMutationMetadataEffect.EXTRA_FIELDS_NORMALIZED,
+        ArchiveMutationMetadataEffect.UNIX_ATTRIBUTES_DROPPED,
+        ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+        ArchiveMutationMetadataEffect.ENCRYPTION_SETTINGS_NORMALIZED,
+    ),
+)
 
-    data class Rename(
-        val path: String,
-        val newDisplayName: String,
-    ) : ZipArchiveMutationRequest
-
-    data class AddDirectory(
-        val parentPath: String,
-        val displayName: String,
-    ) : ZipArchiveMutationRequest
-
-    data class AddFiles(
-        val parentPath: String,
-        val files: List<ZipArchiveAddedFile>,
-    ) : ZipArchiveMutationRequest
-
-    data class AddTree(
-        val parentPath: String,
-        val entries: List<ZipArchiveAddedTreeEntry>,
-    ) : ZipArchiveMutationRequest
-}
-
-internal class ZipArchiveAddedFile(
-    val displayName: String,
-    val size: Long = SIZE_UNKNOWN,
-    val lastModified: Long = TIME_UNKNOWN,
-    private val inputFactory: () -> InputStream,
-) {
-    init {
-        require(size >= SIZE_UNKNOWN)
-        require(lastModified >= TIME_UNKNOWN)
+internal fun zipMutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+    when {
+        snapshot.format != ArchiveFormat.ZIP -> ArchiveMutationAvailability.unavailable(
+            ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
+        )
+        snapshot.volumeIdentities.isNotEmpty() -> ArchiveMutationAvailability.unavailable(
+            ArchiveMutationUnavailableReason.MULTI_VOLUME_ARCHIVE,
+        )
+        snapshot.entries.any { it.pathStatus != ArchiveEntryPathStatus.SAFE } ->
+            ArchiveMutationAvailability.unavailable(
+                ArchiveMutationUnavailableReason.UNSAFE_ENTRY_PATH,
+            )
+        snapshot.entries.any { !it.isDirectory && it.isEncrypted && !it.capabilities.canOpen } ->
+            ArchiveMutationAvailability.unavailable(
+                ArchiveMutationUnavailableReason.PASSWORD_REQUIRED,
+            )
+        snapshot.entries.any { !it.isDirectory && !it.capabilities.canOpen } ->
+            ArchiveMutationAvailability.unavailable(
+                ArchiveMutationUnavailableReason.UNSUPPORTED_ENTRY_METHOD,
+            )
+        snapshot.entries.any {
+            !it.capabilities.canDelete || !it.capabilities.canRename
+        } -> ArchiveMutationAvailability.unavailable(
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+        )
+        else -> ArchiveMutationAvailability.available(ZIP_MUTATION_CAPABILITIES)
     }
-
-    fun openInputStream(): InputStream = inputFactory()
-
-    private companion object {
-        const val SIZE_UNKNOWN = -1L
-        const val TIME_UNKNOWN = -1L
-    }
-}
-
-internal sealed interface ZipArchiveAddedTreeEntry {
-    val relativePath: String
-    val lastModified: Long
-
-    data class Directory(
-        override val relativePath: String,
-        override val lastModified: Long = -1L,
-    ) : ZipArchiveAddedTreeEntry
-
-    data class FileEntry(
-        override val relativePath: String,
-        val file: ZipArchiveAddedFile,
-    ) : ZipArchiveAddedTreeEntry {
-        override val lastModified: Long
-            get() = file.lastModified
-    }
-}
-
-internal enum class ZipArchiveMutationPhase {
-    PREPARING,
-    WRITING,
-    VERIFYING,
-    COMMITTING,
-}
-
-internal data class ZipArchiveMutationProgress(
-    val phase: ZipArchiveMutationPhase,
-    val currentPath: String?,
-    val completedEntries: Int,
-    val totalEntries: Int,
-) {
-    init {
-        require(completedEntries in 0..totalEntries)
-    }
-}
-
-internal fun interface ZipArchiveMutationProgressListener {
-    fun onProgress(progress: ZipArchiveMutationProgress)
-
-    companion object {
-        @JvmField
-        val NONE = ZipArchiveMutationProgressListener { }
-    }
-}
 
 internal data class ZipArchiveMutationPlan(
     val entries: List<ZipArchiveMutationEntry>,
     val encryptAddedFiles: Boolean,
-)
+    override val operation: ArchiveOperation,
+    override val sourceVersion: ArchiveMutationSourceVersion,
+    override val workEstimate: ArchiveMutationWorkEstimate,
+    override val metadataEffects: Set<ArchiveMutationMetadataEffect>,
+) : PreparedArchiveMutation {
+    override val format = ArchiveFormat.ZIP
+}
 
 internal data class ZipArchiveMutationEntry(
     val archivePath: String,
@@ -135,7 +99,7 @@ internal data class ZipArchiveMutationEntry(
 
 internal sealed interface ZipArchiveMutationSource {
     data class Existing(val entry: ArchiveEntry) : ZipArchiveMutationSource
-    data class AddedFile(val file: ZipArchiveAddedFile) : ZipArchiveMutationSource
+    data class AddedFile(val file: ArchiveMutationAddedFile) : ZipArchiveMutationSource
     data class AddedDirectory(val lastModified: Long = -1L) : ZipArchiveMutationSource
 }
 
@@ -144,24 +108,28 @@ internal object ZipArchiveMutationPlanner {
 
     fun plan(
         snapshot: ArchiveSnapshot,
-        request: ZipArchiveMutationRequest,
+        request: ArchiveMutationRequest,
     ): ZipArchiveMutationPlan {
         require(snapshot.format == ArchiveFormat.ZIP) { "Only ZIP archives can be rewritten" }
         val original = snapshot.entries.map { entry ->
             ZipArchiveMutationEntry(entry.path, ZipArchiveMutationSource.Existing(entry))
         }
         val entries = when (request) {
-            is ZipArchiveMutationRequest.Delete -> delete(original, request.paths, snapshot)
-            is ZipArchiveMutationRequest.Rename -> rename(original, request, snapshot)
-            is ZipArchiveMutationRequest.AddDirectory -> addDirectory(original, request, snapshot)
-            is ZipArchiveMutationRequest.AddFiles -> addFiles(original, request, snapshot)
-            is ZipArchiveMutationRequest.AddTree -> addTree(original, request, snapshot)
+            is ArchiveMutationRequest.Delete -> delete(original, request.paths, snapshot)
+            is ArchiveMutationRequest.Rename -> rename(original, request, snapshot)
+            is ArchiveMutationRequest.AddDirectory -> addDirectory(original, request, snapshot)
+            is ArchiveMutationRequest.AddFiles -> addFiles(original, request, snapshot)
+            is ArchiveMutationRequest.AddTree -> addTree(original, request, snapshot)
         }
         validateFinalEntries(entries, snapshot.structureLimits)
         entries.forEach(::requireRewritableEntry)
         return ZipArchiveMutationPlan(
-            entries = entries,
+            entries = entries.toList(),
             encryptAddedFiles = snapshot.entries.any(ArchiveEntry::isEncrypted),
+            operation = request.operation,
+            sourceVersion = ArchiveMutationSourceVersion.capture(snapshot),
+            workEstimate = workEstimate(snapshot, entries),
+            metadataEffects = ZIP_MUTATION_CAPABILITIES.metadataEffects,
         )
     }
 
@@ -184,7 +152,7 @@ internal object ZipArchiveMutationPlanner {
 
     private fun rename(
         original: List<ZipArchiveMutationEntry>,
-        request: ZipArchiveMutationRequest.Rename,
+        request: ArchiveMutationRequest.Rename,
         snapshot: ArchiveSnapshot,
     ): List<ZipArchiveMutationEntry> {
         val sourcePath = validatedSelectionPath(request.path, snapshot)
@@ -209,7 +177,7 @@ internal object ZipArchiveMutationPlanner {
 
     private fun addDirectory(
         original: List<ZipArchiveMutationEntry>,
-        request: ZipArchiveMutationRequest.AddDirectory,
+        request: ArchiveMutationRequest.AddDirectory,
         snapshot: ArchiveSnapshot,
     ): List<ZipArchiveMutationEntry> {
         val parent = validatedParentPath(request.parentPath, original, snapshot)
@@ -222,7 +190,7 @@ internal object ZipArchiveMutationPlanner {
 
     private fun addFiles(
         original: List<ZipArchiveMutationEntry>,
-        request: ZipArchiveMutationRequest.AddFiles,
+        request: ArchiveMutationRequest.AddFiles,
         snapshot: ArchiveSnapshot,
     ): List<ZipArchiveMutationEntry> {
         if (request.files.isEmpty()) fail(ArchiveFailureCode.EMPTY_SELECTION, "No files selected")
@@ -236,7 +204,7 @@ internal object ZipArchiveMutationPlanner {
 
     private fun addTree(
         original: List<ZipArchiveMutationEntry>,
-        request: ZipArchiveMutationRequest.AddTree,
+        request: ArchiveMutationRequest.AddTree,
         snapshot: ArchiveSnapshot,
     ): List<ZipArchiveMutationEntry> {
         if (request.entries.isEmpty()) {
@@ -246,14 +214,14 @@ internal object ZipArchiveMutationPlanner {
         val validated = request.entries.map { added ->
             val path = ArchivePathPolicy.validateEntryPath(
                 sourceName = added.relativePath,
-                isDirectory = added is ZipArchiveAddedTreeEntry.Directory,
+                isDirectory = added is ArchiveMutationAddedTreeEntry.Directory,
                 limits = snapshot.structureLimits,
             ).path
             if (path != added.relativePath) {
                 fail(ArchiveFailureCode.INVALID_PATH, "The selected folder contains an ambiguous path")
             }
             if (
-                added is ZipArchiveAddedTreeEntry.FileEntry &&
+                added is ArchiveMutationAddedTreeEntry.FileEntry &&
                 added.file.displayName != path.substringAfterLast('/')
             ) {
                 fail(ArchiveFailureCode.INVALID_DESTINATION_NAME, "A selected file name changed while scanning")
@@ -266,7 +234,7 @@ internal object ZipArchiveMutationPlanner {
         }
         val sourceRoot = sourceRoots.single()
         val directories = validated
-            .filter { (_, added) -> added is ZipArchiveAddedTreeEntry.Directory }
+            .filter { (_, added) -> added is ArchiveMutationAddedTreeEntry.Directory }
             .mapTo(hashSetOf()) { (path, _) -> path }
         if (sourceRoot !in directories) {
             fail(ArchiveFailureCode.INVALID_PATH, "The selected folder root is missing")
@@ -292,9 +260,9 @@ internal object ZipArchiveMutationPlanner {
                 "$parent/$remappedRelativePath"
             }
             val source = when (added) {
-                is ZipArchiveAddedTreeEntry.Directory ->
+                is ArchiveMutationAddedTreeEntry.Directory ->
                     ZipArchiveMutationSource.AddedDirectory(added.lastModified)
-                is ZipArchiveAddedTreeEntry.FileEntry ->
+                is ArchiveMutationAddedTreeEntry.FileEntry ->
                     ZipArchiveMutationSource.AddedFile(added.file)
             }
             ZipArchiveMutationEntry(archivePath, source)
@@ -476,6 +444,43 @@ internal object ZipArchiveMutationPlanner {
     private fun String.isAtOrBelow(parent: String): Boolean =
         this == parent || startsWith("$parent/")
 
+    private fun workEstimate(
+        snapshot: ArchiveSnapshot,
+        entries: List<ZipArchiveMutationEntry>,
+    ): ArchiveMutationWorkEstimate {
+        var files = 0
+        var directories = 0
+        var knownBytes = 0L
+        var unknownFiles = 0
+        entries.forEach { entry ->
+            if (entry.isDirectory) {
+                directories++
+            } else {
+                files++
+                if (entry.size >= 0L) {
+                    knownBytes = try {
+                        Math.addExact(knownBytes, entry.size)
+                    } catch (error: ArithmeticException) {
+                        fail(
+                            ArchiveFailureCode.MALFORMED_ARCHIVE,
+                            "Rewritten ZIP size metadata overflows",
+                        )
+                    }
+                } else {
+                    unknownFiles++
+                }
+            }
+        }
+        return ArchiveMutationWorkEstimate(
+            sourceArchiveBytes = snapshot.sourceLength,
+            resultEntryCount = entries.size,
+            resultFileCount = files,
+            resultDirectoryCount = directories,
+            knownContentBytesToRead = knownBytes,
+            unknownContentFileCount = unknownFiles,
+        )
+    }
+
     private fun fail(code: ArchiveFailureCode, message: String): Nothing =
         throw ArchiveValidationException(code, message, format = ArchiveFormat.ZIP)
 
@@ -491,28 +496,56 @@ internal object ZipArchiveMutationPlanner {
 }
 
 /** Rebuilds one ZIP into a host-owned pending file, verifies it fully, then atomically commits it. */
-internal class ZipArchiveMutator(
+internal class ZipArchiveMutationProvider(
     private val session: ExplorerActionHostSessionClient,
     cacheDirectory: File,
     private val engine: ArchiveEngine = ArchiveEngine.DEFAULT,
-) {
+) : ArchiveMutationProvider {
+    override val format = ArchiveFormat.ZIP
+    override val capabilities = ZIP_MUTATION_CAPABILITIES
     private val verifier = CreatedArchiveVerifier(cacheDirectory, engine)
 
-    fun mutate(
+    override fun availability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        zipMutationAvailability(snapshot)
+
+    override fun prepare(
+        snapshot: ArchiveSnapshot,
+        request: ArchiveMutationRequest,
+    ): PreparedArchiveMutation {
+        val availability = availability(snapshot)
+        if (!availability.isAvailable) {
+            throw unavailableMutation(availability.unavailableReason)
+        }
+        check(capabilities.supports(request.operation)) {
+            "ZIP mutation provider does not support ${request.operation}"
+        }
+        return ZipArchiveMutationPlanner.plan(snapshot, request)
+    }
+
+    override fun execute(
         source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
         targetId: String,
         displayName: String,
-        request: ZipArchiveMutationRequest,
+        prepared: PreparedArchiveMutation,
         checkCancelled: () -> Unit,
-        progress: ZipArchiveMutationProgressListener = ZipArchiveMutationProgressListener.NONE,
+        progress: ArchiveMutationProgressListener,
     ): HostOutputTransaction {
         checkCancelled()
-        val plan = ZipArchiveMutationPlanner.plan(snapshot, request)
+        val plan = prepared as? ZipArchiveMutationPlan
+            ?: throw IllegalArgumentException("Prepared mutation belongs to another provider")
+        require(plan.format == format) { "Prepared mutation format changed" }
+        if (!plan.sourceVersion.matches(snapshot)) {
+            sourceChanged("ZIP mutation plan belongs to another source snapshot")
+        }
+        val availability = availability(snapshot)
+        if (!availability.isAvailable) {
+            throw unavailableMutation(availability.unavailableReason)
+        }
         val manifest = plan.toManifest()
         progress.onProgress(
-            ZipArchiveMutationProgress(
-                phase = ZipArchiveMutationPhase.PREPARING,
+            ArchiveMutationProgress(
+                phase = ArchiveMutationPhase.PREPARING,
                 currentPath = null,
                 completedEntries = 0,
                 totalEntries = plan.entries.size,
@@ -549,6 +582,39 @@ internal class ZipArchiveMutator(
         }
     }
 
+    private fun unavailableMutation(reason: ArchiveMutationUnavailableReason?): ArchiveException =
+        when (reason) {
+            ArchiveMutationUnavailableReason.MULTI_VOLUME_ARCHIVE -> ArchiveValidationException(
+                ArchiveFailureCode.MISSING_VOLUME,
+                "Multi-volume ZIP archives are read-only",
+                format = format,
+            )
+            ArchiveMutationUnavailableReason.UNSAFE_ENTRY_PATH -> ArchiveValidationException(
+                ArchiveFailureCode.INVALID_PATH,
+                "A ZIP with unsafe entry paths cannot be rewritten",
+                format = format,
+            )
+            ArchiveMutationUnavailableReason.PASSWORD_REQUIRED -> ArchiveValidationException(
+                ArchiveFailureCode.PASSWORD_REQUIRED,
+                "The ZIP password must be applied before editing",
+                format = format,
+            )
+            ArchiveMutationUnavailableReason.UNSUPPORTED_ENTRY_METHOD,
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+            -> ArchiveValidationException(
+                ArchiveFailureCode.UNSUPPORTED_METHOD,
+                "This ZIP variant cannot be rewritten by the installed backend",
+                format = format,
+            )
+            ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
+            null,
+            -> ArchiveValidationException(
+                ArchiveFailureCode.UNSUPPORTED_METHOD,
+                "The selected archive does not belong to the ZIP mutation provider",
+                format = format,
+            )
+        }
+
     private fun runTransaction(
         source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
@@ -558,7 +624,7 @@ internal class ZipArchiveMutator(
         manifest: ArchiveSourceManifest,
         password: CharArray?,
         checkCancelled: () -> Unit,
-        progress: ZipArchiveMutationProgressListener,
+        progress: ArchiveMutationProgressListener,
     ): HostOutputTransaction {
         val prepared = runCreationOutputOperation(
             operation = ArchiveCreationOutputOperation.PREPARE,
@@ -594,8 +660,8 @@ internal class ZipArchiveMutator(
             }
             checkCancelled()
             progress.onProgress(
-                ZipArchiveMutationProgress(
-                    phase = ZipArchiveMutationPhase.VERIFYING,
+                ArchiveMutationProgress(
+                    phase = ArchiveMutationPhase.VERIFYING,
                     currentPath = null,
                     completedEntries = plan.entries.size,
                     totalEntries = plan.entries.size,
@@ -626,8 +692,8 @@ internal class ZipArchiveMutator(
             }
             checkCancelled()
             progress.onProgress(
-                ZipArchiveMutationProgress(
-                    phase = ZipArchiveMutationPhase.COMMITTING,
+                ArchiveMutationProgress(
+                    phase = ArchiveMutationPhase.COMMITTING,
                     currentPath = null,
                     completedEntries = plan.entries.size,
                     totalEntries = plan.entries.size,
@@ -662,7 +728,7 @@ internal class ZipArchiveMutator(
         plan: ZipArchiveMutationPlan,
         password: CharArray?,
         checkCancelled: () -> Unit,
-        progress: ZipArchiveMutationProgressListener,
+        progress: ArchiveMutationProgressListener,
     ): ArchiveCreationCounters {
         requireUnchangedSource(source, snapshot)
         val readerOptions = snapshot.readerOptions.retainedCopy()
@@ -679,8 +745,8 @@ internal class ZipArchiveMutator(
                         plan.entries.forEachIndexed { index, entry ->
                             checkCancelled()
                             progress.onProgress(
-                                ZipArchiveMutationProgress(
-                                    phase = ZipArchiveMutationPhase.WRITING,
+                                ArchiveMutationProgress(
+                                    phase = ArchiveMutationPhase.WRITING,
                                     currentPath = entry.archivePath,
                                     completedEntries = index,
                                     totalEntries = plan.entries.size,

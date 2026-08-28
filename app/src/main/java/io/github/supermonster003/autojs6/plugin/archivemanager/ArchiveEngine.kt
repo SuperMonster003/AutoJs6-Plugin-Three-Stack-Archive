@@ -360,6 +360,18 @@ internal interface ArchiveBackend {
     ): ArchiveWriter? = null
 }
 
+internal interface ArchiveMutationBackend : ArchiveBackend {
+    val mutationCapabilities: ArchiveMutationCapabilities
+
+    fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability
+
+    fun createMutationProvider(
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+        engine: ArchiveEngine,
+    ): ArchiveMutationProvider
+}
+
 data class DetectedArchiveFormat(
     val format: ArchiveFormat,
     val capabilities: FormatCapabilities,
@@ -373,6 +385,20 @@ internal class ArchiveEngine private constructor(
     init {
         require(backends.isNotEmpty())
         require(backends.map(ArchiveBackend::format).distinct().size == backends.size)
+        backends.forEach { backend ->
+            val advertisedOperations = buildSet {
+                if (backend.capabilities.canAdd) add(ArchiveOperation.ADD)
+                if (backend.capabilities.canDelete) add(ArchiveOperation.DELETE)
+                if (backend.capabilities.canRename) add(ArchiveOperation.RENAME)
+            }
+            val mutationOperations = (backend as? ArchiveMutationBackend)
+                ?.mutationCapabilities
+                ?.operations
+                .orEmpty()
+            require(mutationOperations == advertisedOperations) {
+                "${backend.format.displayName} mutation capabilities disagree with its backend"
+            }
+        }
     }
 
     val formats: List<ArchiveFormat> = backends.map(ArchiveBackend::format)
@@ -385,7 +411,20 @@ internal class ArchiveEngine private constructor(
         .filter { it.capabilities.canCreate }
         .map(ArchiveBackend::format)
 
+    val mutationFormats: List<ArchiveFormat> = backends
+        .filterIsInstance<ArchiveMutationBackend>()
+        .map(ArchiveBackend::format)
+
     fun capabilities(format: ArchiveFormat): FormatCapabilities = backend(format).capabilities
+
+    fun mutationCapabilities(format: ArchiveFormat): ArchiveMutationCapabilities? =
+        mutationBackend(format)?.mutationCapabilities
+
+    fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        mutationBackend(snapshot.format)?.mutationAvailability(snapshot)
+            ?: ArchiveMutationAvailability.unavailable(
+                ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
+            )
 
     fun probe(source: File): DetectedArchiveFormat = probe(source.asArchiveReadSource())
 
@@ -496,6 +535,24 @@ internal class ArchiveEngine private constructor(
         return backend.createWriter(session, cacheDirectory)
             ?: error("${format.displayName} backend does not provide an archive writer")
     }
+
+    fun createMutationProvider(
+        format: ArchiveFormat,
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+    ): ArchiveMutationProvider {
+        val backend = mutationBackend(format)
+            ?: error("${format.displayName} mutation is not supported")
+        return backend.createMutationProvider(session, cacheDirectory, this).also { provider ->
+            check(provider.format == format) { "Archive mutation provider format changed" }
+            check(provider.capabilities == backend.mutationCapabilities) {
+                "Archive mutation provider capabilities changed"
+            }
+        }
+    }
+
+    private fun mutationBackend(format: ArchiveFormat): ArchiveMutationBackend? =
+        backend(format) as? ArchiveMutationBackend
 
     private fun backend(format: ArchiveFormat): ArchiveBackend = backends.firstOrNull {
         it.format == format

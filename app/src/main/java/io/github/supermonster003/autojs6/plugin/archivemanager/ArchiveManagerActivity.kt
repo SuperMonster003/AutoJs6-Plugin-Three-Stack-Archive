@@ -791,10 +791,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         renderEntries()
     }
 
-    private fun canManageArchive(): Boolean =
-        request?.requestedAction == ArchiveRequestedAction.MANAGE &&
+    private fun canManageArchive(): Boolean {
+        val archive = snapshot ?: return false
+        return request?.requestedAction == ArchiveRequestedAction.MANAGE &&
             request?.hostSession != null &&
-            snapshot?.format == ArchiveFormat.ZIP
+            ArchiveEngine.DEFAULT.mutationAvailability(archive).isAvailable
+    }
 
     private fun showNewFolderDialog() {
         if (!canManageArchive() || isBusy) return
@@ -803,7 +805,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             initialValue = "",
         ) { displayName ->
             startArchiveMutation(
-                ZipArchiveMutationRequest.AddDirectory(
+                ArchiveMutationRequest.AddDirectory(
                     parentPath = currentDirectory,
                     displayName = displayName,
                 ),
@@ -824,7 +826,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             initialValue = node.name,
         ) { displayName ->
             startArchiveMutation(
-                ZipArchiveMutationRequest.Rename(
+                ArchiveMutationRequest.Rename(
                     path = path,
                     newDisplayName = displayName,
                 ),
@@ -844,7 +846,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             .setMessage(getString(R.string.dialog_message_delete_archive_entries, paths.size))
             .setNegativeButton(R.string.dialog_button_cancel, null)
             .setPositiveButton(R.string.action_delete) { _, _ ->
-                startArchiveMutation(ZipArchiveMutationRequest.Delete(paths))
+                startArchiveMutation(ArchiveMutationRequest.Delete(paths))
             }
             .show()
     }
@@ -886,7 +888,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             val files = withContext(Dispatchers.IO) {
                 uris.map(::resolveAddedFile)
             }
-            ZipArchiveMutationRequest.AddFiles(parentPath, files)
+            ArchiveMutationRequest.AddFiles(parentPath, files)
         }
     }
 
@@ -900,13 +902,14 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 throw ArchiveValidationException(
                     code = ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
                     message = "The archive has no remaining entry capacity",
-                    format = ArchiveFormat.ZIP,
+                    format = archive.format,
                     stage = ArchiveFailureStage.INPUT,
                 )
             }
             val entries = withContext(Dispatchers.IO) {
                 SafDirectoryTreeImporter(
                     contentResolver = contentResolver,
+                    format = archive.format,
                     limits = archive.structureLimits,
                     maxEntries = minOf(
                         remainingEntries,
@@ -914,11 +917,11 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     ),
                 ).scan(treeUri) { ensureActive() }
             }
-            ZipArchiveMutationRequest.AddTree(parentPath, entries)
+            ArchiveMutationRequest.AddTree(parentPath, entries)
         }
     }
 
-    private fun resolveAddedFile(uri: Uri): ZipArchiveAddedFile {
+    private fun resolveAddedFile(uri: Uri): ArchiveMutationAddedFile {
         if (!uri.scheme.equals(ContentResolver.SCHEME_CONTENT, ignoreCase = true)) {
             throw IOException("Selected file does not use a content URI")
         }
@@ -947,7 +950,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
             ?: throw ArchiveValidationException(
                 code = ArchiveFailureCode.INVALID_DESTINATION_NAME,
                 message = "Selected file has an invalid display name",
-                format = ArchiveFormat.ZIP,
+                format = snapshot?.format,
             )
         val lastModified = runCatching {
             contentResolver.query(
@@ -965,7 +968,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 }
             }
         }.getOrNull() ?: -1L
-        return ZipArchiveAddedFile(
+        return ArchiveMutationAddedFile(
             displayName = validatedName,
             size = size,
             lastModified = lastModified,
@@ -975,12 +978,12 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun startArchiveMutation(request: ZipArchiveMutationRequest) {
+    private fun startArchiveMutation(request: ArchiveMutationRequest) {
         startArchiveMutation { request }
     }
 
     private fun startArchiveMutation(
-        requestProvider: suspend () -> ZipArchiveMutationRequest,
+        requestProvider: suspend () -> ArchiveMutationRequest,
     ) {
         if (!canManageArchive() || isBusy) return
         val staged = stagedArchive ?: return
@@ -993,14 +996,18 @@ class ArchiveManagerActivity : AppCompatActivity() {
             try {
                 val mutationRequest = requestProvider()
                 committed = withContext(Dispatchers.IO) {
-                    ZipArchiveMutator(hostSession, cacheDir).mutate(
+                    ArchiveEngine.DEFAULT.createMutationProvider(
+                        archive.format,
+                        hostSession,
+                        cacheDir,
+                    ).mutate(
                         source = staged.source,
                         snapshot = archive,
                         targetId = openRequest.targetId,
                         displayName = openRequest.displayName,
                         request = mutationRequest,
                         checkCancelled = { ensureActive() },
-                        progress = ZipArchiveMutationProgressListener(::renderMutationProgress),
+                        progress = ArchiveMutationProgressListener(::renderMutationProgress),
                     )
                 }
                 reloadArchiveAfterMutation(openRequest, committed)
@@ -1027,7 +1034,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                             R.string.error_archive_refresh_failed
                         },
                     ),
-                    formatHint = ArchiveFormat.ZIP,
+                    formatHint = archive.format,
                     stageHint = if (committed == null) {
                         ArchiveFailureStage.OUTPUT
                     } else {
@@ -1080,20 +1087,20 @@ class ArchiveManagerActivity : AppCompatActivity() {
         applyScannedArchive(scanned, scannedIndex)
     }
 
-    private fun renderMutationProgress(update: ZipArchiveMutationProgress) {
+    private fun renderMutationProgress(update: ArchiveMutationProgress) {
         postUiUpdate {
             val text = when (update.phase) {
-                ZipArchiveMutationPhase.PREPARING ->
+                ArchiveMutationPhase.PREPARING ->
                     getString(R.string.text_preparing_archive_changes)
-                ZipArchiveMutationPhase.WRITING -> getString(
+                ArchiveMutationPhase.WRITING -> getString(
                     R.string.text_writing_archive_changes,
                     (update.completedEntries + 1).coerceAtMost(update.totalEntries),
                     update.totalEntries,
                     update.currentPath.orEmpty(),
                 )
-                ZipArchiveMutationPhase.VERIFYING ->
+                ArchiveMutationPhase.VERIFYING ->
                     getString(R.string.text_verifying_archive_changes)
-                ZipArchiveMutationPhase.COMMITTING ->
+                ArchiveMutationPhase.COMMITTING ->
                     getString(R.string.text_committing_archive_changes)
             }
             binding.message.text = text

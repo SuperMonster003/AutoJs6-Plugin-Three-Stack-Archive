@@ -41,7 +41,18 @@ internal object ArchiveManagerPlugin {
     const val OPEN_AS_ARCHIVE_ACTION_PRIORITY = 65
     const val COMPRESS_ACTION_PRIORITY = 60
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
-    val MANAGE_EXTENSIONS = arrayOf(ArchiveFormat.ZIP.primaryExtension)
+    val MANAGE_EXTENSIONS = ArchiveEngine.DEFAULT.mutationFormats
+        .map(ArchiveFormat::primaryExtension)
+        .filterNot { '.' in it }
+        .distinct()
+        .sorted()
+        .toTypedArray()
+    val MANAGE_FILE_NAME_SUFFIXES = ArchiveEngine.DEFAULT.mutationFormats
+        .map(ArchiveFormat::primaryExtension)
+        .filter { '.' in it }
+        .distinct()
+        .sorted()
+        .toTypedArray()
     val NUMBERED_VOLUME_FILE_NAME_SUFFIXES = NumberedArchiveVolumePolicy.fileNameSuffixes.clone()
 
     val MIME_TYPES = ArchiveEngine.DEFAULT.readableFormats
@@ -108,7 +119,7 @@ internal fun archiveManagerActionCatalog(): Bundle {
             accessMode = ExplorerActionValues.ACCESS_MANAGE_TARGET,
             mimeTypes = emptyArray(),
             extensions = ArchiveManagerPlugin.MANAGE_EXTENSIONS,
-            fileNameSuffixes = emptyArray(),
+            fileNameSuffixes = ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES,
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_EXTRACT_TO_ID,
