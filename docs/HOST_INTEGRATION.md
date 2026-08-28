@@ -315,6 +315,8 @@ prepareTargetReplacement
 
 宿主创建同目录隐藏暂存文件, 在提交前同步数据并复核原目标身份, 然后以同目录原子改名替换. 未读回校验、目标已由其他进程修改、暂存输出损坏或任何 Binder 调用失败都会拒绝提交; 插件随后中止事务, 原档案保持不变. 成功后宿主更新会话中的目标身份并发布条目变更事件, 支持同一管理页连续修改与自动刷新.
 
+该合同只约束“替换哪个目标”和“何时允许提交”, 不解释待提交文件的档案格式. 因而普通单卷 ZIP、后续 TAR/7Z 或其他整包重建都可以复用同一个 v8 流程; 新增一种可写格式本身不需要增加 AIDL 方法或提升宿主协议版本. v8 当前没有保留被替换旧版本, 所以“撤销最近一次修改”仍是独立的后续宿主能力, 不能由插件私自复制路径或在提交后伪造回滚.
+
 ### Explorer Action v9 目录输出与恢复
 
 v9 在 v8 AIDL 末尾追加 `prepareOutputTree`、`createOutputDirectory`、`openOutputFile`、`queryOutput`、`listOutputs` 与 `attachClient`. `extract-to` 以 `CREATE_IN_PARENT` 打开会话, 采用以下流程:
@@ -421,6 +423,8 @@ observeTask(taskId) -> progress/events
 cancelTask(taskId)
 ```
 
+这里描述的是未来由宿主原生档案页驱动的跨进程虚拟目录合同. 插件管理 Activity 内部已经落地的 `ArchiveMutationProvider` 是其格式后端基础, 但不等同于新增 Explorer Action AIDL: 当前 Activity 仍以 v8 目标替换提交完整重建结果, 宿主原生档案页也尚未直接调用创建、删除或重命名任务.
+
 每个条目需要独立的 `canOpen`/`canExtract`/`canDelete` 等能力与不可用原因. `entryId` 不能只由规范化路径生成, 因为真实档案可能包含重复名称、原始编码差异或同名文件/目录.
 
 `ArchiveEntryPathStatus` 与后端 `ArchiveEntryCapabilities` 分开表达. `UNSAFE_ISOLATED` 不会撤销后端的只读 `canOpen`, 但有效 `canExtract` 必定为 `false`. 根目录或其他正常选择解析时会把这类条目放入 `skippedUnsafeEntries`, 不会把隔离目录或其虚拟序号写到目标. 管理/解压页必须展示数量并由用户选择“跳过并继续”; 解压器默认返回 `UNSAFE_PATH_CONFIRMATION_REQUIRED`, 只有调用方显式传入 `skipUnsafePaths` 才能继续写出其余安全条目. 仅选择危险条目时返回空安全选择, 不创建空输出根.
@@ -428,6 +432,10 @@ cancelTask(taskId)
 ## 格式能力模型
 
 插件已经通过 `ArchiveEngine` 统一扫描、预览、解压和创建链路. `ArchiveFormat` 提供格式标识、扩展名和 MIME 类型; `ArchiveReader`/`ArchiveWriter` 隔离具体库; `FormatCapabilities` 与 `ArchiveEntryCapabilities` 分别表达格式级和条目级真实能力. ZIP 字符集探测和底层目录对象只存在于 ZIP 后端内部.
+
+修改链路现在另由 `ArchiveMutationProvider` 注册到同一个后端. 通用请求只表达添加文件、添加目录树、新建目录、删除和重命名; provider 在预留宿主输出之前生成绑定源快照版本的不可变计划. 计划公布结果条目/文件/目录数量、需要读取的已知内容字节、未知大小文件数、当前源档案大小和可能受影响的辅助元数据, 但不会在压缩比未知时伪造精确输出大小. 动态可用性把不支持格式、分卷、危险路径、缺少密码、不支持的方法和只读后端变体区分为稳定原因.
+
+`ArchiveEngine` 启动时强制要求 `FormatCapabilities.canAdd/canDelete/canRename` 与 provider 操作集合完全一致. “管理压缩档案...”的扩展名和复合后缀只从已注册 provider 的主格式扩展名生成; 因此创建 writer 存在并不会自动开放档案修改, JAR/AAR/WAR 也不会因为共享 ZIP reader 而获得修改入口. 当前只有普通单卷 ZIP provider, 7Z 与 TAR provider 必须先完成各自重建器、元数据政策和闭环测试才可注册.
 
 ZIP 后端同时公布可用的文件名解码覆盖列表. 管理/解压 Activity 与 v13 宿主原生页面均可在自动识别结果与 UTF-8/GB18030/Shift_JIS/EUC-KR/windows-1251/windows-1256/windows-1252/IBM437 之间切换, 每次切换都会重新索引同一暂存输入. 扫描快照保存最终选择, 预览流和解压器重新打开档案时必须复用它, 防止列表名称正确而实际写出时使用另一套编码. 一次性密码请求由 v11 落地: 加密 ZIP/7Z/RAR 可在首次打开或解压条目时留在宿主原生页面完成解锁与错误密码重试; v13 重建索引时复制既有密码到替换快照, 成功或失败后清理不再使用的缓冲.
 
