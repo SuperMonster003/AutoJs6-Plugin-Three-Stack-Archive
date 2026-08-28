@@ -215,6 +215,6 @@ class SafArchiveOutputWriter(
     private companion object {
         const val BINARY_MIME_TYPE = "application/octet-stream"
         const val MAX_ROOT_NAME_ATTEMPTS = 10_000
-        const val WRITE_MODE = "w"
+        const val WRITE_MODE = "wt"
     }
 }

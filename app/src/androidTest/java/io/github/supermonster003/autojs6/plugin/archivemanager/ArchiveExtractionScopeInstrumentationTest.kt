@@ -699,7 +699,7 @@ class ArchiveExtractionScopeInstrumentationTest {
     }
 
     private fun writeArchiveDocument(archiveUri: Uri, entries: Map<String, String>) {
-        resolver.openOutputStream(archiveUri, "w").use { rawOutput ->
+        resolver.openOutputStream(archiveUri, "wt").use { rawOutput ->
             ZipOutputStream(requireNotNull(rawOutput)).use { zip ->
                 entries.forEach { (path, content) ->
                     zip.putNextEntry(ZipEntry(path))

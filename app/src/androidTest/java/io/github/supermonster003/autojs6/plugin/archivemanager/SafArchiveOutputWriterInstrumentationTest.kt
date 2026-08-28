@@ -139,7 +139,7 @@ class SafArchiveOutputWriterInstrumentationTest {
             PolicyCase(
                 policy = ArchiveExtractionConflictPolicy.OVERWRITE,
                 expectedNames = setOf("A.txt"),
-                expectedPrimaryPayload = "second",
+                expectedPrimaryPayload = "two",
                 expectedOverwritten = 1,
             ),
             PolicyCase(
@@ -155,7 +155,7 @@ class SafArchiveOutputWriterInstrumentationTest {
             val source = writeZip(
                 listOf(
                     "A.txt" to "first".toByteArray(),
-                    "a.txt" to "second".toByteArray(),
+                    "a.txt" to "two".toByteArray(),
                 ),
             )
             try {
@@ -180,7 +180,7 @@ class SafArchiveOutputWriterInstrumentationTest {
                 )
                 if (case.policy == ArchiveExtractionConflictPolicy.AUTO_RENAME) {
                     assertArrayEquals(
-                        "second".toByteArray(),
+                        "two".toByteArray(),
                         readDocument(children.single { it.displayName == "a (2).txt" }),
                     )
                 }
