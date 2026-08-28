@@ -410,6 +410,33 @@
       ]
     },
     {
+      "file": "app/src/test/resources/archive-fixtures/windows-explorer-11-deflate-unicode.zip",
+      "producer": "Windows Explorer",
+      "producerVersion": "zipfldr.dll 10.0.26100.8875",
+      "platform": "Windows 11 10.0.26200.9168, zh-CN system locale",
+      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-windows-explorer-fixture.ps1",
+      "sourceDescription": "Project-owned synthetic inputs stored under compatibility/fixture-sources/7zip-22",
+      "filenameEncoding": "GBK system code page without the ZIP UTF-8 language flag",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "size": 399,
+      "sha256": "074a0aebb051196de706dea402968c65d3ff8b106178998919d0659a64ebdb88",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104,
+          "crc32": "B390A13F"
+        },
+        {
+          "name": "目录/文件.txt",
+          "method": "Store",
+          "size": 87,
+          "crc32": "F8C08370",
+          "utf8NameFlag": false
+        }
+      ]
+    },
+    {
       "file": "app/src/test/resources/archive-fixtures/bandizip-7.46-deflate-unicode.zip",
       "producer": "Bandizip",
       "producerVersion": "7.46 Beta x64",

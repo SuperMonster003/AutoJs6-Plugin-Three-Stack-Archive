@@ -10,6 +10,23 @@ RAR fixtures are reader regressions only. Archive Manager can browse, preview an
 
 The corpus is intentionally incremental. A producer listed in the Roadmap is not considered covered until at least one independently generated sample and its relevant edge cases are committed and verified.
 
+## Automated format matrix
+
+`ArchiveFormatCompatibilityMatrixTest` uses one committed production fixture for every readable format. Each row must pass with its canonical name, with no extension, and with a misleading extension that belongs to a different supported format. The detected format must always come from structure, while the display-name match remains false for the latter two cases. A separate signature-preserving damage case must report the detected format together with `INDEX/MALFORMED_ARCHIVE`.
+
+| Format | Frozen detection fixture | Canonical name | No extension | Misleading supported extension | Typed damage | Standalone stream rejection |
+| --- | --- | --- | --- | --- | --- | --- |
+| ZIP | Windows Explorer 11 ZIP | Covered | Covered | Covered | Covered | Not applicable |
+| 7Z | 7-Zip 22 solid LZMA2 | Covered | Covered | Covered | Covered | Not applicable |
+| RAR | WinRAR 6 RAR5 | Covered | Covered | Covered | Covered | Not applicable |
+| TAR | 7-Zip 22 USTAR | Covered | Covered | Covered | Covered | Not applicable |
+| TAR.GZ | 7-Zip 22 GZIP-wrapped USTAR | Covered | Covered | Covered | Covered | Covered |
+| TAR.XZ | 7-Zip 22 XZ-wrapped USTAR | Covered | Covered | Covered | Covered | Covered |
+| TAR.BZ2 | 7-Zip 22 BZIP2-wrapped USTAR | Covered | Covered | Covered | Covered | Covered |
+| TAR.ZST | bsdtar 3.8.4 Zstandard-wrapped USTAR | Covered | Covered | Covered | Covered | Covered |
+
+The misleading-name column deliberately uses another registered archive suffix rather than a neutral `.bin` name. This proves that backend order and a plausible but wrong extension cannot override the detected structure. `CompressedTarArchiveBackendTest` independently generates valid GZIP, XZ, BZIP2 and Zstandard streams whose payload is not TAR; all four remain `FORMAT_DETECTION/INVALID_SIGNATURE`, even though their outer compressor signatures are valid. The plugin catalog and intent policy also omit the generic `gz`, `xz`, `bz2` and `zst` leaves.
+
 ## Source material
 
 All fixture inputs are synthetic text owned by this project. They contain no user paths, account names or device data. Input modification times are normalized before an archive is generated. The numbered-volume payload is intentionally a frozen 2.6.0 README snapshot so its committed volumes remain reproducible as documentation evolves; its text is inert test data, not a statement of current capability.
@@ -38,6 +55,32 @@ $env:ARCHIVE_MAC_HELLO_DOLLY_SAMPLE = '<path-to-hello-dolly.zip>'
 $env:ARCHIVE_MAC_ZIPKIREI_SAMPLE = '<path-to-test.zip>'
 .\gradlew.bat :app:testDebugUnitTest --tests MacArchiveCompatibilitySampleTest --tests ArchiveScannerTest
 ```
+
+## Opt-in supplied observation corpus
+
+The locally supplied `archive-test-2026` directory is not redistributed. `ExternalArchiveCompatibilitySampleTest` requires all 14 original files, pins every SHA-256 independently, and accounts for each file in exactly one behavior group. It covers ordinary Bandizip, WinRAR and MT Manager archives; encrypted WinRAR RAR5 and MT Manager 7Z; a complete two-volume WinRAR set; standalone MT Manager GZIP/XZ streams; and the historical ZIP regression. The production reader lists each supported archive and streams at least one complete entry. Encrypted samples exercise missing, wrong and correct passwords; the volume set reconstructs and streams an entry; the two standalone streams must remain unrecognized as TAR.
+
+| Source group | Files | Automated behavior |
+| --- | ---: | --- |
+| Bandizip | 1 | ZIP list and verified entry stream |
+| WinRAR | 6 | ZIP, RAR4, RAR5, encrypted RAR5 and complete two-volume RAR |
+| MT Manager | 6 | ZIP, 7Z, encrypted 7Z, TAR and standalone GZIP/XZ rejection |
+| Historical regression | 1 | Legacy Chinese filename recovery and verified ZIP entry stream |
+
+Run this corpus together with the two external macOS samples:
+
+```powershell
+$env:ARCHIVE_EXTERNAL_CORPUS_DIRECTORY = 'E:\tmp\archive-test-2026'
+$env:ARCHIVE_MAC_HELLO_DOLLY_SAMPLE = 'E:\Downloads\Firefox\hello-dolly.zip'
+$env:ARCHIVE_MAC_ZIPKIREI_SAMPLE = 'T:\Downloads\Firefox\test.zip'
+.\gradlew.bat :app:testDebugUnitTest `
+    --tests ExternalArchiveCompatibilitySampleTest `
+    --tests MacArchiveCompatibilitySampleTest
+```
+
+The supplied password is the corpus directory name and exists only for this local regression. Tests never execute payloads or modify the originals. The source tool versions and exact creation commands were not embedded in these files, so this observation corpus complements but does not replace reproducible manifest fixtures.
+
+Windows Explorer coverage is now reproducible through `scripts/generate-windows-explorer-fixture.ps1`, which invokes the real `Shell.Application` ZIP namespace and records the exact `zipfldr.dll` version. Info-ZIP is the only producer in the current Roadmap with no sample at all. The external macOS and MT Manager samples have pinned identities and behavioral coverage, but still need exact producer-version provenance before they can be promoted to the committed reproducible corpus.
 
 ## Historical regressions
 
