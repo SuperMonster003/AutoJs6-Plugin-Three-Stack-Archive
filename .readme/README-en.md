@@ -44,9 +44,9 @@ Archive Manager works inside the AutoJs6 file manager instead of replacing it. S
 - Browse, preview, and extract complete standard `.z01 + .zip`, modern WinRAR `partN.rar`, numbered `.zip.001`, and numbered `.7z.001` sets through bounded host-authorized sibling-volume descriptors; missing or changed volumes fail explicitly.
 - Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST from one item or a same-parent selection; ZIP also supports AES-256 and standard split output, and a selection can create one archive per item.
 - Standard split ZIP and Compress each item separately publish all verified physical outputs through one recoverable batch; failure or host restart is never presented as a successful partial result.
-- Edit ordinary single-volume ZIP files through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
-- After a successful ZIP edit, restore the previous archive version from the success message or the management-page menu; the host offers one rollback during bounded retention and refuses it if another app changed the target.
-- Use the management page to see the actual format, content totals, available edit operations, and exact read-only reason; every ZIP edit reviews factual work, the full rebuild, and metadata effects before reserving output, while cancellation creates no pending output.
+- Edit ordinary single-volume ZIP and eligible uncompressed TAR archives through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
+- After a successful ZIP or TAR edit, restore the previous archive version from the success message or the management-page menu; the host offers one rollback during bounded retention and refuses it if another app changed the target.
+- Use the management page to see the actual format, content totals, available edit operations, and exact read-only reason; every ZIP or TAR edit reviews factual work, the full rebuild, and metadata effects before reserving output, while cancellation creates no pending output.
 - Keep unsafe archive names read-only and isolated, apply structural and resource limits before writing, and prefer direct reads from the host's seekable descriptor over whole-file copies.
 - Optionally move the complete source selection to the host Trash only after every physical output is verified and committed; this option is off by default, and changed sources or incomplete output proof stop before source data is removed.
 
@@ -64,7 +64,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer). RAR and split archives are deliberately read-only; editing is limited to ordinary single-volume `.zip` files. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for 7Z, RAR, and TAR-family formats are not current capabilities.
+> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer). RAR, split archives, and compressed TAR wrappers are deliberately read-only; editing is available for ordinary single-volume `.zip` files and uncompressed `.tar` archives that contain only safe regular files and directories. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR, 7Z, RAR, and compressed TAR remain unavailable.
 
 ### Usage
 
@@ -72,7 +72,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Tap the primary archive action or choose Open archive for a supported file. If its name is not recognized, choose Open as archive... from the file menu. Browse it like a normal directory with the host path bar, which labels a detected format when the name was misleading.
 3. Use the path-bar extraction action for the current internal folder or the filename-encoding action to correct ZIP names, long-press entries to extract a selection, or choose Extract to... from the archive's file menu for the whole archive. Password prompts appear when required.
 4. Choose Compress... for a file or folder, or select several items in one directory and use Compress... in the bottom action bar. To clean up sources after success, explicitly enable the off-by-default Move source items to Trash after compression option.
-5. Choose Manage archive... only for an ordinary single-volume ZIP when you need to add, rename, or delete content.
+5. Choose Manage archive... for an ordinary single-volume ZIP or eligible uncompressed TAR when you need to add, rename, or delete content.
 
 ### Permissions and data
 
@@ -84,11 +84,20 @@ Explorer Action v18 keeps the previous archive only in host-private durable stor
 
 ### Roadmap
 
-The remaining work is tracked as checkable items: writable rebuilds beyond ordinary ZIP, grouped Trash undo and history, the rest of the device and producer matrix, and first-public-release material.
+The remaining work is tracked as checkable items: writable rebuilds beyond ordinary ZIP and uncompressed TAR, grouped Trash undo and history, the rest of the device and producer matrix, and first-public-release material.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.12.0
+
+_2026/08/28_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` Ordinary uncompressed TAR archives containing only safe regular files and directories can now add files or folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` Archive information now describes format-specific extended metadata without incorrectly labeling TAR metadata as ZIP extra fields
+- `Improved` TAR changes use one sequential source pass, show factual work before reserving output, preserve available modification times, emit POSIX/PAX names when needed, fully read back the replacement, and reuse the host's atomic replacement and recent-version restore flow
 
 #### v2.11.0
 
@@ -110,16 +119,6 @@ _2026/08/28_
 - `Fixed` TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now use exact complete-name suffixes instead of generic `gz`, `xz`, `bz2`, or `zst` leaf extensions, so ordinary compressed streams do not receive the primary archive action
 - `Improved` The host performs no background file scan while building menus; only an explicit user click runs one existing read-only archive-open call, with no new path, directory, or write authority
 - `Improved` Add, import, create-folder, rename, and delete now review factual work, the full rebuild, and metadata effects before reserving host output; cancelling the review creates no pending output
-
-#### v2.9.0
-
-_2026/08/27_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v16 (version code 5276 or newer)
-- `Added` The compression form adds an off-by-default Move source items to Trash after compression option that runs only after every physical output is verified and committed
-- `Added` Explorer Action v16 accepts only the exact ordered original selection and every committed output transaction, then lets the host revalidate source and output identities before using its Trash
-- `Fixed` The host now syncs a recovery copy and persists its Trash record before removing a source; if a directory is removed only partly, its recoverable copy is retained instead of deleting the only recovery data
-- `Improved` The Trash phase cannot be cancelled and reports committed, recovery-required, failed, and unknown outcomes separately; a lost Binder response queries the host terminal state instead of blindly retrying
 
 ##### Full history
 

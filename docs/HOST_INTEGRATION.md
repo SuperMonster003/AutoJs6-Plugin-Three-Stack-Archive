@@ -15,7 +15,7 @@ AutoJs6 文件管理器现在可以从插件目录动态发现以下动作:
 | --- | --- | --- | --- | --- |
 | `open-archive` | 单个受支持的档案文件 | 文件菜单/主动作 | 只读目标 | 宿主 Explorer |
 | `open-as-archive` | 名称与 MIME 未命中 `open-archive` 的单个文件 | 文件菜单 | 只读目标 | 宿主 Explorer |
-| `manage-archive` | 单个 `.zip` 候选; 插件结构探测后仅开放普通单卷 ZIP 修改 | 文件菜单 | 受控替换原目标 | 插件 Activity |
+| `manage-archive` | 单个 `.zip` 或 `.tar` 候选; 插件结构探测后仅开放普通单卷 ZIP 或符合条件的未压缩 TAR 修改 | 文件菜单 | 受控替换原目标 | 插件 Activity |
 | `extract-to` | 单个受支持的档案文件 | 文件菜单 | 读取目标并在父目录创建受控目录输出 | 插件 Activity |
 | `compress` | 单个普通文件或目录 | 文件/目录菜单 | 读取目标并在父目录创建输出 | 插件 Activity |
 | `compress-selection` | 同一真实父目录中的多个文件、目录或混合目标 | 多选操作栏 | 读取目标并在共同父目录创建输出 | 插件 Activity |
@@ -41,7 +41,7 @@ v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再�
 | `probeForActionId` | v17 可选; 指向同目录中一个宿主原生只读主动作 |
 | `priority` | 多个插件动作同时匹配时的稳定排序依据 |
 
-当前压缩动作使用通配 MIME/扩展名和 `FILE`/`DIRECTORY`/`MIXED` 目标, 因此能覆盖普通文件、目录和同父级混合多选. 打开与整包快捷解压动作匹配 ZIP/JAR/AAR/WAR、7Z、RAR、TAR 及 `tgz`/`txz`/`tbz2`/`tzst` 别名; v14 完整文件名字段精确匹配 `.zip.001`、`.7z.001`、`.tar.gz`、`.tar.xz`、`.tar.bz2` 与 `.tar.zst`. 通用 `gz`/`xz`/`bz2`/`zst` 叶扩展名不再发布, 避免把普通压缩流当作 TAR. 名称未命中时可由用户明确选择 `open-as-archive`, 再执行一次完整结构探测. `manage-archive` 目录只按 `.zip` 扩展名初筛, 不匹配编号首卷、JAR/AAR/WAR、7Z、RAR 或 TAR 系列; 标准分卷末卷也以 `.zip` 结尾, 因而必须在插件结构探测后保持不可修改.
+当前压缩动作使用通配 MIME/扩展名和 `FILE`/`DIRECTORY`/`MIXED` 目标, 因此能覆盖普通文件、目录和同父级混合多选. 打开与整包快捷解压动作匹配 ZIP/JAR/AAR/WAR、7Z、RAR、TAR 及 `tgz`/`txz`/`tbz2`/`tzst` 别名; v14 完整文件名字段精确匹配 `.zip.001`、`.7z.001`、`.tar.gz`、`.tar.xz`、`.tar.bz2` 与 `.tar.zst`. 通用 `gz`/`xz`/`bz2`/`zst` 叶扩展名不再发布, 避免把普通压缩流当作 TAR. 名称未命中时可由用户明确选择 `open-as-archive`, 再执行一次完整结构探测. `manage-archive` 目录只按已注册可写 provider 的 `.zip` 与 `.tar` 扩展名初筛, 不匹配编号首卷、JAR/AAR/WAR、7Z、RAR 或压缩 TAR 包装层; 标准分卷末卷也以 `.zip` 结尾, 含特殊条目的 TAR 也可能以 `.tar` 结尾, 因而两者都必须在插件结构探测后保持不可修改.
 
 每个目录字段都有数量或长度上限. 宿主会拒绝非法目标类型、基数、位置、授权和呈现方式组合, 而不是静默扩大插件权限. `HOST_EXPLORER` 在 v5-v16 只允许 `FILE + SINGLE + READ_ONLY + PRIMARY`; v17 唯一增加的组合是无匹配器、引用上述主动作的 `FILE + SINGLE + READ_ONLY + OVERFLOW` 复核动作. 它不能获取目录写入、多选、输出、替换或 Activity 能力, 每个主动作也只能被一个有效复核动作引用. v8 的 `REPLACE_TARGET` 只接受 `FILE + SINGLE + OVERFLOW + ACTIVITY`, 且不能同时声明独立输出. v9 目录输出复用 `CREATE_IN_PARENT` 授权; `manage-archive` 的替换授权不会隐式扩大为父目录创建权限. v10 解压请求只传递当前会话内的不透明条目 ID; 实际写入只能通过宿主单独建立的 v9 输出树进行. v11 密码只存在于一次同步 Binder 请求中, 不增加文件或目录授权. v12 同级卷源只允许宿主按所选名称推导出的 ZIP/RAR 分卷候选, 插件只看到不透明 ID、受控显示名和身份元数据, 不获得父目录 URI、路径或任意名称查询能力. v13 文件名编码请求只接受插件已公布的最多 32 个名称之一或自动模式, 不创建新的文件、目录或 URI 授权. v14 的 `fileNameSuffixes` 只接受以非句点字符开头的有界复合后缀; 匹配完整文件名且不把通用叶扩展名 `001` 当作授权. v13 及更早目录不能发布该字段. v15 只组合会话已经预留并验证的新文件输出, 不新增目标、路径、覆盖或删除授权. v16 只接受会话原始完整目标 ID 列表与本次全部已提交输出事务 ID, 不接受路径、附加目标或目标子集. v17 复用现有 `openArchiveV11` 只读会话, 不新增授权类型. v18 只让协议版本不低于 18 的 `REPLACE_TARGET`/`MANAGE_TARGET` 动作查询和恢复其原始单文件目标, 不扩大路径、目录或任意覆盖能力; v8-v17 会话仍按旧行为执行且不创建替换备份.
 
@@ -402,9 +402,9 @@ v17 会话在结构探测成功后返回有界的稳定格式 ID、显示名称,
 
 `extract-to` 的同级输出权限来自目录声明的 v9 `CREATE_IN_PARENT` 会话, 不是 `parentUri` 本身. `parentUri` 仍只用于显示和一致性校验, 插件不能根据 URI 结构猜测本地路径. 用户选择其他位置时, 输出只使用 Android 系统选择器授予的 SAF 目录权限. `manage-archive` 使用 v8 `REPLACE_TARGET`, 因而管理页的范围解压直接选择 SAF 目录, 不显示一个无权执行的“当前文件夹”选项.
 
-管理页对普通单卷 ZIP 显示“添加文件...”“添加文件夹...”“新建文件夹...”“重命名...”和“删除”. “添加文件夹...”通过系统选择器读取完整目录树, 以有界深度优先扫描固化嵌套文件、空目录、大小与顺序, 再与其他操作一样生成不可变变更计划. 每次计划都会检查危险路径、重复/大小写或 Unicode 等价名称、文件/目录冲突、目录子树碰撞、无法保留的方法或加密及源档案变化, 通过后才预留 v8 替换事务.
+管理页对普通单卷 ZIP 与符合条件的未压缩 TAR 显示“添加文件...”“添加文件夹...”“新建文件夹...”“重命名...”和“删除”. “添加文件夹...”通过系统选择器读取完整目录树, 以有界深度优先扫描固化嵌套文件、空目录、大小与顺序, 再与其他操作一样生成不可变变更计划. 每次计划都会检查危险路径、重复/大小写或 Unicode 等价名称、文件/目录冲突、目录子树碰撞、无法保留的方法或加密及源档案变化; TAR 另拒绝链接、设备节点、稀疏项等特殊条目, 全部通过后才预留 v8 替换事务.
 
-重建会按原顺序复制保留条目, 支持 Stored/Deflate、ZipCrypto 与 AES, 保留可用时间戳; 加密档案中新增文件使用 AES. 生成后通过统一 `CreatedArchiveVerifier` 重新读取全部条目并核对路径、类型、大小、CRC 与实际内容指纹, 之后才提交. 取消、验证失败或源变化都会中止待提交输出. 当前重建会规范化档案注释、非必要 extra metadata 和 Unix 权限属性; 只支持普通单卷 `.zip`. JAR/AAR/WAR、7Z、RAR 与 TAR 系列没有管理入口; 分卷 ZIP 虽可能通过 `.zip` 扩展名初筛, 但结构探测不会进入可写状态.
+ZIP 重建按原顺序复制保留条目, 支持 Stored/Deflate、ZipCrypto 与 AES, 保留可用时间戳; 加密档案中新增文件使用 AES. TAR 重建以一次顺序源扫描复制保留的普通文件与目录, 保留可用时间戳, 并按需使用 POSIX/PAX 表达长名称或非 ASCII 名称. 两者生成后都通过统一 `CreatedArchiveVerifier` 重新读取全部条目并核对路径、类型、大小、可用 CRC 与实际内容指纹, 之后才提交. 取消、验证失败或源变化都会中止待提交输出. 重建会准确列出格式专属扩展元数据与 Unix 属性等影响. JAR/AAR/WAR、7Z、RAR、压缩 TAR 包装层与含特殊条目的 TAR 没有管理入口; 分卷 ZIP 虽可能通过 `.zip` 扩展名初筛, 但结构探测不会进入可写状态.
 
 ### 输出名称冲突
 
@@ -464,7 +464,7 @@ cancelTask(taskId)
 
 这些管理信息与预检均为插件内部实现. 宿主文件管理器深度重构完成后, v18 只在既有替换事务和插件管理 Activity 边界增加最近版本恢复, 最低宿主版本代码继续为 5276; 宿主原生列表、路径栏、选择栏及整体视觉结构没有改动.
 
-`ArchiveEngine` 启动时强制要求 `FormatCapabilities.canAdd/canDelete/canRename` 与 provider 操作集合完全一致. “管理压缩档案...”的扩展名和复合后缀只从已注册 provider 的主格式扩展名生成; 因此创建 writer 存在并不会自动开放档案修改, JAR/AAR/WAR 也不会因为共享 ZIP reader 而获得修改入口. 当前只有普通单卷 ZIP provider, 7Z 与 TAR provider 必须先完成各自重建器、元数据政策和闭环测试才可注册.
+`ArchiveEngine` 启动时强制要求 `FormatCapabilities.canAdd/canDelete/canRename` 与 provider 操作集合完全一致. “管理压缩档案...”的扩展名和复合后缀只从已注册 provider 的主格式扩展名生成; 因此创建 writer 存在并不会自动开放档案修改, JAR/AAR/WAR 也不会因为共享 ZIP reader 而获得修改入口. 当前已注册普通单卷 ZIP 与未压缩 TAR provider; 7Z 与压缩 TAR provider 必须先完成各自重建器、元数据政策和闭环测试才可注册.
 
 ZIP 后端同时公布可用的文件名解码覆盖列表. 管理/解压 Activity 与 v13 宿主原生页面均可在自动识别结果与 UTF-8/GB18030/Shift_JIS/EUC-KR/windows-1251/windows-1256/windows-1252/IBM437 之间切换, 每次切换都会重新索引同一暂存输入. 扫描快照保存最终选择, 预览流和解压器重新打开档案时必须复用它, 防止列表名称正确而实际写出时使用另一套编码. 一次性密码请求由 v11 落地: 加密 ZIP/7Z/RAR 可在首次打开或解压条目时留在宿主原生页面完成解锁与错误密码重试; v13 重建索引时复制既有密码到替换快照, 成功或失败后清理不再使用的缓冲.
 
@@ -491,7 +491,7 @@ FormatCapabilities
 
 特别是“同时加密文件名”应按三态显示: 不支持时关闭且禁用; 可选时默认关闭; 格式强制时开启且禁用. 禁用控件旁必须展示原因, 不能仅用灰色暗示.
 
-当前注册 ZIP、7Z、RAR 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是只读扩展名别名. 普通单卷 `.zip` 另声明添加文件、新建空目录、删除与重命名能力, 并通过 v8 事务重建; 别名格式与分卷 ZIP 不声明这些能力. ZIP writer 声明可选分卷, reader 通过 v12 读取完整标准 `.z01 + .zip` 卷组并在伴随卷不可用时给出精确诊断. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. RAR reader 支持单卷或完整分卷 RAR4/RAR5、内容加密与头部加密, 使用 256 MiB 字典上限; 它不声明创建、添加、删除或重命名, 缺卷时只保留安全元数据或返回类型化失败. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. TAR writer 使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 7Z、RAR 与 TAR 后端不声明添加/删除/重命名, 所有 writer 均不声明创建时文件名加密; 7Z 与 TAR writer 也不声明分卷. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
+当前注册 ZIP、7Z、RAR 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是只读扩展名别名. 普通单卷 `.zip` 另声明添加文件、新建空目录、删除与重命名能力, 并通过 v8 事务重建; 别名格式与分卷 ZIP 不声明这些能力. ZIP writer 声明可选分卷, reader 通过 v12 读取完整标准 `.z01 + .zip` 卷组并在伴随卷不可用时给出精确诊断. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. RAR reader 支持单卷或完整分卷 RAR4/RAR5、内容加密与头部加密, 使用 256 MiB 字典上限; 它不声明创建、添加、删除或重命名, 缺卷时只保留安全元数据或返回类型化失败. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. 仅含安全普通文件和目录的未压缩 TAR 另声明添加/删除/重命名并通过 v8 事务重建; 压缩容器与特殊条目 TAR 不声明这些能力. TAR writer 与重建器使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得新增文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 7Z 与 RAR 后端不声明添加/删除/重命名, 所有 writer 均不声明创建时文件名加密; 7Z 与 TAR writer 也不声明分卷. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
 
 外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链均已有行为样本; 其中 Windows Explorer、7-Zip、WinRAR、Info-ZIP 与 Java/Kotlin 生产者使用可复现的已提交夹具, MT Manager v2.26.8 与两个外部 macOS ZIP 使用固定哈希的本地观察语料. 后两类只有在取得原始创建设置后才可提升为可重新生成的已提交夹具, 但不再阻塞格式行为矩阵.
 
@@ -525,7 +525,7 @@ FormatCapabilities
 ## 兼容与发布边界
 
 - 项目尚未公开发布, 因此直接使用 `archive-manager`、`io.github.supermonster003.autojs6.plugin.archivemanager` 和 Manager 类/资源名, 不保留旧命名别名.
-- 当前插件的原生浏览与条目预览使用 Explorer Action v6, 压缩入口使用 v4 文件会话, 创建后的提交前完整校验要求 v7, ZIP 修改使用 v8, 受控目录输出使用 v9, 宿主原生当前目录/选择项解压使用 v10, 首次打开与解压密码恢复使用 v11, ZIP/RAR/编号 ZIP/7Z 同级分卷读取使用 v12, 宿主原生文件名编码重建使用 v13, `.zip.001`/`.7z.001` 与 TAR 复合后缀初筛使用 v14, 分卷与单独压缩的可恢复统一发布使用 v15, 经完整输出证明约束的源项目回收站交接使用 v16, 名称未匹配时的显式档案复核与实际格式提示使用 v17, 最近一次目标替换的宿主持有恢复使用 v18; 配套 AutoJs6 版本代码仍为 5276 或更高版本.
+- 当前插件的原生浏览与条目预览使用 Explorer Action v6, 压缩入口使用 v4 文件会话, 创建后的提交前完整校验要求 v7, ZIP/TAR 档案修改使用 v8, 受控目录输出使用 v9, 宿主原生当前目录/选择项解压使用 v10, 首次打开与解压密码恢复使用 v11, ZIP/RAR/编号 ZIP/7Z 同级分卷读取使用 v12, 宿主原生文件名编码重建使用 v13, `.zip.001`/`.7z.001` 与 TAR 复合后缀初筛使用 v14, 分卷与单独压缩的可恢复统一发布使用 v15, 经完整输出证明约束的源项目回收站交接使用 v16, 名称未匹配时的显式档案复核与实际格式提示使用 v17, 最近一次目标替换的宿主持有恢复使用 v18; 配套 AutoJs6 版本代码仍为 5276 或更高版本.
 - 宿主仍可解析 v1-v4 插件目录, 但本插件不会发布旧动作、旧协议目录或旧 applicationId 的兼容入口.
 - 后续协议字段必须保持显式版本与上限; 未知可选字段可以忽略, 未知必需能力必须明确拒绝.
 

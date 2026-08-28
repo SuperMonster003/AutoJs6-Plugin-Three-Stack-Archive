@@ -44,9 +44,9 @@ Archive Manager funciona dentro del gestor de archivos de AutoJs6 en lugar de su
 - Explorar, previsualizar y extraer conjuntos completos estándar `.z01 + .zip`, WinRAR modernos `partN.rar`, `.zip.001` numerados y `.7z.001` numerados mediante descriptores hermanos acotados y autorizados por el host; los volúmenes ausentes o modificados fallan de forma explícita.
 - Crear ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST desde un elemento o una selección con el mismo padre; ZIP también admite AES-256, volúmenes estándar y un archivo por elemento.
 - Los ZIP divididos estándar y la compresión por elemento publican todas las salidas físicas verificadas mediante un lote recuperable; un fallo o reinicio del host nunca se presenta como un resultado parcial correcto.
-- Editar un ZIP ordinario de un solo volumen mediante reconstrucción verificada: añadir archivos o árboles de carpetas, crear carpetas vacías, renombrar y eliminar, y sustituir la fuente de forma atómica.
-- Tras editar un ZIP correctamente, restaura la versión anterior desde el mensaje de éxito o el menú de gestión; el host ofrece una sola restauración durante una retención limitada y la rechaza si otra aplicación cambió el destino.
-- La página de gestión reúne el formato real, los totales de contenido, las modificaciones disponibles y el motivo exacto del modo de solo lectura; antes de reservar una salida, cada cambio ZIP muestra el trabajo real, la reconstrucción completa y los efectos en metadatos, mientras que cancelar no crea ninguna salida pendiente.
+- Editar ZIP ordinarios de un solo volumen y TAR sin comprimir compatibles mediante reconstrucción verificada: añadir archivos o árboles de carpetas, crear carpetas vacías, renombrar y eliminar, y sustituir la fuente de forma atómica.
+- Tras editar un ZIP o TAR correctamente, restaura la versión anterior desde el mensaje de éxito o el menú de gestión; el host ofrece una sola restauración durante una retención limitada y la rechaza si otra aplicación cambió el destino.
+- La página de gestión reúne el formato real, los totales de contenido, las modificaciones disponibles y el motivo exacto del modo de solo lectura; antes de reservar una salida, cada cambio ZIP o TAR muestra el trabajo real, la reconstrucción completa y los efectos en metadatos, mientras que cancelar no crea ninguna salida pendiente.
 - Aislar en modo de solo lectura los nombres peligrosos, aplicar límites estructurales y de recursos antes de escribir y leer directamente el descriptor seekable del host cuando sea posible.
 - Mover opcionalmente toda la selección de origen a la papelera del host solo después de verificar y confirmar todas las salidas físicas; la opción está desactivada de forma predeterminada y una fuente modificada o una prueba incompleta detiene la operación antes de retirar datos de origen.
 
@@ -64,7 +64,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura; la edición se limita a `.zip` ordinarios de un solo volumen. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de 7Z, RAR o TAR no están disponibles.
+> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior). RAR, los archivos divididos y los contenedores TAR comprimidos son deliberadamente de solo lectura; se pueden editar `.zip` ordinarios de un solo volumen y `.tar` sin comprimir que contengan solo archivos y directorios normales seguros. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de JAR/AAR/WAR, 7Z, RAR o TAR comprimidos siguen sin estar disponibles.
 
 ### Uso
 
@@ -72,7 +72,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Pulsa la acción principal de un archivo compatible o elige Abrir archivo. Si no se reconoce el nombre, elige Abrir como archivo comprimido... en el menú. Navega como por una carpeta con la barra de ruta, que indica el formato detectado cuando el nombre era engañoso.
 3. Usa la acción de extracción de la barra de ruta para la carpeta interna actual o la acción de codificación para corregir nombres ZIP, mantén pulsado para extraer una selección o elige Extraer en... en el menú del archivo para extraerlo completo. La contraseña se solicita cuando hace falta.
 4. Elige Comprimir... para un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa la acción de la barra inferior. Para limpiar las fuentes después del éxito, activa expresamente la opción desactivada de forma predeterminada que las mueve a la papelera tras comprimir.
-5. Elige Gestionar archivo... solo para añadir, renombrar o eliminar contenido de un ZIP ordinario de un solo volumen.
+5. Elige Gestionar archivo... para añadir, renombrar o eliminar contenido de un ZIP ordinario de un solo volumen o un TAR sin comprimir compatible.
 
 ### Permisos y datos
 
@@ -84,11 +84,20 @@ Explorer Action v18 guarda el archivo anterior solo en almacenamiento privado y 
 
 ### Roadmap
 
-El trabajo restante se sigue con casillas verificables: reconstrucciones editables más allá de ZIP, deshacer en grupo e historial de la papelera, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
+El trabajo restante se sigue con casillas verificables: reconstrucciones editables más allá de ZIP ordinario y TAR sin comprimir, deshacer en grupo e historial de la papelera, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.12.0
+
+_2026/08/28_
+
+- `Nota` Esta versión sigue requiriendo la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Añadido` Los TAR ordinarios sin comprimir que solo contienen archivos y directorios normales seguros ya pueden añadir archivos o árboles completos, crear carpetas vacías, renombrar y eliminar desde la página de gestión
+- `Corregido` La información del archivo ahora describe los metadatos extendidos de forma neutral respecto al formato, sin etiquetar incorrectamente los metadatos TAR como campos extra de ZIP
+- `Mejorado` Los cambios TAR usan una sola pasada secuencial por la fuente, muestran el trabajo real antes de reservar la salida, conservan las fechas disponibles, emiten nombres POSIX/PAX cuando hace falta, releen por completo el reemplazo y reutilizan el reemplazo atómico y la restauración reciente del host
 
 #### v2.11.0
 
@@ -110,16 +119,6 @@ _2026/08/28_
 - `Corregido` TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST ahora usan sufijos exactos del nombre completo en vez de las extensiones genéricas `gz`, `xz`, `bz2` o `zst`, de modo que los flujos comprimidos ordinarios no reciben la acción principal de archivo
 - `Mejorado` El host no examina archivos en segundo plano al crear los menús; solo una elección explícita ejecuta una llamada existente de apertura de solo lectura, sin autoridad nueva sobre rutas, directorios o escritura
 - `Mejorado` Añadir, importar, crear carpetas, renombrar y eliminar ahora revisan el trabajo real, la reconstrucción completa y los efectos en metadatos antes de reservar una salida; cancelar no crea ninguna salida pendiente
-
-#### v2.9.0
-
-_2026/08/27_
-
-- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v16 (código de versión 5276 o posterior)
-- `Añadido` El formulario de compresión añade la opción desactivada de forma predeterminada para mover las fuentes a la papelera tras comprimir, y solo se ejecuta después de verificar y confirmar todas las salidas físicas
-- `Añadido` Explorer Action v16 acepta únicamente la selección original completa y ordenada y todas las transacciones de salida confirmadas; después el host vuelve a validar las identidades antes de usar su papelera
-- `Corregido` El host ahora sincroniza una copia recuperable y persiste su entrada de papelera antes de retirar una fuente; si un directorio solo se retira en parte, conserva la copia recuperable
-- `Mejorado` La fase de papelera no se puede cancelar y distingue los resultados confirmado, requiere recuperación, fallido y desconocido; si se pierde una respuesta Binder se consulta el estado terminal del host sin repetir a ciegas
 
 ##### Historial completo
 

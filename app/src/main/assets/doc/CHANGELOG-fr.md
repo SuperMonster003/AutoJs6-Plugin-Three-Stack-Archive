@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.12.0
+
+_2026/08/28_
+
+- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+- `Ajout` Les TAR ordinaires non compressés contenant uniquement des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+- `Correction` Les informations de l'archive décrivent maintenant les métadonnées étendues sans dépendre du format et n'étiquettent plus à tort les métadonnées TAR comme champs extra ZIP
+- `Amélioration` Les modifications TAR utilisent un seul passage séquentiel sur la source, présentent le travail réel avant de réserver la sortie, conservent les dates disponibles, écrivent les noms POSIX/PAX si nécessaire, relisent entièrement le remplacement et réutilisent le remplacement atomique et la restauration récente de l'hôte
+
 ## v2.11.0
 
 _2026/08/28_

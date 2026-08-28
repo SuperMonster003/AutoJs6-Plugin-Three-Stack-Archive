@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.12.0
+
+_2026/08/28_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` Ordinary uncompressed TAR archives containing only safe regular files and directories can now add files or folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` Archive information now describes format-specific extended metadata without incorrectly labeling TAR metadata as ZIP extra fields
+- `Improved` TAR changes use one sequential source pass, show factual work before reserving output, preserve available modification times, emit POSIX/PAX names when needed, fully read back the replacement, and reuse the host's atomic replacement and recent-version restore flow
+
 ## v2.11.0
 
 _2026/08/28_
