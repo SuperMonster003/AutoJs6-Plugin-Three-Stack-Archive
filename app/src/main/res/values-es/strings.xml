@@ -204,8 +204,6 @@
     <string name="action_delete">Eliminar</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">Nueva carpeta...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">Cambiar nombre...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">¿Eliminar los %1$d elementos seleccionados y todo el contenido de las carpetas seleccionadas? El ZIP se reconstruirá antes de sustituir el original.</string>
-    <string name="dialog_title_delete_archive_entries">Eliminar del archivo</string>
     <string name="dialog_title_new_archive_folder">Nueva carpeta en el archivo</string>
     <string name="dialog_title_rename_archive_entry">Cambiar nombre del elemento</string>
     <string name="error_archive_mutation_failed">No se pudo actualizar el ZIP</string>
@@ -227,4 +225,39 @@
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Se han revertido %1$d transacciones de salida incompletas de una operación interrumpida.</string>
     <string name="action_add_folder" tools:ignore="TypographyEllipsis">Añadir carpeta...</string>
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Analizando carpeta...</string>
+    <string name="action_archive_information">Información del archivo</string>
+    <string name="dialog_title_archive_information">Información del archivo</string>
+    <string name="dialog_title_archive_mutation_preflight">Revisar cambios del archivo</string>
+    <string name="text_archive_information_format">Formato: %1$s</string>
+    <string name="text_archive_information_archive_size">Tamaño actual del archivo: %1$s</string>
+    <string name="text_archive_information_contents">Contenido: %1$d elementos (%2$d archivos, %3$d carpetas); %4$s sin comprimir</string>
+    <string name="text_archive_management_status">Administración: %1$s</string>
+    <string name="text_archive_management_available">Disponible en esta sesión</string>
+    <string name="text_archive_management_read_only">Solo lectura. %1$s</string>
+    <string name="text_archive_read_only_current_session">Este archivo se abrió sin acceso para administrar su contenido. Vuelve a abrirlo mediante Administrar archivo para modificarlo.</string>
+    <string name="text_archive_read_only_host_replacement">La sesión actual del host no puede sustituir este archivo de forma atómica.</string>
+    <string name="text_archive_read_only_format">El backend instalado permite explorar o extraer este formato, pero no modificar su contenido.</string>
+    <string name="text_archive_read_only_multi_volume">Los archivos de varios volúmenes no se pueden reconstruir de forma segura.</string>
+    <string name="text_archive_read_only_unsafe_path">Al menos un elemento tiene una ruta original no segura, por lo que el archivo no se puede reconstruir.</string>
+    <string name="text_archive_read_only_password">Aplica la contraseña correcta del archivo antes de modificarlo.</string>
+    <string name="text_archive_read_only_unsupported_method">Al menos un elemento usa un método de compresión o cifrado que este backend no puede reescribir.</string>
+    <string name="text_archive_read_only_backend_variant">Esta variante de archivo es de solo lectura en el backend instalado.</string>
+    <string name="text_archive_management_operations">Cambios disponibles: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">Reconstrucción completa: cada archivo resultante se escribe en un archivo de sustitución verificado antes de sustituir el original de forma atómica.</string>
+    <string name="text_archive_metadata_effects">Metadatos afectados por la reconstrucción:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">El comentario del archivo no se conservará.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">Los comentarios de los elementos no se conservarán.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Los campos extra de ZIP pueden normalizarse.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Los permisos y atributos Unix no se conservarán.</string>
+    <string name="text_archive_metadata_compression_normalized">La configuración de compresión de cada elemento puede normalizarse.</string>
+    <string name="text_archive_metadata_encryption_normalized">La configuración de cifrado de cada elemento puede normalizarse.</string>
+    <string name="text_archive_information_safety">El archivo original no se sustituye hasta que el nuevo archivo completo se haya leído y verificado.</string>
+    <string name="text_archive_mutation_operation_add">Añadir contenido</string>
+    <string name="text_archive_mutation_operation_delete">Eliminar contenido seleccionado</string>
+    <string name="text_archive_mutation_operation_rename">Cambiar nombre del contenido seleccionado</string>
+    <string name="text_archive_mutation_preflight_change">Cambio: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Resultado: %1$d elementos (%2$d archivos, %3$d carpetas)</string>
+    <string name="text_archive_mutation_preflight_known_work">Contenido que se leerá: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Contenido que se leerá: al menos %1$s; %2$d archivos resultantes tienen un tamaño declarado desconocido.</string>
+    <string name="text_archive_mutation_output_size_unknown">No se predice el tamaño de salida temporal porque la compresión puede cambiarlo. Asegúrate de que el dispositivo tenga espacio para un archivo de sustitución completo.</string>
 </resources>

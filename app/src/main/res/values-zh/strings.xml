@@ -204,8 +204,6 @@
     <string name="action_delete">删除</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">新建文件夹...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">重命名...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">删除选中的 %1$d 个条目及所选文件夹内的全部内容? 替换原文件前将重新构建 ZIP.</string>
-    <string name="dialog_title_delete_archive_entries">从压缩档案中删除</string>
     <string name="dialog_title_new_archive_folder">新建档案内文件夹</string>
     <string name="dialog_title_rename_archive_entry">重命名档案条目</string>
     <string name="error_archive_mutation_failed">无法更新 ZIP</string>
@@ -227,4 +225,39 @@
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">已回滚中断操作留下的 %1$d 个未完成输出事务.</string>
     <string name="action_add_folder" tools:ignore="TypographyEllipsis">添加文件夹...</string>
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">正在扫描文件夹...</string>
+    <string name="action_archive_information">档案信息</string>
+    <string name="dialog_title_archive_information">档案信息</string>
+    <string name="dialog_title_archive_mutation_preflight">查看档案更改</string>
+    <string name="text_archive_information_format">格式: %1$s</string>
+    <string name="text_archive_information_archive_size">当前档案大小: %1$s</string>
+    <string name="text_archive_information_contents">内容: %1$d 个条目 (%2$d 个文件, %3$d 个文件夹); 解压后共 %4$s</string>
+    <string name="text_archive_management_status">档案管理: %1$s</string>
+    <string name="text_archive_management_available">当前会话可用</string>
+    <string name="text_archive_management_read_only">只读. %1$s</string>
+    <string name="text_archive_read_only_current_session">本档案未通过“管理压缩档案”入口打开. 请从该入口重新打开后再修改内容.</string>
+    <string name="text_archive_read_only_host_replacement">当前宿主会话无法原子替换此档案.</string>
+    <string name="text_archive_read_only_format">已安装的后端可浏览或解压此格式, 但不能修改其内容.</string>
+    <string name="text_archive_read_only_multi_volume">无法安全重建分卷档案.</string>
+    <string name="text_archive_read_only_unsafe_path">至少一个条目的原始路径不安全, 因此不能重建此档案.</string>
+    <string name="text_archive_read_only_password">修改前请先应用正确的档案密码.</string>
+    <string name="text_archive_read_only_unsupported_method">至少一个条目使用了当前后端无法重写的压缩或加密方法.</string>
+    <string name="text_archive_read_only_backend_variant">已安装的后端只能以只读方式处理这种档案变体.</string>
+    <string name="text_archive_management_operations">可用更改: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">完整重建: 每个结果文件都会写入经过验证的替代档案, 随后才以原子方式替换原档案.</string>
+    <string name="text_archive_metadata_effects">重建会影响以下元数据:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">不会保留档案注释.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">不会保留条目注释.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">ZIP extra 字段可能会被规范化.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">不会保留 Unix 权限和属性.</string>
+    <string name="text_archive_metadata_compression_normalized">每个条目的压缩设置可能会被规范化.</string>
+    <string name="text_archive_metadata_encryption_normalized">每个条目的加密设置可能会被规范化.</string>
+    <string name="text_archive_information_safety">只有完整的新档案通过读回验证后, 才会替换原档案.</string>
+    <string name="text_archive_mutation_operation_add">添加内容</string>
+    <string name="text_archive_mutation_operation_delete">删除所选内容</string>
+    <string name="text_archive_mutation_operation_rename">重命名所选内容</string>
+    <string name="text_archive_mutation_preflight_change">更改: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">结果: %1$d 个条目 (%2$d 个文件, %3$d 个文件夹)</string>
+    <string name="text_archive_mutation_preflight_known_work">需要读取的内容: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">需要读取的内容: 至少 %1$s; 结果中有 %2$d 个文件的报告大小未知.</string>
+    <string name="text_archive_mutation_output_size_unknown">压缩会改变输出大小, 因此不会给出不可靠的临时输出大小预测. 请确保设备有足够空间容纳完整的替代档案.</string>
 </resources>

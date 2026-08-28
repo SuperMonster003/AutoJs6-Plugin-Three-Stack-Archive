@@ -204,8 +204,6 @@
     <string name="action_delete">حذف</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">مجلد جديد...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">إعادة تسمية...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">هل تريد حذف العناصر المحددة وعددها %1$d وكل محتويات المجلدات المحددة؟ ستتم إعادة إنشاء ZIP قبل استبدال الملف الأصلي.</string>
-    <string name="dialog_title_delete_archive_entries">حذف من الأرشيف</string>
     <string name="dialog_title_new_archive_folder">مجلد جديد داخل الأرشيف</string>
     <string name="dialog_title_rename_archive_entry">إعادة تسمية عنصر الأرشيف</string>
     <string name="error_archive_mutation_failed">تعذر تحديث ZIP</string>
@@ -227,4 +225,39 @@
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">تم التراجع عن %1$d من معاملات الإخراج غير المكتملة بعد مقاطعة العملية.</string>
     <string name="action_add_folder" tools:ignore="TypographyEllipsis">إضافة مجلد...</string>
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">جار فحص المجلد...</string>
+    <string name="action_archive_information">معلومات الأرشيف</string>
+    <string name="dialog_title_archive_information">معلومات الأرشيف</string>
+    <string name="dialog_title_archive_mutation_preflight">مراجعة تغييرات الأرشيف</string>
+    <string name="text_archive_information_format">التنسيق: %1$s</string>
+    <string name="text_archive_information_archive_size">حجم الأرشيف الحالي: %1$s</string>
+    <string name="text_archive_information_contents">المحتويات: %1$d من العناصر (%2$d من الملفات، %3$d من المجلدات)؛ %4$s بعد فك الضغط</string>
+    <string name="text_archive_management_status">الإدارة: %1$s</string>
+    <string name="text_archive_management_available">متاحة في هذه الجلسة</string>
+    <string name="text_archive_management_read_only">للقراءة فقط. %1$s</string>
+    <string name="text_archive_read_only_current_session">فُتح هذا الأرشيف من دون صلاحية إدارة المحتوى. أعد فتحه باستخدام إدارة الأرشيف لإجراء تغييرات.</string>
+    <string name="text_archive_read_only_host_replacement">لا تستطيع جلسة المضيف الحالية استبدال هذا الأرشيف بصورة ذرية.</string>
+    <string name="text_archive_read_only_format">تدعم الواجهة الخلفية المثبتة تصفح هذا التنسيق أو استخراجه، لكنها لا تدعم تغيير محتواه.</string>
+    <string name="text_archive_read_only_multi_volume">لا يمكن إعادة إنشاء الأرشيفات متعددة الأجزاء بأمان.</string>
+    <string name="text_archive_read_only_unsafe_path">يحتوي عنصر واحد على الأقل على مسار أصلي غير آمن، لذلك لا يمكن إعادة إنشاء الأرشيف.</string>
+    <string name="text_archive_read_only_password">طبّق كلمة مرور الأرشيف الصحيحة قبل إجراء تغييرات.</string>
+    <string name="text_archive_read_only_unsupported_method">يستخدم عنصر واحد على الأقل طريقة ضغط أو تشفير لا تستطيع هذه الواجهة الخلفية إعادة كتابتها.</string>
+    <string name="text_archive_read_only_backend_variant">هذا النوع من الأرشيفات متاح للقراءة فقط في الواجهة الخلفية المثبتة.</string>
+    <string name="text_archive_management_operations">التغييرات المتاحة: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">إعادة إنشاء كاملة: يُكتب كل ملف ناتج في أرشيف بديل تم التحقق منه، ثم يُستبدل الأرشيف الأصلي بصورة ذرية.</string>
+    <string name="text_archive_metadata_effects">بيانات التعريف التي تتأثر بإعادة الإنشاء:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">لن يتم الاحتفاظ بتعليق الأرشيف.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">لن يتم الاحتفاظ بتعليقات العناصر.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">قد تتم تسوية حقول ZIP الإضافية.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">لن يتم الاحتفاظ بأذونات Unix وسماته.</string>
+    <string name="text_archive_metadata_compression_normalized">قد تتم تسوية إعدادات الضغط لكل عنصر.</string>
+    <string name="text_archive_metadata_encryption_normalized">قد تتم تسوية إعدادات التشفير لكل عنصر.</string>
+    <string name="text_archive_information_safety">لا يُستبدل الأرشيف الأصلي إلا بعد قراءة الأرشيف الجديد بالكامل والتحقق منه.</string>
+    <string name="text_archive_mutation_operation_add">إضافة محتوى</string>
+    <string name="text_archive_mutation_operation_delete">حذف المحتوى المحدد</string>
+    <string name="text_archive_mutation_operation_rename">إعادة تسمية المحتوى المحدد</string>
+    <string name="text_archive_mutation_preflight_change">التغيير: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">النتيجة: %1$d من العناصر (%2$d من الملفات، %3$d من المجلدات)</string>
+    <string name="text_archive_mutation_preflight_known_work">المحتوى المطلوب قراءته: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">المحتوى المطلوب قراءته: %1$s على الأقل؛ الحجم المبلغ عنه غير معروف لعدد %2$d من الملفات الناتجة.</string>
+    <string name="text_archive_mutation_output_size_unknown">لا يتم تقدير حجم الإخراج المؤقت لأن الضغط قد يغيره. تأكد من توفر مساحة على الجهاز لأرشيف بديل كامل.</string>
 </resources>

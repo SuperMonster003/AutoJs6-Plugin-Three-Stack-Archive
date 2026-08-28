@@ -219,6 +219,16 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private fun setupViews() = with(binding) {
         toolbar.setNavigationOnClickListener { handleBack() }
+        toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.actionArchiveInformation -> {
+                    showArchiveInformationDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+        toolbar.menu.findItem(R.id.actionArchiveInformation).isEnabled = false
         adapter = ArchiveEntryAdapter(
             onOpenDirectory = { row ->
                 currentDirectory = row.path
@@ -255,7 +265,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
         newFolderButton.setOnClickListener { showNewFolderDialog() }
         renameButton.setOnClickListener { showRenameDialog() }
-        deleteButton.setOnClickListener { showDeleteDialog() }
+        deleteButton.setOnClickListener { startDeleteSelection() }
         extractButton.setOnClickListener { showExtractionScopeDialog() }
         cancelButton.setOnClickListener { operationJob?.cancel() }
         filenameEncodingInput.setOnItemClickListener { _, _, position, _ ->
@@ -792,10 +802,140 @@ class ArchiveManagerActivity : AppCompatActivity() {
     }
 
     private fun canManageArchive(): Boolean {
-        val archive = snapshot ?: return false
-        return request?.requestedAction == ArchiveRequestedAction.MANAGE &&
-            request?.hostSession != null &&
-            ArchiveEngine.DEFAULT.mutationAvailability(archive).isAvailable
+        return managementStatus()?.isWritable == true
+    }
+
+    private fun managementStatus(): ArchiveManagementStatus? {
+        val archive = snapshot ?: return null
+        val openRequest = request ?: return null
+        return ArchiveEngine.DEFAULT.managementStatus(
+            snapshot = archive,
+            requestedAction = openRequest.requestedAction,
+            hasHostReplacementSession = openRequest.hostSession != null,
+        )
+    }
+
+    internal fun showArchiveInformationDialog(): androidx.appcompat.app.AlertDialog? {
+        if (isBusy) return null
+        val archive = snapshot ?: return null
+        val status = managementStatus() ?: return null
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_archive_information)
+            .setMessage(archiveInformationMessage(archive, status))
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    private fun archiveInformationMessage(
+        archive: ArchiveSnapshot,
+        status: ArchiveManagementStatus,
+    ): String {
+        val fileCount = archive.entries.count { !it.isDirectory }
+        val directoryCount = archive.entries.size - fileCount
+        val managementText = status.readOnlyReason?.let { reason ->
+            getString(
+                R.string.text_archive_management_read_only,
+                archiveManagementReadOnlyReason(reason),
+            )
+        } ?: getString(R.string.text_archive_management_available)
+        val paragraphs = mutableListOf(
+            listOf(
+                getString(R.string.text_archive_information_format, archive.format.displayName),
+                getString(
+                    R.string.text_archive_information_archive_size,
+                    formatBytes(archive.sourceLength),
+                ),
+                getString(
+                    R.string.text_archive_information_contents,
+                    archive.entries.size,
+                    fileCount,
+                    directoryCount,
+                    formatBytes(archive.totalUncompressedBytes),
+                ),
+                getString(R.string.text_archive_management_status, managementText),
+            ).joinToString(separator = "\n"),
+        )
+        status.capabilities?.let { capabilities ->
+            val operations = ArchiveOperation.entries
+                .filter(capabilities::supports)
+                .map(::archiveMutationOperationLabel)
+                .joinToString(separator = ", ")
+            paragraphs += getString(R.string.text_archive_management_operations, operations)
+            if (capabilities.strategy == ArchiveMutationStrategy.FULL_REWRITE) {
+                paragraphs += getString(R.string.text_archive_mutation_full_rewrite)
+            }
+            metadataEffectParagraph(capabilities.metadataEffects)?.let(paragraphs::add)
+            paragraphs += getString(R.string.text_archive_information_safety)
+        }
+        return paragraphs.joinToString(separator = "\n\n")
+    }
+
+    private fun archiveManagementReadOnlyReason(reason: ArchiveManagementReadOnlyReason): String =
+        getString(
+            when (reason) {
+                ArchiveManagementReadOnlyReason.CURRENT_SESSION_READ_ONLY ->
+                    R.string.text_archive_read_only_current_session
+                ArchiveManagementReadOnlyReason.HOST_REPLACEMENT_UNAVAILABLE ->
+                    R.string.text_archive_read_only_host_replacement
+                ArchiveManagementReadOnlyReason.FORMAT_NOT_SUPPORTED ->
+                    R.string.text_archive_read_only_format
+                ArchiveManagementReadOnlyReason.MULTI_VOLUME_ARCHIVE ->
+                    R.string.text_archive_read_only_multi_volume
+                ArchiveManagementReadOnlyReason.UNSAFE_ENTRY_PATH ->
+                    R.string.text_archive_read_only_unsafe_path
+                ArchiveManagementReadOnlyReason.PASSWORD_REQUIRED ->
+                    R.string.text_archive_read_only_password
+                ArchiveManagementReadOnlyReason.UNSUPPORTED_ENTRY_METHOD ->
+                    R.string.text_archive_read_only_unsupported_method
+                ArchiveManagementReadOnlyReason.BACKEND_VARIANT_READ_ONLY ->
+                    R.string.text_archive_read_only_backend_variant
+            },
+        )
+
+    private fun archiveMutationOperationLabel(operation: ArchiveOperation): String = getString(
+        when (operation) {
+            ArchiveOperation.ADD -> R.string.text_archive_mutation_operation_add
+            ArchiveOperation.DELETE -> R.string.text_archive_mutation_operation_delete
+            ArchiveOperation.RENAME -> R.string.text_archive_mutation_operation_rename
+            ArchiveOperation.DETECT,
+            ArchiveOperation.LIST,
+            ArchiveOperation.PREVIEW,
+            ArchiveOperation.OPEN,
+            ArchiveOperation.EXTRACT,
+            ArchiveOperation.CREATE,
+            -> error("Non-mutation operation cannot be presented as an archive change")
+        },
+    )
+
+    private fun metadataEffectParagraph(
+        effects: Set<ArchiveMutationMetadataEffect>,
+    ): String? {
+        if (effects.isEmpty()) return null
+        val lines = ArchiveMutationMetadataEffect.entries
+            .filter(effects::contains)
+            .map { effect -> "- ${getString(metadataEffectString(effect))}" }
+        return buildString {
+            append(getString(R.string.text_archive_metadata_effects))
+            lines.forEach { line ->
+                append('\n')
+                append(line)
+            }
+        }
+    }
+
+    private fun metadataEffectString(effect: ArchiveMutationMetadataEffect): Int = when (effect) {
+        ArchiveMutationMetadataEffect.ARCHIVE_COMMENT_DROPPED ->
+            R.string.text_archive_metadata_archive_comment_dropped
+        ArchiveMutationMetadataEffect.ENTRY_COMMENTS_DROPPED ->
+            R.string.text_archive_metadata_entry_comments_dropped
+        ArchiveMutationMetadataEffect.EXTRA_FIELDS_NORMALIZED ->
+            R.string.text_archive_metadata_extra_fields_normalized
+        ArchiveMutationMetadataEffect.UNIX_ATTRIBUTES_DROPPED ->
+            R.string.text_archive_metadata_unix_attributes_dropped
+        ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED ->
+            R.string.text_archive_metadata_compression_normalized
+        ArchiveMutationMetadataEffect.ENCRYPTION_SETTINGS_NORMALIZED ->
+            R.string.text_archive_metadata_encryption_normalized
     }
 
     private fun showNewFolderDialog() {
@@ -834,21 +974,14 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDeleteDialog() {
+    private fun startDeleteSelection() {
         if (!canManageArchive() || isBusy) return
         val paths = selectedPaths.toSet()
         if (paths.isEmpty()) {
             showMessage(getString(R.string.error_no_selection))
             return
         }
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.dialog_title_delete_archive_entries)
-            .setMessage(getString(R.string.dialog_message_delete_archive_entries, paths.size))
-            .setNegativeButton(R.string.dialog_button_cancel, null)
-            .setPositiveButton(R.string.action_delete) { _, _ ->
-                startArchiveMutation(ArchiveMutationRequest.Delete(paths))
-            }
-            .show()
+        startArchiveMutation(ArchiveMutationRequest.Delete(paths))
     }
 
     private fun showArchiveEntryNameDialog(
@@ -978,6 +1111,92 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun confirmArchiveMutation(prepared: PreparedArchiveMutation): Boolean =
+        withContext(Dispatchers.Main.immediate) {
+            suspendCancellableCoroutine { continuation ->
+                val dialog = createArchiveMutationPreflightDialog(
+                    prepared = prepared,
+                    onConfirmed = {
+                        if (continuation.isActive) continuation.resume(true)
+                    },
+                    onCancelled = {
+                        if (continuation.isActive) continuation.resume(false)
+                    },
+                )
+                continuation.invokeOnCancellation {
+                    runOnUiThread {
+                        if (dialog.isShowing) dialog.dismiss()
+                    }
+                }
+                dialog.show()
+            }
+        }
+
+    internal fun createArchiveMutationPreflightDialog(
+        prepared: PreparedArchiveMutation,
+        onConfirmed: () -> Unit,
+        onCancelled: () -> Unit,
+    ): androidx.appcompat.app.AlertDialog {
+        var completed = false
+        fun complete(confirmed: Boolean) {
+            if (completed) return
+            completed = true
+            if (confirmed) onConfirmed() else onCancelled()
+        }
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_archive_mutation_preflight)
+            .setMessage(archiveMutationPreflightMessage(prepared))
+            .setNegativeButton(R.string.dialog_button_cancel) { _, _ -> complete(false) }
+            .setPositiveButton(R.string.dialog_button_continue) { _, _ -> complete(true) }
+            .create()
+            .also { dialog ->
+                dialog.setOnCancelListener { complete(false) }
+                dialog.setOnDismissListener { complete(false) }
+            }
+    }
+
+    internal fun archiveMutationPreflightMessage(prepared: PreparedArchiveMutation): String {
+        val work = prepared.workEstimate
+        val contentWork = if (work.unknownContentFileCount == 0) {
+            getString(
+                R.string.text_archive_mutation_preflight_known_work,
+                formatBytes(work.knownContentBytesToRead),
+            )
+        } else {
+            getString(
+                R.string.text_archive_mutation_preflight_unknown_work,
+                formatBytes(work.knownContentBytesToRead),
+                work.unknownContentFileCount,
+            )
+        }
+        val paragraphs = mutableListOf(
+            listOf(
+                getString(
+                    R.string.text_archive_mutation_preflight_change,
+                    archiveMutationOperationLabel(prepared.operation),
+                ),
+                getString(
+                    R.string.text_archive_information_archive_size,
+                    formatBytes(work.sourceArchiveBytes),
+                ),
+                getString(
+                    R.string.text_archive_mutation_preflight_result,
+                    work.resultEntryCount,
+                    work.resultFileCount,
+                    work.resultDirectoryCount,
+                ),
+                contentWork,
+            ).joinToString(separator = "\n"),
+            getString(R.string.text_archive_mutation_output_size_unknown),
+        )
+        if (prepared.metadataEffects.isNotEmpty()) {
+            metadataEffectParagraph(prepared.metadataEffects)?.let(paragraphs::add)
+        }
+        paragraphs += getString(R.string.text_archive_mutation_full_rewrite)
+        paragraphs += getString(R.string.text_archive_information_safety)
+        return paragraphs.joinToString(separator = "\n\n")
+    }
+
     private fun startArchiveMutation(request: ArchiveMutationRequest) {
         startArchiveMutation { request }
     }
@@ -995,17 +1214,31 @@ class ArchiveManagerActivity : AppCompatActivity() {
             var committed: HostOutputTransaction? = null
             try {
                 val mutationRequest = requestProvider()
+                val provider = ArchiveEngine.DEFAULT.createMutationProvider(
+                    archive.format,
+                    hostSession,
+                    cacheDir,
+                )
+                val prepared = withContext(Dispatchers.IO) {
+                    provider.prepare(archive, mutationRequest)
+                }
+                if (!confirmArchiveMutation(prepared)) {
+                    setBusy(false)
+                    renderEntries()
+                    return@launch
+                }
+                setBusy(
+                    true,
+                    getString(R.string.text_preparing_archive_changes),
+                    cancellable = true,
+                )
                 committed = withContext(Dispatchers.IO) {
-                    ArchiveEngine.DEFAULT.createMutationProvider(
-                        archive.format,
-                        hostSession,
-                        cacheDir,
-                    ).mutate(
+                    provider.execute(
                         source = staged.source,
                         snapshot = archive,
                         targetId = openRequest.targetId,
                         displayName = openRequest.displayName,
-                        request = mutationRequest,
+                        prepared = prepared,
                         checkCancelled = { ensureActive() },
                         progress = ArchiveMutationProgressListener(::renderMutationProgress),
                     )
@@ -2018,6 +2251,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.archivePasswordLayout.isEnabled = !busy
         binding.archivePassword.isEnabled = !busy
         binding.applyPasswordButton.isEnabled = !busy
+        binding.toolbar.menu.findItem(R.id.actionArchiveInformation).isEnabled =
+            !busy && snapshot != null
         binding.upButton.isEnabled = !busy && currentDirectory.isNotEmpty()
         binding.selectAllButton.isEnabled = !busy && snapshot != null
         binding.extractButton.isEnabled = !busy && snapshot != null

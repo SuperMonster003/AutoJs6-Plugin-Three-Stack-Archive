@@ -204,8 +204,6 @@
     <string name="action_delete">Удалить</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">Новая папка...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">Переименовать...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">Удалить выбранные элементы (%1$d) и всё содержимое выбранных папок? ZIP будет пересоздан до замены исходного файла.</string>
-    <string name="dialog_title_delete_archive_entries">Удалить из архива</string>
     <string name="dialog_title_new_archive_folder">Новая папка в архиве</string>
     <string name="dialog_title_rename_archive_entry">Переименовать элемент архива</string>
     <string name="error_archive_mutation_failed">Не удалось обновить ZIP</string>
@@ -227,4 +225,39 @@
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Откат незавершённых выходных транзакций после прерванной операции: %1$d.</string>
     <string name="action_add_folder" tools:ignore="TypographyEllipsis">Добавить папку...</string>
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Сканирование папки...</string>
+    <string name="action_archive_information">Сведения об архиве</string>
+    <string name="dialog_title_archive_information">Сведения об архиве</string>
+    <string name="dialog_title_archive_mutation_preflight">Проверка изменений архива</string>
+    <string name="text_archive_information_format">Формат: %1$s</string>
+    <string name="text_archive_information_archive_size">Текущий размер архива: %1$s</string>
+    <string name="text_archive_information_contents">Содержимое: %1$d элементов (%2$d файлов, %3$d папок); %4$s после распаковки</string>
+    <string name="text_archive_management_status">Управление: %1$s</string>
+    <string name="text_archive_management_available">Доступно в этом сеансе</string>
+    <string name="text_archive_management_read_only">Только чтение. %1$s</string>
+    <string name="text_archive_read_only_current_session">Архив открыт без доступа к управлению содержимым. Чтобы внести изменения, откройте его снова через пункт «Управление архивом».</string>
+    <string name="text_archive_read_only_host_replacement">Текущий сеанс хоста не может атомарно заменить этот архив.</string>
+    <string name="text_archive_read_only_format">Установленный бэкенд поддерживает просмотр или извлечение этого формата, но не изменение содержимого.</string>
+    <string name="text_archive_read_only_multi_volume">Многотомные архивы нельзя безопасно пересоздать.</string>
+    <string name="text_archive_read_only_unsafe_path">Хотя бы один элемент имеет небезопасный исходный путь, поэтому архив нельзя пересоздать.</string>
+    <string name="text_archive_read_only_password">Перед изменением примените правильный пароль архива.</string>
+    <string name="text_archive_read_only_unsupported_method">Хотя бы один элемент использует метод сжатия или шифрования, который этот бэкенд не может перезаписать.</string>
+    <string name="text_archive_read_only_backend_variant">Этот вариант архива доступен установленному бэкенду только для чтения.</string>
+    <string name="text_archive_management_operations">Доступные изменения: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">Полное пересоздание: каждый итоговый файл записывается в проверенный архив-замену, после чего исходный архив заменяется атомарно.</string>
+    <string name="text_archive_metadata_effects">Метаданные, затрагиваемые при пересоздании:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">Комментарий архива не будет сохранён.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">Комментарии элементов не будут сохранены.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Поля extra ZIP могут быть нормализованы.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Разрешения и атрибуты Unix не будут сохранены.</string>
+    <string name="text_archive_metadata_compression_normalized">Параметры сжатия отдельных элементов могут быть нормализованы.</string>
+    <string name="text_archive_metadata_encryption_normalized">Параметры шифрования отдельных элементов могут быть нормализованы.</string>
+    <string name="text_archive_information_safety">Исходный архив заменяется только после полного чтения и проверки нового архива.</string>
+    <string name="text_archive_mutation_operation_add">Добавить содержимое</string>
+    <string name="text_archive_mutation_operation_delete">Удалить выбранное содержимое</string>
+    <string name="text_archive_mutation_operation_rename">Переименовать выбранное содержимое</string>
+    <string name="text_archive_mutation_preflight_change">Изменение: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Результат: %1$d элементов (%2$d файлов, %3$d папок)</string>
+    <string name="text_archive_mutation_preflight_known_work">Объём чтения: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Объём чтения: не менее %1$s; заявленный размер %2$d итоговых файлов неизвестен.</string>
+    <string name="text_archive_mutation_output_size_unknown">Размер временного результата не прогнозируется, поскольку сжатие может его изменить. Убедитесь, что на устройстве достаточно места для полного архива-замены.</string>
 </resources>

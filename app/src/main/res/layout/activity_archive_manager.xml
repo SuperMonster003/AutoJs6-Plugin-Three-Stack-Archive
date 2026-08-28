@@ -15,6 +15,7 @@
         android:background="?attr/colorSurface"
         android:title="@string/app_name"
         android:titleTextColor="?attr/colorOnSurface"
+        app:menu="@menu/menu_archive_manager"
         app:navigationIcon="@drawable/ic_arrow_back"
         app:navigationContentDescription="@string/text_navigate_up"
         app:navigationIconTint="?attr/colorOnSurface" />

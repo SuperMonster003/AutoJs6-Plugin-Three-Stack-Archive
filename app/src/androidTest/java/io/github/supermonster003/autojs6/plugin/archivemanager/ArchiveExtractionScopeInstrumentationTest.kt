@@ -120,6 +120,120 @@ class ArchiveExtractionScopeInstrumentationTest {
     }
 
     @Test
+    fun archiveInformationShowsWritableBoundaryAndMetadataEffects() {
+        val archiveUri = createArchiveDocument()
+
+        ActivityScenario.launch<ArchiveManagerActivity>(archiveIntent(archiveUri)).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                val toolbar =
+                    activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                        R.id.toolbar,
+                    )
+                assertTrue(toolbar.menu.findItem(R.id.actionArchiveInformation).isEnabled)
+                val dialog = requireNotNull(activity.showArchiveInformationDialog())
+                val message = requireNotNull(
+                    dialog.findViewById<android.widget.TextView>(android.R.id.message),
+                ).text.toString()
+                assertTrue(message.contains(ArchiveFormat.ZIP.displayName))
+                assertTrue(message.contains(activity.getString(R.string.text_archive_management_available)))
+                assertTrue(
+                    message.contains(
+                        activity.getString(
+                            R.string.text_archive_metadata_archive_comment_dropped,
+                        ),
+                    ),
+                )
+                assertTrue(
+                    message.contains(
+                        activity.getString(
+                            R.string.text_archive_metadata_unix_attributes_dropped,
+                        ),
+                    ),
+                )
+                assertTrue(message.contains(activity.getString(R.string.text_archive_information_safety)))
+                dialog.dismiss()
+            }
+        }
+    }
+
+    @Test
+    fun archiveInformationExplainsAReadOnlyOpenSession() {
+        val archiveUri = createArchiveDocument()
+
+        ActivityScenario.launch<ArchiveManagerActivity>(
+            archiveIntent(archiveUri, ArchiveManagerPlugin.ACTION_OPEN_ID),
+        ).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                assertFalse(activity.findViewById<android.view.View>(R.id.addFilesButton).isShown)
+                val dialog = requireNotNull(activity.showArchiveInformationDialog())
+                val message = requireNotNull(
+                    dialog.findViewById<android.widget.TextView>(android.R.id.message),
+                ).text.toString()
+                assertTrue(
+                    message.contains(
+                        activity.getString(R.string.text_archive_read_only_current_session),
+                    ),
+                )
+                dialog.dismiss()
+            }
+        }
+    }
+
+    @Test
+    fun mutationPreflightShowsFactualWorkAndCompletesExactlyOnce() {
+        val archiveUri = createArchiveDocument()
+        var confirmations = 0
+        var cancellations = 0
+        lateinit var dialog: androidx.appcompat.app.AlertDialog
+
+        ActivityScenario.launch<ArchiveManagerActivity>(archiveIntent(archiveUri)).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+            }
+            scenario.onActivity { activity ->
+                dialog = activity.createArchiveMutationPreflightDialog(
+                    prepared = testPreparedMutation(),
+                    onConfirmed = { confirmations++ },
+                    onCancelled = { cancellations++ },
+                )
+                dialog.show()
+                val message = requireNotNull(
+                    dialog.findViewById<android.widget.TextView>(android.R.id.message),
+                ).text.toString()
+                assertTrue(
+                    message.contains(
+                        activity.getString(R.string.text_archive_mutation_output_size_unknown),
+                    ),
+                )
+                assertTrue(
+                    message.contains(
+                        activity.getString(
+                            R.string.text_archive_metadata_extra_fields_normalized,
+                        ),
+                    ),
+                )
+                assertTrue(
+                    dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick(),
+                )
+            }
+            instrumentation.waitForIdleSync()
+            scenario.onActivity {
+                assertEquals(1, confirmations)
+                assertEquals(0, cancellations)
+                dialog.dismiss()
+                assertEquals(1, confirmations)
+                assertEquals(0, cancellations)
+            }
+        }
+    }
+
+    @Test
     fun extractionDestinationDialogShowsBothChoicesWithItsMessage() {
         val archiveUri = createArchiveDocument()
         lateinit var dialog: androidx.appcompat.app.AlertDialog
@@ -421,6 +535,30 @@ class ArchiveExtractionScopeInstrumentationTest {
         }
         return archiveUri
     }
+
+    private fun testPreparedMutation(): PreparedArchiveMutation =
+        object : PreparedArchiveMutation {
+            override val format = ArchiveFormat.ZIP
+            override val operation = ArchiveOperation.ADD
+            override val sourceVersion = ArchiveMutationSourceVersion(
+                format = ArchiveFormat.ZIP,
+                sourceLength = 4_096L,
+                sourceLastModifiedMillis = 1L,
+                entries = emptyList(),
+                volumeIdentities = emptyList(),
+            )
+            override val workEstimate = ArchiveMutationWorkEstimate(
+                sourceArchiveBytes = 4_096L,
+                resultEntryCount = 3,
+                resultFileCount = 2,
+                resultDirectoryCount = 1,
+                knownContentBytesToRead = 8_192L,
+                unknownContentFileCount = 1,
+            )
+            override val metadataEffects = setOf(
+                ArchiveMutationMetadataEffect.EXTRA_FIELDS_NORMALIZED,
+            )
+        }
 
     private fun archiveIntent(
         archiveUri: Uri,

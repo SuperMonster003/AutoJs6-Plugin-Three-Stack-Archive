@@ -204,8 +204,6 @@
     <string name="action_delete">削除</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">新しいフォルダー...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">名前を変更...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">選択した %1$d 件と選択フォルダー内のすべての内容を削除しますか? 元のファイルを置き換える前に ZIP を再構築します.</string>
-    <string name="dialog_title_delete_archive_entries">アーカイブから削除</string>
     <string name="dialog_title_new_archive_folder">アーカイブ内にフォルダーを作成</string>
     <string name="dialog_title_rename_archive_entry">アーカイブ項目の名前を変更</string>
     <string name="error_archive_mutation_failed">ZIP を更新できませんでした</string>
@@ -227,4 +225,39 @@
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">中断された操作の未完了の出力トランザクション %1$d 件をロールバックしました。</string>
     <string name="action_add_folder" tools:ignore="TypographyEllipsis">フォルダーを追加...</string>
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">フォルダーをスキャンしています...</string>
+    <string name="action_archive_information">アーカイブ情報</string>
+    <string name="dialog_title_archive_information">アーカイブ情報</string>
+    <string name="dialog_title_archive_mutation_preflight">アーカイブの変更を確認</string>
+    <string name="text_archive_information_format">形式: %1$s</string>
+    <string name="text_archive_information_archive_size">現在のアーカイブサイズ: %1$s</string>
+    <string name="text_archive_information_contents">内容: %1$d 項目 (%2$d ファイル, %3$d フォルダー); 展開後 %4$s</string>
+    <string name="text_archive_management_status">管理: %1$s</string>
+    <string name="text_archive_management_available">このセッションで利用可能</string>
+    <string name="text_archive_management_read_only">読み取り専用. %1$s</string>
+    <string name="text_archive_read_only_current_session">このアーカイブは内容管理アクセスなしで開かれました. 変更するには「アーカイブを管理」から開き直してください.</string>
+    <string name="text_archive_read_only_host_replacement">現在のホストセッションではこのアーカイブをアトミックに置き換えられません.</string>
+    <string name="text_archive_read_only_format">インストール済みのバックエンドはこの形式の閲覧または展開に対応していますが, 内容の変更には対応していません.</string>
+    <string name="text_archive_read_only_multi_volume">分割アーカイブを安全に再構築することはできません.</string>
+    <string name="text_archive_read_only_unsafe_path">安全でない元のパスを持つ項目があるため, このアーカイブは再構築できません.</string>
+    <string name="text_archive_read_only_password">変更する前に正しいアーカイブパスワードを適用してください.</string>
+    <string name="text_archive_read_only_unsupported_method">現在のバックエンドで再書き込みできない圧縮方式または暗号化方式を使用する項目があります.</string>
+    <string name="text_archive_read_only_backend_variant">インストール済みのバックエンドでは, このアーカイブ形式は読み取り専用です.</string>
+    <string name="text_archive_management_operations">利用可能な変更: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">完全な再構築: 結果の各ファイルを検証済みの代替アーカイブに書き込み, その後で元のアーカイブをアトミックに置き換えます.</string>
+    <string name="text_archive_metadata_effects">再構築で影響を受けるメタデータ:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">アーカイブコメントは保持されません.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">項目コメントは保持されません.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">ZIP extra フィールドは正規化される場合があります.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Unix の権限と属性は保持されません.</string>
+    <string name="text_archive_metadata_compression_normalized">項目ごとの圧縮設定は正規化される場合があります.</string>
+    <string name="text_archive_metadata_encryption_normalized">項目ごとの暗号化設定は正規化される場合があります.</string>
+    <string name="text_archive_information_safety">新しいアーカイブ全体の読み戻しと検証が完了するまで, 元のアーカイブは置き換えられません.</string>
+    <string name="text_archive_mutation_operation_add">内容を追加</string>
+    <string name="text_archive_mutation_operation_delete">選択した内容を削除</string>
+    <string name="text_archive_mutation_operation_rename">選択した内容の名前を変更</string>
+    <string name="text_archive_mutation_preflight_change">変更: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">結果: %1$d 項目 (%2$d ファイル, %3$d フォルダー)</string>
+    <string name="text_archive_mutation_preflight_known_work">読み取る内容: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">読み取る内容: 少なくとも %1$s; 結果の %2$d ファイルは報告サイズが不明です.</string>
+    <string name="text_archive_mutation_output_size_unknown">圧縮によってサイズが変わるため, 一時出力サイズは予測しません. 完全な代替アーカイブを保存できる空き容量を確保してください.</string>
 </resources>

@@ -212,8 +212,6 @@
     <string name="action_delete">Delete</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">New folder...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">Rename...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">Delete %1$d selected entries and all contents below selected folders? The ZIP will be rebuilt before the original is replaced.</string>
-    <string name="dialog_title_delete_archive_entries">Delete from archive</string>
     <string name="dialog_title_new_archive_folder">New archive folder</string>
     <string name="dialog_title_rename_archive_entry">Rename archive entry</string>
     <string name="error_archive_mutation_failed">The ZIP could not be updated</string>
@@ -227,4 +225,39 @@
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Scanning folder...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verifying archive changes...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Updating %1$d of %2$d: %3$s</string>
+    <string name="action_archive_information">Archive information</string>
+    <string name="dialog_title_archive_information">Archive information</string>
+    <string name="dialog_title_archive_mutation_preflight">Review archive changes</string>
+    <string name="text_archive_information_format">Format: %1$s</string>
+    <string name="text_archive_information_archive_size">Current archive size: %1$s</string>
+    <string name="text_archive_information_contents" tools:ignore="PluralsCandidate">Contents: %1$d entries (%2$d files, %3$d folders); %4$s uncompressed</string>
+    <string name="text_archive_management_status">Management: %1$s</string>
+    <string name="text_archive_management_available">Available in this session</string>
+    <string name="text_archive_management_read_only">Read-only. %1$s</string>
+    <string name="text_archive_read_only_current_session">This archive was opened without content-management access. Reopen it using Manage archive to make changes.</string>
+    <string name="text_archive_read_only_host_replacement">The current host session cannot atomically replace this archive.</string>
+    <string name="text_archive_read_only_format">The installed backend supports browsing or extraction for this format, but not content changes.</string>
+    <string name="text_archive_read_only_multi_volume">Multi-volume archives cannot be rewritten safely.</string>
+    <string name="text_archive_read_only_unsafe_path">At least one entry has an unsafe original path, so the archive cannot be rewritten.</string>
+    <string name="text_archive_read_only_password">Apply the correct archive password before making changes.</string>
+    <string name="text_archive_read_only_unsupported_method">At least one entry uses a compression or encryption method that this backend cannot rewrite.</string>
+    <string name="text_archive_read_only_backend_variant">This archive variant is read-only in the installed backend.</string>
+    <string name="text_archive_management_operations">Available changes: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">Full rewrite: every result file is written into a replacement archive, and the complete result is verified before the original is atomically replaced.</string>
+    <string name="text_archive_metadata_effects">Metadata affected by a rewrite:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">The archive comment will not be preserved.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">Entry comments will not be preserved.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">ZIP extra fields may be normalized.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Unix permissions and attributes will not be preserved.</string>
+    <string name="text_archive_metadata_compression_normalized">Per-entry compression settings may be normalized.</string>
+    <string name="text_archive_metadata_encryption_normalized">Per-entry encryption settings may be normalized.</string>
+    <string name="text_archive_information_safety">The original archive is not replaced until the complete new archive has been read back and verified.</string>
+    <string name="text_archive_mutation_operation_add">Add content</string>
+    <string name="text_archive_mutation_operation_delete">Delete selected content</string>
+    <string name="text_archive_mutation_operation_rename">Rename selected content</string>
+    <string name="text_archive_mutation_preflight_change">Change: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Result: %1$d entries (%2$d files, %3$d folders)</string>
+    <string name="text_archive_mutation_preflight_known_work">Content to read: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Content to read: at least %1$s; %2$d result files have an unknown reported size.</string>
+    <string name="text_archive_mutation_output_size_unknown">Temporary output size is not predicted because compression may change it. Ensure the device has room for a complete replacement archive.</string>
 </resources>

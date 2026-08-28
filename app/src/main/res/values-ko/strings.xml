@@ -204,8 +204,6 @@
     <string name="action_delete">삭제</string>
     <string name="action_new_folder" tools:ignore="TypographyEllipsis">새 폴더...</string>
     <string name="action_rename" tools:ignore="TypographyEllipsis">이름 바꾸기...</string>
-    <string name="dialog_message_delete_archive_entries" tools:ignore="PluralsCandidate">선택한 %1$d개 항목과 선택한 폴더 아래의 모든 내용을 삭제할까요? 원본을 교체하기 전에 ZIP을 다시 만듭니다.</string>
-    <string name="dialog_title_delete_archive_entries">압축 파일에서 삭제</string>
     <string name="dialog_title_new_archive_folder">압축 파일에 새 폴더</string>
     <string name="dialog_title_rename_archive_entry">압축 파일 항목 이름 바꾸기</string>
     <string name="error_archive_mutation_failed">ZIP을 업데이트할 수 없습니다</string>
@@ -227,4 +225,39 @@
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">중단된 작업의 완료되지 않은 출력 트랜잭션 %1$d개를 롤백했습니다.</string>
     <string name="action_add_folder" tools:ignore="TypographyEllipsis">폴더 추가...</string>
     <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">폴더 스캔 중...</string>
+    <string name="action_archive_information">압축 파일 정보</string>
+    <string name="dialog_title_archive_information">압축 파일 정보</string>
+    <string name="dialog_title_archive_mutation_preflight">압축 파일 변경 사항 검토</string>
+    <string name="text_archive_information_format">형식: %1$s</string>
+    <string name="text_archive_information_archive_size">현재 압축 파일 크기: %1$s</string>
+    <string name="text_archive_information_contents">내용: %1$d개 항목 (파일 %2$d개, 폴더 %3$d개); 압축 해제 시 %4$s</string>
+    <string name="text_archive_management_status">관리: %1$s</string>
+    <string name="text_archive_management_available">현재 세션에서 사용 가능</string>
+    <string name="text_archive_management_read_only">읽기 전용. %1$s</string>
+    <string name="text_archive_read_only_current_session">이 압축 파일은 내용 관리 권한 없이 열렸습니다. 변경하려면 압축 파일 관리로 다시 여세요.</string>
+    <string name="text_archive_read_only_host_replacement">현재 호스트 세션에서 이 압축 파일을 원자적으로 교체할 수 없습니다.</string>
+    <string name="text_archive_read_only_format">설치된 백엔드는 이 형식의 탐색 또는 압축 해제를 지원하지만 내용 변경은 지원하지 않습니다.</string>
+    <string name="text_archive_read_only_multi_volume">분할 압축 파일은 안전하게 다시 만들 수 없습니다.</string>
+    <string name="text_archive_read_only_unsafe_path">안전하지 않은 원본 경로가 있는 항목이 하나 이상 있어 압축 파일을 다시 만들 수 없습니다.</string>
+    <string name="text_archive_read_only_password">변경하기 전에 올바른 압축 파일 암호를 적용하세요.</string>
+    <string name="text_archive_read_only_unsupported_method">현재 백엔드에서 다시 쓸 수 없는 압축 또는 암호화 방식을 사용하는 항목이 하나 이상 있습니다.</string>
+    <string name="text_archive_read_only_backend_variant">설치된 백엔드에서는 이 압축 파일 변형이 읽기 전용입니다.</string>
+    <string name="text_archive_management_operations">사용 가능한 변경: %1$s.</string>
+    <string name="text_archive_mutation_full_rewrite">전체 재작성: 결과 파일을 검증된 대체 압축 파일에 모두 쓴 다음 원본을 원자적으로 교체합니다.</string>
+    <string name="text_archive_metadata_effects">재작성으로 영향을 받는 메타데이터:</string>
+    <string name="text_archive_metadata_archive_comment_dropped">압축 파일 주석은 유지되지 않습니다.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">항목 주석은 유지되지 않습니다.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">ZIP extra 필드는 정규화될 수 있습니다.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Unix 권한과 속성은 유지되지 않습니다.</string>
+    <string name="text_archive_metadata_compression_normalized">항목별 압축 설정은 정규화될 수 있습니다.</string>
+    <string name="text_archive_metadata_encryption_normalized">항목별 암호화 설정은 정규화될 수 있습니다.</string>
+    <string name="text_archive_information_safety">새 압축 파일 전체를 다시 읽고 검증하기 전에는 원본 압축 파일을 교체하지 않습니다.</string>
+    <string name="text_archive_mutation_operation_add">내용 추가</string>
+    <string name="text_archive_mutation_operation_delete">선택한 내용 삭제</string>
+    <string name="text_archive_mutation_operation_rename">선택한 내용 이름 바꾸기</string>
+    <string name="text_archive_mutation_preflight_change">변경: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">결과: %1$d개 항목 (파일 %2$d개, 폴더 %3$d개)</string>
+    <string name="text_archive_mutation_preflight_known_work">읽을 내용: %1$s</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">읽을 내용: 최소 %1$s; 결과 파일 %2$d개의 보고된 크기를 알 수 없습니다.</string>
+    <string name="text_archive_mutation_output_size_unknown">압축으로 크기가 달라질 수 있으므로 임시 출력 크기를 예측하지 않습니다. 완전한 대체 압축 파일을 저장할 공간을 확보하세요.</string>
 </resources>
