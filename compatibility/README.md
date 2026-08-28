@@ -39,6 +39,22 @@ Encrypted fixtures use the public test password recorded in `fixtures.json`. It 
 
 Generated archives are binary test data and must not be edited manually.
 
+## Reproducible Info-ZIP 3.0 sample
+
+`infozip-3.0-deflate-unicode.zip` is generated from the official Info-ZIP Zip 3.0 source release. The source supplied for this fixture contains 362 files and matches the [SourceForge `zip30.zip` release](https://sourceforge.net/projects/infozip/files/Zip%203.x%20%28latest%29/3.0/zip30.zip/download) byte for byte after extraction. The downloaded source package has SHA-256 `7061ceac0407682b6dc54bb480347205f680f4e56cf34fe1423df2309f18968a`; the canonical extracted-tree digest recorded by the generator is `78d68057069fa76f05af685b339b299344a36da8ff42224f4ef082c73cb7f345`. Its license is the Info-ZIP license dated 2007-Mar-4.
+
+The generator requires PowerShell 7, the frozen source tree, and a MinGW directory containing `gcc.exe`, `mingw32-make.exe` and `windres.exe`:
+
+```powershell
+pwsh -NoProfile -File scripts/generate-infozip-fixture.ps1 `
+    -SourceDirectory '<official-zip30-source-directory>' `
+    -ToolchainDirectory '<MinGW-bin-directory>'
+```
+
+The frozen fixture was built with MinGW GCC 13.1.0 targeting `x86_64-w64-mingw32` and GNU Make 4.4 on Windows 11 with the zh-CN OEM code page 936. The script copies the source to an isolated temporary directory, verifies the complete source-tree digest, disables the obsolete 32-bit assembly path with `-DNO_ASM`, and pre-includes `windows.h` to avoid the modern MinGW `CR` field collision. It does not patch or write to the supplied source directory. The generated `zip.exe` reports `This is Zip 3.0 (July 5th 2008)`; neither that executable nor the source tree is shipped with the plugin.
+
+The producer command is `zip -X <output> .\ascii.txt .\目录\文件.txt` with both input timestamps normalized to `2024-01-02 03:04:06 +08:00`. Its non-ASCII standard name uses OEM code page 936 without ZIP bit 11, while Info-ZIP's `0x7075` Unicode Path extra field carries the canonical `目录/文件.txt` spelling. This specifically verifies that the production reader honors the Unicode extra field even when its legacy fallback charset is IBM437. The script checks the final 451-byte file against SHA-256 `cce11cb11fda466a73f547aa01b412253534210b4748d16e31be6ce5d8d72eef` and refuses to replace an existing fixture.
+
 ## Opt-in external macOS samples
 
 The following upstream samples are not redistributed. Their tests run only when the corresponding environment variable points to a local, unmodified copy; the pinned SHA-256 prevents a different download from being accepted silently.
@@ -67,6 +83,8 @@ The locally supplied `archive-test-2026` directory is not redistributed. `Extern
 | MT Manager | 6 | ZIP, 7Z, encrypted 7Z, TAR and standalone GZIP/XZ rejection |
 | Historical regression | 1 | Legacy Chinese filename recovery and verified ZIP entry stream |
 
+The six Android samples were produced by MT Manager v2.26.8. That exact application version is now pinned, but the original UI selections were not embedded in the files, so they remain observation samples rather than reproducible committed fixtures.
+
 Run this corpus together with the two external macOS samples:
 
 ```powershell
@@ -78,9 +96,9 @@ $env:ARCHIVE_MAC_ZIPKIREI_SAMPLE = 'T:\Downloads\Firefox\test.zip'
     --tests MacArchiveCompatibilitySampleTest
 ```
 
-The supplied password is the corpus directory name and exists only for this local regression. Tests never execute payloads or modify the originals. The source tool versions and exact creation commands were not embedded in these files, so this observation corpus complements but does not replace reproducible manifest fixtures.
+The supplied password is the corpus directory name and exists only for this local regression. Tests never execute payloads or modify the originals. Exact creation settings were not embedded in these files, so this observation corpus complements but does not replace reproducible manifest fixtures.
 
-Windows Explorer coverage is now reproducible through `scripts/generate-windows-explorer-fixture.ps1`, which invokes the real `Shell.Application` ZIP namespace and records the exact `zipfldr.dll` version. Info-ZIP is the only producer in the current Roadmap with no sample at all. The external macOS and MT Manager samples have pinned identities and behavioral coverage, but still need exact producer-version provenance before they can be promoted to the committed reproducible corpus.
+Windows Explorer coverage is reproducible through `scripts/generate-windows-explorer-fixture.ps1`, which invokes the real `Shell.Application` ZIP namespace and records the exact `zipfldr.dll` version. Info-ZIP coverage is reproducible through `scripts/generate-infozip-fixture.ps1`, including the official source identity, compiler target, locale, command and frozen output. All producer categories named by the Roadmap now have behavioral samples. The external macOS archives and MT Manager v2.26.8 corpus retain pinned identities and automated production-reader coverage, but still need exact original creation settings before they can be promoted to the committed reproducible corpus.
 
 ## Historical regressions
 

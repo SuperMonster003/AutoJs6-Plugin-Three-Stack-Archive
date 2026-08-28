@@ -437,6 +437,42 @@
       ]
     },
     {
+      "file": "app/src/test/resources/archive-fixtures/infozip-3.0-deflate-unicode.zip",
+      "producer": "Info-ZIP",
+      "producerVersion": "Zip 3.0 (July 5th 2008)",
+      "platform": "Windows 11 10.0.26200.9168, zh-CN OEM code page 936",
+      "command": "pwsh -NoProfile -File scripts/generate-infozip-fixture.ps1 -SourceDirectory <official-zip30-source-directory> -ToolchainDirectory <MinGW-bin-directory>",
+      "sourceDescription": "Project-owned synthetic inputs stored under compatibility/fixture-sources/7zip-22",
+      "sourcePackage": "https://sourceforge.net/projects/infozip/files/Zip%203.x%20%28latest%29/3.0/zip30.zip/download",
+      "sourcePackageSize": 1287223,
+      "sourcePackageSha256": "7061ceac0407682b6dc54bb480347205f680f4e56cf34fe1423df2309f18968a",
+      "sourceTreeFileCount": 362,
+      "sourceTreeSha256": "78d68057069fa76f05af685b339b299344a36da8ff42224f4ef082c73cb7f345",
+      "sourceLicense": "Info-ZIP license, 2007-Mar-4",
+      "buildToolchain": "MinGW GCC 13.1.0 target x86_64-w64-mingw32, GNU Make 4.4",
+      "buildCompatibilityFlags": "-DNO_ASM -include windows.h",
+      "filenameEncoding": "OEM code page 936 standard name plus Info-ZIP Unicode Path extra field 0x7075, without the ZIP UTF-8 language flag",
+      "normalizedModificationTime": "2024-01-02T03:04:06+08:00",
+      "size": 451,
+      "sha256": "cce11cb11fda466a73f547aa01b412253534210b4748d16e31be6ce5d8d72eef",
+      "entries": [
+        {
+          "name": "ascii.txt",
+          "method": "Deflate",
+          "size": 104,
+          "crc32": "B390A13F"
+        },
+        {
+          "name": "目录/文件.txt",
+          "method": "Store",
+          "size": 87,
+          "crc32": "F8C08370",
+          "utf8NameFlag": false,
+          "unicodePathExtraField": true
+        }
+      ]
+    },
+    {
       "file": "app/src/test/resources/archive-fixtures/bandizip-7.46-deflate-unicode.zip",
       "producer": "Bandizip",
       "producerVersion": "7.46 Beta x64",

@@ -51,6 +51,46 @@ class ArchiveCompatibilityCorpusTest {
     }
 
     @Test
+    fun `Info-ZIP 3 honors Unicode path extra fields without the UTF-8 flag`() {
+        val source = copyFixture(INFOZIP_ZIP_FIXTURE)
+
+        assertEquals(EXPECTED_INFOZIP_ZIP_SHA256, source.sha256())
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.ZIP, snapshot.format)
+        assertEquals("IBM437", snapshot.readerOptions.filenameCharsetName)
+        assertEquals(listOf("ascii.txt", "目录/文件.txt"), snapshot.entries.map(ArchiveEntry::path))
+        assertEquals(
+            listOf(ArchiveCompressionMethod.DEFLATED, ArchiveCompressionMethod.STORED),
+            snapshot.entries.map(ArchiveEntry::compressionMethod),
+        )
+        assertFixtureText(snapshot, source, "目录/文件.txt")
+
+        val zip4jCharset = ZipArchiveAccess.detectCharset(
+            source = source.asArchiveReadSource(),
+            locale = java.util.Locale.SIMPLIFIED_CHINESE,
+            forceZip4j = true,
+        )
+        assertEquals("GB18030", zip4jCharset.name())
+        ZipArchiveAccess.open(
+            source = source.asArchiveReadSource(),
+            charsetName = zip4jCharset.name(),
+            forceZip4j = true,
+        ).use { archive ->
+            assertEquals(
+                listOf("ascii.txt", "目录/文件.txt"),
+                archive.entries.map(ZipEntryMetadata::name),
+            )
+            val unicodeEntry = archive.entries.single { it.name == "目录/文件.txt" }
+            assertTrue(
+                archive.getInputStream(unicodeEntry).use { input ->
+                    input.reader(Charsets.UTF_8).readText().contains("UTF-8 文件名")
+                },
+            )
+        }
+    }
+
+    @Test
     fun `Bandizip 7 sample preserves legacy Windows separators and unicode names`() {
         val source = copyFixture(BANDIZIP_ZIP_FIXTURE)
 
@@ -469,6 +509,8 @@ class ArchiveCompatibilityCorpusTest {
             "61ef38cc532dc9112a85e427a02fd5cc1e9d6b9ec1830039311359ac5b165b0c"
         const val EXPECTED_WINDOWS_EXPLORER_ZIP_SHA256 =
             "074a0aebb051196de706dea402968c65d3ff8b106178998919d0659a64ebdb88"
+        const val EXPECTED_INFOZIP_ZIP_SHA256 =
+            "cce11cb11fda466a73f547aa01b412253534210b4748d16e31be6ce5d8d72eef"
         const val EXPECTED_WINRAR_ZIP_SHA256 =
             "487938029f4282fdfe731d790592f18c6f5ebc93aff7c6309dee2cf5fa419e00"
         const val EXPECTED_WINRAR_RAR4_SHA256 =
@@ -498,6 +540,7 @@ class ArchiveCompatibilityCorpusTest {
         const val BANDIZIP_ZIP_FIXTURE = "bandizip-7.46-deflate-unicode.zip"
         const val WINDOWS_EXPLORER_ZIP_FIXTURE =
             "windows-explorer-11-deflate-unicode.zip"
+        const val INFOZIP_ZIP_FIXTURE = "infozip-3.0-deflate-unicode.zip"
         const val WINRAR_ZIP_FIXTURE = "winrar-6.10-deflate-unicode.zip"
         const val WINRAR_RAR4_FIXTURE = "winrar-6.10-rar4-unicode.rar"
         const val WINRAR_RAR5_FIXTURE = "winrar-6.10-rar5-unicode.rar"
