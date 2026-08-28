@@ -1,5 +1,15 @@
 # Notes de version
 
+## v2.10.0
+
+_2026/08/28_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v17 (code de version 5276 ou supérieur)
+- `Ajout` Un fichier dont le nom ou l'extension n'est pas reconnu peut désormais utiliser Ouvrir comme archive...; après détection structurelle, la barre de chemin native indique le format réel lorsqu'il diffère du nom
+- `Ajout` Explorer Action v17 ajoute une action secondaire en lecture seule et sans filtre, liée à une action principale normale, et renvoie des métadonnées bornées du format détecté depuis la session existante
+- `Correction` TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST utilisent maintenant des suffixes exacts du nom complet plutôt que les extensions génériques `gz`, `xz`, `bz2` ou `zst`, afin que les flux compressés ordinaires ne reçoivent pas l'action principale d'archive
+- `Amélioration` L'hôte n'analyse aucun fichier en arrière-plan pendant la création des menus; seul un choix explicite lance un appel existant d'ouverture en lecture seule, sans nouvelle autorité de chemin, dossier ou écriture
+
 ## v2.9.0
 
 _2026/08/27_

@@ -1,5 +1,15 @@
 # Release notes
 
+## v2.10.0
+
+_2026/08/28_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v17 (version code 5276 or newer)
+- `Added` A file whose name or extension is not recognized can now use Open as archive...; after structural detection, the native path bar labels the actual format when it differs from the name
+- `Added` Explorer Action v17 adds a matcher-free read-only fallback tied to one normal primary archive action and returns bounded detected-format metadata from the existing archive session
+- `Fixed` TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now use exact complete-name suffixes instead of generic `gz`, `xz`, `bz2`, or `zst` leaf extensions, so ordinary compressed streams do not receive the primary archive action
+- `Improved` The host performs no background file scan while building menus; only an explicit user click runs one existing read-only archive-open call, with no new path, directory, or write authority
+
 ## v2.9.0
 
 _2026/08/27_
