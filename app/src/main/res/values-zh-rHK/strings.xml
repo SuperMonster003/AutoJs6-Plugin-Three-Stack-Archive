@@ -249,7 +249,7 @@
     <string name="text_archive_metadata_entry_comments_dropped">不會保留項目註解.</string>
     <string name="text_archive_metadata_extra_fields_normalized">格式專屬的延伸中繼資料可能會被標準化.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">不會保留 Unix 權限和屬性.</string>
-    <string name="text_archive_metadata_compression_normalized">每個項目的壓縮設定可能會被標準化.</string>
+    <string name="text_archive_metadata_compression_normalized">壓縮設定及容器元數據可能會被標準化.</string>
     <string name="text_archive_metadata_encryption_normalized">每個項目的加密設定可能會被標準化.</string>
     <string name="text_archive_information_safety">只有完整的新壓縮檔案通過讀回驗證後, 才會取代原檔案.</string>
     <string name="text_archive_mutation_operation_add">加入內容</string>

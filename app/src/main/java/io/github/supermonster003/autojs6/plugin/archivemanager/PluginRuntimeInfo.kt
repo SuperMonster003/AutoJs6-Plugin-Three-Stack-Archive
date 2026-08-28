@@ -42,14 +42,18 @@ internal object ArchiveManagerPlugin {
     const val COMPRESS_ACTION_PRIORITY = 60
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
     val MANAGE_EXTENSIONS = ArchiveEngine.DEFAULT.mutationFormats
-        .map(ArchiveFormat::primaryExtension)
-        .filterNot { '.' in it }
+        .flatMap { format ->
+            if (format == ArchiveFormat.ZIP) {
+                listOf(format.primaryExtension)
+            } else {
+                format.catalogExtensions
+            }
+        }
         .distinct()
         .sorted()
         .toTypedArray()
     val MANAGE_FILE_NAME_SUFFIXES = ArchiveEngine.DEFAULT.mutationFormats
-        .map(ArchiveFormat::primaryExtension)
-        .filter { '.' in it }
+        .flatMap(ArchiveFormat::catalogFileNameSuffixes)
         .distinct()
         .sorted()
         .toTypedArray()

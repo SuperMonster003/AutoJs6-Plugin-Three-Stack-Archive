@@ -119,7 +119,11 @@ internal class TarArchiveCreator(
         progress.reportCompression(manifest, counters, currentEntry = null)
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
             BufferedOutputStream(rawOutput, BUFFER_SIZE).use { bufferedOutput ->
-                val containerOutput = compressedOutput(bufferedOutput, compressionLevel)
+                val containerOutput = TarArchiveCompression.openOutput(
+                    format = format,
+                    output = bufferedOutput,
+                    compressionLevel = compressionLevel,
+                )
                 TarArchiveOutputStream(containerOutput, StandardCharsets.UTF_8.name()).use { tarOutput ->
                     tarOutput.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX)
                     tarOutput.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX)
@@ -214,7 +218,15 @@ internal class TarArchiveCreator(
         setModTime(lastModified.coerceAtLeast(0L))
     }
 
-    private fun compressedOutput(
+    private companion object {
+        const val BUFFER_SIZE = 64 * 1_024
+    }
+}
+
+/** Shared deterministic container encoder for TAR creation and full-rewrite mutation. */
+internal object TarArchiveCompression {
+    fun openOutput(
+        format: ArchiveFormat,
         output: OutputStream,
         compressionLevel: Int,
     ): OutputStream = try {
@@ -240,8 +252,5 @@ internal class TarArchiveCreator(
         throw IOException("${format.displayName} encoder is unavailable on this runtime", error)
     }
 
-    private companion object {
-        const val BUFFER_SIZE = 64 * 1_024
-        const val GZIP_OS_UNKNOWN = 255
-    }
+    private const val GZIP_OS_UNKNOWN = 255
 }

@@ -42,7 +42,8 @@ internal object ArchiveIntentPolicy {
 
     private val supportedMimeTypes = ArchiveManagerPlugin.MIME_TYPES.toSet()
     private val supportedFormats = ArchiveEngine.DEFAULT.readableFormats
-    private val mutationFormats = ArchiveEngine.DEFAULT.mutationFormats
+    private val mutableExtensions = ArchiveManagerPlugin.MANAGE_EXTENSIONS.toSet()
+    private val mutableFileNameSuffixes = ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toSet()
 
     fun resolve(intent: Intent): ArchiveOpenRequest? {
         if (!ExplorerActionIntentSizePolicy.isSafe(intent)) return null
@@ -174,9 +175,8 @@ internal object ArchiveIntentPolicy {
 
     private fun isSupportedMutableArchive(displayName: String): Boolean {
         val normalized = displayName.lowercase(Locale.ROOT)
-        return mutationFormats.any { format ->
-            normalized.endsWith(".${format.primaryExtension}")
-        }
+        return mutableExtensions.any { extension -> normalized.endsWith(".$extension") } ||
+            mutableFileNameSuffixes.any { suffix -> normalized.endsWith(".$suffix") }
     }
 
     private fun isUsableContentUri(uri: Uri): Boolean =

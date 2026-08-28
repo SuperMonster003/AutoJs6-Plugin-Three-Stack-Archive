@@ -166,22 +166,64 @@ class TarArchiveMutationPlannerTest {
     }
 
     @Test
-    fun `compressed tar wrappers do not inherit ordinary tar mutation`() {
-        val snapshot = ArchiveScanner().scan(
+    fun `gzip tar has explicit mutation while later wrappers remain read only`() {
+        val gzipSnapshot = ArchiveScanner().scan(
             writeTarGzip(
                 temporaryFolder.newFile("compressed.tar.gz"),
                 TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
             ),
         )
 
-        assertEquals(ArchiveFormat.TAR_GZIP, snapshot.format)
-        assertEquals(null, ArchiveEngine.DEFAULT.mutationCapabilities(snapshot.format))
+        assertEquals(ArchiveFormat.TAR_GZIP, gzipSnapshot.format)
         assertEquals(
-            ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
-            ArchiveEngine.DEFAULT.mutationAvailability(snapshot).unavailableReason,
+            TAR_GZIP_MUTATION_CAPABILITIES,
+            ArchiveEngine.DEFAULT.mutationCapabilities(gzipSnapshot.format),
         )
-        assertFalse(snapshot.entries.single().capabilities.canDelete)
-        assertFalse(snapshot.entries.single().capabilities.canRename)
+        assertEquals(
+            TAR_GZIP_MUTATION_CAPABILITIES,
+            ArchiveEngine.DEFAULT.mutationAvailability(gzipSnapshot).capabilities,
+        )
+        assertTrue(gzipSnapshot.entries.single().capabilities.canDelete)
+        assertTrue(gzipSnapshot.entries.single().capabilities.canRename)
+        val gzipPlan = TarArchiveMutationPlanner.plan(
+            gzipSnapshot,
+            ArchiveMutationRequest.Rename("payload.txt", "renamed.txt"),
+        )
+        assertEquals(ArchiveFormat.TAR_GZIP, gzipPlan.format)
+        assertEquals(listOf("renamed.txt"), gzipPlan.entries.map(TarArchiveMutationEntry::archivePath))
+        assertTrue(
+            ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED in
+                gzipPlan.metadataEffects,
+        )
+
+        listOf(
+            ArchiveScanner().scan(
+                writeTarXz(
+                    temporaryFolder.newFile("compressed.tar.xz"),
+                    TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+                ),
+            ),
+            ArchiveScanner().scan(
+                writeTarBzip2(
+                    temporaryFolder.newFile("compressed.tar.bz2"),
+                    TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+                ),
+            ),
+            ArchiveScanner().scan(
+                writeTarZstd(
+                    temporaryFolder.newFile("compressed.tar.zst"),
+                    TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+                ),
+            ),
+        ).forEach { snapshot ->
+            assertEquals(null, ArchiveEngine.DEFAULT.mutationCapabilities(snapshot.format))
+            assertEquals(
+                ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
+                ArchiveEngine.DEFAULT.mutationAvailability(snapshot).unavailableReason,
+            )
+            assertFalse(snapshot.entries.single().capabilities.canDelete)
+            assertFalse(snapshot.entries.single().capabilities.canRename)
+        }
     }
 
     private fun ordinarySnapshot(): ArchiveSnapshot = ArchiveScanner().scan(

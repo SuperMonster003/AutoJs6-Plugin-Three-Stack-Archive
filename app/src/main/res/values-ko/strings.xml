@@ -249,7 +249,7 @@
     <string name="text_archive_metadata_entry_comments_dropped">항목 주석은 유지되지 않습니다.</string>
     <string name="text_archive_metadata_extra_fields_normalized">형식별 확장 메타데이터는 정규화될 수 있습니다.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">Unix 권한과 속성은 유지되지 않습니다.</string>
-    <string name="text_archive_metadata_compression_normalized">항목별 압축 설정은 정규화될 수 있습니다.</string>
+    <string name="text_archive_metadata_compression_normalized">압축 설정과 컨테이너 메타데이터가 정규화될 수 있습니다.</string>
     <string name="text_archive_metadata_encryption_normalized">항목별 암호화 설정은 정규화될 수 있습니다.</string>
     <string name="text_archive_information_safety">새 압축 파일 전체를 다시 읽고 검증하기 전에는 원본 압축 파일을 교체하지 않습니다.</string>
     <string name="text_archive_mutation_operation_add">내용 추가</string>

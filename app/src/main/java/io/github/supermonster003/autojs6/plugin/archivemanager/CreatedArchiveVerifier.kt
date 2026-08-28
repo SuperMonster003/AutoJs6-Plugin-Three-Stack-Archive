@@ -253,7 +253,11 @@ internal class CreatedArchiveVerifier(
             throw IOException("Created ${format.displayName} signature is not present")
         }
         container.requirePlausibleStructure(source)
-        TarArchiveAccess.open(source, container).use { input ->
+        TarArchiveAccess.open(
+            source = source,
+            container = container,
+            checkCancelled = checkCancelled,
+        ).use { input ->
             val expectedEntries = CreatedManifestIndex(manifest, counters)
             var ordinal = 0
             while (true) {
@@ -410,18 +414,6 @@ internal class CreatedArchiveVerifier(
                 throw IOException("Created archive is missing one or more source entries")
             }
         }
-    }
-
-    private fun ArchiveFormat.tarContainer(): TarContainer = when (this) {
-        ArchiveFormat.TAR -> TarContainer.PLAIN
-        ArchiveFormat.TAR_GZIP -> TarContainer.GZIP
-        ArchiveFormat.TAR_XZ -> TarContainer.XZ
-        ArchiveFormat.TAR_BZIP2 -> TarContainer.BZIP2
-        ArchiveFormat.TAR_ZSTD -> TarContainer.ZSTD
-        ArchiveFormat.ZIP,
-        ArchiveFormat.SEVEN_Z,
-        ArchiveFormat.RAR,
-        -> error("$displayName is not a TAR-family format")
     }
 
     private data class LocalFileIdentity(

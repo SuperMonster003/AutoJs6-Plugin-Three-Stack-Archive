@@ -249,7 +249,7 @@
     <string name="text_archive_metadata_entry_comments_dropped">Les commentaires des éléments ne seront pas conservés.</string>
     <string name="text_archive_metadata_extra_fields_normalized">Les métadonnées étendues propres au format peuvent être normalisées.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">Les autorisations et attributs Unix ne seront pas conservés.</string>
-    <string name="text_archive_metadata_compression_normalized">Les paramètres de compression de chaque élément peuvent être normalisés.</string>
+    <string name="text_archive_metadata_compression_normalized">Les paramètres de compression et les métadonnées du conteneur peuvent être normalisés.</string>
     <string name="text_archive_metadata_encryption_normalized">Les paramètres de chiffrement de chaque élément peuvent être normalisés.</string>
     <string name="text_archive_information_safety">L\'archive originale est remplacée uniquement après lecture et vérification complètes de la nouvelle archive.</string>
     <string name="text_archive_mutation_operation_add">Ajouter du contenu</string>

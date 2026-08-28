@@ -68,19 +68,16 @@ class ArchiveEngineTest {
         )
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
         assertFalse(ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations)
-        assertEquals(listOf(ArchiveFormat.ZIP, ArchiveFormat.TAR), engine.mutationFormats)
         assertEquals(
-            engine.mutationFormats
-                .map(ArchiveFormat::primaryExtension)
-                .filterNot { '.' in it }
-                .sorted(),
+            listOf(ArchiveFormat.ZIP, ArchiveFormat.TAR, ArchiveFormat.TAR_GZIP),
+            engine.mutationFormats,
+        )
+        assertEquals(
+            listOf("tar", "tgz", "zip"),
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
         )
         assertEquals(
-            engine.mutationFormats
-                .map(ArchiveFormat::primaryExtension)
-                .filter { '.' in it }
-                .sorted(),
+            listOf("tar.gz"),
             ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
         )
         val mutation = requireNotNull(engine.mutationCapabilities(ArchiveFormat.ZIP))
@@ -99,7 +96,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `ordinary tar exposes rewrite mutation while compressed tar remains read only`() {
+    fun `ordinary and gzip tar expose rewrite mutation while later wrappers remain read only`() {
         val engine = ArchiveEngine.DEFAULT
 
         listOf(
@@ -110,7 +107,7 @@ class ArchiveEngineTest {
             ArchiveFormat.TAR_ZSTD,
         ).forEach { format ->
             val capabilities = engine.capabilities(format)
-            val canMutate = format == ArchiveFormat.TAR
+            val canMutate = format == ArchiveFormat.TAR || format == ArchiveFormat.TAR_GZIP
             assertTrue(capabilities.supports(ArchiveOperation.DETECT))
             assertTrue(capabilities.supports(ArchiveOperation.LIST))
             assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
@@ -143,7 +140,11 @@ class ArchiveEngineTest {
             assertTrue(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
             assertTrue(ArchiveFormatLimitation.MUTATION_REQUIRES_REWRITE in capabilities.limitations)
             assertEquals(
-                if (canMutate) TAR_MUTATION_CAPABILITIES else null,
+                when (format) {
+                    ArchiveFormat.TAR -> TAR_MUTATION_CAPABILITIES
+                    ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
+                    else -> null
+                },
                 engine.mutationCapabilities(format),
             )
         }
@@ -159,6 +160,11 @@ class ArchiveEngineTest {
                 ArchiveMutationMetadataEffect.UNIX_ATTRIBUTES_DROPPED,
             ),
             TAR_MUTATION_CAPABILITIES.metadataEffects,
+        )
+        assertEquals(
+            TAR_MUTATION_CAPABILITIES.metadataEffects +
+                ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+            TAR_GZIP_MUTATION_CAPABILITIES.metadataEffects,
         )
     }
 

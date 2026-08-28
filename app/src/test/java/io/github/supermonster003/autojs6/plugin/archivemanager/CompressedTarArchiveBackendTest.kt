@@ -37,6 +37,13 @@ class CompressedTarArchiveBackendTest {
             assertEquals(expected.size.toLong(), entry.uncompressedSize)
             assertTrue(entry.canOpen)
             assertTrue(entry.canExtract)
+            val canMutate = fixture.format == ArchiveFormat.TAR_GZIP
+            assertEquals(canMutate, entry.capabilities.canDelete)
+            assertEquals(canMutate, entry.capabilities.canRename)
+            assertEquals(
+                if (canMutate) TAR_GZIP_MUTATION_CAPABILITIES else null,
+                ArchiveEngine.DEFAULT.mutationCapabilities(fixture.format),
+            )
 
             val output = ByteArrayOutputStream()
             ArchiveEntryStreamer(fixture.source, snapshot).stream(entry, output)

@@ -31,9 +31,27 @@ internal val TAR_MUTATION_CAPABILITIES = ArchiveMutationCapabilities(
     ),
 )
 
+internal val TAR_GZIP_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
+    metadataEffects = TAR_MUTATION_CAPABILITIES.metadataEffects +
+        ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+)
+
+internal fun tarMutationCapabilities(format: ArchiveFormat): ArchiveMutationCapabilities? =
+    when (format) {
+        ArchiveFormat.TAR -> TAR_MUTATION_CAPABILITIES
+        ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
+        ArchiveFormat.ZIP,
+        ArchiveFormat.SEVEN_Z,
+        ArchiveFormat.RAR,
+        ArchiveFormat.TAR_XZ,
+        ArchiveFormat.TAR_BZIP2,
+        ArchiveFormat.TAR_ZSTD,
+        -> null
+    }
+
 internal fun tarMutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
     when {
-        snapshot.format != ArchiveFormat.TAR -> ArchiveMutationAvailability.unavailable(
+        tarMutationCapabilities(snapshot.format) == null -> ArchiveMutationAvailability.unavailable(
             ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
         )
         snapshot.volumeIdentities.isNotEmpty() -> ArchiveMutationAvailability.unavailable(
@@ -54,18 +72,19 @@ internal fun tarMutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutation
         } -> ArchiveMutationAvailability.unavailable(
             ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
         )
-        else -> ArchiveMutationAvailability.available(TAR_MUTATION_CAPABILITIES)
+        else -> ArchiveMutationAvailability.available(
+            requireNotNull(tarMutationCapabilities(snapshot.format)),
+        )
     }
 
 internal data class TarArchiveMutationPlan(
     val entries: List<TarArchiveMutationEntry>,
+    override val format: ArchiveFormat,
     override val operation: ArchiveOperation,
     override val sourceVersion: ArchiveMutationSourceVersion,
     override val workEstimate: ArchiveMutationWorkEstimate,
     override val metadataEffects: Set<ArchiveMutationMetadataEffect>,
-) : PreparedArchiveMutation {
-    override val format = ArchiveFormat.TAR
-}
+) : PreparedArchiveMutation
 
 internal data class TarArchiveMutationEntry(
     val archivePath: String,
@@ -103,7 +122,9 @@ internal object TarArchiveMutationPlanner {
         snapshot: ArchiveSnapshot,
         request: ArchiveMutationRequest,
     ): TarArchiveMutationPlan {
-        require(snapshot.format == ArchiveFormat.TAR) { "Only ordinary TAR archives can be rewritten" }
+        val capabilities = requireNotNull(tarMutationCapabilities(snapshot.format)) {
+            "${snapshot.format.displayName} does not have a TAR mutation provider"
+        }
         val original = snapshot.entries.map { entry ->
             TarArchiveMutationEntry(entry.path, TarArchiveMutationSource.Existing(entry))
         }
@@ -114,14 +135,15 @@ internal object TarArchiveMutationPlanner {
             is ArchiveMutationRequest.AddFiles -> addFiles(original, request, snapshot)
             is ArchiveMutationRequest.AddTree -> addTree(original, request, snapshot)
         }
-        validateFinalEntries(entries, snapshot.structureLimits)
-        entries.forEach(::requireRewritableEntry)
+        validateFinalEntries(entries, snapshot.structureLimits, snapshot.format)
+        entries.forEach { requireRewritableEntry(it, snapshot.format) }
         return TarArchiveMutationPlan(
             entries = entries.toList(),
+            format = snapshot.format,
             operation = request.operation,
             sourceVersion = ArchiveMutationSourceVersion.capture(snapshot),
             workEstimate = workEstimate(snapshot, entries),
-            metadataEffects = TAR_MUTATION_CAPABILITIES.metadataEffects,
+            metadataEffects = capabilities.metadataEffects,
         )
     }
 
@@ -130,13 +152,19 @@ internal object TarArchiveMutationPlanner {
         requestedPaths: Set<String>,
         snapshot: ArchiveSnapshot,
     ): List<TarArchiveMutationEntry> {
-        if (requestedPaths.isEmpty()) fail(ArchiveFailureCode.EMPTY_SELECTION, "No TAR entries selected")
+        if (requestedPaths.isEmpty()) {
+            fail(ArchiveFailureCode.EMPTY_SELECTION, "No TAR entries selected", snapshot.format)
+        }
         val paths = requestedPaths.mapTo(linkedSetOf()) { requested ->
             validatedSelectionPath(requested, snapshot)
         }
         paths.forEach { path ->
             if (!pathExists(original, path)) {
-                fail(ArchiveFailureCode.UNKNOWN_SELECTION, "The selected TAR entry no longer exists")
+                fail(
+                    ArchiveFailureCode.UNKNOWN_SELECTION,
+                    "The selected TAR entry no longer exists",
+                    snapshot.format,
+                )
             }
         }
         return original.filterNot { planned -> paths.any { planned.archivePath.isAtOrBelow(it) } }
@@ -149,13 +177,21 @@ internal object TarArchiveMutationPlanner {
     ): List<TarArchiveMutationEntry> {
         val sourcePath = validatedSelectionPath(request.path, snapshot)
         if (!pathExists(original, sourcePath)) {
-            fail(ArchiveFailureCode.UNKNOWN_SELECTION, "The selected TAR entry no longer exists")
+            fail(
+                ArchiveFailureCode.UNKNOWN_SELECTION,
+                "The selected TAR entry no longer exists",
+                snapshot.format,
+            )
         }
-        val newLeaf = requireLeafName(request.newDisplayName)
+        val newLeaf = requireLeafName(request.newDisplayName, snapshot.format)
         val parent = sourcePath.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
         val targetPath = portableChildPath(parent, newLeaf, snapshot.structureLimits)
         if (targetPath == sourcePath) {
-            fail(ArchiveFailureCode.INVALID_DESTINATION_NAME, "The TAR entry name did not change")
+            fail(
+                ArchiveFailureCode.INVALID_DESTINATION_NAME,
+                "The TAR entry name did not change",
+                snapshot.format,
+            )
         }
         return original.map { planned ->
             if (planned.archivePath.isAtOrBelow(sourcePath)) {
@@ -173,9 +209,17 @@ internal object TarArchiveMutationPlanner {
         snapshot: ArchiveSnapshot,
     ): List<TarArchiveMutationEntry> {
         val parent = validatedParentPath(request.parentPath, original, snapshot)
-        val path = portableChildPath(parent, requireLeafName(request.displayName), snapshot.structureLimits)
+        val path = portableChildPath(
+            parent,
+            requireLeafName(request.displayName, snapshot.format),
+            snapshot.structureLimits,
+        )
         if (pathExists(original, path)) {
-            fail(ArchiveFailureCode.DUPLICATE_PATH, "A TAR entry with this name already exists")
+            fail(
+                ArchiveFailureCode.DUPLICATE_PATH,
+                "A TAR entry with this name already exists",
+                snapshot.format,
+            )
         }
         return original + TarArchiveMutationEntry(path, TarArchiveMutationSource.AddedDirectory())
     }
@@ -185,10 +229,16 @@ internal object TarArchiveMutationPlanner {
         request: ArchiveMutationRequest.AddFiles,
         snapshot: ArchiveSnapshot,
     ): List<TarArchiveMutationEntry> {
-        if (request.files.isEmpty()) fail(ArchiveFailureCode.EMPTY_SELECTION, "No files selected")
+        if (request.files.isEmpty()) {
+            fail(ArchiveFailureCode.EMPTY_SELECTION, "No files selected", snapshot.format)
+        }
         val parent = validatedParentPath(request.parentPath, original, snapshot)
         val additions = request.files.map { file ->
-            val path = portableChildPath(parent, requireLeafName(file.displayName), snapshot.structureLimits)
+            val path = portableChildPath(
+                parent,
+                requireLeafName(file.displayName, snapshot.format),
+                snapshot.structureLimits,
+            )
             TarArchiveMutationEntry(path, TarArchiveMutationSource.AddedFile(file))
         }
         return original + additions
@@ -200,7 +250,11 @@ internal object TarArchiveMutationPlanner {
         snapshot: ArchiveSnapshot,
     ): List<TarArchiveMutationEntry> {
         if (request.entries.isEmpty()) {
-            fail(ArchiveFailureCode.EMPTY_SELECTION, "The selected folder is empty or unavailable")
+            fail(
+                ArchiveFailureCode.EMPTY_SELECTION,
+                "The selected folder is empty or unavailable",
+                snapshot.format,
+            )
         }
         val parent = validatedParentPath(request.parentPath, original, snapshot)
         val validated = request.entries.map { added ->
@@ -210,31 +264,51 @@ internal object TarArchiveMutationPlanner {
                 limits = snapshot.structureLimits,
             ).path
             if (path != added.relativePath) {
-                fail(ArchiveFailureCode.INVALID_PATH, "The selected folder contains an ambiguous path")
+                fail(
+                    ArchiveFailureCode.INVALID_PATH,
+                    "The selected folder contains an ambiguous path",
+                    snapshot.format,
+                )
             }
             if (
                 added is ArchiveMutationAddedTreeEntry.FileEntry &&
                 added.file.displayName != path.substringAfterLast('/')
             ) {
-                fail(ArchiveFailureCode.INVALID_DESTINATION_NAME, "A selected file name changed while scanning")
+                fail(
+                    ArchiveFailureCode.INVALID_DESTINATION_NAME,
+                    "A selected file name changed while scanning",
+                    snapshot.format,
+                )
             }
             path to added
         }
         val sourceRoots = validated.mapTo(linkedSetOf()) { (path, _) -> path.substringBefore('/') }
         if (sourceRoots.size != 1) {
-            fail(ArchiveFailureCode.INVALID_PATH, "The selected folder does not have one stable root")
+            fail(
+                ArchiveFailureCode.INVALID_PATH,
+                "The selected folder does not have one stable root",
+                snapshot.format,
+            )
         }
         val sourceRoot = sourceRoots.single()
         val directories = validated
             .filter { (_, added) -> added is ArchiveMutationAddedTreeEntry.Directory }
             .mapTo(hashSetOf()) { (path, _) -> path }
         if (sourceRoot !in directories) {
-            fail(ArchiveFailureCode.INVALID_PATH, "The selected folder root is missing")
+            fail(
+                ArchiveFailureCode.INVALID_PATH,
+                "The selected folder root is missing",
+                snapshot.format,
+            )
         }
         validated.forEach { (path, _) ->
             val immediateParent = path.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
             if (immediateParent.isNotEmpty() && immediateParent !in directories) {
-                fail(ArchiveFailureCode.INVALID_PATH, "The selected folder tree has a missing directory")
+                fail(
+                    ArchiveFailureCode.INVALID_PATH,
+                    "The selected folder tree has a missing directory",
+                    snapshot.format,
+                )
             }
         }
 
@@ -243,6 +317,7 @@ internal object TarArchiveMutationPlanner {
             parent = parent,
             requested = sourceRoot,
             limits = snapshot.structureLimits,
+            format = snapshot.format,
         )
         val additions = validated.map { (relativePath, added) ->
             val remappedRelativePath = targetRoot + relativePath.removePrefix(sourceRoot)
@@ -267,6 +342,7 @@ internal object TarArchiveMutationPlanner {
         parent: String,
         requested: String,
         limits: ArchiveStructureLimits,
+        format: ArchiveFormat,
     ): String {
         val occupiedKeys = original.mapNotNullTo(hashSetOf()) { entry ->
             val relative = when {
@@ -280,11 +356,15 @@ internal object TarArchiveMutationPlanner {
         if (ArchivePathPolicy.destinationCollisionKey(requested) !in occupiedKeys) return requested
         for (index in 2..MAX_AUTO_RENAME_ATTEMPTS) {
             val candidate = "$requested ($index)"
-            requireLeafName(candidate)
+            requireLeafName(candidate, format)
             portableChildPath(parent, candidate, limits)
             if (ArchivePathPolicy.destinationCollisionKey(candidate) !in occupiedKeys) return candidate
         }
-        fail(ArchiveFailureCode.DUPLICATE_PATH, "No available TAR folder name could be reserved")
+        fail(
+            ArchiveFailureCode.DUPLICATE_PATH,
+            "No available TAR folder name could be reserved",
+            format,
+        )
     }
 
     private fun validatedParentPath(
@@ -296,7 +376,11 @@ internal object TarArchiveMutationPlanner {
         val path = validatedSelectionPath(requested, snapshot)
         val explicitFile = original.firstOrNull { it.archivePath == path && !it.isDirectory }
         if (explicitFile != null || !pathExists(original, path)) {
-            fail(ArchiveFailureCode.UNKNOWN_SELECTION, "The destination TAR folder no longer exists")
+            fail(
+                ArchiveFailureCode.UNKNOWN_SELECTION,
+                "The destination TAR folder no longer exists",
+                snapshot.format,
+            )
         }
         return path
     }
@@ -308,7 +392,11 @@ internal object TarArchiveMutationPlanner {
             allowRoot = false,
         )
         if (snapshot.isIsolatedPath(normalized)) {
-            fail(ArchiveFailureCode.INVALID_PATH, "Unsafe TAR paths cannot be rewritten")
+            fail(
+                ArchiveFailureCode.INVALID_PATH,
+                "Unsafe TAR paths cannot be rewritten",
+                snapshot.format,
+            )
         }
         return normalized
     }
@@ -323,9 +411,13 @@ internal object TarArchiveMutationPlanner {
         limits = limits,
     ).path
 
-    private fun requireLeafName(value: String): String =
+    private fun requireLeafName(value: String, format: ArchiveFormat): String =
         ArchiveIntentPolicy.validateDisplayName(value)
-            ?: fail(ArchiveFailureCode.INVALID_DESTINATION_NAME, "The TAR entry name is invalid")
+            ?: fail(
+                ArchiveFailureCode.INVALID_DESTINATION_NAME,
+                "The TAR entry name is invalid",
+                format,
+            )
 
     private fun pathExists(entries: List<TarArchiveMutationEntry>, path: String): Boolean =
         entries.any { it.archivePath.isAtOrBelow(path) }
@@ -333,9 +425,14 @@ internal object TarArchiveMutationPlanner {
     private fun validateFinalEntries(
         entries: List<TarArchiveMutationEntry>,
         limits: ArchiveStructureLimits,
+        format: ArchiveFormat,
     ) {
         if (entries.size > limits.maxEntries) {
-            fail(ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED, "The rewritten TAR has too many entries")
+            fail(
+                ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
+                "The rewritten TAR has too many entries",
+                format,
+            )
         }
         val explicitTypes = HashMap<String, Boolean>(entries.size)
         entries.forEach { entry ->
@@ -353,6 +450,7 @@ internal object TarArchiveMutationPlanner {
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT
                     },
                     "The rewritten TAR contains a duplicate or conflicting path",
+                    format,
                 )
             }
         }
@@ -363,6 +461,7 @@ internal object TarArchiveMutationPlanner {
                     fail(
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
                         "A rewritten TAR file is also used as a directory",
+                        format,
                     )
                 }
                 parent = parent.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
@@ -383,6 +482,7 @@ internal object TarArchiveMutationPlanner {
                         ArchiveFailureCode.DUPLICATE_PATH
                     },
                     "The TAR change introduces case-insensitive or Unicode-equivalent names",
+                    format,
                 )
             }
         }
@@ -400,6 +500,7 @@ internal object TarArchiveMutationPlanner {
                     fail(
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
                         "The TAR change uses a case-insensitive or Unicode-equivalent file as a directory",
+                        format,
                     )
                 }
                 parent = parent.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
@@ -410,16 +511,24 @@ internal object TarArchiveMutationPlanner {
     private fun TarArchiveMutationEntry.isUnchangedExistingPath(): Boolean =
         (source as? TarArchiveMutationSource.Existing)?.entry?.path == archivePath
 
-    private fun requireRewritableEntry(planned: TarArchiveMutationEntry) {
+    private fun requireRewritableEntry(
+        planned: TarArchiveMutationEntry,
+        format: ArchiveFormat,
+    ) {
         val entry = (planned.source as? TarArchiveMutationSource.Existing)?.entry ?: return
         if (entry.pathStatus != ArchiveEntryPathStatus.SAFE) {
-            fail(ArchiveFailureCode.INVALID_PATH, "Unsafe TAR paths cannot be preserved by rewriting")
+            fail(
+                ArchiveFailureCode.INVALID_PATH,
+                "Unsafe TAR paths cannot be preserved by rewriting",
+                format,
+            )
         }
         if (entry.isDirectory) return
         if (!entry.capabilities.canOpen || entry.compressionMethodId != TAR_REGULAR_FILE_METHOD) {
             fail(
                 ArchiveFailureCode.UNSUPPORTED_METHOD,
                 "A retained TAR entry type cannot be rewritten safely",
+                format,
             )
         }
     }
@@ -447,6 +556,7 @@ internal object TarArchiveMutationPlanner {
                         fail(
                             ArchiveFailureCode.MALFORMED_ARCHIVE,
                             "Rewritten TAR size metadata overflows",
+                            snapshot.format,
                         )
                     }
                 } else {
@@ -464,24 +574,36 @@ internal object TarArchiveMutationPlanner {
         )
     }
 
-    private fun fail(code: ArchiveFailureCode, message: String): Nothing =
-        throw ArchiveValidationException(code, message, format = ArchiveFormat.TAR)
+    private fun fail(
+        code: ArchiveFailureCode,
+        message: String,
+        format: ArchiveFormat,
+    ): Nothing = throw ArchiveValidationException(code, message, format = format)
 
     private const val MAX_AUTO_RENAME_ATTEMPTS = 100_000
 }
 
-/** Rebuilds an ordinary TAR in one source pass, verifies it fully, then atomically commits it. */
+/** Rebuilds a writable TAR-family format in one source pass, verifies it, then commits it. */
 internal class TarArchiveMutationProvider(
     private val session: ExplorerActionHostSessionClient,
     cacheDirectory: File,
     engine: ArchiveEngine = ArchiveEngine.DEFAULT,
+    override val format: ArchiveFormat = ArchiveFormat.TAR,
 ) : ArchiveMutationProvider {
-    override val format = ArchiveFormat.TAR
-    override val capabilities = TAR_MUTATION_CAPABILITIES
+    override val capabilities = requireNotNull(tarMutationCapabilities(format)) {
+        "${format.displayName} does not have a TAR mutation provider"
+    }
+    private val container = format.tarContainer()
     private val verifier = CreatedArchiveVerifier(cacheDirectory, engine)
 
     override fun availability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
-        tarMutationAvailability(snapshot)
+        if (snapshot.format == format) {
+            tarMutationAvailability(snapshot)
+        } else {
+            ArchiveMutationAvailability.unavailable(
+                ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
+            )
+        }
 
     override fun prepare(
         snapshot: ArchiveSnapshot,
@@ -492,7 +614,7 @@ internal class TarArchiveMutationProvider(
             throw unavailableMutation(availability.unavailableReason)
         }
         check(capabilities.supports(request.operation)) {
-            "TAR mutation provider does not support ${request.operation}"
+            "${format.displayName} mutation provider does not support ${request.operation}"
         }
         return TarArchiveMutationPlanner.plan(snapshot, request)
     }
@@ -511,7 +633,7 @@ internal class TarArchiveMutationProvider(
             ?: throw IllegalArgumentException("Prepared mutation belongs to another provider")
         require(plan.format == format) { "Prepared mutation format changed" }
         if (!plan.sourceVersion.matches(snapshot)) {
-            sourceChanged("TAR mutation plan belongs to another source snapshot")
+            sourceChanged("${format.displayName} mutation plan belongs to another source snapshot")
         }
         val availability = availability(snapshot)
         if (!availability.isAvailable) {
@@ -542,31 +664,31 @@ internal class TarArchiveMutationProvider(
         when (reason) {
             ArchiveMutationUnavailableReason.MULTI_VOLUME_ARCHIVE -> ArchiveValidationException(
                 ArchiveFailureCode.MISSING_VOLUME,
-                "Multi-volume TAR archives are read-only",
+                "Multi-volume ${format.displayName} archives are read-only",
                 format = format,
             )
             ArchiveMutationUnavailableReason.UNSAFE_ENTRY_PATH -> ArchiveValidationException(
                 ArchiveFailureCode.INVALID_PATH,
-                "A TAR with unsafe entry paths cannot be rewritten",
+                "A ${format.displayName} archive with unsafe entry paths cannot be rewritten",
                 format = format,
             )
             ArchiveMutationUnavailableReason.UNSUPPORTED_ENTRY_METHOD,
             ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
             -> ArchiveValidationException(
                 ArchiveFailureCode.UNSUPPORTED_METHOD,
-                "This TAR contains an entry type that cannot be rewritten safely",
+                "This ${format.displayName} archive contains an entry type that cannot be rewritten safely",
                 format = format,
             )
             ArchiveMutationUnavailableReason.PASSWORD_REQUIRED -> ArchiveValidationException(
                 ArchiveFailureCode.PASSWORD_REQUIRED,
-                "This TAR requires unavailable credentials",
+                "This ${format.displayName} archive requires unavailable credentials",
                 format = format,
             )
             ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
             null,
             -> ArchiveValidationException(
                 ArchiveFailureCode.UNSUPPORTED_METHOD,
-                "The selected archive does not belong to the TAR mutation provider",
+                "The selected archive does not belong to the ${format.displayName} mutation provider",
                 format = format,
             )
         }
@@ -690,14 +812,23 @@ internal class TarArchiveMutationProvider(
             existing.entry.ordinal to indexed
         }.toMap()
         if (retainedByOrdinal.size != plan.entries.count { it.source is TarArchiveMutationSource.Existing }) {
-            sourceChanged("TAR mutation plan contains duplicate source entries")
+            sourceChanged("${format.displayName} mutation plan contains duplicate source entries")
         }
         val counters = ArchiveCreationCounters(plan.entries.size)
         ParcelFileDescriptor.AutoCloseOutputStream(descriptor).use { rawOutput ->
             BufferedOutputStream(rawOutput, BUFFER_SIZE).use { bufferedOutput ->
-                TarArchiveOutputStream(bufferedOutput, StandardCharsets.UTF_8.name()).use { output ->
+                val containerOutput = TarArchiveCompression.openOutput(
+                    format = format,
+                    output = bufferedOutput,
+                    compressionLevel = mutationCompressionLevel(),
+                )
+                TarArchiveOutputStream(containerOutput, StandardCharsets.UTF_8.name()).use { output ->
                     configureOutput(output)
-                    TarArchiveAccess.open(source, TarContainer.PLAIN).use { input ->
+                    TarArchiveAccess.open(
+                        source = source,
+                        container = container,
+                        checkCancelled = checkCancelled,
+                    ).use { input ->
                         snapshot.entries.forEachIndexed { ordinal, expected ->
                             checkCancelled()
                             val liveTarEntry = input.nextEntry
@@ -707,7 +838,7 @@ internal class TarArchiveMutationProvider(
                                 input = input,
                                 entry = liveTarEntry,
                                 ordinal = ordinal,
-                                container = TarContainer.PLAIN,
+                                container = container,
                                 canMutate = true,
                             )
                             validateLiveEntry(live, expected)
@@ -746,6 +877,18 @@ internal class TarArchiveMutationProvider(
         }
         requireUnchangedSource(source, snapshot)
         return counters
+    }
+
+    private fun mutationCompressionLevel(): Int = when (format) {
+        ArchiveFormat.TAR -> 0
+        ArchiveFormat.TAR_GZIP -> GZIP_MUTATION_COMPRESSION_LEVEL
+        ArchiveFormat.ZIP,
+        ArchiveFormat.SEVEN_Z,
+        ArchiveFormat.RAR,
+        ArchiveFormat.TAR_XZ,
+        ArchiveFormat.TAR_BZIP2,
+        ArchiveFormat.TAR_ZSTD,
+        -> error("${format.displayName} does not have a TAR mutation compression level")
     }
 
     private fun writeRetainedEntry(
@@ -1039,6 +1182,7 @@ internal class TarArchiveMutationProvider(
 
     private companion object {
         const val BUFFER_SIZE = 64 * 1_024
+        const val GZIP_MUTATION_COMPRESSION_LEVEL = 6
         const val SHA_256 = "SHA-256"
     }
 }

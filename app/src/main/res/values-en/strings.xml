@@ -249,7 +249,7 @@
     <string name="text_archive_metadata_entry_comments_dropped">Entry comments will not be preserved.</string>
     <string name="text_archive_metadata_extra_fields_normalized">Format-specific extended metadata may be normalized.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">Unix permissions and attributes will not be preserved.</string>
-    <string name="text_archive_metadata_compression_normalized">Per-entry compression settings may be normalized.</string>
+    <string name="text_archive_metadata_compression_normalized">Compression settings and container metadata may be normalized.</string>
     <string name="text_archive_metadata_encryption_normalized">Per-entry encryption settings may be normalized.</string>
     <string name="text_archive_information_safety">The original archive is not replaced until the complete new archive has been read back and verified.</string>
     <string name="text_archive_mutation_operation_add">Add content</string>

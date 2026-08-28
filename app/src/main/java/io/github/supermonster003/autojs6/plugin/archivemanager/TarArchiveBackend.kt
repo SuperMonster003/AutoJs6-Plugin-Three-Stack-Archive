@@ -35,7 +35,24 @@ internal object TarArchiveBackend : TarArchiveBackendBase(
 internal object TarGzipArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR_GZIP,
     container = TarContainer.GZIP,
-)
+    canMutate = true,
+), ArchiveMutationBackend {
+    override val mutationCapabilities = TAR_GZIP_MUTATION_CAPABILITIES
+
+    override fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        tarMutationAvailability(snapshot)
+
+    override fun createMutationProvider(
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+        engine: ArchiveEngine,
+    ): ArchiveMutationProvider = TarArchiveMutationProvider(
+        session = session,
+        cacheDirectory = cacheDirectory,
+        engine = engine,
+        format = format,
+    )
+}
 
 internal object TarXzArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR_XZ,
@@ -385,6 +402,18 @@ internal enum class TarContainer {
     }
 }
 
+internal fun ArchiveFormat.tarContainer(): TarContainer = when (this) {
+    ArchiveFormat.TAR -> TarContainer.PLAIN
+    ArchiveFormat.TAR_GZIP -> TarContainer.GZIP
+    ArchiveFormat.TAR_XZ -> TarContainer.XZ
+    ArchiveFormat.TAR_BZIP2 -> TarContainer.BZIP2
+    ArchiveFormat.TAR_ZSTD -> TarContainer.ZSTD
+    ArchiveFormat.ZIP,
+    ArchiveFormat.SEVEN_Z,
+    ArchiveFormat.RAR,
+    -> error("$displayName is not a TAR-family format")
+}
+
 internal object TarArchiveAccess {
     private const val RECORD_SIZE = 512
     private const val END_MARKER_SIZE = RECORD_SIZE * 2
@@ -418,6 +447,7 @@ internal object TarArchiveAccess {
         source: ArchiveReadSource,
         container: TarContainer = TarContainer.PLAIN,
         verifyContainerIntegrity: Boolean = true,
+        checkCancelled: () -> Unit = {},
     ): TarArchiveInputStream {
         val sourceInput = BufferedInputStream(source.openInputStream())
         var payload: InputStream? = null
@@ -436,6 +466,7 @@ internal object TarArchiveAccess {
                 payload = bufferedPayload,
                 verifyContainerIntegrity =
                     verifyContainerIntegrity && container != TarContainer.PLAIN,
+                checkCancelled = checkCancelled,
             )
         } catch (error: Throwable) {
             runCatching { (payload ?: sourceInput).close() }
@@ -560,6 +591,7 @@ private class TarPayloadSignatureException : IOException("Compressed payload is 
 private class ContainerTarArchiveInputStream(
     private val payload: InputStream,
     private val verifyContainerIntegrity: Boolean,
+    private val checkCancelled: () -> Unit,
 ) : TarArchiveInputStream(payload) {
     private var closed = false
 
@@ -572,6 +604,7 @@ private class ContainerTarArchiveInputStream(
             try {
                 val buffer = ByteArray(DRAIN_BUFFER_SIZE)
                 while (true) {
+                    checkCancelled()
                     val read = payload.read(buffer)
                     if (read < 0) break
                 }

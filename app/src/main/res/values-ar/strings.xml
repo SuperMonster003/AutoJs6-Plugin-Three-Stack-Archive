@@ -249,7 +249,7 @@
     <string name="text_archive_metadata_entry_comments_dropped">لن يتم الاحتفاظ بتعليقات العناصر.</string>
     <string name="text_archive_metadata_extra_fields_normalized">قد تتم تسوية بيانات التعريف الموسعة الخاصة بالتنسيق.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">لن يتم الاحتفاظ بأذونات Unix وسماته.</string>
-    <string name="text_archive_metadata_compression_normalized">قد تتم تسوية إعدادات الضغط لكل عنصر.</string>
+    <string name="text_archive_metadata_compression_normalized">قد تتم تسوية إعدادات الضغط وبيانات الحاوية الوصفية.</string>
     <string name="text_archive_metadata_encryption_normalized">قد تتم تسوية إعدادات التشفير لكل عنصر.</string>
     <string name="text_archive_information_safety">لا يُستبدل الأرشيف الأصلي إلا بعد قراءة الأرشيف الجديد بالكامل والتحقق منه.</string>
     <string name="text_archive_mutation_operation_add">إضافة محتوى</string>

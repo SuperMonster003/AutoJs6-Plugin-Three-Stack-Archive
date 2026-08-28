@@ -249,7 +249,7 @@
     <string name="text_archive_metadata_entry_comments_dropped">項目コメントは保持されません.</string>
     <string name="text_archive_metadata_extra_fields_normalized">形式固有の拡張メタデータは正規化される場合があります.</string>
     <string name="text_archive_metadata_unix_attributes_dropped">Unix の権限と属性は保持されません.</string>
-    <string name="text_archive_metadata_compression_normalized">項目ごとの圧縮設定は正規化される場合があります.</string>
+    <string name="text_archive_metadata_compression_normalized">圧縮設定とコンテナメタデータは正規化される場合があります.</string>
     <string name="text_archive_metadata_encryption_normalized">項目ごとの暗号化設定は正規化される場合があります.</string>
     <string name="text_archive_information_safety">新しいアーカイブ全体の読み戻しと検証が完了するまで, 元のアーカイブは置き換えられません.</string>
     <string name="text_archive_mutation_operation_add">内容を追加</string>
