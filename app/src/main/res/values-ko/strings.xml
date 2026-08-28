@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">읽을 내용: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">읽을 내용: 최소 %1$s; 결과 파일 %2$d개의 보고된 크기를 알 수 없습니다.</string>
     <string name="text_archive_mutation_output_size_unknown">압축으로 크기가 달라질 수 있으므로 임시 출력 크기를 예측하지 않습니다. 완전한 대체 압축 파일을 저장할 공간을 확보하세요.</string>
+    <string name="action_restore_previous_archive_version">이전 버전 복원</string>
+    <string name="dialog_title_restore_previous_archive_version">이전 버전을 복원할까요?</string>
+    <string name="dialog_message_restore_previous_archive_version">AutoJs6가 저장한 이전 버전(%1$s, 저장 시각 %2$s)이 현재 압축 파일을 대체합니다. 이 복원은 한 번만 사용할 수 있으며 현재 압축 파일이 다른 곳에서 변경된 경우 거부됩니다.</string>
+    <string name="error_archive_restore_refresh_failed">이전 압축 파일 버전은 복원되었지만 내용을 다시 불러오지 못했습니다</string>
+    <string name="error_previous_archive_version_changed">업데이트 후 현재 압축 파일이 변경되었습니다. 이전 버전은 복원되지 않았습니다.</string>
+    <string name="error_previous_archive_version_restore_failed">이전 압축 파일 버전을 복원하지 못했습니다</string>
+    <string name="text_previous_archive_version_available">이전 버전: 복원 가능(%1$s, 저장 시각 %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">이전 버전: 호스트가 복구 확인을 완료해야 합니다. 압축 파일은 자동으로 대체되지 않습니다.</string>
+    <string name="text_previous_archive_version_restore_complete">이전 압축 파일 버전을 복원했습니다</string>
+    <string name="text_previous_archive_version_restored">이전 버전: 복원됨. 일회성 복원을 이미 사용했습니다.</string>
+    <string name="text_previous_archive_version_stale">이전 버전: 업데이트 후 현재 압축 파일이 변경되어 사용할 수 없습니다.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">이전 압축 파일 버전을 복원하는 중...</string>
 </resources>

@@ -15,6 +15,7 @@ import androidx.test.runner.AndroidJUnit4
 import org.autojs.plugin.explorer.api.ExplorerActionIntentExtras
 import org.autojs.plugin.explorer.api.ExplorerActionIntentValues
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import org.autojs.plugin.explorer.api.ExplorerActionPluginActions
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
@@ -28,6 +29,8 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -155,6 +158,168 @@ class ArchiveExtractionScopeInstrumentationTest {
                 )
                 assertTrue(message.contains(activity.getString(R.string.text_archive_information_safety)))
                 dialog.dismiss()
+            }
+        }
+    }
+
+    @Test
+    fun availablePreviousVersionAppearsOnlyInTheArchiveManagerOverflow() {
+        val archiveUri = createArchiveDocument()
+        val historyId = UUID.randomUUID().toString()
+        val host = object : UnusedTestExplorerActionHostSession() {
+            override fun queryTargetReplacement(targetId: String): Bundle {
+                assertEquals("scope-target", targetId)
+                return Bundle().apply {
+                    putString(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_HISTORY_ID,
+                        historyId,
+                    )
+                    putInt(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_UNDO_STATE,
+                        ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_AVAILABLE,
+                    )
+                    putLong(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_PREVIOUS_SIZE,
+                        4_096L,
+                    )
+                    putLong(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_CREATED_AT,
+                        1_700_000_000_000L,
+                    )
+                }
+            }
+        }
+
+        ActivityScenario.launch<ArchiveManagerActivity>(
+            archiveIntent(archiveUri, hostSession = host),
+        ).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                    R.id.toolbar,
+                ).menu.findItem(R.id.actionRestorePreviousArchiveVersion).isVisible
+            }
+            scenario.onActivity { activity ->
+                val toolbar =
+                    activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                        R.id.toolbar,
+                    )
+                assertTrue(toolbar.menu.findItem(R.id.actionRestorePreviousArchiveVersion).isEnabled)
+                val restoreDialog = requireNotNull(
+                    activity.showRestorePreviousArchiveVersionDialog(),
+                )
+                val restoreMessage = requireNotNull(
+                    restoreDialog.findViewById<android.widget.TextView>(android.R.id.message),
+                ).text.toString()
+                assertTrue(restoreMessage.contains("AutoJs6"))
+                assertTrue(
+                    restoreMessage.contains(android.text.format.Formatter.formatFileSize(activity, 4_096L)),
+                )
+                restoreDialog.dismiss()
+
+                val informationDialog = requireNotNull(activity.showArchiveInformationDialog())
+                val informationMessage = requireNotNull(
+                    informationDialog.findViewById<android.widget.TextView>(android.R.id.message),
+                ).text.toString()
+                assertTrue(
+                    informationMessage.contains(
+                        android.text.format.Formatter.formatFileSize(activity, 4_096L),
+                    ),
+                )
+                informationDialog.dismiss()
+            }
+
+            scenario.recreate()
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                    R.id.toolbar,
+                ).menu.findItem(R.id.actionRestorePreviousArchiveVersion).isVisible
+            }
+        }
+    }
+
+    @Test
+    fun completedRestoreIsReloadedWhenTheUndoResponseIsLost() {
+        val archiveUri = createArchiveDocument()
+        val historyId = UUID.randomUUID().toString()
+        val restoreCompleted = AtomicBoolean()
+        val host = object : UnusedTestExplorerActionHostSession() {
+            override fun queryTargetReplacement(targetId: String): Bundle {
+                assertEquals("scope-target", targetId)
+                return Bundle().apply {
+                    putString(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_HISTORY_ID,
+                        historyId,
+                    )
+                    putInt(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_UNDO_STATE,
+                        if (restoreCompleted.get()) {
+                            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED
+                        } else {
+                            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_AVAILABLE
+                        },
+                    )
+                    putLong(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_PREVIOUS_SIZE,
+                        1_024L,
+                    )
+                    putLong(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_CREATED_AT,
+                        1_700_000_000_000L,
+                    )
+                }
+            }
+
+            override fun undoTargetReplacement(
+                targetId: String,
+                replacementHistoryId: String,
+            ): Bundle {
+                assertEquals("scope-target", targetId)
+                assertEquals(historyId, replacementHistoryId)
+                this@ArchiveExtractionScopeInstrumentationTest.writeArchiveDocument(
+                    archiveUri,
+                    linkedMapOf("previous.txt" to "previous archive version"),
+                )
+                restoreCompleted.set(true)
+                error("Simulated lost undo response")
+            }
+        }
+
+        ActivityScenario.launch<ArchiveManagerActivity>(
+            archiveIntent(archiveUri, hostSession = host),
+        ).use { scenario ->
+            waitForActivity(scenario) { activity ->
+                activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                    R.id.toolbar,
+                ).menu.findItem(R.id.actionRestorePreviousArchiveVersion).isVisible
+            }
+            scenario.onActivity { activity ->
+                val dialog = requireNotNull(activity.showRestorePreviousArchiveVersionDialog())
+                assertTrue(
+                    dialog.getButton(android.content.DialogInterface.BUTTON_POSITIVE).performClick(),
+                )
+            }
+
+            waitForActivity(scenario) { activity ->
+                val list = activity.findViewById<RecyclerView>(R.id.entryList)
+                restoreCompleted.get() &&
+                    activity.findViewById<android.view.View>(R.id.extractButton).isEnabled &&
+                    list.adapter?.itemCount == 1 &&
+                    list.findViewHolderForAdapterPosition(0) != null
+            }
+            scenario.onActivity { activity ->
+                val toolbar =
+                    activity.findViewById<com.google.android.material.appbar.MaterialToolbar>(
+                        R.id.toolbar,
+                    )
+                assertFalse(toolbar.menu.findItem(R.id.actionRestorePreviousArchiveVersion).isVisible)
+                val row = requireNotNull(
+                    activity.findViewById<RecyclerView>(R.id.entryList)
+                        .findViewHolderForAdapterPosition(0),
+                )
+                assertEquals(
+                    "previous.txt",
+                    row.itemView.findViewById<android.widget.TextView>(R.id.name).text.toString(),
+                )
             }
         }
     }
@@ -523,17 +688,26 @@ class ArchiveExtractionScopeInstrumentationTest {
                 ARCHIVE_NAME,
             ),
         )
+        writeArchiveDocument(
+            archiveUri,
+            linkedMapOf(
+                "docs/readme.txt" to "scope test",
+                "root.txt" to "root",
+            ),
+        )
+        return archiveUri
+    }
+
+    private fun writeArchiveDocument(archiveUri: Uri, entries: Map<String, String>) {
         resolver.openOutputStream(archiveUri, "w").use { rawOutput ->
             ZipOutputStream(requireNotNull(rawOutput)).use { zip ->
-                zip.putNextEntry(ZipEntry("docs/readme.txt"))
-                zip.write("scope test".toByteArray())
-                zip.closeEntry()
-                zip.putNextEntry(ZipEntry("root.txt"))
-                zip.write("root".toByteArray())
-                zip.closeEntry()
+                entries.forEach { (path, content) ->
+                    zip.putNextEntry(ZipEntry(path))
+                    zip.write(content.toByteArray())
+                    zip.closeEntry()
+                }
             }
         }
-        return archiveUri
     }
 
     private fun testPreparedMutation(): PreparedArchiveMutation =
@@ -563,6 +737,7 @@ class ArchiveExtractionScopeInstrumentationTest {
     private fun archiveIntent(
         archiveUri: Uri,
         actionId: String = ArchiveManagerPlugin.ACTION_MANAGE_ID,
+        hostSession: TestExplorerActionHostSession = UnusedTestExplorerActionHostSession(),
     ): Intent {
         val target = Bundle().apply {
             putString(ExplorerActionTargetKeys.ID, "scope-target")
@@ -597,7 +772,7 @@ class ArchiveExtractionScopeInstrumentationTest {
                 Bundle().apply {
                     putBinder(
                         ExplorerActionHostSessionKeys.BINDER,
-                        UnusedTestExplorerActionHostSession().asBinder(),
+                        hostSession.asBinder(),
                     )
                 },
             )

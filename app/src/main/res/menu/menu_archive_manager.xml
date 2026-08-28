@@ -8,4 +8,11 @@
         android:title="@string/action_archive_information"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/actionRestorePreviousArchiveVersion"
+        android:icon="@drawable/ic_restore_previous_version"
+        android:title="@string/action_restore_previous_archive_version"
+        android:visible="false"
+        app:showAsAction="never" />
+
 </menu>

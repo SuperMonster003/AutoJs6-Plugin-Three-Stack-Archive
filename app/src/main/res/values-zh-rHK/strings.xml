@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">需要讀取的內容: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">需要讀取的內容: 至少 %1$s; 結果中有 %2$d 個檔案的回報大小未知.</string>
     <string name="text_archive_mutation_output_size_unknown">壓縮會改變輸出大小, 因此不會提供不可靠的暫存輸出大小預測. 請確保裝置有足夠空間容納完整的替代壓縮檔案.</string>
+    <string name="action_restore_previous_archive_version">恢復上一版本</string>
+    <string name="dialog_title_restore_previous_archive_version">恢復上一版本?</string>
+    <string name="dialog_message_restore_previous_archive_version">AutoJs6 儲存的上一版本 (%1$s, 儲存於 %2$s) 將取代目前的壓縮檔案. 此恢復只能執行一次; 如果目前的檔案已在其他位置變更, 宿主將拒絕操作.</string>
+    <string name="error_archive_restore_refresh_failed">上一版本已恢復, 但無法重新載入其內容</string>
+    <string name="error_previous_archive_version_changed">目前的壓縮檔案在更新後又發生了變更. 上一版本未被恢復.</string>
+    <string name="error_previous_archive_version_restore_failed">無法恢復壓縮檔案的上一版本</string>
+    <string name="text_previous_archive_version_available">上一版本: 可恢復 (%1$s, 儲存於 %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">上一版本: 宿主需要完成恢復檢查. 目前的壓縮檔案不會被自動取代.</string>
+    <string name="text_previous_archive_version_restore_complete">已恢復壓縮檔案的上一版本</string>
+    <string name="text_previous_archive_version_restored">上一版本: 已恢復. 此一次性恢復操作已使用.</string>
+    <string name="text_previous_archive_version_stale">上一版本: 不可用, 因為目前的壓縮檔案在更新後又發生了變更.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">正在恢復壓縮檔案的上一版本...</string>
 </resources>

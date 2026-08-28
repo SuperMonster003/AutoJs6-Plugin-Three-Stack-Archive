@@ -26,10 +26,12 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.ActivityArchiveManagerBinding
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveOutputConflictBinding
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogArchiveResourceBudgetBinding
 import io.github.supermonster003.autojs6.plugin.archivemanager.databinding.DialogExtractionDestinationBinding
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -81,6 +83,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private var pendingAddDirectory: String? = null
     private var pendingImportParentPath: String? = null
     private var hostSessionClosed = false
+    private var targetReplacementHistory: HostTargetReplacementHistory? = null
 
     private val outputTreeLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocumentTree(),
@@ -225,10 +228,15 @@ class ArchiveManagerActivity : AppCompatActivity() {
                     showArchiveInformationDialog()
                     true
                 }
+                R.id.actionRestorePreviousArchiveVersion -> {
+                    showRestorePreviousArchiveVersionDialog()
+                    true
+                }
                 else -> false
             }
         }
         toolbar.menu.findItem(R.id.actionArchiveInformation).isEnabled = false
+        toolbar.menu.findItem(R.id.actionRestorePreviousArchiveVersion).isVisible = false
         adapter = ArchiveEntryAdapter(
             onOpenDirectory = { row ->
                 currentDirectory = row.path
@@ -370,6 +378,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 configureFilenameEncoding(snapshot = null)
                 val (scanned, scannedIndex) = scanStagedArchive(staged)
                 applyScannedArchive(scanned, scannedIndex)
+                refreshTargetReplacementHistory()
                 resumeRequestedActionAfterScan()
             } catch (cancelled: CancellationException) {
                 clearStagedArchive()
@@ -815,6 +824,38 @@ class ArchiveManagerActivity : AppCompatActivity() {
         )
     }
 
+    private suspend fun refreshTargetReplacementHistory(): HostTargetReplacementHistory? {
+        val openRequest = request
+        val query = if (
+            openRequest?.requestedAction == ArchiveRequestedAction.MANAGE &&
+            openRequest.hostSession != null
+        ) {
+            withContext(Dispatchers.IO) {
+                try {
+                    true to openRequest.hostSession.queryTargetReplacement(openRequest.targetId)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    false to null
+                }
+            }
+        } else {
+            true to null
+        }
+        if (query.first) targetReplacementHistory = query.second
+        updateTargetReplacementAction()
+        return targetReplacementHistory
+    }
+
+    private fun updateTargetReplacementAction() {
+        if (!::binding.isInitialized) return
+        val available = targetReplacementHistory?.isAvailable == true
+        binding.toolbar.menu.findItem(R.id.actionRestorePreviousArchiveVersion)?.apply {
+            isVisible = available
+            isEnabled = available && !isBusy && snapshot != null
+        }
+    }
+
     internal fun showArchiveInformationDialog(): androidx.appcompat.app.AlertDialog? {
         if (isBusy) return null
         val archive = snapshot ?: return null
@@ -823,6 +864,26 @@ class ArchiveManagerActivity : AppCompatActivity() {
             .setTitle(R.string.dialog_title_archive_information)
             .setMessage(archiveInformationMessage(archive, status))
             .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    internal fun showRestorePreviousArchiveVersionDialog(): androidx.appcompat.app.AlertDialog? {
+        if (isBusy || snapshot == null) return null
+        val history = targetReplacementHistory?.takeIf(HostTargetReplacementHistory::isAvailable)
+            ?: return null
+        return MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_restore_previous_archive_version)
+            .setMessage(
+                getString(
+                    R.string.dialog_message_restore_previous_archive_version,
+                    formatBytes(history.previousSize),
+                    formatDate(history.createdAt),
+                ),
+            )
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.action_restore_previous_archive_version) { _, _ ->
+                startRestorePreviousArchiveVersion(history)
+            }
             .show()
     }
 
@@ -867,8 +928,28 @@ class ArchiveManagerActivity : AppCompatActivity() {
             metadataEffectParagraph(capabilities.metadataEffects)?.let(paragraphs::add)
             paragraphs += getString(R.string.text_archive_information_safety)
         }
+        targetReplacementHistory?.let { history ->
+            paragraphs += targetReplacementHistoryMessage(history)
+        }
         return paragraphs.joinToString(separator = "\n\n")
     }
+
+    private fun targetReplacementHistoryMessage(history: HostTargetReplacementHistory): String =
+        when (history.state) {
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_AVAILABLE -> getString(
+                R.string.text_previous_archive_version_available,
+                formatBytes(history.previousSize),
+                formatDate(history.createdAt),
+            )
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED ->
+                getString(R.string.text_previous_archive_version_restored)
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_STALE ->
+                getString(R.string.text_previous_archive_version_stale)
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RECOVERY_REQUIRED,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_UNKNOWN,
+            -> getString(R.string.text_previous_archive_version_recovery_required)
+            else -> error("Unexpected target replacement history state")
+        }
 
     private fun archiveManagementReadOnlyReason(reason: ArchiveManagementReadOnlyReason): String =
         getString(
@@ -1243,12 +1324,13 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         progress = ArchiveMutationProgressListener(::renderMutationProgress),
                     )
                 }
-                reloadArchiveAfterMutation(openRequest, committed)
-                Toast.makeText(
-                    this@ArchiveManagerActivity,
-                    R.string.text_archive_changes_complete,
-                    Toast.LENGTH_SHORT,
-                ).show()
+                targetReplacementHistory = committed.replacementHistory
+                reloadArchiveAfterReplacement(
+                    previousRequest = openRequest,
+                    reportedSize = committed.size ?: ArchiveIntentPolicy.SIZE_UNKNOWN,
+                )
+                val history = refreshTargetReplacementHistory()
+                showArchiveChangesComplete(history)
             } catch (cancelled: CancellationException) {
                 if (committed == null) {
                     showMessage(getString(R.string.text_cancelled))
@@ -1280,9 +1362,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun reloadArchiveAfterMutation(
+    private suspend fun reloadArchiveAfterReplacement(
         previousRequest: ArchiveOpenRequest,
-        committed: HostOutputTransaction,
+        reportedSize: Long,
     ) {
         val previousStaged = synchronized(this) {
             val value = stagedArchive
@@ -1295,7 +1377,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         previousStaged?.close()
         selectedPaths.clear()
         val updatedRequest = previousRequest.copy(
-            reportedSize = committed.size ?: ArchiveIntentPolicy.SIZE_UNKNOWN,
+            reportedSize = reportedSize,
         )
         request = updatedRequest
         val replacement = withContext(Dispatchers.IO) {
@@ -1318,6 +1400,108 @@ class ArchiveManagerActivity : AppCompatActivity() {
         }
         val (scanned, scannedIndex) = scanStagedArchive(replacement)
         applyScannedArchive(scanned, scannedIndex)
+    }
+
+    private fun showArchiveChangesComplete(history: HostTargetReplacementHistory?) {
+        Snackbar.make(
+            binding.root,
+            R.string.text_archive_changes_complete,
+            Snackbar.LENGTH_LONG,
+        ).apply {
+            history?.takeIf(HostTargetReplacementHistory::isAvailable)?.let { available ->
+                setAction(R.string.action_restore_previous_archive_version) {
+                    showRestorePreviousArchiveVersionDialogFor(available)
+                }
+            }
+        }.show()
+    }
+
+    private fun showRestorePreviousArchiveVersionDialogFor(
+        history: HostTargetReplacementHistory,
+    ) {
+        if (targetReplacementHistory?.id != history.id) return
+        showRestorePreviousArchiveVersionDialog()
+    }
+
+    private fun startRestorePreviousArchiveVersion(history: HostTargetReplacementHistory) {
+        if (isBusy || targetReplacementHistory?.id != history.id) return
+        val openRequest = request ?: return
+        val hostSession = openRequest.hostSession ?: return
+        setBusy(
+            true,
+            getString(R.string.text_restoring_previous_archive_version),
+            cancellable = false,
+        )
+        operationJob = lifecycleScope.launch {
+            var restored: HostTargetReplacementHistory? = null
+            try {
+                restored = withContext(Dispatchers.IO) {
+                    hostSession.undoTargetReplacement(openRequest.targetId, history.id)
+                }
+                targetReplacementHistory = restored
+                reloadRestoredArchiveVersion(
+                    openRequest = openRequest,
+                    reportedSize = restored.restoredSize ?: ArchiveIntentPolicy.SIZE_UNKNOWN,
+                )
+            } catch (cancelled: CancellationException) {
+                setBusy(false)
+                throw cancelled
+            } catch (_: Throwable) {
+                if (restored == null) {
+                    val refreshed = refreshTargetReplacementHistory()
+                    if (
+                        refreshed?.state ==
+                        ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED
+                    ) {
+                        try {
+                            reloadRestoredArchiveVersion(
+                                openRequest = openRequest,
+                                reportedSize = ArchiveIntentPolicy.SIZE_UNKNOWN,
+                            )
+                            return@launch
+                        } catch (cancelled: CancellationException) {
+                            setBusy(false)
+                            throw cancelled
+                        } catch (_: Throwable) {
+                            showMessage(getString(R.string.error_archive_restore_refresh_failed))
+                        }
+                    } else {
+                        showMessage(
+                            getString(
+                                if (
+                                    refreshed?.state ==
+                                    ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_STALE
+                                ) {
+                                    R.string.error_previous_archive_version_changed
+                                } else {
+                                    R.string.error_previous_archive_version_restore_failed
+                                },
+                            ),
+                        )
+                    }
+                } else {
+                    showMessage(getString(R.string.error_archive_restore_refresh_failed))
+                }
+                setBusy(false)
+                if (snapshot != null) renderEntries()
+            }
+        }
+    }
+
+    private suspend fun reloadRestoredArchiveVersion(
+        openRequest: ArchiveOpenRequest,
+        reportedSize: Long,
+    ) {
+        reloadArchiveAfterReplacement(
+            previousRequest = openRequest,
+            reportedSize = reportedSize,
+        )
+        refreshTargetReplacementHistory()
+        Snackbar.make(
+            binding.root,
+            R.string.text_previous_archive_version_restore_complete,
+            Snackbar.LENGTH_LONG,
+        ).show()
     }
 
     private fun renderMutationProgress(update: ArchiveMutationProgress) {
@@ -2253,6 +2437,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.applyPasswordButton.isEnabled = !busy
         binding.toolbar.menu.findItem(R.id.actionArchiveInformation).isEnabled =
             !busy && snapshot != null
+        updateTargetReplacementAction()
         binding.upButton.isEnabled = !busy && currentDirectory.isNotEmpty()
         binding.selectAllButton.isEnabled = !busy && snapshot != null
         binding.extractButton.isEnabled = !busy && snapshot != null

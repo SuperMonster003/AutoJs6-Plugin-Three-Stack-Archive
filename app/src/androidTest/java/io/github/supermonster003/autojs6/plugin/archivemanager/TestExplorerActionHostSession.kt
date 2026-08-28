@@ -43,6 +43,22 @@ internal abstract class TestExplorerActionHostSession : IExplorerActionHostSessi
     ): Bundle = error("Target Trash is not used by this test host session")
 
     override fun queryTargetTrash(): Bundle = Bundle()
+
+    override fun queryTargetReplacement(targetId: String): Bundle = Bundle()
+
+    override fun undoTargetReplacement(targetId: String, replacementHistoryId: String): Bundle =
+        error("Target replacement undo is not used by this test host session")
+
+    override fun getPlaybackProgress(targetId: String, relativePath: String): Bundle =
+        error("Playback progress is not used by this test host session")
+
+    override fun reportPlaybackProgress(
+        targetId: String,
+        relativePath: String,
+        positionMillis: Long,
+        durationMillis: Long,
+        reportState: Int,
+    ) = error("Playback progress is not used by this test host session")
 }
 
 internal open class UnusedTestExplorerActionHostSession : TestExplorerActionHostSession() {

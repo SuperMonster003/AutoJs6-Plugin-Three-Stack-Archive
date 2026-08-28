@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">المحتوى المطلوب قراءته: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">المحتوى المطلوب قراءته: %1$s على الأقل؛ الحجم المبلغ عنه غير معروف لعدد %2$d من الملفات الناتجة.</string>
     <string name="text_archive_mutation_output_size_unknown">لا يتم تقدير حجم الإخراج المؤقت لأن الضغط قد يغيره. تأكد من توفر مساحة على الجهاز لأرشيف بديل كامل.</string>
+    <string name="action_restore_previous_archive_version">استعادة الإصدار السابق</string>
+    <string name="dialog_title_restore_previous_archive_version">هل تريد استعادة الإصدار السابق؟</string>
+    <string name="dialog_message_restore_previous_archive_version">سيحل الإصدار السابق الذي حفظه AutoJs6 (%1$s، حُفظ في %2$s) محل الأرشيف الحالي. تتوفر هذه الاستعادة مرة واحدة فقط، وسيتم رفضها إذا تغير الأرشيف الحالي في مكان آخر.</string>
+    <string name="error_archive_restore_refresh_failed">تمت استعادة الإصدار السابق من الأرشيف، ولكن تعذرت إعادة تحميل محتوياته</string>
+    <string name="error_previous_archive_version_changed">تغير الأرشيف الحالي بعد تحديثه. لم تتم استعادة إصداره السابق.</string>
+    <string name="error_previous_archive_version_restore_failed">تعذرت استعادة الإصدار السابق من الأرشيف</string>
+    <string name="text_previous_archive_version_available">الإصدار السابق: متاح للاستعادة (%1$s، حُفظ في %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">الإصدار السابق: يجب أن يكمل المضيف فحوص الاسترداد. لن يتم استبدال الأرشيف تلقائيًا.</string>
+    <string name="text_previous_archive_version_restore_complete">تمت استعادة الإصدار السابق من الأرشيف</string>
+    <string name="text_previous_archive_version_restored">الإصدار السابق: تمت استعادته. تم استخدام هذه الاستعادة لمرة واحدة.</string>
+    <string name="text_previous_archive_version_stale">الإصدار السابق: غير متاح لأن الأرشيف الحالي تغير بعد تحديثه.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">جارٍ استعادة الإصدار السابق من الأرشيف...</string>
 </resources>

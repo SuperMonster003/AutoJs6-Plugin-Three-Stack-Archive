@@ -66,7 +66,10 @@ class CreateArchiveActivityInstrumentationTest {
                 }
 
                 assertTrue(hostSession.moveStarted.await(10, TimeUnit.SECONDS))
-                instrumentation.waitForIdleSync()
+                waitForActivity(scenario) { activity ->
+                    activity.findViewById<android.widget.TextView>(R.id.status).text.toString() ==
+                        activity.getString(R.string.text_moving_sources_to_trash)
+                }
                 scenario.onActivity { activity ->
                     assertEquals(
                         activity.getString(R.string.text_moving_sources_to_trash),
@@ -1094,6 +1097,25 @@ class CreateArchiveActivityInstrumentationTest {
             closeCalls++
             closeAttempt.countDown()
         }
+    }
+
+    private fun waitForActivity(
+        scenario: ActivityScenario<CreateArchiveActivity>,
+        timeoutMillis: Long = 10_000L,
+        predicate: (CreateArchiveActivity) -> Boolean,
+    ) {
+        val deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis)
+        while (System.nanoTime() < deadlineNanos) {
+            var satisfied = false
+            scenario.onActivity { activity ->
+                satisfied = predicate(activity)
+            }
+            if (satisfied) {
+                return
+            }
+            Thread.sleep(50L)
+        }
+        throw AssertionError("Timed out waiting for the expected activity state")
     }
 
     private companion object {

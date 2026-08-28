@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">Contenido que se leerá: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Contenido que se leerá: al menos %1$s; %2$d archivos resultantes tienen un tamaño declarado desconocido.</string>
     <string name="text_archive_mutation_output_size_unknown">No se predice el tamaño de salida temporal porque la compresión puede cambiarlo. Asegúrate de que el dispositivo tenga espacio para un archivo de sustitución completo.</string>
+    <string name="action_restore_previous_archive_version">Restaurar versión anterior</string>
+    <string name="dialog_title_restore_previous_archive_version">¿Restaurar la versión anterior?</string>
+    <string name="dialog_message_restore_previous_archive_version">La versión anterior guardada por AutoJs6 (%1$s, guardada el %2$s) sustituirá el archivo actual. Solo se puede restaurar una vez y la operación se rechazará si el archivo actual ha cambiado en otro lugar.</string>
+    <string name="error_archive_restore_refresh_failed">Se restauró la versión anterior del archivo, pero no se pudo volver a cargar su contenido</string>
+    <string name="error_previous_archive_version_changed">El archivo actual cambió después de actualizarse. No se restauró su versión anterior.</string>
+    <string name="error_previous_archive_version_restore_failed">No se pudo restaurar la versión anterior del archivo</string>
+    <string name="text_previous_archive_version_available">Versión anterior: disponible para restaurar (%1$s, guardada el %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">Versión anterior: el host debe completar las comprobaciones de recuperación. El archivo no se sustituirá automáticamente.</string>
+    <string name="text_previous_archive_version_restore_complete">Se restauró la versión anterior del archivo</string>
+    <string name="text_previous_archive_version_restored">Versión anterior: restaurada. Esta restauración de un solo uso ya se utilizó.</string>
+    <string name="text_previous_archive_version_stale">Versión anterior: no disponible porque el archivo actual cambió después de actualizarse.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restaurando la versión anterior del archivo...</string>
 </resources>

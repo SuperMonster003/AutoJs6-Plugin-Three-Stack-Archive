@@ -38,6 +38,7 @@ internal data class HostOutputTransaction(
     val fileCount: Int = 0,
     val directoryCount: Int = 0,
     val outputBytes: Long = 0L,
+    val replacementHistory: HostTargetReplacementHistory? = null,
 )
 
 internal data class HostOutputBatch(
@@ -54,6 +55,18 @@ internal data class HostTargetTrashResult(
     val movedCount: Int,
     val recoveryCount: Int,
 )
+
+internal data class HostTargetReplacementHistory(
+    val id: String,
+    val state: Int,
+    val previousSize: Long,
+    val createdAt: Long,
+    val restoredSize: Long? = null,
+    val restoredLastModified: Long? = null,
+) {
+    val isAvailable: Boolean
+        get() = state == ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_AVAILABLE
+}
 
 internal class ExplorerActionHostSessionClient(
     private val remote: IExplorerActionHostSession,
@@ -352,6 +365,35 @@ internal class ExplorerActionHostSessionClient(
         expectedTargetCount,
     )
 
+    fun queryTargetReplacement(targetId: String): HostTargetReplacementHistory? =
+        decodeTargetReplacement(
+            remote.queryTargetReplacement(targetId)
+                ?: error("Host returned no target replacement history"),
+        )
+
+    fun undoTargetReplacement(
+        targetId: String,
+        replacementHistoryId: String,
+    ): HostTargetReplacementHistory {
+        require(isCanonicalUuid(replacementHistoryId)) {
+            "Host target replacement history ID is invalid"
+        }
+        val result = decodeTargetReplacement(
+            remote.undoTargetReplacement(targetId, replacementHistoryId)
+                ?: error("Host returned no target replacement undo result"),
+        ) ?: error("Host returned an empty target replacement undo result")
+        require(result.id == replacementHistoryId) {
+            "Host target replacement history ID changed"
+        }
+        require(
+            result.state == ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED,
+        ) { "Host target replacement undo did not complete" }
+        require(result.restoredSize != null && result.restoredLastModified != null) {
+            "Host target replacement undo result has no restored identity"
+        }
+        return result
+    }
+
     fun close() {
         remote.close()
     }
@@ -444,6 +486,71 @@ internal class ExplorerActionHostSessionClient(
         return HostTargetTrashResult(state, trashItemIds, movedCount, recoveryCount)
     }
 
+    private fun decodeTargetReplacement(bundle: Bundle): HostTargetReplacementHistory? {
+        val state = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_UNDO_STATE,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_NONE,
+        )
+        require(state in VALID_TARGET_REPLACEMENT_UNDO_STATES) {
+            "Host target replacement undo state is invalid"
+        }
+        if (state == ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_NONE) {
+            require(
+                !bundle.containsKey(ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_HISTORY_ID) &&
+                    !bundle.containsKey(
+                        ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_PREVIOUS_SIZE,
+                    ) &&
+                    !bundle.containsKey(ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_CREATED_AT),
+            ) { "Empty host target replacement history contains metadata" }
+            return null
+        }
+        val id = bundle.getString(ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_HISTORY_ID)
+            ?.takeIf(::isCanonicalUuid)
+            ?: error("Host target replacement history ID is invalid")
+        val previousSize = bundle.getLong(
+            ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_PREVIOUS_SIZE,
+            -1L,
+        )
+        val createdAt = bundle.getLong(
+            ExplorerActionHostSessionKeys.TARGET_REPLACEMENT_CREATED_AT,
+            -1L,
+        )
+        require(previousSize >= 0L && createdAt >= 0L) {
+            "Host target replacement history metadata is invalid"
+        }
+        val restoredSize = if (
+            state == ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED
+        ) {
+            bundle.getLong(ExplorerActionHostSessionKeys.SIZE)
+                .takeIf { bundle.containsKey(ExplorerActionHostSessionKeys.SIZE) && it >= 0L }
+        } else {
+            null
+        }
+        val restoredLastModified = if (
+            state == ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED
+        ) {
+            bundle.getLong(ExplorerActionHostSessionKeys.LAST_MODIFIED)
+                .takeIf {
+                    bundle.containsKey(ExplorerActionHostSessionKeys.LAST_MODIFIED) && it >= 0L
+                }
+        } else {
+            null
+        }
+        if (state == ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED) {
+            require((restoredSize == null) == (restoredLastModified == null)) {
+                "Host target replacement restored identity is incomplete"
+            }
+        }
+        return HostTargetReplacementHistory(
+            id = id,
+            state = state,
+            previousSize = previousSize,
+            createdAt = createdAt,
+            restoredSize = restoredSize,
+            restoredLastModified = restoredLastModified,
+        )
+    }
+
     private fun decodeOutput(
         bundle: Bundle,
         format: ArchiveFormat,
@@ -528,6 +635,7 @@ internal class ExplorerActionHostSessionClient(
             fileCount = fileCount,
             directoryCount = directoryCount,
             outputBytes = outputBytes,
+            replacementHistory = decodeTargetReplacement(bundle),
         )
     }
 
@@ -619,6 +727,14 @@ internal class ExplorerActionHostSessionClient(
             ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_COMMITTED,
             ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_ABORTED,
             ExplorerActionHostSessionValues.OUTPUT_BATCH_STATE_RECOVERY_REQUIRED,
+        )
+        val VALID_TARGET_REPLACEMENT_UNDO_STATES = setOf(
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_NONE,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_AVAILABLE,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RESTORED,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_STALE,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RECOVERY_REQUIRED,
+            ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_UNKNOWN,
         )
     }
 }

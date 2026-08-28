@@ -315,42 +315,48 @@ class CreateArchiveActivity : AppCompatActivity() {
 
         operationJob = lifecycleScope.launch {
             var unavailableName: ArchiveOutputNameUnavailableException? = null
+            var acceptCreationProgress = true
             try {
-                val result = withContext(Dispatchers.IO) {
-                    val cancellationContext = currentCoroutineContext()
-                    var lastUiUpdateNanos = 0L
-                    var lastUiPhase: ArchiveCreationPhase? = null
-                    ArchiveCreationBatchExecutor.execute(
-                        writer = archiveEngine.createWriter(
-                            creationFormat,
-                            resolvedRequest.hostSession,
-                            cacheDir,
-                        ),
-                        plan = plan,
-                        checkCancelled = { cancellationContext.ensureActive() },
-                        progress = ArchiveCreationBatchProgressListener { update ->
-                            val now = System.nanoTime()
-                            val phaseChanged = update.creation.phase != lastUiPhase
-                            if (
-                                phaseChanged ||
-                                now - lastUiUpdateNanos >= UI_PROGRESS_INTERVAL_NANOS
-                            ) {
-                                lastUiUpdateNanos = now
-                                lastUiPhase = update.creation.phase
-                                runOnUiThread {
-                                    if (
-                                        !isFinishing &&
-                                        !isDestroyed &&
-                                        attemptId == creationAttemptId &&
-                                        operationJob?.isActive == true &&
-                                        terminalFailureMessage == null
-                                    ) {
-                                        renderCreationBatchProgress(update)
+                val result = try {
+                    withContext(Dispatchers.IO) {
+                        val cancellationContext = currentCoroutineContext()
+                        var lastUiUpdateNanos = 0L
+                        var lastUiPhase: ArchiveCreationPhase? = null
+                        ArchiveCreationBatchExecutor.execute(
+                            writer = archiveEngine.createWriter(
+                                creationFormat,
+                                resolvedRequest.hostSession,
+                                cacheDir,
+                            ),
+                            plan = plan,
+                            checkCancelled = { cancellationContext.ensureActive() },
+                            progress = ArchiveCreationBatchProgressListener { update ->
+                                val now = System.nanoTime()
+                                val phaseChanged = update.creation.phase != lastUiPhase
+                                if (
+                                    phaseChanged ||
+                                    now - lastUiUpdateNanos >= UI_PROGRESS_INTERVAL_NANOS
+                                ) {
+                                    lastUiUpdateNanos = now
+                                    lastUiPhase = update.creation.phase
+                                    runOnUiThread {
+                                        if (
+                                            acceptCreationProgress &&
+                                            !isFinishing &&
+                                            !isDestroyed &&
+                                            attemptId == creationAttemptId &&
+                                            operationJob?.isActive == true &&
+                                            terminalFailureMessage == null
+                                        ) {
+                                            renderCreationBatchProgress(update)
+                                        }
                                     }
                                 }
-                            }
-                        },
-                    )
+                            },
+                        )
+                    }
+                } finally {
+                    acceptCreationProgress = false
                 }
                 val targetTrashResult = if (trashSourcesAfterCreation) {
                     setBusy(

@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">Объём чтения: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Объём чтения: не менее %1$s; заявленный размер %2$d итоговых файлов неизвестен.</string>
     <string name="text_archive_mutation_output_size_unknown">Размер временного результата не прогнозируется, поскольку сжатие может его изменить. Убедитесь, что на устройстве достаточно места для полного архива-замены.</string>
+    <string name="action_restore_previous_archive_version">Восстановить предыдущую версию</string>
+    <string name="dialog_title_restore_previous_archive_version">Восстановить предыдущую версию?</string>
+    <string name="dialog_message_restore_previous_archive_version">Предыдущая версия, сохраненная AutoJs6 (%1$s, сохранена %2$s), заменит текущий архив. Восстановление доступно только один раз и будет отклонено, если текущий архив был изменен в другом месте.</string>
+    <string name="error_archive_restore_refresh_failed">Предыдущая версия архива восстановлена, но ее содержимое не удалось загрузить заново</string>
+    <string name="error_previous_archive_version_changed">Текущий архив изменился после обновления. Его предыдущая версия не была восстановлена.</string>
+    <string name="error_previous_archive_version_restore_failed">Не удалось восстановить предыдущую версию архива</string>
+    <string name="text_previous_archive_version_available">Предыдущая версия: доступна для восстановления (%1$s, сохранена %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">Предыдущая версия: хост должен завершить проверки восстановления. Архив не будет заменен автоматически.</string>
+    <string name="text_previous_archive_version_restore_complete">Предыдущая версия архива восстановлена</string>
+    <string name="text_previous_archive_version_restored">Предыдущая версия: восстановлена. Однократное восстановление уже использовано.</string>
+    <string name="text_previous_archive_version_stale">Предыдущая версия: недоступна, поскольку текущий архив изменился после обновления.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Восстановление предыдущей версии архива...</string>
 </resources>

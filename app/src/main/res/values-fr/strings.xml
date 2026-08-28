@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">Contenu à lire: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Contenu à lire: au moins %1$s; la taille déclarée de %2$d fichiers résultants est inconnue.</string>
     <string name="text_archive_mutation_output_size_unknown">La taille de sortie temporaire n\'est pas prédite, car la compression peut la modifier. Vérifiez que l\'appareil dispose de la place nécessaire pour une archive de remplacement complète.</string>
+    <string name="action_restore_previous_archive_version">Restaurer la version précédente</string>
+    <string name="dialog_title_restore_previous_archive_version">Restaurer la version précédente?</string>
+    <string name="dialog_message_restore_previous_archive_version">La version précédente enregistrée par AutoJs6 (%1$s, enregistrée le %2$s) remplacera l\'archive actuelle. Cette restauration n\'est disponible qu\'une fois et sera refusée si l\'archive actuelle a été modifiée ailleurs.</string>
+    <string name="error_archive_restore_refresh_failed">La version précédente de l\'archive a été restaurée, mais son contenu n\'a pas pu être rechargé</string>
+    <string name="error_previous_archive_version_changed">L\'archive actuelle a changé après sa mise à jour. Sa version précédente n\'a pas été restaurée.</string>
+    <string name="error_previous_archive_version_restore_failed">La version précédente de l\'archive n\'a pas pu être restaurée</string>
+    <string name="text_previous_archive_version_available">Version précédente: restauration disponible (%1$s, enregistrée le %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">Version précédente: l\'hôte doit terminer les vérifications de récupération. L\'archive ne sera pas remplacée automatiquement.</string>
+    <string name="text_previous_archive_version_restore_complete">Version précédente de l\'archive restaurée</string>
+    <string name="text_previous_archive_version_restored">Version précédente: restaurée. Cette restauration à usage unique a été utilisée.</string>
+    <string name="text_previous_archive_version_stale">Version précédente: indisponible, car l\'archive actuelle a changé après sa mise à jour.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restauration de la version précédente de l\'archive...</string>
 </resources>

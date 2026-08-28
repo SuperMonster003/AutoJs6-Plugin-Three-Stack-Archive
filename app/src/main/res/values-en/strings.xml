@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">Content to read: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Content to read: at least %1$s; %2$d result files have an unknown reported size.</string>
     <string name="text_archive_mutation_output_size_unknown">Temporary output size is not predicted because compression may change it. Ensure the device has room for a complete replacement archive.</string>
+    <string name="action_restore_previous_archive_version">Restore previous version</string>
+    <string name="dialog_title_restore_previous_archive_version">Restore previous version?</string>
+    <string name="dialog_message_restore_previous_archive_version">The previous version saved by AutoJs6 (%1$s, saved %2$s) will replace the current archive. This restore is available only once and will be refused if the current archive has changed elsewhere.</string>
+    <string name="error_archive_restore_refresh_failed">The previous archive version was restored, but its contents could not be reloaded</string>
+    <string name="error_previous_archive_version_changed">The current archive changed after it was updated. Its previous version was not restored.</string>
+    <string name="error_previous_archive_version_restore_failed">The previous archive version could not be restored</string>
+    <string name="text_previous_archive_version_available">Previous version: available to restore (%1$s, saved %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">Previous version: the host must complete recovery checks. The archive will not be replaced automatically.</string>
+    <string name="text_previous_archive_version_restore_complete">Previous archive version restored</string>
+    <string name="text_previous_archive_version_restored">Previous version: restored. This one-time restore has been used.</string>
+    <string name="text_previous_archive_version_stale">Previous version: unavailable because the current archive changed after it was updated.</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restoring previous archive version...</string>
 </resources>

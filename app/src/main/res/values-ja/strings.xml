@@ -260,4 +260,16 @@
     <string name="text_archive_mutation_preflight_known_work">読み取る内容: %1$s</string>
     <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">読み取る内容: 少なくとも %1$s; 結果の %2$d ファイルは報告サイズが不明です.</string>
     <string name="text_archive_mutation_output_size_unknown">圧縮によってサイズが変わるため, 一時出力サイズは予測しません. 完全な代替アーカイブを保存できる空き容量を確保してください.</string>
+    <string name="action_restore_previous_archive_version">以前のバージョンを復元</string>
+    <string name="dialog_title_restore_previous_archive_version">以前のバージョンを復元しますか?</string>
+    <string name="dialog_message_restore_previous_archive_version">AutoJs6 が保存した以前のバージョン (%1$s、保存日時 %2$s) で現在のアーカイブを置き換えます。この復元は 1 回だけ利用でき、現在のアーカイブが別の場所で変更されている場合は拒否されます。</string>
+    <string name="error_archive_restore_refresh_failed">以前のアーカイブ バージョンは復元されましたが、内容を再読み込みできませんでした</string>
+    <string name="error_previous_archive_version_changed">更新後に現在のアーカイブが変更されました。以前のバージョンは復元されていません。</string>
+    <string name="error_previous_archive_version_restore_failed">以前のアーカイブ バージョンを復元できませんでした</string>
+    <string name="text_previous_archive_version_available">以前のバージョン: 復元可能 (%1$s、保存日時 %2$s)。</string>
+    <string name="text_previous_archive_version_recovery_required">以前のバージョン: ホストによる復旧確認が必要です。アーカイブが自動的に置き換えられることはありません。</string>
+    <string name="text_previous_archive_version_restore_complete">以前のアーカイブ バージョンを復元しました</string>
+    <string name="text_previous_archive_version_restored">以前のバージョン: 復元済みです。この 1 回限りの復元は使用されました。</string>
+    <string name="text_previous_archive_version_stale">以前のバージョン: 更新後に現在のアーカイブが変更されたため利用できません。</string>
+    <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">以前のアーカイブ バージョンを復元しています...</string>
 </resources>
