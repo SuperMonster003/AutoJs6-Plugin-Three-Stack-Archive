@@ -5,6 +5,21 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v2.14.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "이 버전도 Explorer Action v18이 포함된 대응 AutoJs6 6.8.0 빌드 (버전 코드 5276 이상) 가 필요합니다"
+      ],
+      "feature": [
+        "안전한 일반 파일과 디렉터리만 포함한 TAR.XZ 및 TXZ에서 이제 관리 화면을 통해 파일 또는 전체 폴더 트리 추가, 빈 폴더 만들기, 이름 변경 및 삭제를 할 수 있습니다"
+      ],
+      "fix": [
+        "관리 작업이 이제 `.tar.xz`와 `.txz`를 정확히 인식하며 TAR.BZ2/TBZ2 및 TAR.ZST/TZST는 계속 읽기 전용입니다"
+      ],
+      "improvement": [
+        "TAR.XZ 변경은 고정 XZ preset 4 (4 MiB 사전; 라이브러리가 보고한 인코더 메모리 48,058 KiB, 64 MiB 예산 미만) 를 사용해 호스트 소유 보류 출력으로 직접 스트림 재구성합니다. 취소, 컨테이너 꼬리 무결성, 실제 쓰기 실패, 원본 변경 및 전체 재읽기는 모두 롤백 경계 안에 유지됩니다"
+      ]
+    },
     "v2.13.0": {
       "released_date": "2026/08/29",
       "hint": [

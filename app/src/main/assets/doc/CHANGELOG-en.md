@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.14.0
+
+_2026/08/29_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` TAR.XZ and TXZ archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` The management action now recognizes `.tar.xz` and `.txz` precisely while TAR.BZ2/TBZ2 and TAR.ZST/TZST remain read-only
+- `Improved` TAR.XZ changes use fixed XZ preset 4 (4 MiB dictionary; 48,058 KiB library-reported encoder memory, below a 64 MiB budget) and stream directly into host-owned pending output; cancellation, container-trailer integrity, real write failures, source changes, and complete readback remain inside the rollback boundary
+
 ## v2.13.0
 
 _2026/08/29_

@@ -5,6 +5,21 @@
   "changelog_label_improvement": "Mejorado",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v2.14.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "Esta versión sigue requiriendo la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)"
+      ],
+      "feature": [
+        "Los archivos TAR.XZ y TXZ que solo contienen archivos y directorios normales seguros ya permiten añadir archivos o árboles completos, crear carpetas vacías, cambiar nombres y eliminar desde la página de gestión"
+      ],
+      "fix": [
+        "La acción de gestión ahora reconoce `.tar.xz` y `.txz` con precisión, mientras TAR.BZ2/TBZ2 y TAR.ZST/TZST siguen siendo de solo lectura"
+      ],
+      "improvement": [
+        "Los cambios de TAR.XZ usan el preset XZ 4 fijo (diccionario de 4 MiB; 48.058 KiB de memoria de codificación indicada por la biblioteca, por debajo de un presupuesto de 64 MiB) y se reconstruyen directamente en una salida pendiente del host; la cancelación, la integridad del final del contenedor, los fallos reales de escritura, los cambios de origen y la lectura completa permanecen dentro del límite de reversión"
+      ]
+    },
     "v2.13.0": {
       "released_date": "2026/08/29",
       "hint": [

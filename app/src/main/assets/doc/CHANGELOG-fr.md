@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.14.0
+
+_2026/08/29_
+
+- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
+- `Ajout` Les archives TAR.XZ et TXZ ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+- `Correction` L'action de gestion reconnaît désormais précisément `.tar.xz` et `.txz`, tandis que TAR.BZ2/TBZ2 et TAR.ZST/TZST restent en lecture seule
+- `Amélioration` Les modifications TAR.XZ utilisent le preset XZ 4 fixe (dictionnaire de 4 Mio; 48 058 Kio de mémoire d'encodage indiquée par la bibliothèque, sous un budget de 64 Mio) et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin du conteneur, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
+
 ## v2.13.0
 
 _2026/08/29_
