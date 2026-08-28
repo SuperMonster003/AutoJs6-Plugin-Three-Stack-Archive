@@ -456,7 +456,7 @@ FormatCapabilities
 
 当前注册 ZIP、7Z、RAR 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是只读扩展名别名. 普通单卷 `.zip` 另声明添加文件、新建空目录、删除与重命名能力, 并通过 v8 事务重建; 别名格式与分卷 ZIP 不声明这些能力. ZIP writer 声明可选分卷, reader 通过 v12 读取完整标准 `.z01 + .zip` 卷组并在伴随卷不可用时给出精确诊断. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. RAR reader 支持单卷或完整分卷 RAR4/RAR5、内容加密与头部加密, 使用 256 MiB 字典上限; 它不声明创建、添加、删除或重命名, 缺卷时只保留安全元数据或返回类型化失败. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. TAR writer 使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 7Z、RAR 与 TAR 后端不声明添加/删除/重命名, 所有 writer 均不声明创建时文件名加密; 7Z 与 TAR writer 也不声明分卷. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
 
-外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). 总样本矩阵只有在 Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链的对应样本均落地后才可标记完成.
+外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链均已有行为样本; 其中 Windows Explorer、7-Zip、WinRAR、Info-ZIP 与 Java/Kotlin 生产者使用可复现的已提交夹具, MT Manager v2.26.8 与两个外部 macOS ZIP 使用固定哈希的本地观察语料. 后两类只有在取得原始创建设置后才可提升为可重新生成的已提交夹具, 但不再阻塞格式行为矩阵.
 
 ## 不可取消的安全边界
 

@@ -30,8 +30,8 @@
 - [x] (插件) 将 Android `applicationId`/插件 `id` 和动作 `id` 全部迁移到 Manager 命名, 不保留未发布版本的兼容别名.
 - [x] (发布) 本地仓库目录/README 链接和构建产物统一为 `AutoJs6-Plugin-Archive-Manager`; 首次发布时直接使用新 GitHub 地址.
 - [x] (插件) 错误界面显示 "格式/阶段/稳定代码/失败原因", 调试构建可复制完整根因和堆栈; 宿主会话异常也携带相同的安全摘要, 不再把所有异常压缩成 "无效或不受支持".
-- [ ] (测试) 建立来自 Android/Windows 资源管理器/7-Zip/WinRAR/Info-ZIP/macOS Archive Utility 和 Java/Kotlin 工具链的去隐私化样本集. Windows Explorer 11、7-Zip、WinRAR、Zip4j、bsdtar 与两个外部 macOS ZIP 已落地; MT Manager 本地观察语料已固定哈希但缺少精确版本/命令, Info-ZIP 尚无样本.
-- [x] (测试) 建立可提交二进制样本、生产工具/版本/命令/内容/SHA-256 清单和自动化消费规则; 当前清单含 23 个逻辑样本/30 个物理文件. 7-Zip 22.00 覆盖 ZIP 的 Deflate/Stored/UTF-8 名称/AES-256/ZipCrypto/错误密码/截断目录, 以及 7Z 的 solid LZMA2、BCJ + LZMA2、AES-256 内容与头部加密; Zip4j 2.11.5 覆盖标准 `.z01 + .zip` 两卷结构; Windows Explorer 11 的真实 `zipfldr.dll` 样本覆盖未置 UTF-8 标志的系统代码页中文名称、反斜杠路径与混合 Deflate/Store 方法.
+- [x] (测试) 建立来自 Android/Windows 资源管理器/7-Zip/WinRAR/Info-ZIP/macOS Archive Utility 和 Java/Kotlin 工具链的去隐私化样本集. Windows Explorer 11、7-Zip、WinRAR、Info-ZIP 3.0、Zip4j、bsdtar 与两个外部 macOS ZIP 已落地; MT Manager v2.26.8 本地观察语料已固定版本和哈希. 外部 macOS 与 MT Manager 样本仍缺少原始创建设置, 因而只计入行为来源覆盖, 不冒充可复现的已提交生产者夹具.
+- [x] (测试) 建立可提交二进制样本、生产工具/版本/命令/内容/SHA-256 清单和自动化消费规则; 当前清单含 24 个逻辑样本/31 个物理文件. 7-Zip 22.00 覆盖 ZIP 的 Deflate/Stored/UTF-8 名称/AES-256/ZipCrypto/错误密码/截断目录, 以及 7Z 的 solid LZMA2、BCJ + LZMA2、AES-256 内容与头部加密; Zip4j 2.11.5 覆盖标准 `.z01 + .zip` 两卷结构; Windows Explorer 11 的真实 `zipfldr.dll` 样本覆盖未置 UTF-8 标志的系统代码页中文名称、反斜杠路径与混合 Deflate/Store 方法; Info-ZIP 3.0 样本覆盖未置 UTF-8 标志时的 OEM 936 标准名称、`0x7075` Unicode Path extra field 与混合 Deflate/Store 方法.
 
 验收条件: 全仓检索中不再存在非兼容用途的旧产品名; 一个失败样本可以从用户提示或日志定位到输入/格式识别/索引/密码/条目或输出阶段.
 
@@ -302,7 +302,8 @@
 - [x] (验证) Explorer Action v17 与 `Archive Manager 2.10.0` 的无扩展名/错误扩展名回退入口联合门禁完成. 宿主只在同插件的常规只读主操作未静态匹配时显示单文件溢出操作 `Open as archive...`; 标准 ZIP 只保留主操作, `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.tar.zst` 以完整文件名精确匹配, 普通 `.gz`/`.xz`/`.bz2`/`.zst` 不再误报为 TAR. 用户点击后只复用一次既有有界打开会话, 插件返回受限格式 ID、显示名与名称匹配状态, 错误扩展名 ZIP 的宿主根路径显示为 `name.data [ZIP]`, 未新增后台内容扫描或 AIDL 方法. 插件 28 个 JVM 套件共 191 项全部通过且 0 skip, 两个外部 macOS ZIP 环境回归均实际执行, 用户 1-5 前缀目录的 14 个原件哈希再次核对不变; 插件 Lint 为 0 errors、55 warnings. 隔离宿主 286 个 JVM 套件共 1,627 项, 0 fail、0 error、3 项既有条件跳过; `:app:lintAppDebug` 成功, 全仓报告的既有债务未命中任何 v17 新增行. 插件清单/会话 9 项与宿主真实注册表到插件 Binder 的 1 项测试在 Android 7/API 24、Android 7.1/API 25、G8441 Android 9 和 Android 15 小米平板分别通过, 合计 40/40. 本轮只构建并安装正式证书签名的 Debug 产物, 最低宿主版本仍为 AutoJs6 6.8.0 (5276), 未重建或覆盖冻结的 2.9.0 Release.
 - [x] (集成) v17 宿主实现与协议文档已先以 `df02da604`、`be071da7c` 落到隔离工作树, 再以 `91e548c42`、`373eacdf0` 落到授权的 AutoJs6 主工作区; 插件实现与文档对应提交为 `8cd86d2`、`36e95aa`. 合并前用户的 83 个已跟踪改动与 11 个未跟踪文件由安全 stash commit `94703b4ea18ba2fdac5e649c02889f7911bdb1af` 完整保护并在合并后恢复; 49 个交叠路径完成内容恢复, 其中目录解析器、策略与策略测试 3 个冲突点按语义同时保留 v17 复核字段和用户尚未提交的 v12 媒体字段, 没有暂存项、未合并项或冲突标记. 主工作区完整 JVM 报告为 294 个套件、1,675 项测试、0 fail、0 error、3 项既有跳过; Markdown 生成器成功, `:app:lintAppDebug` 成功, 全仓报告包含 1 fatal、519 errors、2,414 warnings 和 3 hints, 按提交归属核对的 564 行 v17 新增源码与资源为 0 命中. 合并宿主与插件在 Android 7/API 24、Android 7.1/API 25、G8441 Android 9 和 Android 15 小米平板再次完成宿主 4/4 与插件 36/36, 合计 40/40; G8441 首次启动插件测试前发生一次 Sony 固件 `ADB-JDWP Connec` 线程的 ART 原生 SIGSEGV, 测试尚未开始, 原样重试后 9/9 通过. 验证后四端均恢复冻结的签名 Release: 宿主为 6.8.0/5276, 插件为 2.9.0/15, x86/arm64-v8a ABI、非调试标志及设备端 MD5 均与本地冻结制品一致, 两个测试包均已卸载. 本轮未重建或覆盖 Release, 未远端推送.
 - [x] (集成) 已无损撤回 `71cdfcc3`/`d566ae36b` 中超出插件边界的文件管理器全局尺寸变化. `explorer_category.xml`、`explorer_directory.xml`、`explorer_file.xml` 与 `explorer_view.xml` 相对变更前基线逐节点比较, 忽略无障碍语义属性后视觉属性差异为 0; 路径栏、列表、分类操作和五项选择栏恢复既有几何, 同时保留角色、状态、说明、标题及 TalkBack 播报. 隔离宿主修正提交为 `0245417c4`, 授权主工作区对应提交为 `e26fbc6bf`; G8441 与 Android 15 小米平板的 2 项专项仪器测试各自通过, 用户工作区改动由安全 stash `5f8d4d43edbb68d8daf7cd0b4332a541283619cf` 保护并完整恢复.
-- [x] (验证) 兼容性收口新增 8 格式统一名称/损坏矩阵、14 原件外部观察语料自动化和真实 Windows Explorer 11 固定样本. 插件完整 30 个 JVM 套件共 199 项通过且 0 fail/0 error/0 skip, 两个 macOS ZIP 与全部本地外部语料均实际执行; Lint 为 0 errors/55 warnings, Debug 主 APK 与 AndroidTest APK 构建成功. `archive-test-2026` 的 14 个 SHA-256 全部保持不变, 密码、完整两卷 RAR 与普通 GZIP/XZ 拒绝路径均进入生产 reader. 固定清单现为 23 个逻辑样本/30 个物理文件; Windows Explorer 样本由 `zipfldr.dll 10.0.26100.8875` 生成, 大小 399 bytes, SHA-256 为 `074A0AEBB051196DE706DEA402968C65D3FF8B106178998919D0659A64EBDB88`, 自动恢复中文路径并通过条目流验证. G8441 与 Android 15 小米平板的运行时兼容类各 7 项通过, 合计 14/14; 验证后两端均恢复冻结的宿主 6.8.0/5276 与插件 2.9.0/15 Release, SHA-256/MD5 精确匹配且测试包已卸载.
+- [x] (验证) 兼容性收口新增 8 格式统一名称/损坏矩阵、14 原件外部观察语料自动化和真实 Windows Explorer 11 固定样本. 插件完整 30 个 JVM 套件共 199 项通过且 0 fail/0 error/0 skip, 两个 macOS ZIP 与全部本地外部语料均实际执行; Lint 为 0 errors/55 warnings, Debug 主 APK 与 AndroidTest APK 构建成功. `archive-test-2026` 的 14 个 SHA-256 全部保持不变, 密码、完整两卷 RAR 与普通 GZIP/XZ 拒绝路径均进入生产 reader. 该阶段固定清单为 23 个逻辑样本/30 个物理文件; Windows Explorer 样本由 `zipfldr.dll 10.0.26100.8875` 生成, 大小 399 bytes, SHA-256 为 `074A0AEBB051196DE706DEA402968C65D3FF8B106178998919D0659A64EBDB88`, 自动恢复中文路径并通过条目流验证. G8441 与 Android 15 小米平板的运行时兼容类各 7 项通过, 合计 14/14; 验证后两端均恢复冻结的宿主 6.8.0/5276 与插件 2.9.0/15 Release, SHA-256/MD5 精确匹配且测试包已卸载.
+- [x] (验证) 兼容性生产者来源矩阵由 Info-ZIP 3.0 固定样本与 MT Manager v2.26.8 来源记录完成收口. 用户提供的 `E:\tmp\zip30` 共 362 个文件, 与 SourceForge 官方 `zip30.zip` 解包内容逐文件相同; 官方包 SHA-256 为 `7061CEAC0407682B6DC54BB480347205F680F4E56CF34FE1423DF2309F18968A`, 规范源码树 SHA-256 为 `78D68057069FA76F05AF685B339B299344A36DA8FF42224F4EF082C73CB7F345`. 新增脚本使用 MinGW GCC 13.1.0/x86_64-w64-mingw32 与 GNU Make 4.4 在隔离临时副本中构建, 不修改或分发源码/工具/二进制; 连续生成和脚本从头复现均得到 451 bytes、SHA-256 `CCE11CB11FDA466A73F547AA01B412253534210B4748D16E31BE6CE5D8D72EEF` 的同一 ZIP. 生产 reader 在 Commons Compress 与 Android 7 所用 Zip4j 两条路径上均恢复未置 UTF-8 标志的 `0x7075` Unicode Path 名称 `目录/文件.txt`, 并逐字节读取 Deflate/Store 内容. 固定清单现为 24 个逻辑样本/31 个物理文件; 完整 30 个 JVM 套件共 200 项通过且 0 fail/0 error/0 skip, 两个 macOS ZIP 和 14 个本地观察样本均实际执行; Lint 为 0 errors/55 warnings, Debug 主 APK 与 AndroidTest APK 构建成功. 本轮未改宿主或生产代码, 未操作设备, 未重建或覆盖冻结的 Release 制品.
 - [x] (质量) Zip4j 生产依赖已记录许可证/NOTICE/版本/CVE 检查/传递依赖/APK 体积和 ABI 影响; 后续新增或升级后端仍须重复此门禁.
 - [x] (质量) Commons Compress 1.28.0 的 TAR 与 7Z 生产使用已记录许可证/NOTICE/版本/公开安全公告/传递依赖/APK 体积和 ABI 影响; 当前复用既有依赖, 未新增 Maven 构件或原生 ABI.
 - [x] (质量) XZ for Java 已升级并固定为 1.12; 0BSD 原文、版本缺陷复核、无传递依赖、JAR 哈希、262,144 KiB 解码内存上限、APK 增量和无新增 ABI 结论均已记录.
@@ -313,8 +314,10 @@
 
 ## 后续推荐交付顺序
 
-推荐顺序第一阶段的布局、无障碍、URI grant 与 Binder 负载门禁已经完成; 超出边界的宿主全局布局变化已无损撤回. 兼容性阶段的通用回退入口、复合 TAR 精确匹配、8 格式名称/损坏矩阵、Windows Explorer 固定样本与本地观察语料自动化也已经落地. 后续顺序为:
+推荐顺序第一阶段的布局、无障碍、URI grant 与 Binder 负载门禁已经完成; 超出边界的宿主全局布局变化已无损撤回. 兼容性阶段的通用回退入口、复合 TAR 精确匹配、8 格式名称/损坏矩阵、Windows Explorer 与 Info-ZIP 固定样本、本地观察语料自动化及全部计划生产者的行为来源覆盖也已经落地. 后续顺序为:
 
-1. 获取一个带精确版本和生成命令的 Info-ZIP 样本; 若来源信息可得, 同步补记 MT Manager 与外部 macOS 样本的生产者版本. 这些是来源广度缺口, 8 格式行为矩阵已经闭合.
-2. 设计下一版通用可写档案 provider 与事务式覆盖协议, 作为 TAR/7Z 档案内增删改、辅助元数据提示和撤销能力的共同基础.
+1. 设计下一版通用可写档案 provider 与事务式覆盖协议, 作为 TAR/7Z 档案内增删改、辅助元数据提示和撤销能力的共同基础.
+2. 在 provider 能力边界上补齐只读原因、辅助元数据规范化提示、重建空间/工作量预估及最近替换撤销, 再为每个新增可写格式重复外部工具闭环.
 3. 补齐首次公开发布所需的插件中心元数据、安装说明、演示素材、问题模板、格式能力说明与最终回归矩阵.
+
+MT Manager v2.26.8 与两个外部 macOS ZIP 的行为回归已经固定, 不再阻塞上述交付顺序. 只有准备把它们提升为可重新生成的已提交夹具时, 才需要补充原始创建设置或对应系统/工具版本.
