@@ -145,6 +145,7 @@ if (-not $temporaryRoot.StartsWith($temporaryParent, [StringComparison]::Ordinal
 }
 
 $originalPath = $env:Path
+$generationStarted = $false
 try {
     New-Item -ItemType Directory -Path $temporaryRoot -ErrorAction Stop | Out-Null
     $buildRoot = Join-Path $temporaryRoot "zip30"
@@ -195,6 +196,10 @@ try {
 
     Push-Location $stageRoot
     try {
+        if (Test-Path -LiteralPath $resolvedOutput) {
+            throw "Fixture output appeared while the isolated build was running: $resolvedOutput"
+        }
+        $generationStarted = $true
         & $zip -X $resolvedOutput ".\ascii.txt" ".\目录\文件.txt"
         if ($LASTEXITCODE -ne 0) {
             throw "Info-ZIP fixture generation failed with exit code $LASTEXITCODE"
@@ -221,7 +226,7 @@ try {
     Write-Host "System locale $($systemLocale.Name), OEM code page 936"
     Write-Host "SHA-256 $fixtureSha256"
 } catch {
-    if (Test-Path -LiteralPath $resolvedOutput -PathType Leaf) {
+    if ($generationStarted -and (Test-Path -LiteralPath $resolvedOutput -PathType Leaf)) {
         Remove-Item -LiteralPath $resolvedOutput -Force
     }
     throw
