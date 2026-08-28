@@ -57,7 +57,24 @@ internal object TarGzipArchiveBackend : TarArchiveBackendBase(
 internal object TarXzArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR_XZ,
     container = TarContainer.XZ,
-)
+    canMutate = true,
+), ArchiveMutationBackend {
+    override val mutationCapabilities = TAR_XZ_MUTATION_CAPABILITIES
+
+    override fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        tarMutationAvailability(snapshot)
+
+    override fun createMutationProvider(
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+        engine: ArchiveEngine,
+    ): ArchiveMutationProvider = TarArchiveMutationProvider(
+        session = session,
+        cacheDirectory = cacheDirectory,
+        engine = engine,
+        format = format,
+    )
+}
 
 internal object TarBzip2ArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR_BZIP2,

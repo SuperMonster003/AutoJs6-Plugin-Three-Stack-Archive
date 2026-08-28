@@ -7,6 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.tukaani.xz.LZMA2Options
 import java.nio.charset.Charset
 import java.util.zip.ZipEntry
 
@@ -69,15 +70,20 @@ class ArchiveEngineTest {
         assertFalse(ArchiveFormatLimitation.PASSWORD_UNAVAILABLE in capabilities.limitations)
         assertFalse(ArchiveFormatLimitation.SPLIT_VOLUMES_UNAVAILABLE in capabilities.limitations)
         assertEquals(
-            listOf(ArchiveFormat.ZIP, ArchiveFormat.TAR, ArchiveFormat.TAR_GZIP),
+            listOf(
+                ArchiveFormat.ZIP,
+                ArchiveFormat.TAR,
+                ArchiveFormat.TAR_GZIP,
+                ArchiveFormat.TAR_XZ,
+            ),
             engine.mutationFormats,
         )
         assertEquals(
-            listOf("tar", "tgz", "zip"),
+            listOf("tar", "tgz", "txz", "zip"),
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
         )
         assertEquals(
-            listOf("tar.gz"),
+            listOf("tar.gz", "tar.xz"),
             ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
         )
         val mutation = requireNotNull(engine.mutationCapabilities(ArchiveFormat.ZIP))
@@ -96,7 +102,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `ordinary and gzip tar expose rewrite mutation while later wrappers remain read only`() {
+    fun `ordinary gzip and xz tar expose rewrite mutation while later wrappers remain read only`() {
         val engine = ArchiveEngine.DEFAULT
 
         listOf(
@@ -107,7 +113,9 @@ class ArchiveEngineTest {
             ArchiveFormat.TAR_ZSTD,
         ).forEach { format ->
             val capabilities = engine.capabilities(format)
-            val canMutate = format == ArchiveFormat.TAR || format == ArchiveFormat.TAR_GZIP
+            val canMutate = format == ArchiveFormat.TAR ||
+                format == ArchiveFormat.TAR_GZIP ||
+                format == ArchiveFormat.TAR_XZ
             assertTrue(capabilities.supports(ArchiveOperation.DETECT))
             assertTrue(capabilities.supports(ArchiveOperation.LIST))
             assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
@@ -143,6 +151,7 @@ class ArchiveEngineTest {
                 when (format) {
                     ArchiveFormat.TAR -> TAR_MUTATION_CAPABILITIES
                     ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
+                    ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_CAPABILITIES
                     else -> null
                 },
                 engine.mutationCapabilities(format),
@@ -166,6 +175,21 @@ class ArchiveEngineTest {
                 ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
             TAR_GZIP_MUTATION_CAPABILITIES.metadataEffects,
         )
+        assertEquals(
+            TAR_MUTATION_CAPABILITIES.metadataEffects +
+                ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+            TAR_XZ_MUTATION_CAPABILITIES.metadataEffects,
+        )
+    }
+
+    @Test
+    fun `xz mutation preset stays within its explicit encoder memory budget`() {
+        val options = LZMA2Options(TAR_XZ_MUTATION_COMPRESSION_LEVEL)
+
+        assertEquals(4, tarMutationCompressionLevel(ArchiveFormat.TAR_XZ))
+        assertEquals(4 * 1_024 * 1_024, options.dictSize)
+        assertEquals(48_058, options.encoderMemoryUsage)
+        assertTrue(options.encoderMemoryUsage <= TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB)
     }
 
     @Test

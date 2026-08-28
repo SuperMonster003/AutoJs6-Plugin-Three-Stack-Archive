@@ -166,43 +166,51 @@ class TarArchiveMutationPlannerTest {
     }
 
     @Test
-    fun `gzip tar has explicit mutation while later wrappers remain read only`() {
+    fun `gzip and xz tar have explicit mutation while later wrappers remain read only`() {
         val gzipSnapshot = ArchiveScanner().scan(
             writeTarGzip(
                 temporaryFolder.newFile("compressed.tar.gz"),
                 TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
             ),
         )
-
-        assertEquals(ArchiveFormat.TAR_GZIP, gzipSnapshot.format)
-        assertEquals(
-            TAR_GZIP_MUTATION_CAPABILITIES,
-            ArchiveEngine.DEFAULT.mutationCapabilities(gzipSnapshot.format),
-        )
-        assertEquals(
-            TAR_GZIP_MUTATION_CAPABILITIES,
-            ArchiveEngine.DEFAULT.mutationAvailability(gzipSnapshot).capabilities,
-        )
-        assertTrue(gzipSnapshot.entries.single().capabilities.canDelete)
-        assertTrue(gzipSnapshot.entries.single().capabilities.canRename)
-        val gzipPlan = TarArchiveMutationPlanner.plan(
-            gzipSnapshot,
-            ArchiveMutationRequest.Rename("payload.txt", "renamed.txt"),
-        )
-        assertEquals(ArchiveFormat.TAR_GZIP, gzipPlan.format)
-        assertEquals(listOf("renamed.txt"), gzipPlan.entries.map(TarArchiveMutationEntry::archivePath))
-        assertTrue(
-            ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED in
-                gzipPlan.metadataEffects,
+        val xzSnapshot = ArchiveScanner().scan(
+            writeTarXz(
+                temporaryFolder.newFile("compressed.tar.xz"),
+                TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+            ),
         )
 
         listOf(
-            ArchiveScanner().scan(
-                writeTarXz(
-                    temporaryFolder.newFile("compressed.tar.xz"),
-                    TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
-                ),
-            ),
+            Triple(ArchiveFormat.TAR_GZIP, TAR_GZIP_MUTATION_CAPABILITIES, gzipSnapshot),
+            Triple(ArchiveFormat.TAR_XZ, TAR_XZ_MUTATION_CAPABILITIES, xzSnapshot),
+        ).forEach { (format, capabilities, snapshot) ->
+            assertEquals(format, snapshot.format)
+            assertEquals(
+                capabilities,
+                ArchiveEngine.DEFAULT.mutationCapabilities(snapshot.format),
+            )
+            assertEquals(
+                capabilities,
+                ArchiveEngine.DEFAULT.mutationAvailability(snapshot).capabilities,
+            )
+            assertTrue(snapshot.entries.single().capabilities.canDelete)
+            assertTrue(snapshot.entries.single().capabilities.canRename)
+            val plan = TarArchiveMutationPlanner.plan(
+                snapshot,
+                ArchiveMutationRequest.Rename("payload.txt", "renamed.txt"),
+            )
+            assertEquals(format, plan.format)
+            assertEquals(
+                listOf("renamed.txt"),
+                plan.entries.map(TarArchiveMutationEntry::archivePath),
+            )
+            assertTrue(
+                ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED in
+                    plan.metadataEffects,
+            )
+        }
+
+        listOf(
             ArchiveScanner().scan(
                 writeTarBzip2(
                     temporaryFolder.newFile("compressed.tar.bz2"),

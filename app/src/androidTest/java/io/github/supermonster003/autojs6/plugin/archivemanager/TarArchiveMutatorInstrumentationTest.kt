@@ -13,7 +13,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarConstants
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipParameters
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
+import org.tukaani.xz.LZMA2Options
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -90,6 +92,37 @@ class TarArchiveMutatorInstrumentationTest {
             rewrittenHeader.copyOfRange(GZIP_MTIME_OFFSET, GZIP_MTIME_OFFSET + 4),
         )
         assertEquals(GZIP_OS_UNKNOWN, rewrittenHeader[GZIP_OS_OFFSET].toInt() and 0xFF)
+        directory.deleteRecursively()
+    }
+
+    @Test
+    fun xzTarMutationStreamsOneSourcePassWithABoundedEncoderPreset() {
+        val directory = newTestDirectory()
+        val archive = writeTestTarXz(
+            File(directory, XZ_ARCHIVE_NAME),
+            TarFixture("docs", directory = true),
+            TarFixture("docs/readme.txt", "readme".encodeToByteArray()),
+            TarFixture("root.bin", byteArrayOf(1, 2, 3)),
+        )
+
+        exerciseSuccessfulMutations(
+            directory = directory,
+            archive = archive,
+            format = ArchiveFormat.TAR_XZ,
+            exportArgument = EXPORT_XZ_VALIDATION_ARGUMENT,
+            exportedArchiveName = EXPORTED_XZ_ARCHIVE_NAME,
+        )
+
+        val rewrittenHeader = archive.readBytes().copyOf(XZ_STREAM_FLAGS_END)
+        assertArrayEquals(XZ_MAGIC, rewrittenHeader.copyOf(XZ_MAGIC.size))
+        assertArrayEquals(
+            byteArrayOf(0, XZ_CHECK_CRC64),
+            rewrittenHeader.copyOfRange(XZ_STREAM_FLAGS_START, XZ_STREAM_FLAGS_END),
+        )
+        val options = LZMA2Options(tarMutationCompressionLevel(ArchiveFormat.TAR_XZ))
+        assertEquals(4 * 1_024 * 1_024, options.dictSize)
+        assertEquals(48_058, options.encoderMemoryUsage)
+        assertTrue(options.encoderMemoryUsage <= TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB)
         directory.deleteRecursively()
     }
 
@@ -234,173 +267,185 @@ class TarArchiveMutatorInstrumentationTest {
     }
 
     @Test
-    fun cancellingGzipRewriteDoesNotDrainTheRemainingCompressedSource() {
+    fun cancellingCompressedTarRewriteDoesNotDrainTheRemainingSource() {
         val directory = newTestDirectory()
         val payload = ByteArray(LARGE_PAYLOAD_SIZE).also { Random(20260829L).nextBytes(it) }
-        val archive = writeTestTarGzip(
-            File(directory, GZIP_ARCHIVE_NAME),
-            TarFixture("large.bin", payload),
-        )
-        val originalBytes = archive.readBytes()
-        val host = ReplacementHostSession(archive, directory)
-        val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
-            ArchiveFormat.TAR_GZIP,
-            ExplorerActionHostSessionClient(host),
-            context.cacheDir,
-        )
-        val snapshot = ArchiveScanner().scan(archive)
-        val source = CountingArchiveReadSource(archive)
-
-        assertThrows(CancellationException::class.java) {
-            mutator.mutate(
-                source = source,
-                snapshot = snapshot,
-                targetId = TARGET_ID,
-                displayName = archive.name,
-                request = ArchiveMutationRequest.Rename("large.bin", "renamed.bin"),
-                checkCancelled = {
-                    if (source.bytesRead >= CANCEL_AFTER_COMPRESSED_BYTES) {
-                        throw CancellationException("cancel compressed TAR rewrite")
-                    }
-                },
+        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+            val archive = writeTestCompressedTar(
+                format,
+                File(directory, archiveName(format)),
+                TarFixture("large.bin", payload),
             )
-        }
+            val originalBytes = archive.readBytes()
+            val host = ReplacementHostSession(archive, directory)
+            val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
+                format,
+                ExplorerActionHostSessionClient(host),
+                context.cacheDir,
+            )
+            val snapshot = ArchiveScanner().scan(archive)
+            val source = CountingArchiveReadSource(archive)
 
-        assertEquals(1, source.inputOpenCount)
-        assertTrue(source.bytesRead >= CANCEL_AFTER_COMPRESSED_BYTES)
-        assertTrue(source.bytesRead < archive.length())
-        assertArrayEquals(originalBytes, archive.readBytes())
-        assertEquals(0, host.commitCalls)
-        assertEquals(1, host.abortCalls)
-        assertFalse(host.pendingFile.exists())
+            assertThrows(CancellationException::class.java) {
+                mutator.mutate(
+                    source = source,
+                    snapshot = snapshot,
+                    targetId = TARGET_ID,
+                    displayName = archive.name,
+                    request = ArchiveMutationRequest.Rename("large.bin", "renamed.bin"),
+                    checkCancelled = {
+                        if (source.bytesRead >= CANCEL_AFTER_COMPRESSED_BYTES) {
+                            throw CancellationException("cancel compressed TAR rewrite")
+                        }
+                    },
+                )
+            }
+
+            assertEquals(1, source.inputOpenCount)
+            assertTrue(source.bytesRead >= CANCEL_AFTER_COMPRESSED_BYTES)
+            assertTrue(source.bytesRead < archive.length())
+            assertArrayEquals(originalBytes, archive.readBytes())
+            assertEquals(0, host.commitCalls)
+            assertEquals(1, host.abortCalls)
+            assertFalse(host.pendingFile.exists())
+        }
         directory.deleteRecursively()
     }
 
     @Test
-    fun gzipSourceIdentityChangeAfterPlanningAbortsBeforeReplacement() {
+    fun compressedTarSourceIdentityChangeAfterPlanningAbortsBeforeReplacement() {
         val directory = newTestDirectory()
-        val archive = writeTestTarGzip(
-            File(directory, GZIP_ARCHIVE_NAME),
-            TarFixture("original.txt", "original".encodeToByteArray()),
-        )
-        val host = ReplacementHostSession(archive, directory)
-        val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
-            ArchiveFormat.TAR_GZIP,
-            ExplorerActionHostSessionClient(host),
-            context.cacheDir,
-        )
-        val snapshot = ArchiveScanner().scan(archive)
-        val prepared = mutator.prepare(
-            snapshot,
-            ArchiveMutationRequest.Rename("original.txt", "renamed.txt"),
-        )
-        FileOutputStream(archive, true).use { it.write(0x5A) }
-        val externallyChangedBytes = archive.readBytes()
-
-        val error = assertThrows(ArchiveValidationException::class.java) {
-            mutator.execute(
-                source = archive.asArchiveReadSource(),
-                snapshot = snapshot,
-                targetId = TARGET_ID,
-                displayName = archive.name,
-                prepared = prepared,
-                checkCancelled = {},
+        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+            val archive = writeTestCompressedTar(
+                format,
+                File(directory, archiveName(format)),
+                TarFixture("original.txt", "original".encodeToByteArray()),
             )
-        }
+            val host = ReplacementHostSession(archive, directory)
+            val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
+                format,
+                ExplorerActionHostSessionClient(host),
+                context.cacheDir,
+            )
+            val snapshot = ArchiveScanner().scan(archive)
+            val prepared = mutator.prepare(
+                snapshot,
+                ArchiveMutationRequest.Rename("original.txt", "renamed.txt"),
+            )
+            FileOutputStream(archive, true).use { it.write(0x5A) }
+            val externallyChangedBytes = archive.readBytes()
 
-        assertEquals(ArchiveFailureCode.SOURCE_CHANGED, error.code)
-        assertEquals(ArchiveFormat.TAR_GZIP, error.format)
-        assertArrayEquals(externallyChangedBytes, archive.readBytes())
-        assertEquals(0, host.commitCalls)
-        assertEquals(1, host.abortCalls)
-        assertFalse(host.pendingFile.exists())
+            val error = assertThrows(ArchiveValidationException::class.java) {
+                mutator.execute(
+                    source = archive.asArchiveReadSource(),
+                    snapshot = snapshot,
+                    targetId = TARGET_ID,
+                    displayName = archive.name,
+                    prepared = prepared,
+                    checkCancelled = {},
+                )
+            }
+
+            assertEquals(ArchiveFailureCode.SOURCE_CHANGED, error.code)
+            assertEquals(format, error.format)
+            assertArrayEquals(externallyChangedBytes, archive.readBytes())
+            assertEquals(0, host.commitCalls)
+            assertEquals(1, host.abortCalls)
+            assertFalse(host.pendingFile.exists())
+        }
         directory.deleteRecursively()
     }
 
     @Test
-    fun damagedGzipTrailerDuringReadbackAbortsWithoutReplacingTheOriginal() {
+    fun damagedCompressedTarTrailerDuringReadbackAbortsWithoutReplacingTheOriginal() {
         val directory = newTestDirectory()
-        val archive = writeTestTarGzip(
-            File(directory, GZIP_ARCHIVE_NAME),
-            TarFixture("original.txt", "original".encodeToByteArray()),
-        )
-        val originalBytes = archive.readBytes()
-        val host = ReplacementHostSession(
-            target = archive,
-            directory = directory,
-            corruptPendingBeforeVerify = true,
-        )
-        val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
-            ArchiveFormat.TAR_GZIP,
-            ExplorerActionHostSessionClient(host),
-            context.cacheDir,
-        )
-        val snapshot = ArchiveScanner().scan(archive)
-
-        val error = assertThrows(ArchiveCreationOutputException::class.java) {
-            mutator.mutate(
-                source = archive.asArchiveReadSource(),
-                snapshot = snapshot,
-                targetId = TARGET_ID,
-                displayName = archive.name,
-                request = ArchiveMutationRequest.Rename("original.txt", "renamed.txt"),
-                checkCancelled = {},
+        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+            val archive = writeTestCompressedTar(
+                format,
+                File(directory, archiveName(format)),
+                TarFixture("original.txt", "original".encodeToByteArray()),
             )
-        }
+            val originalBytes = archive.readBytes()
+            val host = ReplacementHostSession(
+                target = archive,
+                directory = directory,
+                corruptPendingBeforeVerify = true,
+            )
+            val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
+                format,
+                ExplorerActionHostSessionClient(host),
+                context.cacheDir,
+            )
+            val snapshot = ArchiveScanner().scan(archive)
 
-        assertEquals(ArchiveCreationOutputOperation.VERIFY, error.operation)
-        assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
-        assertEquals(ArchiveFormat.TAR_GZIP, error.format)
-        assertArrayEquals(originalBytes, archive.readBytes())
-        assertEquals(0, host.commitCalls)
-        assertEquals(1, host.pendingOpenCalls)
-        assertEquals(1, host.abortCalls)
-        assertFalse(host.pendingFile.exists())
+            val error = assertThrows(ArchiveCreationOutputException::class.java) {
+                mutator.mutate(
+                    source = archive.asArchiveReadSource(),
+                    snapshot = snapshot,
+                    targetId = TARGET_ID,
+                    displayName = archive.name,
+                    request = ArchiveMutationRequest.Rename("original.txt", "renamed.txt"),
+                    checkCancelled = {},
+                )
+            }
+
+            assertEquals(ArchiveCreationOutputOperation.VERIFY, error.operation)
+            assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
+            assertEquals(format, error.format)
+            assertArrayEquals(originalBytes, archive.readBytes())
+            assertEquals(0, host.commitCalls)
+            assertEquals(1, host.pendingOpenCalls)
+            assertEquals(1, host.abortCalls)
+            assertFalse(host.pendingFile.exists())
+        }
         directory.deleteRecursively()
     }
 
     @Test
-    fun gzipOutputWriteFailureAbortsWithoutPublishingAPartialReplacement() {
+    fun compressedTarOutputWriteFailureAbortsWithoutPublishingAPartialReplacement() {
         val directory = newTestDirectory()
-        val archive = writeTestTarGzip(
-            File(directory, GZIP_ARCHIVE_NAME),
-            TarFixture("original.txt", "original".encodeToByteArray()),
-        )
-        val originalBytes = archive.readBytes()
-        val host = ReplacementHostSession(
-            target = archive,
-            directory = directory,
-            failOutputWrite = true,
-        )
-        val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
-            ArchiveFormat.TAR_GZIP,
-            ExplorerActionHostSessionClient(host),
-            context.cacheDir,
-        )
-        val snapshot = ArchiveScanner().scan(archive)
-
-        val error = assertThrows(ArchiveCreationOutputException::class.java) {
-            mutator.mutate(
-                source = archive.asArchiveReadSource(),
-                snapshot = snapshot,
-                targetId = TARGET_ID,
-                displayName = archive.name,
-                request = ArchiveMutationRequest.AddDirectory("", "new-folder"),
-                checkCancelled = {},
+        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+            val archive = writeTestCompressedTar(
+                format,
+                File(directory, archiveName(format)),
+                TarFixture("original.txt", "original".encodeToByteArray()),
             )
-        }
+            val originalBytes = archive.readBytes()
+            val host = ReplacementHostSession(
+                target = archive,
+                directory = directory,
+                failOutputWrite = true,
+            )
+            val mutator = ArchiveEngine.DEFAULT.createMutationProvider(
+                format,
+                ExplorerActionHostSessionClient(host),
+                context.cacheDir,
+            )
+            val snapshot = ArchiveScanner().scan(archive)
 
-        assertEquals(ArchiveCreationOutputOperation.WRITE, error.operation)
-        assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
-        assertEquals(ArchiveFormat.TAR_GZIP, error.format)
-        if (File(DEVICE_FULL_PATH).canWrite()) {
-            assertTrue(error.hasErrno(OsConstants.ENOSPC))
+            val error = assertThrows(ArchiveCreationOutputException::class.java) {
+                mutator.mutate(
+                    source = archive.asArchiveReadSource(),
+                    snapshot = snapshot,
+                    targetId = TARGET_ID,
+                    displayName = archive.name,
+                    request = ArchiveMutationRequest.AddDirectory("", "new-folder"),
+                    checkCancelled = {},
+                )
+            }
+
+            assertEquals(ArchiveCreationOutputOperation.WRITE, error.operation)
+            assertEquals(ArchiveFailureCode.OUTPUT_FAILURE, error.code)
+            assertEquals(format, error.format)
+            if (File(DEVICE_FULL_PATH).canWrite()) {
+                assertTrue(error.hasErrno(OsConstants.ENOSPC))
+            }
+            assertArrayEquals(originalBytes, archive.readBytes())
+            assertEquals(0, host.commitCalls)
+            assertEquals(0, host.pendingOpenCalls)
+            assertEquals(1, host.abortCalls)
+            assertFalse(host.pendingFile.exists())
         }
-        assertArrayEquals(originalBytes, archive.readBytes())
-        assertEquals(0, host.commitCalls)
-        assertEquals(0, host.pendingOpenCalls)
-        assertEquals(1, host.abortCalls)
-        assertFalse(host.pendingFile.exists())
         directory.deleteRecursively()
     }
 
@@ -468,6 +513,31 @@ class TarArchiveMutatorInstrumentationTest {
             }
         }
         return file
+    }
+
+    private fun writeTestTarXz(file: File, vararg fixtures: TarFixture): File {
+        FileOutputStream(file).use { rawOutput ->
+            XZCompressorOutputStream(rawOutput, XZ_FIXTURE_COMPRESSION_LEVEL).use { xzOutput ->
+                writeTarPayload(xzOutput, fixtures)
+            }
+        }
+        return file
+    }
+
+    private fun writeTestCompressedTar(
+        format: ArchiveFormat,
+        file: File,
+        vararg fixtures: TarFixture,
+    ): File = when (format) {
+        ArchiveFormat.TAR_GZIP -> writeTestTarGzip(file, *fixtures)
+        ArchiveFormat.TAR_XZ -> writeTestTarXz(file, *fixtures)
+        else -> error("$format is not a writable compressed TAR test format")
+    }
+
+    private fun archiveName(format: ArchiveFormat): String = when (format) {
+        ArchiveFormat.TAR_GZIP -> GZIP_ARCHIVE_NAME
+        ArchiveFormat.TAR_XZ -> XZ_ARCHIVE_NAME
+        else -> error("$format is not a writable compressed TAR test format")
     }
 
     private fun writeTarPayload(outputStream: OutputStream, fixtures: Array<out TarFixture>) {
@@ -645,10 +715,13 @@ class TarArchiveMutatorInstrumentationTest {
     private companion object {
         const val ARCHIVE_NAME = "managed.tar"
         const val GZIP_ARCHIVE_NAME = "managed.tar.gz"
+        const val XZ_ARCHIVE_NAME = "managed.tar.xz"
         const val EXPORTED_ARCHIVE_NAME = "ordinary-tar-mutation-e2e.tar"
         const val EXPORTED_GZIP_ARCHIVE_NAME = "gzip-tar-mutation-e2e.tar.gz"
+        const val EXPORTED_XZ_ARCHIVE_NAME = "xz-tar-mutation-e2e.tar.xz"
         const val EXPORT_VALIDATION_ARGUMENT = "exportTarMutationArtifact"
         const val EXPORT_GZIP_VALIDATION_ARGUMENT = "exportTarGzipMutationArtifact"
+        const val EXPORT_XZ_VALIDATION_ARGUMENT = "exportTarXzMutationArtifact"
         const val FIXED_TIME = 1_700_000_000_000L
         const val LARGE_PAYLOAD_SIZE = 2 * 1_024 * 1_024
         const val CANCEL_AFTER_COMPRESSED_BYTES = 128L * 1_024L
@@ -659,7 +732,19 @@ class TarArchiveMutatorInstrumentationTest {
         const val GZIP_FLAG_NAME = 0x08
         const val GZIP_FLAG_COMMENT = 0x10
         const val GZIP_OS_UNKNOWN = 255
+        const val XZ_FIXTURE_COMPRESSION_LEVEL = 1
+        const val XZ_STREAM_FLAGS_START = 6
+        const val XZ_STREAM_FLAGS_END = 8
+        const val XZ_CHECK_CRC64: Byte = 0x04
         const val DEVICE_FULL_PATH = "/dev/full"
         const val TARGET_ID = "archive-target"
+        val XZ_MAGIC = byteArrayOf(
+            0xFD.toByte(),
+            0x37,
+            0x7A,
+            0x58,
+            0x5A,
+            0x00,
+        )
     }
 }

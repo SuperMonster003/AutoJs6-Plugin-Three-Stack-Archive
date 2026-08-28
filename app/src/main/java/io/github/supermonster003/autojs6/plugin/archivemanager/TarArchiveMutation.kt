@@ -8,6 +8,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarConstants
 import org.autojs.plugin.explorer.api.ExplorerActionValues
+import org.tukaani.xz.LZMA2Options
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -36,14 +37,39 @@ internal val TAR_GZIP_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
         ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
 )
 
+internal val TAR_XZ_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
+    metadataEffects = TAR_MUTATION_CAPABILITIES.metadataEffects +
+        ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+)
+
+internal const val TAR_XZ_MUTATION_COMPRESSION_LEVEL = 4
+internal const val TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB = 64 * 1_024
+
+internal fun tarMutationCompressionLevel(format: ArchiveFormat): Int = when (format) {
+    ArchiveFormat.TAR -> 0
+    ArchiveFormat.TAR_GZIP -> 6
+    ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_COMPRESSION_LEVEL.also { level ->
+        val encoderMemoryUsageKiB = LZMA2Options(level).encoderMemoryUsage
+        check(encoderMemoryUsageKiB <= TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB) {
+            "TAR.XZ mutation encoder requires $encoderMemoryUsageKiB KiB"
+        }
+    }
+    ArchiveFormat.ZIP,
+    ArchiveFormat.SEVEN_Z,
+    ArchiveFormat.RAR,
+    ArchiveFormat.TAR_BZIP2,
+    ArchiveFormat.TAR_ZSTD,
+    -> error("${format.displayName} does not have a TAR mutation compression level")
+}
+
 internal fun tarMutationCapabilities(format: ArchiveFormat): ArchiveMutationCapabilities? =
     when (format) {
         ArchiveFormat.TAR -> TAR_MUTATION_CAPABILITIES
         ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
+        ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_CAPABILITIES
         ArchiveFormat.ZIP,
         ArchiveFormat.SEVEN_Z,
         ArchiveFormat.RAR,
-        ArchiveFormat.TAR_XZ,
         ArchiveFormat.TAR_BZIP2,
         ArchiveFormat.TAR_ZSTD,
         -> null
@@ -594,6 +620,7 @@ internal class TarArchiveMutationProvider(
         "${format.displayName} does not have a TAR mutation provider"
     }
     private val container = format.tarContainer()
+    private val compressionLevel = tarMutationCompressionLevel(format)
     private val verifier = CreatedArchiveVerifier(cacheDirectory, engine)
 
     override fun availability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
@@ -820,7 +847,7 @@ internal class TarArchiveMutationProvider(
                 val containerOutput = TarArchiveCompression.openOutput(
                     format = format,
                     output = bufferedOutput,
-                    compressionLevel = mutationCompressionLevel(),
+                    compressionLevel = compressionLevel,
                 )
                 TarArchiveOutputStream(containerOutput, StandardCharsets.UTF_8.name()).use { output ->
                     configureOutput(output)
@@ -877,18 +904,6 @@ internal class TarArchiveMutationProvider(
         }
         requireUnchangedSource(source, snapshot)
         return counters
-    }
-
-    private fun mutationCompressionLevel(): Int = when (format) {
-        ArchiveFormat.TAR -> 0
-        ArchiveFormat.TAR_GZIP -> GZIP_MUTATION_COMPRESSION_LEVEL
-        ArchiveFormat.ZIP,
-        ArchiveFormat.SEVEN_Z,
-        ArchiveFormat.RAR,
-        ArchiveFormat.TAR_XZ,
-        ArchiveFormat.TAR_BZIP2,
-        ArchiveFormat.TAR_ZSTD,
-        -> error("${format.displayName} does not have a TAR mutation compression level")
     }
 
     private fun writeRetainedEntry(
@@ -1182,7 +1197,6 @@ internal class TarArchiveMutationProvider(
 
     private companion object {
         const val BUFFER_SIZE = 64 * 1_024
-        const val GZIP_MUTATION_COMPRESSION_LEVEL = 6
         const val SHA_256 = "SHA-256"
     }
 }
