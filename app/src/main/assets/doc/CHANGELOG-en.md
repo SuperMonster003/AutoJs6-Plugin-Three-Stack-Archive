@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.13.0
+
+_2026/08/29_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` TAR.GZ and TGZ archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` The management action now recognizes `.tar.gz` and `.tgz` precisely while continuing to reject JAR/AAR/WAR and the read-only TAR.XZ, TAR.BZ2, and TAR.ZST wrappers
+- `Improved` TAR.GZ changes rebuild the compressed source stream directly into host-owned pending output without a private uncompressed TAR copy; cancellation, GZIP trailer integrity, write failures, and complete readback all remain inside the rollback boundary
+
 ## v2.12.0
 
 _2026/08/28_

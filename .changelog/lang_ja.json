@@ -5,6 +5,21 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v2.13.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "このリリースも Explorer Action v18 を備えた対応 AutoJs6 6.8.0 ビルド (バージョンコード 5276 以降) が必要です"
+      ],
+      "feature": [
+        "安全な通常ファイルとフォルダーだけを含む TAR.GZ と TGZ で、管理画面からファイルまたはフォルダーツリーの追加、空フォルダー作成、名前変更、削除が可能になりました"
+      ],
+      "fix": [
+        "管理操作は `.tar.gz` と `.tgz` を正確に認識し、JAR/AAR/WAR および読み取り専用の TAR.XZ、TAR.BZ2、TAR.ZST は引き続き拒否します"
+      ],
+      "improvement": [
+        "TAR.GZ の変更は、非圧縮 TAR の非公開コピーを作らず、圧縮された元ストリームをホスト所有の保留中出力へ直接再構築します。取り消し、GZIP 末尾の整合性、書き込み失敗、完全再読み取りはすべてロールバック境界内です"
+      ]
+    },
     "v2.12.0": {
       "released_date": "2026/08/28",
       "hint": [

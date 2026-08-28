@@ -47,9 +47,9 @@ UI、扫描器、预览流、解压器和宿主会话不得直接依赖 ZIP 类.
 
 TAR 普通文件可预览和解压, 目录可创建; 符号链接、硬链接、FIFO、设备节点、未知特殊类型及稀疏项保留在列表中并准确声明不可打开、不可解压. 首阶段不跟随链接, 也不把特殊项物化为普通文件.
 
-`jar`、`aar` 和 `war` 是 ZIP 后端的只读扩展名别名, 不是独立格式, 也不继承 `.zip` 替换入口. `7z` 与 `rar` 使用各自独立的格式标识和后端. `tar` 及 `tar.gz`/`tgz`、`tar.xz`/`txz`、`tar.bz2`/`tbz2`、`tar.zst`/`tzst` 各有独立格式标识, 但共用 TAR 条目模型、源遍历器和 writer. 动作目录和 Intent 初筛使用已注册的可列表格式生成, 创建菜单只使用已注册 writer 的格式, 管理动作另严格限制为 `.zip` 扩展名并在索引后复核单卷结构, 避免文档、菜单和实际后端能力出现三份不同来源.
+`jar`、`aar` 和 `war` 是 ZIP 后端的只读扩展名别名, 不是独立格式, 也不继承 `.zip` 替换入口. `7z` 与 `rar` 使用各自独立的格式标识和后端. `tar` 及 `tar.gz`/`tgz`、`tar.xz`/`txz`、`tar.bz2`/`tbz2`、`tar.zst`/`tzst` 各有独立格式标识, 但共用 TAR 条目模型、源遍历器和 writer. 动作目录和 Intent 初筛使用已注册的可列表格式生成, 创建菜单只使用已注册 writer 的格式, 管理动作另从真实 mutation provider 生成安全叶扩展名与复合后缀; 当前仅发布 `.zip`、`.tar`、`.tgz` 与 `.tar.gz`, 并在索引后复核单卷结构和条目类型, 避免文档、菜单和实际后端能力出现三份不同来源.
 
-Explorer Action v14 增加有界复合文件名后缀字段, 当前用于精确发布 `.zip.001` 与 `.7z.001` 首卷, 不把任意 `.001` 文件误识别为档案. 普通格式仍通过叶扩展名目录保持现有匹配; 插件内部保留全部复合后缀, 对 TAR.GZ/TAR.XZ/TAR.BZ2/TAR.ZST 仍发布 `gz`/`xz`/`bz2`/`zst` 叶扩展名, 收到动作后核对完整文件名、外层压缩签名和解压后的 TAR 结构. 这会让对应的独立压缩流看到候选动作, 但结构探测不会把它们误识别为 TAR, 失败后也会清理暂存输入. 后续可把其余复合 TAR 后缀迁移到 v14 字段, 无需改变后端.
+Explorer Action v14 增加有界复合文件名后缀字段, 当前用于精确发布 `.zip.001`、`.7z.001` 与 `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.tar.zst`, 不把任意 `.001` 或普通 `.gz`/`.xz`/`.bz2`/`.zst` 压缩流误识别为档案. `tgz`/`txz`/`tbz2`/`tzst` 继续作为无歧义叶别名发布; 收到动作后仍核对外层压缩签名和解压后的 TAR 结构.
 
 ### 3. ZIP、7Z、RAR 与 TAR 族采用已验证后端, 其他格式仍按原型数据选择
 
@@ -91,6 +91,8 @@ RAR 刻意保持只读. Junrar 所含 UnRAR 源码许可允许软件免费处理
 
 TAR.GZ 使用 Commons Compress 自带的 GZIP 流, TAR.XZ 使用 Commons Compress 适配器与 XZ for Java 1.12. 两者按官方建议在缓冲压缩流外叠加同一 `TarArchiveInputStream`, 支持连接流, 并在外层签名之后再次验证 TAR 结构; 索引结束时继续读取压缩流尾部, 让 GZIP/XZ 完整性校验实际执行. writer 以同一层次反向组合 `TarArchiveOutputStream` 与对应压缩输出流, 并把表单级别映射到各自编码器. 流式压缩容器无法提供准确的逐条目压缩大小, 因而中立模型记录 `-1` 未知值, 不伪造压缩比. XZ 解码器设置 262,144 KiB 内存上限; 超限返回明确的不支持诊断, 不让字典申请直接耗尽进程内存. XZ for Java 是纯 Java 0BSD 组件, Release APK 实测增加 21,464 bytes 且不新增 ABI.
 
+TAR.GZ mutation provider 复用普通 TAR 的一次顺序重建器, 在同一管线中解压源 GZIP 并以级别 6 直接写入宿主持有的待提交输出, 不建立私有未压缩 TAR. 重建后的 GZIP 固定 `mtime=0`、不写原文件名或注释、OS 字段为 255, 因而能力模型明确公布压缩设置与容器元数据规范化. 关闭 reader 时的容器尾部排空逐块调用取消检查; GZIP 尾部损坏、真实输出写入失败、源身份变化及完整读回失败都留在 v8 中止边界内. TAR.XZ、TAR.BZ2 与 TAR.ZST 仍保持只读 mutation 能力, 等待分别评估编码器内存与成本.
+
 TAR.BZ2 继续复用 Commons Compress 的纯 Java BZIP2 输入/输出流, 不增加 Maven 组件或 ABI. TAR.ZST 使用 zstd-jni 的连续帧输入流与带 checksum 的输出流; reader 接受标准帧与 skippable frame magic, 将最大窗口限制为 `2^28` bytes, 并与其他压缩 TAR 一样在索引关闭前消费尾部以触发完整性检查. 外层只有 Zstandard magic 且不足最小帧长度时归类为已识别格式的截断, 而不是未知格式.
 
 zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原生 7-Zip 作为通用后端. 生产构建按上游建议使用 Android AAR, JVM 测试使用桌面原生 JAR; R8 保留 JNI 所需的原始类名. 1.5.7-15 AAR 要求 `compileSdk 37`, 因而插件仅把编译 SDK 提升到 37, `targetSdk 36` 与 `minSdk 24` 不变. AAR 内 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 四个 ELF 均由 NDK r29 构建, `LOAD` 对齐均为 `0x4000` 且含 `GNU_RELRO`; 最终 APK 还需通过 `zipalign -P 16` 复核. 插件的 `PluginInfo.supportedAbis` 同步公布完整四 ABI 清单.
@@ -125,8 +127,8 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 
 ## 验证
 
-- 单元测试验证 ZIP 能力表声明可选密码、可选分卷和普通单卷添加/删除/重命名, 但不误报文件名加密; JAR/AAR/WAR、分卷 ZIP、7Z、RAR 与 TAR 族不获得 ZIP 管理动作;
-- 单元测试验证引擎只把 ZIP 注册为当前可写 provider, provider 操作集合与格式能力完全一致, 分卷与危险路径快照返回稳定只读原因, 准备计划绑定源版本并给出条目、目录、已知字节与未知大小数量;
+- 单元测试验证 ZIP 能力表声明可选密码、可选分卷和普通单卷添加/删除/重命名, 但不误报文件名加密; JAR/AAR/WAR、分卷 ZIP、7Z、RAR 与只读 TAR 包装层不获得 ZIP 管理动作;
+- 单元测试验证引擎只把 ZIP、TAR 与 TAR.GZ 注册为当前可写 provider, provider 操作集合与格式能力完全一致, `.tgz`/`.tar.gz` 进入管理目录而 JAR/AAR/WAR 与其余 TAR 包装层不进入; 分卷、危险路径与特殊条目快照返回稳定只读原因, 准备计划绑定源版本并给出条目、目录、已知字节与未知大小数量;
 - 单元测试验证 ZIP 变更计划对文件添加、空目录、文件及目录子树重命名/删除生成稳定结果, 并在写出前拒绝危险路径、重复或等价名称、文件/目录碰撞和无法保留的条目;
 - 宿主与插件自动化验证 v18 最近替换的可用/恢复/失效/需要恢复状态、一次性语义、外部改写拒绝覆盖、提交与恢复中断日志以及备份损坏清理; 真实进程终止和真实低存储两阶段门禁继续列在 Roadmap, 不以合成故障冒充设备结果;
 - 单元测试验证改名为 `.bin` 的真实 ZIP 仍由结构探测识别;
@@ -155,5 +157,6 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - Android 仪器测试在名称按 NFC 与大小写折叠的真实 DocumentsProvider 上验证四种冲突策略、逐项询问的“应用到全部”、类型不一致时禁用覆盖、策略选择跨 Activity 重建恢复, 以及既有输出根和哨兵内容始终保持不变.
 - 外部 7-Zip 22.00 AES-256/ZipCrypto 样本验证无密码浏览、正确密码读取和错误密码的 `PASSWORD/WRONG_PASSWORD` 诊断; AES-256 writer 产物由统一 reader 重新打开并校验.
 - 外部 7-Zip 22.00 生成的 TAR/TAR.GZ/TAR.XZ/TAR.BZ2 及 bsdtar 3.8.4/libzstd 1.5.7 生成的 TAR.ZST 样本以固定 SHA-256 验证 Unicode 目录、条目元数据和内容流.
+- G8441 上的 TAR.GZ 端到端修改产物由 7-Zip 22.00 同时验证 GZIP 与内层 TAR, 并由 bsdtar 3.8.4/libarchive 3.8.4 完整列出和提取; 取消、损坏尾部、源变化及 `/dev/full` 的真实 `ENOSPC` 均验证原档案保持不变且待提交输出被中止.
 - 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建 TAR.ZST 与普通 TAR; bsdtar 3.8.4/libarchive 3.8.4 完整提取 TAR.ZST, 7-Zip 22.00 与 bsdtar 均验证普通 TAR, 创建产物还能由宿主原生档案页面重新打开并预览哈希一致的 Unicode 条目.
 - 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建普通与 AES-256 内容加密 7Z; 7-Zip 22.00 验证非 solid/LZMA2、正确与错误密码行为、完整提取、空目录和 Unicode 内容 SHA-256, 宿主原生档案页面重新打开普通产物并通过路径栏与预览器读取同一 Unicode 条目.

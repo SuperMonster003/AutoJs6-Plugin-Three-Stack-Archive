@@ -44,9 +44,9 @@ Archive Manager works inside the AutoJs6 file manager instead of replacing it. S
 - Browse, preview, and extract complete standard `.z01 + .zip`, modern WinRAR `partN.rar`, numbered `.zip.001`, and numbered `.7z.001` sets through bounded host-authorized sibling-volume descriptors; missing or changed volumes fail explicitly.
 - Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST from one item or a same-parent selection; ZIP also supports AES-256 and standard split output, and a selection can create one archive per item.
 - Standard split ZIP and Compress each item separately publish all verified physical outputs through one recoverable batch; failure or host restart is never presented as a successful partial result.
-- Edit ordinary single-volume ZIP and eligible uncompressed TAR archives through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
-- After a successful ZIP or TAR edit, restore the previous archive version from the success message or the management-page menu; the host offers one rollback during bounded retention and refuses it if another app changed the target.
-- Use the management page to see the actual format, content totals, available edit operations, and exact read-only reason; every ZIP or TAR edit reviews factual work, the full rebuild, and metadata effects before reserving output, while cancellation creates no pending output.
+- Edit ordinary single-volume ZIP and eligible TAR, TAR.GZ, and TGZ archives through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
+- After a successful ZIP or writable TAR edit, restore the previous archive version from the success message or the management-page menu; the host offers one rollback during bounded retention and refuses it if another app changed the target.
+- Use the management page to see the actual format, content totals, available edit operations, and exact read-only reason; every ZIP or writable TAR edit reviews factual work, the full rebuild, and metadata effects before reserving output, while cancellation creates no pending output.
 - Keep unsafe archive names read-only and isolated, apply structural and resource limits before writing, and prefer direct reads from the host's seekable descriptor over whole-file copies.
 - Optionally move the complete source selection to the host Trash only after every physical output is verified and committed; this option is off by default, and changed sources or incomplete output proof stop before source data is removed.
 
@@ -64,7 +64,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer). RAR, split archives, and compressed TAR wrappers are deliberately read-only; editing is available for ordinary single-volume `.zip` files and uncompressed `.tar` archives that contain only safe regular files and directories. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR, 7Z, RAR, and compressed TAR remain unavailable.
+> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer). RAR, split archives, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST are deliberately read-only; editing is available for ordinary single-volume `.zip`, `.tar`, `.tar.gz`, and `.tgz` archives that contain only safe regular files and directories. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR, 7Z, RAR, and the remaining compressed TAR wrappers are unavailable.
 
 ### Usage
 
@@ -72,7 +72,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Tap the primary archive action or choose Open archive for a supported file. If its name is not recognized, choose Open as archive... from the file menu. Browse it like a normal directory with the host path bar, which labels a detected format when the name was misleading.
 3. Use the path-bar extraction action for the current internal folder or the filename-encoding action to correct ZIP names, long-press entries to extract a selection, or choose Extract to... from the archive's file menu for the whole archive. Password prompts appear when required.
 4. Choose Compress... for a file or folder, or select several items in one directory and use Compress... in the bottom action bar. To clean up sources after success, explicitly enable the off-by-default Move source items to Trash after compression option.
-5. Choose Manage archive... for an ordinary single-volume ZIP or eligible uncompressed TAR when you need to add, rename, or delete content.
+5. Choose Manage archive... for an ordinary single-volume ZIP or an eligible TAR, TAR.GZ, or TGZ archive when you need to add, rename, or delete content.
 
 ### Permissions and data
 
@@ -84,11 +84,20 @@ Explorer Action v18 keeps the previous archive only in host-private durable stor
 
 ### Roadmap
 
-The remaining work is tracked as checkable items: writable rebuilds beyond ordinary ZIP and uncompressed TAR, grouped Trash undo and history, the rest of the device and producer matrix, and first-public-release material.
+The remaining work is tracked as checkable items: writable rebuilds for TAR.XZ, TAR.BZ2, TAR.ZST, and 7Z, grouped Trash undo and history, the rest of the device and producer matrix, and first-public-release material.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.13.0
+
+_2026/08/29_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` TAR.GZ and TGZ archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` The management action now recognizes `.tar.gz` and `.tgz` precisely while continuing to reject JAR/AAR/WAR and the read-only TAR.XZ, TAR.BZ2, and TAR.ZST wrappers
+- `Improved` TAR.GZ changes rebuild the compressed source stream directly into host-owned pending output without a private uncompressed TAR copy; cancellation, GZIP trailer integrity, write failures, and complete readback all remain inside the rollback boundary
 
 #### v2.12.0
 
@@ -107,18 +116,6 @@ _2026/08/28_
 - `Added` After a successful ZIP edit, Restore previous version is available from the success message and the management-page menu for one rollback during bounded host retention
 - `Fixed` SAF output streams now request explicit truncation, preventing shorter overwrites from retaining bytes from the previous content on newer Android versions
 - `Improved` The host keeps the previous archive in private durable storage, restores only while the target is still the exact committed replacement, and preserves interrupted recovery evidence instead of overwriting external changes
-
-#### v2.10.0
-
-_2026/08/28_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v17 (version code 5276 or newer)
-- `Added` A file whose name or extension is not recognized can now use Open as archive...; after structural detection, the native path bar labels the actual format when it differs from the name
-- `Added` Explorer Action v17 adds a matcher-free read-only fallback tied to one normal primary archive action and returns bounded detected-format metadata from the existing archive session
-- `Added` The management page adds archive information that brings the actual format, content totals, available edit operations, and exact read-only reason into one place
-- `Fixed` TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST now use exact complete-name suffixes instead of generic `gz`, `xz`, `bz2`, or `zst` leaf extensions, so ordinary compressed streams do not receive the primary archive action
-- `Improved` The host performs no background file scan while building menus; only an explicit user click runs one existing read-only archive-open call, with no new path, directory, or write authority
-- `Improved` Add, import, create-folder, rename, and delete now review factual work, the full rebuild, and metadata effects before reserving host output; cancelling the review creates no pending output
 
 ##### Full history
 

@@ -1,5 +1,14 @@
 # Notas de la versión
 
+## v2.13.0
+
+_2026/08/29_
+
+- `Nota` Esta versión sigue requiriendo la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Añadido` Los TAR.GZ y TGZ que solo contienen archivos y directorios normales seguros ya pueden añadir archivos o árboles completos, crear carpetas vacías, renombrar y eliminar desde la página de gestión
+- `Corregido` La acción de gestión reconoce con precisión `.tar.gz` y `.tgz`, pero sigue rechazando JAR/AAR/WAR y los contenedores TAR.XZ, TAR.BZ2 y TAR.ZST de solo lectura
+- `Mejorado` Los cambios TAR.GZ reconstruyen el flujo fuente comprimido directamente en la salida pendiente del host, sin una copia TAR privada sin comprimir; la cancelación, la integridad del final GZIP, los fallos de escritura y la relectura completa permanecen dentro del límite de reversión
+
 ## v2.12.0
 
 _2026/08/28_

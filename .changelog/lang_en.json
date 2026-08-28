@@ -5,6 +5,21 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v2.13.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)"
+      ],
+      "feature": [
+        "TAR.GZ and TGZ archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page"
+      ],
+      "fix": [
+        "The management action now recognizes `.tar.gz` and `.tgz` precisely while continuing to reject JAR/AAR/WAR and the read-only TAR.XZ, TAR.BZ2, and TAR.ZST wrappers"
+      ],
+      "improvement": [
+        "TAR.GZ changes rebuild the compressed source stream directly into host-owned pending output without a private uncompressed TAR copy; cancellation, GZIP trailer integrity, write failures, and complete readback all remain inside the rollback boundary"
+      ]
+    },
     "v2.12.0": {
       "released_date": "2026/08/28",
       "hint": [

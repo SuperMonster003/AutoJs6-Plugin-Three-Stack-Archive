@@ -5,6 +5,21 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v2.13.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "이 릴리스도 Explorer Action v18을 제공하는 대응 AutoJs6 6.8.0 빌드 (버전 코드 5276 이상) 가 필요합니다"
+      ],
+      "feature": [
+        "안전한 일반 파일과 디렉터리만 포함한 TAR.GZ 및 TGZ에서 관리 화면을 통해 파일 또는 전체 폴더 트리 추가, 빈 폴더 생성, 이름 변경 및 삭제를 할 수 있습니다"
+      ],
+      "fix": [
+        "관리 동작이 `.tar.gz`와 `.tgz`를 정확히 인식하면서 JAR/AAR/WAR 및 읽기 전용 TAR.XZ, TAR.BZ2, TAR.ZST 래퍼는 계속 거부합니다"
+      ],
+      "improvement": [
+        "TAR.GZ 변경은 비압축 TAR 비공개 사본을 만들지 않고 압축 원본 스트림을 호스트 소유 보류 출력으로 직접 재구성합니다. 취소, GZIP 꼬리 무결성, 쓰기 실패 및 완전한 재읽기는 모두 롤백 경계 안에 유지됩니다"
+      ]
+    },
     "v2.12.0": {
       "released_date": "2026/08/28",
       "hint": [
