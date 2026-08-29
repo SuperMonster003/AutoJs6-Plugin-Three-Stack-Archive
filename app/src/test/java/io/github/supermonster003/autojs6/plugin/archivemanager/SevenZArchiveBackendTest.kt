@@ -207,7 +207,7 @@ class SevenZArchiveBackendTest {
         )
         assertEquals(
             listOf("manual", "manual/readme.txt", "empty.bin"),
-            plan.entries.map(TarArchiveMutationEntry::archivePath),
+            plan.entries.map(ArchiveRewriteEntry::archivePath),
         )
         assertEquals(6L, plan.workEstimate.knownContentBytesToRead)
         assertEquals(

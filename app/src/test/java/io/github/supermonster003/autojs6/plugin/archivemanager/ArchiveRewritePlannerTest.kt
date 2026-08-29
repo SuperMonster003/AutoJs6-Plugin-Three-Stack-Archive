@@ -8,23 +8,49 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.ByteArrayInputStream
 
-class TarArchiveMutationPlannerTest {
+class ArchiveRewritePlannerTest {
 
     @get:Rule
     val temporaryFolder = TemporaryFolder()
 
     @Test
+    fun `planner uses an explicit format policy without consulting the TAR registry`() {
+        val snapshot = ArchiveScanner().scan(
+            writeSevenZ(
+                temporaryFolder.newFile("generic.7z"),
+                SevenZFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+            ),
+        )
+        val validatedPaths = mutableListOf<String>()
+
+        val plan = ArchiveRewritePlanner.plan(
+            snapshot = snapshot,
+            request = ArchiveMutationRequest.Rename("payload.txt", "renamed.txt"),
+            capabilities = SEVEN_Z_MUTATION_CAPABILITIES,
+            validateRetainedEntry = ArchiveRewriteEntryValidator { entry, format ->
+                assertEquals(ArchiveFormat.SEVEN_Z, format)
+                validatedPaths += entry.archivePath
+            },
+        )
+
+        assertEquals(ArchiveFormat.SEVEN_Z, plan.format)
+        assertEquals(listOf("renamed.txt"), plan.entries.map(ArchiveRewriteEntry::archivePath))
+        assertEquals(listOf("renamed.txt"), validatedPaths)
+        assertEquals(SEVEN_Z_MUTATION_CAPABILITIES.metadataEffects, plan.metadataEffects)
+    }
+
+    @Test
     fun `rename rewrites a complete directory subtree and reports factual work`() {
         val snapshot = ordinarySnapshot()
 
-        val plan = TarArchiveMutationPlanner.plan(
+        val plan = planTarArchiveRewrite(
             snapshot,
             ArchiveMutationRequest.Rename("docs", "manual"),
         )
 
         assertEquals(
             listOf("manual", "manual/readme.txt", "root.bin"),
-            plan.entries.map(TarArchiveMutationEntry::archivePath),
+            plan.entries.map(ArchiveRewriteEntry::archivePath),
         )
         assertEquals(ArchiveOperation.RENAME, plan.operation)
         assertEquals(2, plan.workEstimate.resultFileCount)
@@ -37,23 +63,23 @@ class TarArchiveMutationPlannerTest {
 
     @Test
     fun `delete removes the selected entry and all descendants`() {
-        val plan = TarArchiveMutationPlanner.plan(
+        val plan = planTarArchiveRewrite(
             ordinarySnapshot(),
             ArchiveMutationRequest.Delete(setOf("docs")),
         )
 
-        assertEquals(listOf("root.bin"), plan.entries.map(TarArchiveMutationEntry::archivePath))
+        assertEquals(listOf("root.bin"), plan.entries.map(ArchiveRewriteEntry::archivePath))
         assertEquals(ArchiveOperation.DELETE, plan.operation)
     }
 
     @Test
     fun `new directory and files retain unknown size as an honest estimate`() {
         val snapshot = ordinarySnapshot()
-        val directoryPlan = TarArchiveMutationPlanner.plan(
+        val directoryPlan = planTarArchiveRewrite(
             snapshot,
             ArchiveMutationRequest.AddDirectory("docs", "empty"),
         )
-        val filePlan = TarArchiveMutationPlanner.plan(
+        val filePlan = planTarArchiveRewrite(
             snapshot,
             ArchiveMutationRequest.AddFiles(
                 parentPath = "docs",
@@ -72,7 +98,7 @@ class TarArchiveMutationPlannerTest {
         assertTrue(directoryPlan.entries.last().isDirectory)
         assertEquals(
             listOf("docs/known.txt", "docs/unknown.txt"),
-            filePlan.entries.takeLast(2).map(TarArchiveMutationEntry::archivePath),
+            filePlan.entries.takeLast(2).map(ArchiveRewriteEntry::archivePath),
         )
         assertEquals(1, filePlan.workEstimate.unknownContentFileCount)
         assertEquals(14L, filePlan.workEstimate.knownContentBytesToRead)
@@ -80,7 +106,7 @@ class TarArchiveMutationPlannerTest {
 
     @Test
     fun `tree import preserves empty directories and safely renames an occupied root`() {
-        val plan = TarArchiveMutationPlanner.plan(
+        val plan = planTarArchiveRewrite(
             ordinarySnapshot(),
             ArchiveMutationRequest.AddTree(
                 parentPath = "",
@@ -99,7 +125,7 @@ class TarArchiveMutationPlannerTest {
 
         assertEquals(
             listOf("docs (2)", "docs (2)/empty", "docs (2)/nested.txt"),
-            plan.entries.takeLast(3).map(TarArchiveMutationEntry::archivePath),
+            plan.entries.takeLast(3).map(ArchiveRewriteEntry::archivePath),
         )
         assertTrue(plan.entries[plan.entries.lastIndex - 1].isDirectory)
     }
@@ -111,7 +137,7 @@ class TarArchiveMutationPlannerTest {
         val duplicate = expectArchiveFailure<ArchiveValidationException>(
             ArchiveFailureCode.DUPLICATE_PATH,
         ) {
-            TarArchiveMutationPlanner.plan(
+            planTarArchiveRewrite(
                 snapshot,
                 ArchiveMutationRequest.AddFiles(
                     parentPath = "",
@@ -126,7 +152,7 @@ class TarArchiveMutationPlannerTest {
         assertEquals(ArchiveFormat.TAR, duplicate.format)
 
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.UNKNOWN_SELECTION) {
-            TarArchiveMutationPlanner.plan(
+            planTarArchiveRewrite(
                 snapshot,
                 ArchiveMutationRequest.Delete(setOf("missing")),
             )
@@ -209,14 +235,14 @@ class TarArchiveMutationPlannerTest {
             )
             assertTrue(snapshot.entries.single().capabilities.canDelete)
             assertTrue(snapshot.entries.single().capabilities.canRename)
-            val plan = TarArchiveMutationPlanner.plan(
+            val plan = planTarArchiveRewrite(
                 snapshot,
                 ArchiveMutationRequest.Rename("payload.txt", "renamed.txt"),
             )
             assertEquals(format, plan.format)
             assertEquals(
                 listOf("renamed.txt"),
-                plan.entries.map(TarArchiveMutationEntry::archivePath),
+                plan.entries.map(ArchiveRewriteEntry::archivePath),
             )
             assertTrue(
                 ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED in

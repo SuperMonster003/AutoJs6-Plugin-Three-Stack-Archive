@@ -96,18 +96,18 @@ internal object SevenZArchiveMutationPlanner {
     fun plan(
         snapshot: ArchiveSnapshot,
         request: ArchiveMutationRequest,
-    ): TarArchiveMutationPlan = TarArchiveMutationPlanner.plan(
+    ): ArchiveRewritePlan = ArchiveRewritePlanner.plan(
         snapshot = snapshot,
         request = request,
-        capabilitiesOverride = SEVEN_Z_MUTATION_CAPABILITIES,
+        capabilities = SEVEN_Z_MUTATION_CAPABILITIES,
         validateRetainedEntry = ::requireRewritableSevenZEntry,
     )
 
     private fun requireRewritableSevenZEntry(
-        planned: TarArchiveMutationEntry,
+        planned: ArchiveRewriteEntry,
         format: ArchiveFormat,
     ) {
-        val entry = (planned.source as? TarArchiveMutationSource.Existing)?.entry ?: return
+        val entry = (planned.source as? ArchiveRewriteSource.Existing)?.entry ?: return
         if (entry.pathStatus != ArchiveEntryPathStatus.SAFE) {
             fail(
                 ArchiveFailureCode.INVALID_PATH,
@@ -182,7 +182,7 @@ internal class SevenZArchiveMutationProvider(
         progress: ArchiveMutationProgressListener,
     ): HostOutputTransaction {
         checkCancelled()
-        val plan = prepared as? TarArchiveMutationPlan
+        val plan = prepared as? ArchiveRewritePlan
             ?: throw IllegalArgumentException("Prepared mutation belongs to another provider")
         require(plan.format == format) { "Prepared mutation format changed" }
         if (!plan.sourceVersion.matches(snapshot)) {
@@ -251,7 +251,7 @@ internal class SevenZArchiveMutationProvider(
         snapshot: ArchiveSnapshot,
         targetId: String,
         displayName: String,
-        plan: TarArchiveMutationPlan,
+        plan: ArchiveRewritePlan,
         manifest: ArchiveSourceManifest,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
@@ -354,7 +354,7 @@ internal class SevenZArchiveMutationProvider(
         descriptor: ParcelFileDescriptor,
         source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
-        plan: TarArchiveMutationPlan,
+        plan: ArchiveRewritePlan,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
     ): ArchiveCreationCounters {
@@ -422,10 +422,10 @@ internal class SevenZArchiveMutationProvider(
     }
 
     private fun expectedInput(
-        planned: TarArchiveMutationEntry,
+        planned: ArchiveRewriteEntry,
         reader: ArchiveReader,
     ): ExpectedMutationInput = when (val source = planned.source) {
-        is TarArchiveMutationSource.Existing -> {
+        is ArchiveRewriteSource.Existing -> {
             val readerEntry = reader.entryAt(source.entry.ordinal)
                 ?: sourceChanged("A retained 7Z entry disappeared while rewriting")
             ExpectedMutationInput(
@@ -433,7 +433,7 @@ internal class SevenZArchiveMutationProvider(
                 crc = source.entry.crc32,
             )
         }
-        is TarArchiveMutationSource.AddedFile -> ExpectedMutationInput(
+        is ArchiveRewriteSource.AddedFile -> ExpectedMutationInput(
             input = try {
                 source.file.openInputStream()
             } catch (error: IOException) {
@@ -445,10 +445,10 @@ internal class SevenZArchiveMutationProvider(
             },
             crc = null,
         )
-        is TarArchiveMutationSource.AddedDirectory -> error("7Z directories have no input data")
+        is ArchiveRewriteSource.AddedDirectory -> error("7Z directories have no input data")
     }
 
-    private fun sevenZEntry(planned: TarArchiveMutationEntry): SevenZArchiveEntry =
+    private fun sevenZEntry(planned: ArchiveRewriteEntry): SevenZArchiveEntry =
         SevenZArchiveEntry().apply {
             name = planned.archivePath.trimEnd('/')
             isDirectory = planned.isDirectory
@@ -539,7 +539,7 @@ internal class SevenZArchiveMutationProvider(
         return ArchiveCreationSourceFingerprint(copied, digest.digest())
     }
 
-    private fun TarArchiveMutationPlan.toSevenZManifest(): ArchiveSourceManifest {
+    private fun ArchiveRewritePlan.toSevenZManifest(): ArchiveSourceManifest {
         var knownBytes = 0L
         var unknownFiles = 0L
         var files = 0L

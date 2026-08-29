@@ -155,8 +155,8 @@ internal fun tarMutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutation
         )
     }
 
-internal data class TarArchiveMutationPlan(
-    val entries: List<TarArchiveMutationEntry>,
+internal data class ArchiveRewritePlan(
+    val entries: List<ArchiveRewriteEntry>,
     override val format: ArchiveFormat,
     override val operation: ArchiveOperation,
     override val sourceVersion: ArchiveMutationSourceVersion,
@@ -164,50 +164,61 @@ internal data class TarArchiveMutationPlan(
     override val metadataEffects: Set<ArchiveMutationMetadataEffect>,
 ) : PreparedArchiveMutation
 
-internal data class TarArchiveMutationEntry(
+internal data class ArchiveRewriteEntry(
     val archivePath: String,
-    val source: TarArchiveMutationSource,
+    val source: ArchiveRewriteSource,
 ) {
     val isDirectory: Boolean
-        get() = source is TarArchiveMutationSource.AddedDirectory ||
-            (source as? TarArchiveMutationSource.Existing)?.entry?.isDirectory == true
+        get() = source is ArchiveRewriteSource.AddedDirectory ||
+            (source as? ArchiveRewriteSource.Existing)?.entry?.isDirectory == true
 
     val size: Long
         get() = when (source) {
-            is TarArchiveMutationSource.Existing -> source.entry.uncompressedSize
-            is TarArchiveMutationSource.AddedFile -> source.file.size
-            is TarArchiveMutationSource.AddedDirectory -> 0L
+            is ArchiveRewriteSource.Existing -> source.entry.uncompressedSize
+            is ArchiveRewriteSource.AddedFile -> source.file.size
+            is ArchiveRewriteSource.AddedDirectory -> 0L
         }
 
     val lastModified: Long
         get() = when (source) {
-            is TarArchiveMutationSource.Existing -> source.entry.modifiedTimeMillis ?: -1L
-            is TarArchiveMutationSource.AddedFile -> source.file.lastModified
-            is TarArchiveMutationSource.AddedDirectory -> source.lastModified
+            is ArchiveRewriteSource.Existing -> source.entry.modifiedTimeMillis ?: -1L
+            is ArchiveRewriteSource.AddedFile -> source.file.lastModified
+            is ArchiveRewriteSource.AddedDirectory -> source.lastModified
         }
 }
 
-internal sealed interface TarArchiveMutationSource {
-    data class Existing(val entry: ArchiveEntry) : TarArchiveMutationSource
-    data class AddedFile(val file: ArchiveMutationAddedFile) : TarArchiveMutationSource
-    data class AddedDirectory(val lastModified: Long = -1L) : TarArchiveMutationSource
+internal sealed interface ArchiveRewriteSource {
+    data class Existing(val entry: ArchiveEntry) : ArchiveRewriteSource
+    data class AddedFile(val file: ArchiveMutationAddedFile) : ArchiveRewriteSource
+    data class AddedDirectory(val lastModified: Long = -1L) : ArchiveRewriteSource
 }
 
-/** Produces a complete, collision-free replacement directory before host output reservation. */
-internal object TarArchiveMutationPlanner {
+internal fun interface ArchiveRewriteEntryValidator {
+    fun validate(entry: ArchiveRewriteEntry, format: ArchiveFormat)
+}
+
+/**
+ * Produces a complete, collision-free replacement directory before host output reservation.
+ *
+ * The planner knows only the common archive tree model. Each format provider must explicitly
+ * supply both its published rewrite capabilities and the validator for entries it will retain.
+ */
+internal object ArchiveRewritePlanner {
 
     fun plan(
         snapshot: ArchiveSnapshot,
         request: ArchiveMutationRequest,
-        capabilitiesOverride: ArchiveMutationCapabilities? = null,
-        validateRetainedEntry: (TarArchiveMutationEntry, ArchiveFormat) -> Unit =
-            ::requireRewritableEntry,
-    ): TarArchiveMutationPlan {
-        val capabilities = capabilitiesOverride ?: requireNotNull(
-            tarMutationCapabilities(snapshot.format),
-        ) { "${snapshot.format.displayName} does not have a full-rewrite mutation provider" }
+        capabilities: ArchiveMutationCapabilities,
+        validateRetainedEntry: ArchiveRewriteEntryValidator,
+    ): ArchiveRewritePlan {
+        require(capabilities.strategy == ArchiveMutationStrategy.FULL_REWRITE) {
+            "Archive rewrite planner requires full-rewrite capabilities"
+        }
+        require(capabilities.supports(request.operation)) {
+            "Archive rewrite policy does not support ${request.operation}"
+        }
         val original = snapshot.entries.map { entry ->
-            TarArchiveMutationEntry(entry.path, TarArchiveMutationSource.Existing(entry))
+            ArchiveRewriteEntry(entry.path, ArchiveRewriteSource.Existing(entry))
         }
         val entries = when (request) {
             is ArchiveMutationRequest.Delete -> delete(original, request.paths, snapshot)
@@ -217,8 +228,8 @@ internal object TarArchiveMutationPlanner {
             is ArchiveMutationRequest.AddTree -> addTree(original, request, snapshot)
         }
         validateFinalEntries(entries, snapshot.structureLimits, snapshot.format)
-        entries.forEach { validateRetainedEntry(it, snapshot.format) }
-        return TarArchiveMutationPlan(
+        entries.forEach { validateRetainedEntry.validate(it, snapshot.format) }
+        return ArchiveRewritePlan(
             entries = entries.toList(),
             format = snapshot.format,
             operation = request.operation,
@@ -229,10 +240,10 @@ internal object TarArchiveMutationPlanner {
     }
 
     private fun delete(
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         requestedPaths: Set<String>,
         snapshot: ArchiveSnapshot,
-    ): List<TarArchiveMutationEntry> {
+    ): List<ArchiveRewriteEntry> {
         if (requestedPaths.isEmpty()) {
             fail(ArchiveFailureCode.EMPTY_SELECTION, "No archive entries selected", snapshot.format)
         }
@@ -252,10 +263,10 @@ internal object TarArchiveMutationPlanner {
     }
 
     private fun rename(
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         request: ArchiveMutationRequest.Rename,
         snapshot: ArchiveSnapshot,
-    ): List<TarArchiveMutationEntry> {
+    ): List<ArchiveRewriteEntry> {
         val sourcePath = validatedSelectionPath(request.path, snapshot)
         if (!pathExists(original, sourcePath)) {
             fail(
@@ -285,10 +296,10 @@ internal object TarArchiveMutationPlanner {
     }
 
     private fun addDirectory(
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         request: ArchiveMutationRequest.AddDirectory,
         snapshot: ArchiveSnapshot,
-    ): List<TarArchiveMutationEntry> {
+    ): List<ArchiveRewriteEntry> {
         val parent = validatedParentPath(request.parentPath, original, snapshot)
         val path = portableChildPath(
             parent,
@@ -302,14 +313,14 @@ internal object TarArchiveMutationPlanner {
                 snapshot.format,
             )
         }
-        return original + TarArchiveMutationEntry(path, TarArchiveMutationSource.AddedDirectory())
+        return original + ArchiveRewriteEntry(path, ArchiveRewriteSource.AddedDirectory())
     }
 
     private fun addFiles(
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         request: ArchiveMutationRequest.AddFiles,
         snapshot: ArchiveSnapshot,
-    ): List<TarArchiveMutationEntry> {
+    ): List<ArchiveRewriteEntry> {
         if (request.files.isEmpty()) {
             fail(ArchiveFailureCode.EMPTY_SELECTION, "No files selected", snapshot.format)
         }
@@ -320,16 +331,16 @@ internal object TarArchiveMutationPlanner {
                 requireLeafName(file.displayName, snapshot.format),
                 snapshot.structureLimits,
             )
-            TarArchiveMutationEntry(path, TarArchiveMutationSource.AddedFile(file))
+            ArchiveRewriteEntry(path, ArchiveRewriteSource.AddedFile(file))
         }
         return original + additions
     }
 
     private fun addTree(
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         request: ArchiveMutationRequest.AddTree,
         snapshot: ArchiveSnapshot,
-    ): List<TarArchiveMutationEntry> {
+    ): List<ArchiveRewriteEntry> {
         if (request.entries.isEmpty()) {
             fail(
                 ArchiveFailureCode.EMPTY_SELECTION,
@@ -409,17 +420,17 @@ internal object TarArchiveMutationPlanner {
             }
             val source = when (added) {
                 is ArchiveMutationAddedTreeEntry.Directory ->
-                    TarArchiveMutationSource.AddedDirectory(added.lastModified)
+                    ArchiveRewriteSource.AddedDirectory(added.lastModified)
                 is ArchiveMutationAddedTreeEntry.FileEntry ->
-                    TarArchiveMutationSource.AddedFile(added.file)
+                    ArchiveRewriteSource.AddedFile(added.file)
             }
-            TarArchiveMutationEntry(archivePath, source)
+            ArchiveRewriteEntry(archivePath, source)
         }
         return original + additions
     }
 
     private fun availableChildName(
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         parent: String,
         requested: String,
         limits: ArchiveStructureLimits,
@@ -450,7 +461,7 @@ internal object TarArchiveMutationPlanner {
 
     private fun validatedParentPath(
         requested: String,
-        original: List<TarArchiveMutationEntry>,
+        original: List<ArchiveRewriteEntry>,
         snapshot: ArchiveSnapshot,
     ): String {
         if (requested.isEmpty()) return ArchivePathPolicy.ROOT_PATH
@@ -500,11 +511,11 @@ internal object TarArchiveMutationPlanner {
                 format,
             )
 
-    private fun pathExists(entries: List<TarArchiveMutationEntry>, path: String): Boolean =
+    private fun pathExists(entries: List<ArchiveRewriteEntry>, path: String): Boolean =
         entries.any { it.archivePath.isAtOrBelow(path) }
 
     private fun validateFinalEntries(
-        entries: List<TarArchiveMutationEntry>,
+        entries: List<ArchiveRewriteEntry>,
         limits: ArchiveStructureLimits,
         format: ArchiveFormat,
     ) {
@@ -557,7 +568,7 @@ internal object TarArchiveMutationPlanner {
                 equivalentEntries.any { !it.isUnchangedExistingPath() }
             ) {
                 fail(
-                    if (equivalentEntries.map(TarArchiveMutationEntry::isDirectory).distinct().size > 1) {
+                    if (equivalentEntries.map(ArchiveRewriteEntry::isDirectory).distinct().size > 1) {
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT
                     } else {
                         ArchiveFailureCode.DUPLICATE_PATH
@@ -589,37 +600,15 @@ internal object TarArchiveMutationPlanner {
         }
     }
 
-    private fun TarArchiveMutationEntry.isUnchangedExistingPath(): Boolean =
-        (source as? TarArchiveMutationSource.Existing)?.entry?.path == archivePath
-
-    private fun requireRewritableEntry(
-        planned: TarArchiveMutationEntry,
-        format: ArchiveFormat,
-    ) {
-        val entry = (planned.source as? TarArchiveMutationSource.Existing)?.entry ?: return
-        if (entry.pathStatus != ArchiveEntryPathStatus.SAFE) {
-            fail(
-                ArchiveFailureCode.INVALID_PATH,
-                "Unsafe archive paths cannot be preserved by rewriting",
-                format,
-            )
-        }
-        if (entry.isDirectory) return
-        if (!entry.capabilities.canOpen || entry.compressionMethodId != TAR_REGULAR_FILE_METHOD) {
-            fail(
-                ArchiveFailureCode.UNSUPPORTED_METHOD,
-                "A retained TAR entry type cannot be rewritten safely",
-                format,
-            )
-        }
-    }
+    private fun ArchiveRewriteEntry.isUnchangedExistingPath(): Boolean =
+        (source as? ArchiveRewriteSource.Existing)?.entry?.path == archivePath
 
     private fun String.isAtOrBelow(parent: String): Boolean =
         this == parent || startsWith("$parent/")
 
     private fun workEstimate(
         snapshot: ArchiveSnapshot,
-        entries: List<TarArchiveMutationEntry>,
+        entries: List<ArchiveRewriteEntry>,
     ): ArchiveMutationWorkEstimate {
         var files = 0
         var directories = 0
@@ -636,7 +625,7 @@ internal object TarArchiveMutationPlanner {
                     } catch (error: ArithmeticException) {
                         fail(
                             ArchiveFailureCode.MALFORMED_ARCHIVE,
-                            "Rewritten TAR size metadata overflows",
+                            "Rewritten archive size metadata overflows",
                             snapshot.format,
                         )
                     }
@@ -664,7 +653,41 @@ internal object TarArchiveMutationPlanner {
     private const val MAX_AUTO_RENAME_ATTEMPTS = 100_000
 }
 
-/** Rebuilds a writable TAR-family format in one source pass, verifies it, then commits it. */
+private fun requireRewritableTarEntry(
+    planned: ArchiveRewriteEntry,
+    format: ArchiveFormat,
+) {
+    val entry = (planned.source as? ArchiveRewriteSource.Existing)?.entry ?: return
+    if (entry.pathStatus != ArchiveEntryPathStatus.SAFE) {
+        throw ArchiveValidationException(
+            ArchiveFailureCode.INVALID_PATH,
+            "Unsafe archive paths cannot be preserved by rewriting",
+            format = format,
+        )
+    }
+    if (entry.isDirectory) return
+    if (!entry.capabilities.canOpen || entry.compressionMethodId != TAR_REGULAR_FILE_METHOD) {
+        throw ArchiveValidationException(
+            ArchiveFailureCode.UNSUPPORTED_METHOD,
+            "A retained TAR entry type cannot be rewritten safely",
+            format = format,
+        )
+    }
+}
+
+internal fun planTarArchiveRewrite(
+    snapshot: ArchiveSnapshot,
+    request: ArchiveMutationRequest,
+): ArchiveRewritePlan = ArchiveRewritePlanner.plan(
+    snapshot = snapshot,
+    request = request,
+    capabilities = requireNotNull(tarMutationCapabilities(snapshot.format)) {
+        "${snapshot.format.displayName} does not have a TAR rewrite provider"
+    },
+    validateRetainedEntry = ::requireRewritableTarEntry,
+)
+
+/** TAR-family adapter for the shared rewrite plan, verifier, and host replacement transaction. */
 internal class TarArchiveMutationProvider(
     private val session: ExplorerActionHostSessionClient,
     cacheDirectory: File,
@@ -698,7 +721,7 @@ internal class TarArchiveMutationProvider(
         check(capabilities.supports(request.operation)) {
             "${format.displayName} mutation provider does not support ${request.operation}"
         }
-        return TarArchiveMutationPlanner.plan(snapshot, request)
+        return planTarArchiveRewrite(snapshot, request)
     }
 
     override fun execute(
@@ -711,7 +734,7 @@ internal class TarArchiveMutationProvider(
         progress: ArchiveMutationProgressListener,
     ): HostOutputTransaction {
         checkCancelled()
-        val plan = prepared as? TarArchiveMutationPlan
+        val plan = prepared as? ArchiveRewritePlan
             ?: throw IllegalArgumentException("Prepared mutation belongs to another provider")
         require(plan.format == format) { "Prepared mutation format changed" }
         if (!plan.sourceVersion.matches(snapshot)) {
@@ -780,7 +803,7 @@ internal class TarArchiveMutationProvider(
         snapshot: ArchiveSnapshot,
         targetId: String,
         displayName: String,
-        plan: TarArchiveMutationPlan,
+        plan: ArchiveRewritePlan,
         manifest: ArchiveSourceManifest,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
@@ -883,17 +906,17 @@ internal class TarArchiveMutationProvider(
         descriptor: ParcelFileDescriptor,
         source: ArchiveReadSource,
         snapshot: ArchiveSnapshot,
-        plan: TarArchiveMutationPlan,
+        plan: ArchiveRewritePlan,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
     ): ArchiveCreationCounters {
         requireUnchangedSource(source, snapshot)
         val retainedByOrdinal = plan.entries.withIndex().mapNotNull { indexed ->
-            val existing = indexed.value.source as? TarArchiveMutationSource.Existing
+            val existing = indexed.value.source as? ArchiveRewriteSource.Existing
                 ?: return@mapNotNull null
             existing.entry.ordinal to indexed
         }.toMap()
-        if (retainedByOrdinal.size != plan.entries.count { it.source is TarArchiveMutationSource.Existing }) {
+        if (retainedByOrdinal.size != plan.entries.count { it.source is ArchiveRewriteSource.Existing }) {
             sourceChanged("${format.displayName} mutation plan contains duplicate source entries")
         }
         val counters = ArchiveCreationCounters(plan.entries.size)
@@ -947,7 +970,7 @@ internal class TarArchiveMutationProvider(
                         }
                     }
                     plan.entries.withIndex()
-                        .filter { it.value.source !is TarArchiveMutationSource.Existing }
+                        .filter { it.value.source !is ArchiveRewriteSource.Existing }
                         .forEach { indexed ->
                             writeAddedEntry(
                                 entryIndex = indexed.index,
@@ -968,7 +991,7 @@ internal class TarArchiveMutationProvider(
 
     private fun writeRetainedEntry(
         entryIndex: Int,
-        planned: TarArchiveMutationEntry,
+        planned: ArchiveRewriteEntry,
         input: TarArchiveInputStream,
         output: TarArchiveOutputStream,
         counters: ArchiveCreationCounters,
@@ -1000,7 +1023,7 @@ internal class TarArchiveMutationProvider(
 
     private fun writeAddedEntry(
         entryIndex: Int,
-        planned: TarArchiveMutationEntry,
+        planned: ArchiveRewriteEntry,
         output: TarArchiveOutputStream,
         counters: ArchiveCreationCounters,
         checkCancelled: () -> Unit,
@@ -1009,12 +1032,12 @@ internal class TarArchiveMutationProvider(
     ) {
         reportWriting(progress, planned.archivePath, entryIndex, totalEntries)
         when (val added = planned.source) {
-            is TarArchiveMutationSource.AddedDirectory -> {
+            is ArchiveRewriteSource.AddedDirectory -> {
                 output.putArchiveEntry(tarEntry(planned, 0L))
                 output.closeArchiveEntry()
                 counters.directories++
             }
-            is TarArchiveMutationSource.AddedFile -> {
+            is ArchiveRewriteSource.AddedFile -> {
                 val resolvedSize = if (added.file.size >= 0L) {
                     added.file.size
                 } else {
@@ -1037,7 +1060,7 @@ internal class TarArchiveMutationProvider(
                 output.closeArchiveEntry()
                 counters.files++
             }
-            is TarArchiveMutationSource.Existing ->
+            is ArchiveRewriteSource.Existing ->
                 error("Existing TAR entries must be written during the source pass")
         }
     }
@@ -1049,7 +1072,7 @@ internal class TarArchiveMutationProvider(
     }
 
     private fun tarEntry(
-        planned: TarArchiveMutationEntry,
+        planned: ArchiveRewriteEntry,
         resolvedSize: Long,
     ): TarArchiveEntry {
         val typeFlag = if (planned.isDirectory) TarConstants.LF_DIR else TarConstants.LF_NORMAL
@@ -1200,7 +1223,7 @@ internal class TarArchiveMutationProvider(
         )
     }
 
-    private fun TarArchiveMutationPlan.toManifest(): ArchiveSourceManifest {
+    private fun ArchiveRewritePlan.toManifest(): ArchiveSourceManifest {
         var knownBytes = 0L
         var unknownFiles = 0L
         var files = 0L
