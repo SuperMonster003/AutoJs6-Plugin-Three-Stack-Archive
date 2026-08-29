@@ -99,6 +99,8 @@ TAR.GZ、TAR.XZ、TAR.BZ2 与 TAR.ZST mutation provider 复用普通 TAR 的一�
 
 TAR.BZ2 继续复用 Commons Compress 的纯 Java BZIP2 输入/输出流及现有 TAR 重建器, 不增加 Maven 组件或 ABI. TAR.ZST 使用 zstd-jni 的连续帧输入流与带 checksum 的输出流; reader 接受标准帧与 skippable frame magic, 将最大窗口限制为 `2^28` bytes, 并与其他压缩 TAR 一样在索引关闭前消费尾部以触发完整性检查. 外层只有 Zstandard magic 且不足最小帧长度时归类为已识别格式的截断, 而不是未知格式. 两种容器中只含安全普通文件与目录的输入都可进入上述 mutation provider; 特殊 TAR 条目继续保持只读.
 
+TAR 族与 7Z 的完整重建现在共用格式中立的 `ArchiveRewritePlan`、`ArchiveRewriteEntry`、`ArchiveRewriteSource` 与 `ArchiveRewritePlanner`. 共享 planner 只负责生成最终档案树、检查路径与条目冲突、计算事实型工作量、绑定源版本并汇总辅助元数据影响; 它不查询 TAR 能力表, 也不隐式套用某一种格式的保留条目规则. 每个 mutation provider 必须显式传入自己的能力集合和保留条目校验器: TAR 适配器只接受可安全重写的普通 TAR 文件与目录, 7Z 适配器继续执行单卷、非加密、非 solid、路径、方法及资源预算边界. ZIP 仍保留现有的格式专属计划器; 共享层的引入不扩大任何格式、操作或只读变体的支持范围.
+
 zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原生 7-Zip 作为通用后端. 生产构建按上游建议使用 Android AAR, JVM 测试使用桌面原生 JAR; R8 保留 JNI 所需的原始类名. 1.5.7-15 AAR 要求 `compileSdk 37`, 因而插件仅把编译 SDK 提升到 37, `targetSdk 36` 与 `minSdk 24` 不变. AAR 内 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 四个 ELF 均由 NDK r29 构建, `LOAD` 对齐均为 `0x4000` 且含 `GNU_RELRO`; 最终 APK 还需通过 `zipalign -P 16` 复核. 插件的 `PluginInfo.supportedAbis` 同步公布完整四 ABI 清单.
 
 版本、许可证、已知 CVE 范围、传递依赖、APK 增量和 ABI 结论记录在 [`THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md). Zip4j、Commons Compress、XZ for Java、zstd-jni、内嵌 Zstandard、Junrar 与 SLF4J 的上游许可证或 NOTICE 原文保存在 `third_party`, 并作为应用资产打包.
@@ -112,6 +114,7 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - 格式和条目能力可以分别驱动宿主预览与创建表单;
 - 密码、文件名加密、分卷和修改能力分别声明, 不再把已支持的密码与仍不支持的文件名加密混为一个开关;
 - 添加、删除与重命名通过格式无关的 `ArchiveMutationProvider` 注册; Activity 不再直接实例化 ZIP mutator, 能力表、动作目录和实际 provider 由引擎启动时交叉核对;
+- TAR 族与 7Z 的 provider 复用格式中立的完整重建计划, 但必须显式提供各自的能力与保留条目校验政策; 共享 planner 不拥有任何格式注册表或隐式安全默认值;
 - provider 在宿主输出预留前固化源版本、最终条目计划、事实型工作量和辅助元数据政策. 输出大小受压缩比影响时保持未知, 不用看似精确的猜测替代预检事实;
 - 管理页通过统一状态模型展示探测格式、内容统计、真实操作集合及稳定的动态只读原因; 可写格式的辅助元数据影响不再只存在于后端实现中;
 - Activity 必须在任何宿主输出预留之前展示 provider 的不可变计划, 只有用户明确继续后才执行该计划. 取消预检不产生宿主写调用, 不创建待提交输出, 也不丢失当前选择;
@@ -133,6 +136,7 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 
 - 单元测试验证 ZIP 能力表声明可选密码、可选分卷和普通单卷添加/删除/重命名, 7Z 能力表声明动态添加/删除/重命名但不误报文件名加密或分卷; JAR/AAR/WAR、分卷 ZIP、RAR、加密/solid/分卷 7Z 与特殊条目 TAR 不获得实际修改能力;
 - 单元测试验证引擎把 ZIP、7Z 与五种 TAR 容器全部注册为当前可写 provider, provider 操作集合与格式能力完全一致, `.7z`、`.tgz`/`.tar.gz`、`.txz`/`.tar.xz`、`.tbz2`/`.tar.bz2` 与 `.tzst`/`.tar.zst` 都进入管理目录而 JAR/AAR/WAR 与 RAR 不进入; 分卷、危险路径、solid、加密、超资源预算与特殊条目快照返回稳定只读原因, 准备计划绑定源版本并给出条目、目录、已知字节与未知大小数量;
+- 单元测试直接以 7Z 能力和校验器调用共享 `ArchiveRewritePlanner`, 验证它不会读取 TAR 注册表或默认校验政策; TAR 适配器的既有路径、冲突、工作量和特殊条目边界保持逐项覆盖;
 - 单元测试验证 ZIP 变更计划对文件添加、空目录、文件及目录子树重命名/删除生成稳定结果, 并在写出前拒绝危险路径、重复或等价名称、文件/目录碰撞和无法保留的条目;
 - 宿主与插件自动化验证 v18 最近替换的可用/恢复/失效/需要恢复状态、一次性语义、外部改写拒绝覆盖、提交与恢复中断日志以及备份损坏清理; 真实进程终止和真实低存储两阶段门禁继续列在 Roadmap, 不以合成故障冒充设备结果;
 - 单元测试验证改名为 `.bin` 的真实 ZIP 仍由结构探测识别;

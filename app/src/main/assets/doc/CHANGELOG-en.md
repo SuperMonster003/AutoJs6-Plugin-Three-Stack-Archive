@@ -1,5 +1,12 @@
 # Release notes
 
+## v2.18.0
+
+_2026/08/29_
+
+- `Note` This release still requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Improved` Safe ordinary 7Z and every writable TAR-family format now share a format-neutral full-rewrite planner; each backend explicitly supplies capabilities and retained-entry validation, removing the former TAR naming and coupling without changing supported formats, output settings, or read-only boundaries
+
 ## v2.17.0
 
 _2026/08/29_

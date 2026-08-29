@@ -5,6 +5,15 @@
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v2.18.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)"
+      ],
+      "improvement": [
+        "Les 7Z ordinaires sûrs et tous les formats TAR modifiables partagent désormais un planificateur de reconstruction complète indépendant du format; chaque backend fournit explicitement ses capacités et la validation des entrées conservées, sans modifier les formats pris en charge, les réglages de sortie ni les limites de lecture seule"
+      ]
+    },
     "v2.17.0": {
       "released_date": "2026/08/29",
       "hint": [

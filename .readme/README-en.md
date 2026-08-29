@@ -84,11 +84,18 @@ Explorer Action v18 keeps the previous archive only in host-private durable stor
 
 ### Roadmap
 
-The remaining work is tracked as checkable items: a format-neutral shared mutation planner, grouped Trash undo and history, the remaining device matrix, and first-public-release material.
+The format-neutral shared rewrite planner is complete. Remaining work is tracked as checkable items: evaluating a host-native writable archive provider without changing the file-manager layout, grouped Trash undo and history, the remaining device matrix, and first-public-release material.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.18.0
+
+_2026/08/29_
+
+- `Note` This release still requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Improved` Safe ordinary 7Z and every writable TAR-family format now share a format-neutral full-rewrite planner; each backend explicitly supplies capabilities and retained-entry validation, removing the former TAR naming and coupling without changing supported formats, output settings, or read-only boundaries
 
 #### v2.17.0
 
@@ -107,15 +114,6 @@ _2026/08/29_
 - `Added` TAR.ZST and TZST archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
 - `Fixed` The management action now recognizes `.tar.zst` and `.tzst` precisely; every supported TAR wrapper now uses the same verified writable rebuild boundary
 - `Improved` TAR.ZST changes use bounded single-threaded Zstandard level 3 with a 1 MiB window and frame checksum, and stream directly into host-owned pending output; cancellation, checksum integrity, real write failures, source changes, and complete readback remain inside the rollback boundary
-
-#### v2.15.0
-
-_2026/08/29_
-
-- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
-- `Added` TAR.BZ2 and TBZ2 archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
-- `Fixed` The management action now recognizes `.tar.bz2` and `.tbz2` precisely; TAR.ZST/TZST is the only compressed TAR wrapper that remains read-only
-- `Improved` TAR.BZ2 changes use bounded BZIP2 block-size preset 6 and stream directly into host-owned pending output; cancellation, trailer integrity, real write failures, source changes, and complete readback remain inside the rollback boundary
 
 ##### Full history
 

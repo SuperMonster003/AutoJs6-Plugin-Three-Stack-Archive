@@ -5,6 +5,15 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依賴",
   "$data": {
+    "v2.18.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "本版本仍需配套使用 Explorer Action v18 的 AutoJs6 6.8.0 建置 (版本代碼 5276 或以上)"
+      ],
+      "improvement": [
+        "安全普通 7Z 及全部可寫 TAR 系列格式現共用格式中立的完整重建計劃層; 每個後端明確提供能力及保留項目驗證, 消除舊 TAR 命名及耦合, 不改變支援格式、輸出設定或唯讀邊界"
+      ]
+    },
     "v2.17.0": {
       "released_date": "2026/08/29",
       "hint": [

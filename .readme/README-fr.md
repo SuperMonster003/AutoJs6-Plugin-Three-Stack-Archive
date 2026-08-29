@@ -84,11 +84,18 @@ Explorer Action v18 conserve l'archive précédente uniquement dans le stockage 
 
 ### Roadmap
 
-Les travaux restants sont suivis par cases à cocher: planificateur de modification partagé et indépendant du format, annulation groupée et historique de la corbeille, reste de la matrice des appareils et ressources de la première publication publique.
+Le planificateur partagé de reconstruction indépendant du format est terminé. Les travaux restants sont suivis par cases à cocher: évaluation d'un provider d'archives modifiables natif de l'hôte sans changer la disposition du gestionnaire de fichiers, annulation groupée et historique de la corbeille, reste de la matrice des appareils et ressources de la première publication publique.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notes de version
+
+#### v2.18.0
+
+_2026/08/29_
+
+- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+- `Amélioration` Les 7Z ordinaires sûrs et tous les formats TAR modifiables partagent désormais un planificateur de reconstruction complète indépendant du format; chaque backend fournit explicitement ses capacités et la validation des entrées conservées, sans modifier les formats pris en charge, les réglages de sortie ni les limites de lecture seule
 
 #### v2.17.0
 
@@ -107,15 +114,6 @@ _2026/08/29_
 - `Ajout` Les archives TAR.ZST et TZST ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
 - `Correction` L'action de gestion reconnaît désormais précisément `.tar.zst` et `.tzst`; toutes les enveloppes TAR prises en charge utilisent maintenant la même limite de reconstruction modifiable vérifiée
 - `Amélioration` Les modifications TAR.ZST utilisent Zstandard niveau 3 borné et monothread avec une fenêtre de 1 MiB et une somme de contrôle de trame, puis reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de la somme, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
-
-#### v2.15.0
-
-_2026/08/29_
-
-- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
-- `Ajout` Les archives TAR.BZ2 et TBZ2 ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion reconnaît désormais précisément `.tar.bz2` et `.tbz2`; TAR.ZST/TZST est la seule enveloppe TAR compressée qui reste en lecture seule
-- `Amélioration` Les modifications TAR.BZ2 utilisent le preset 6 borné de taille de bloc BZIP2 et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
 
 ##### Historique complet
 

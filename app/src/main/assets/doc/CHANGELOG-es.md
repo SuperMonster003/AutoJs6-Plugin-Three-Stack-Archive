@@ -1,5 +1,12 @@
 # Notas de la versión
 
+## v2.18.0
+
+_2026/08/29_
+
+- `Nota` Esta versión sigue necesitando la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Mejorado` Los 7Z normales y seguros y todos los formatos TAR editables ahora comparten un planificador de reconstrucción completa independiente del formato; cada backend aporta de forma explícita sus capacidades y la validación de entradas conservadas, sin cambiar los formatos compatibles, los ajustes de salida ni los límites de solo lectura
+
 ## v2.17.0
 
 _2026/08/29_
