@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.19.0
+
+_2026/08/29_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v19 (version code 5276 or newer)
+- `Added` Files and folders in writable archives can now be renamed or deleted directly in the native AutoJs6 archive list, including multi-selection deletion; dialogs, progress, path navigation, and selection restoration reuse the host framework
+- `Fixed` Delete and rename actions are now gated by both session and per-entry capabilities; unsafe paths, missing volumes, RAR, split archives, and other read-only variants never advertise unavailable mutations
+- `Improved` Explorer Action v19 passes only bounded opaque entry IDs and a safe leaf name, then rebuilds through host-owned pending output with complete readback, atomic replacement, and in-place reindexing; the ordinary file-manager layout and visual style are unchanged
+
 ## v2.18.0
 
 _2026/08/29_

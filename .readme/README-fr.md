@@ -45,6 +45,7 @@ Archive Manager fonctionne dans le gestionnaire de fichiers AutoJs6 au lieu de l
 - Créer ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST depuis un élément ou une sélection de même parent; ZIP prend aussi en charge AES-256, les volumes standard et une archive par élément.
 - Les ZIP fractionnés standard et la compression séparée publient toutes les sorties physiques vérifiées dans un lot récupérable; un échec ou redémarrage de l'hôte n'est jamais présenté comme un résultat partiel réussi.
 - Modifier les ZIP ordinaires à volume unique, les 7Z ordinaires sûrs et les TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 ou TAR.ZST/TZST compatibles par reconstruction vérifiée: ajouter des fichiers ou un arbre de dossiers, créer un dossier vide, renommer et supprimer, puis remplacer atomiquement la source.
+- Renommer un fichier ou dossier directement dans la liste native de l'archive, ou supprimer une sélection multiple; les boîtes de dialogue, la progression, le chemin et la sélection sont restaurés par le cadre existant, et les actions n'apparaissent que si la session et l'entrée les autorisent.
 - Après une modification d'archive inscriptible réussie, restaurer la version précédente depuis le message de réussite ou le menu de gestion; l'hôte propose une seule restauration pendant une rétention limitée et la refuse si une autre application a modifié la cible.
 - La page de gestion regroupe le format réel, les totaux du contenu, les modifications disponibles et la raison exacte du mode lecture seule; avant de réserver une sortie, chaque modification présente le travail réel, la reconstruction complète et les effets sur les métadonnées, tandis qu'une annulation ne crée aucune sortie en attente.
 - Isoler en lecture seule les noms dangereux, appliquer les limites structurelles et de ressources avant l'écriture, et lire directement le descripteur seekable de l'hôte lorsque possible.
@@ -64,7 +65,7 @@ La version actuelle peut créer les formats suivants:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> L'intégration native exige la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur). RAR et les archives fractionnées restent volontairement en lecture seule. La modification est disponible pour les ZIP ordinaires à volume unique, les 7Z non chiffrés, non solid, à volume unique et dans le budget du décodeur, ainsi que les archives TAR ne contenant que des fichiers et dossiers ordinaires sûrs. Les 7Z chiffrés, solid, fractionnés, dangereux, non pris en charge ou hors budget restent en lecture seule. Ouvrez un ZIP fractionné standard par son `.zip` final, un ensemble WinRAR moderne par son premier `partN.rar`, et un ZIP ou 7Z numéroté par son volume `.001`, avec tous les volumes requis dans le même dossier. Le chiffrement des noms à la création et la modification interne de JAR/AAR/WAR ou RAR restent indisponibles.
+> L'intégration native exige la build AutoJs6 6.8.0 associée avec Explorer Action v19 (code de version 5276 ou supérieur). RAR et les archives fractionnées restent volontairement en lecture seule. La modification est disponible pour les ZIP ordinaires à volume unique, les 7Z non chiffrés, non solid, à volume unique et dans le budget du décodeur, ainsi que les archives TAR ne contenant que des fichiers et dossiers ordinaires sûrs. Les 7Z chiffrés, solid, fractionnés, dangereux, non pris en charge ou hors budget restent en lecture seule. Ouvrez un ZIP fractionné standard par son `.zip` final, un ensemble WinRAR moderne par son premier `partN.rar`, et un ZIP ou 7Z numéroté par son volume `.001`, avec tous les volumes requis dans le même dossier. Le chiffrement des noms à la création et la modification interne de JAR/AAR/WAR ou RAR restent indisponibles.
 
 ### Utilisation
 
@@ -72,7 +73,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Touchez l'action principale d'une archive ou choisissez Ouvrir l'archive. Si son nom n'est pas reconnu, choisissez Ouvrir comme archive... dans le menu. Parcourez-la comme un dossier avec la barre de chemin, qui indique le format détecté lorsque le nom était trompeur.
 3. Utilisez l'action d'extraction de la barre de chemin pour le dossier interne courant ou l'action d'encodage pour corriger les noms ZIP, une pression longue pour extraire une sélection, ou Extraire vers... dans le menu du fichier pour toute l'archive. Le mot de passe est demandé si nécessaire.
 4. Choisissez Compresser... pour un fichier ou dossier, ou sélectionnez plusieurs éléments du même répertoire et utilisez l'action de la barre inférieure. Pour nettoyer les sources après réussite, activez explicitement l'option désactivée par défaut qui déplace les sources vers la corbeille après compression.
-5. Choisissez Gérer l'archive... pour ajouter, renommer ou supprimer du contenu dans un ZIP ordinaire à volume unique, un 7Z ordinaire sûr ou un TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 ou TAR.ZST/TZST compatible.
+5. Renommez ou supprimez plusieurs éléments directement dans la liste native d'une archive modifiable; choisissez Gérer l'archive... pour ajouter des fichiers, importer une arborescence, créer un dossier vide ou consulter toutes les informations de gestion.
 
 ### Autorisations et données
 
@@ -80,15 +81,24 @@ Archive Manager ne demande aucune autorisation de stockage ou de réseau. L'hôt
 
 Explorer Action v15 regroupe uniquement les nouveaux fichiers vérifiés d'une même session dans un lot récupérable de 128 membres au maximum. Explorer Action v16 permet à l'hôte de revérifier les sources et sorties puis de déplacer les sources vers la corbeille seulement si le plugin fournit la sélection originale complète et ordonnée ainsi que toutes les transactions de sortie validées. L'hôte synchronise une copie de récupération et persiste son entrée avant de retirer les données source; le plugin n'obtient aucun chemin arbitraire ni suppression directe. Une réponse Binder perdue est résolue en consultant le même état terminal idempotent, sans recommencer le déplacement.
 
-Explorer Action v18 conserve l'archive précédente uniquement dans le stockage privé et durable de l'hôte et renvoie un identifiant opaque, jamais un chemin de sauvegarde. Une seule restauration est autorisée tant que le dossier parent et la cible correspondent exactement au remplacement validé. Les changements externes invalident l'historique; les preuves d'une récupération interrompue sont conservées et bloquent un autre remplacement de cette cible jusqu'à leur résolution par l'hôte. L'historique normal est limité par l'âge, le nombre, le total d'octets et la réserve d'espace libre; les sessions v8-v17 ne créent aucune sauvegarde de remplacement.
+Explorer Action v18 conserve l'archive précédente uniquement dans le stockage privé et durable de l'hôte et renvoie un identifiant opaque, jamais un chemin de sauvegarde. Une seule restauration est autorisée tant que le dossier parent et la cible correspondent exactement au remplacement validé. Les changements externes invalident l'historique; les preuves d'une récupération interrompue sont conservées et bloquent un autre remplacement de cette cible jusqu'à leur résolution par l'hôte. L'historique normal est limité par l'âge, le nombre, le total d'octets et la réserve d'espace libre; les sessions v8-v17 ne créent aucune sauvegarde de remplacement. Explorer Action v19 ne transmet que des ID opaques et un nom de feuille sûr pour les entrées existantes dont les capacités autorisent l'opération, puis exécute suppression ou renommage via une session atomique de remplacement propre à la tâche; aucun chemin arbitraire, parcours de dossier ni nouvel accès d'entrée n'est accordé.
 
 ### Roadmap
 
-Le planificateur partagé de reconstruction indépendant du format est terminé. Les travaux restants sont suivis par cases à cocher: évaluation d'un provider d'archives modifiables natif de l'hôte sans changer la disposition du gestionnaire de fichiers, annulation groupée et historique de la corbeille, reste de la matrice des appareils et ressources de la première publication publique.
+Le premier parcours vertical de suppression et de renommage natifs de l'hôte est terminé sans modifier la disposition ordinaire du gestionnaire de fichiers. Les éléments restants couvrent la création et l'ajout natifs dans l'archive, l'annulation groupée et l'historique de la corbeille, le reste de la matrice v19 et les ressources de la première publication publique.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notes de version
+
+#### v2.19.0
+
+_2026/08/29_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v19 (code de version 5276 ou supérieur)
+- `Ajout` Les fichiers et dossiers d'une archive modifiable peuvent maintenant être renommés ou supprimés directement dans la liste d'archives native d'AutoJs6, y compris par sélection multiple; boîtes de dialogue, progression, chemin et restauration de la sélection réutilisent le cadre de l'hôte
+- `Correction` Les actions de suppression et de renommage exigent désormais les capacités de la session et de chaque entrée; chemins dangereux, volumes absents, RAR, archives fractionnées et autres variantes en lecture seule n'annoncent aucune modification indisponible
+- `Amélioration` Explorer Action v19 ne transmet que des ID d'entrée opaques bornés et un nom de feuille sûr, puis reconstruit dans une sortie en attente de l'hôte avec relecture complète, remplacement atomique et réindexation sur place; la disposition et le style du gestionnaire de fichiers ordinaire restent inchangés
 
 #### v2.18.0
 
@@ -105,15 +115,6 @@ _2026/08/29_
 - `Ajout` Les 7Z ordinaires à volume unique, non chiffrés, non solid et dans le budget du décodeur peuvent désormais ajouter des fichiers ou des arborescences, créer des dossiers vides, renommer et supprimer depuis la page de gestion
 - `Correction` L'action de gestion inclut maintenant `.7z`; les variantes chiffrées, solid, fractionnées, dangereuses, non prises en charge ou hors budget restent en lecture seule après inspection de la structure
 - `Amélioration` Les modifications 7Z reconstruisent une sortie LZMA2 non solid et bornée, puis la relisent entièrement avant le remplacement atomique; l'annulation, les changements de source, une sortie en attente endommagée ou un échec d'écriture préservent l'original
-
-#### v2.16.0
-
-_2026/08/29_
-
-- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
-- `Ajout` Les archives TAR.ZST et TZST ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion reconnaît désormais précisément `.tar.zst` et `.tzst`; toutes les enveloppes TAR prises en charge utilisent maintenant la même limite de reconstruction modifiable vérifiée
-- `Amélioration` Les modifications TAR.ZST utilisent Zstandard niveau 3 borné et monothread avec une fenêtre de 1 MiB et une somme de contrôle de trame, puis reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de la somme, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
 
 ##### Historique complet
 

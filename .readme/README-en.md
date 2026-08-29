@@ -45,6 +45,7 @@ Archive Manager works inside the AutoJs6 file manager instead of replacing it. S
 - Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST from one item or a same-parent selection; ZIP also supports AES-256 and standard split output, and a selection can create one archive per item.
 - Standard split ZIP and Compress each item separately publish all verified physical outputs through one recoverable batch; failure or host restart is never presented as a successful partial result.
 - Edit ordinary single-volume ZIP, safe ordinary 7Z, and eligible TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
+- Rename a file or folder directly in the native host archive list, or delete a multi-selection; existing dialogs, progress UI, path restoration, and selection restoration are reused, and actions appear only when both the session and entry allow them.
 - After a successful writable-archive edit, restore the previous archive version from the success message or the management-page menu; the host offers one rollback during bounded retention and refuses it if another app changed the target.
 - Use the management page to see the actual format, content totals, available edit operations, and exact read-only reason; every edit reviews factual work, the full rebuild, and metadata effects before reserving output, while cancellation creates no pending output.
 - Keep unsafe archive names read-only and isolated, apply structural and resource limits before writing, and prefer direct reads from the host's seekable descriptor over whole-file copies.
@@ -64,7 +65,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer). RAR and split archives are deliberately read-only. Editing is available for ordinary single-volume ZIP, unencrypted non-solid single-volume 7Z within the decoder budget, and TAR-family archives that contain only safe regular files and directories. Encrypted, solid, split, unsafe, unsupported-method, or over-budget 7Z variants remain read-only. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR and RAR are unavailable.
+> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v19 (version code 5276 or newer). RAR and split archives are deliberately read-only. Editing is available for ordinary single-volume ZIP, unencrypted non-solid single-volume 7Z within the decoder budget, and TAR-family archives that contain only safe regular files and directories. Encrypted, solid, split, unsafe, unsupported-method, or over-budget 7Z variants remain read-only. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR and RAR are unavailable.
 
 ### Usage
 
@@ -72,7 +73,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Tap the primary archive action or choose Open archive for a supported file. If its name is not recognized, choose Open as archive... from the file menu. Browse it like a normal directory with the host path bar, which labels a detected format when the name was misleading.
 3. Use the path-bar extraction action for the current internal folder or the filename-encoding action to correct ZIP names, long-press entries to extract a selection, or choose Extract to... from the archive's file menu for the whole archive. Password prompts appear when required.
 4. Choose Compress... for a file or folder, or select several items in one directory and use Compress... in the bottom action bar. To clean up sources after success, explicitly enable the off-by-default Move source items to Trash after compression option.
-5. Choose Manage archive... for an ordinary single-volume ZIP, a safe ordinary 7Z, or an eligible TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, or TAR.ZST/TZST archive when you need to add, rename, or delete content.
+5. Rename or multi-delete directly in a writable archive's native list; choose Manage archive... when you need to add files, import a folder tree, create an empty folder, or review complete management information.
 
 ### Permissions and data
 
@@ -80,15 +81,24 @@ Archive Manager requests neither storage nor network permission. The host suppli
 
 Explorer Action v15 groups only verified new-file outputs from one session into a recoverable batch of at most 128 members. Explorer Action v16 lets the host revalidate sources and outputs and move sources to Trash only after the plugin supplies the exact ordered original selection and every committed output transaction. The host syncs a recovery copy and persists its record before removing source data; the plugin receives no arbitrary-path or direct-delete capability. A lost Binder response is resolved by querying the same idempotent terminal result, not by retrying the move.
 
-Explorer Action v18 keeps the previous archive only in host-private durable storage and returns an opaque history ID, never a backup path. One restore is allowed only while the parent and target still match the exact committed replacement. External changes make the history stale; interrupted recovery evidence is retained and blocks another replacement of that target until the host can resolve it. Normal history is bounded by age, count, total bytes, and free-space reserve, while v8-v17 sessions create no replacement backup.
+Explorer Action v18 keeps the previous archive only in host-private durable storage and returns an opaque history ID, never a backup path. One restore is allowed only while the parent and target still match the exact committed replacement. External changes make the history stale; interrupted recovery evidence is retained and blocks another replacement of that target until the host can resolve it. Normal history is bounded by age, count, total bytes, and free-space reserve, while v8-v17 sessions create no replacement backup. Explorer Action v19 passes only opaque IDs and a safe leaf name for existing entries whose capabilities allow the operation, and performs delete or rename through a task-specific host atomic-replacement session; it grants no arbitrary path, directory enumeration, or new-input access.
 
 ### Roadmap
 
-The format-neutral shared rewrite planner is complete. Remaining work is tracked as checkable items: evaluating a host-native writable archive provider without changing the file-manager layout, grouped Trash undo and history, the remaining device matrix, and first-public-release material.
+The host-native delete and rename vertical slice is complete without changing the ordinary file-manager layout. Remaining checkable work covers native in-archive creation and addition, grouped Trash undo and history, the rest of the v19 device matrix, and first-public-release material.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.19.0
+
+_2026/08/29_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v19 (version code 5276 or newer)
+- `Added` Files and folders in writable archives can now be renamed or deleted directly in the native AutoJs6 archive list, including multi-selection deletion; dialogs, progress, path navigation, and selection restoration reuse the host framework
+- `Fixed` Delete and rename actions are now gated by both session and per-entry capabilities; unsafe paths, missing volumes, RAR, split archives, and other read-only variants never advertise unavailable mutations
+- `Improved` Explorer Action v19 passes only bounded opaque entry IDs and a safe leaf name, then rebuilds through host-owned pending output with complete readback, atomic replacement, and in-place reindexing; the ordinary file-manager layout and visual style are unchanged
 
 #### v2.18.0
 
@@ -105,15 +115,6 @@ _2026/08/29_
 - `Added` Ordinary single-volume, unencrypted, non-solid 7Z archives within the decoder budget can now add files or complete folder trees, create empty folders, rename, and delete from the management page
 - `Fixed` The management action now includes `.7z`; encrypted, solid, split, unsafe, unsupported-method, and over-budget 7Z variants remain read-only after structural inspection
 - `Improved` 7Z edits rebuild to bounded non-solid LZMA2 output and fully read it back before atomic replacement; cancellation, source changes, damaged pending output, and write failures preserve the original
-
-#### v2.16.0
-
-_2026/08/29_
-
-- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
-- `Added` TAR.ZST and TZST archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
-- `Fixed` The management action now recognizes `.tar.zst` and `.tzst` precisely; every supported TAR wrapper now uses the same verified writable rebuild boundary
-- `Improved` TAR.ZST changes use bounded single-threaded Zstandard level 3 with a 1 MiB window and frame checksum, and stream directly into host-owned pending output; cancellation, checksum integrity, real write failures, source changes, and complete readback remain inside the rollback boundary
 
 ##### Full history
 

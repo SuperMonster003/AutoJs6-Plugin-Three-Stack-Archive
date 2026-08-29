@@ -1,5 +1,14 @@
 # Notas de la versión
 
+## v2.19.0
+
+_2026/08/29_
+
+- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v19 (código de versión 5276 o posterior)
+- `Añadido` Los archivos y carpetas de un archivo modificable ya se pueden renombrar o eliminar directamente en la lista nativa de AutoJs6, incluida la eliminación de una selección múltiple; los diálogos, el progreso, la ruta y la restauración de la selección reutilizan el marco del host
+- `Corregido` Eliminar y renombrar ahora requieren capacidades de sesión y por entrada; las rutas peligrosas, los volúmenes ausentes, RAR, los archivos divididos y otras variantes de solo lectura no anuncian operaciones no disponibles
+- `Mejorado` Explorer Action v19 solo transmite ID opacos acotados y un nombre de hoja seguro, y reconstruye en una salida pendiente del host con relectura completa, reemplazo atómico y reindexación en el sitio; el diseño y el estilo del gestor de archivos normal no cambian
+
 ## v2.18.0
 
 _2026/08/29_

@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.19.0
+
+_2026/08/29_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v19 (code de version 5276 ou supérieur)
+- `Ajout` Les fichiers et dossiers d'une archive modifiable peuvent maintenant être renommés ou supprimés directement dans la liste d'archives native d'AutoJs6, y compris par sélection multiple; boîtes de dialogue, progression, chemin et restauration de la sélection réutilisent le cadre de l'hôte
+- `Correction` Les actions de suppression et de renommage exigent désormais les capacités de la session et de chaque entrée; chemins dangereux, volumes absents, RAR, archives fractionnées et autres variantes en lecture seule n'annoncent aucune modification indisponible
+- `Amélioration` Explorer Action v19 ne transmet que des ID d'entrée opaques bornés et un nom de feuille sûr, puis reconstruit dans une sortie en attente de l'hôte avec relecture complète, remplacement atomique et réindexation sur place; la disposition et le style du gestionnaire de fichiers ordinaire restent inchangés
+
 ## v2.18.0
 
 _2026/08/29_
