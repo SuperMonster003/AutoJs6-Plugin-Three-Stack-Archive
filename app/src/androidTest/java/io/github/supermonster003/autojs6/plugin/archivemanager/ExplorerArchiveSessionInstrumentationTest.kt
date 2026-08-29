@@ -10,8 +10,11 @@ import androidx.test.runner.AndroidJUnit4
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerArchiveMutationKeys
+import org.autojs.plugin.explorer.api.ExplorerArchiveInputKeys
+import org.autojs.plugin.explorer.api.ExplorerArchiveInputValues
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
+import org.autojs.plugin.explorer.api.IExplorerArchiveInputSession
 import org.autojs.plugin.explorer.api.IExplorerArchiveOperationCallback
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
@@ -154,7 +157,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         )
         try {
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
-            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val page = session.listChildren(
                 "root",
                 0,
@@ -230,7 +233,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         )
         try {
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
-            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val page = session.listChildren(
                 "root",
                 0,
@@ -514,7 +517,7 @@ class ExplorerArchiveSessionInstrumentationTest {
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE_ENTRIES))
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES))
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
-            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val initialRoot = session.rootItems()
             val folder = initialRoot.single { item ->
                 item.getString(ExplorerArchiveSessionKeys.NAME) == "folder"
@@ -522,7 +525,7 @@ class ExplorerArchiveSessionInstrumentationTest {
             assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE))
             assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME))
             assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN))
-            assertFalse(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN))
+            assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN))
             val folderId = requireNotNull(folder.getString(ExplorerArchiveSessionKeys.ID))
             val keepFile = initialRoot.single { item ->
                 item.getString(ExplorerArchiveSessionKeys.NAME) == "keep.txt"
@@ -677,6 +680,213 @@ class ExplorerArchiveSessionInstrumentationTest {
     }
 
     @Test
+    fun writableZipSessionAddsFrozenMixedInputsAndRejectsChangedSourcesBeforeCommit() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostDirectory = File(context.cacheDir, "archive-session-add-host-${UUID.randomUUID()}")
+        val stagedDirectory = File(context.cacheDir, "archive-input-session-add-${UUID.randomUUID()}")
+        val inputDirectory = File(context.cacheDir, "archive-session-add-input-${UUID.randomUUID()}")
+        assertTrue(hostDirectory.mkdirs())
+        assertTrue(stagedDirectory.mkdirs())
+        assertTrue(inputDirectory.mkdirs())
+        val hostArchive = File(hostDirectory, "managed.zip")
+        ZipOutputStream(FileOutputStream(hostArchive)).use { output ->
+            output.putNextEntry(ZipEntry("docs/"))
+            output.closeEntry()
+            output.putNextEntry(ZipEntry("docs/original.txt"))
+            output.write("original".encodeToByteArray())
+            output.closeEntry()
+        }
+        val stagedArchiveFile = File(stagedDirectory, "source.archive")
+        hostArchive.copyTo(stagedArchiveFile)
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = hostArchive.name,
+            stagedArchive = StagedArchive(
+                stagedArchiveFile.asArchiveReadSource(),
+                stagedArchiveFile.length(),
+            ),
+            cacheDirectory = context.cacheDir,
+            snapshot = ArchiveScanner().scan(stagedArchiveFile),
+            onClosed = {},
+        )
+
+        try {
+            val archiveSessionId = requireNotNull(
+                session.info.getString(ExplorerArchiveSessionKeys.SESSION_ID),
+            )
+            val changedOperationId = UUID.randomUUID().toString()
+            val changedFile = File(inputDirectory, "changed.txt").apply {
+                writeText("changed")
+            }
+            val changedInput = FakeArchiveInputSession(
+                archiveSessionId = archiveSessionId,
+                operationId = changedOperationId,
+                roots = listOf(InputFixtureNode.file("changed-file", "changed.txt", changedFile)),
+                verificationStatus = ExplorerArchiveInputValues.VERIFICATION_SOURCE_CHANGED,
+            )
+            val changedHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val changed = session.runAddEntries(
+                host = changedHost,
+                input = changedInput,
+                operationId = changedOperationId,
+                parentEntryId = "root",
+            )
+
+            assertNull(changed.completed)
+            assertEquals(
+                ExplorerArchiveSessionValues.MUTATION_ERROR_SOURCE_CHANGED,
+                requireNotNull(changed.failure).getInt(ExplorerArchiveMutationKeys.ERROR_CODE),
+            )
+            assertEquals(1, changedInput.verifyCalls)
+            assertEquals(1, changedInput.openCount("changed-file"))
+            assertTrue(changedInput.closed)
+            assertEquals(0, changedHost.commitCalls)
+            assertEquals(
+                setOf("docs", "docs/original.txt"),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { entry -> entry.path },
+            )
+
+            val looseFile = File(inputDirectory, "loose.txt").apply { writeText("loose") }
+            val nestedFile = File(inputDirectory, "nested.txt").apply { writeText("nested") }
+            val secondNestedFile = File(inputDirectory, "second.txt").apply { writeText("second") }
+            val validOperationId = UUID.randomUUID().toString()
+            val validInput = FakeArchiveInputSession(
+                archiveSessionId = archiveSessionId,
+                operationId = validOperationId,
+                roots = listOf(
+                    InputFixtureNode.file("loose-file", "loose.txt", looseFile),
+                    InputFixtureNode.directory(
+                        id = "docs-directory",
+                        name = "docs",
+                        children = listOf(
+                            InputFixtureNode.file("nested-file", "nested.txt", nestedFile),
+                            InputFixtureNode.directory("nested-empty", "empty"),
+                        ),
+                    ),
+                    InputFixtureNode.directory(
+                        id = "second-docs-directory",
+                        name = "docs",
+                        children = listOf(
+                            InputFixtureNode.file(
+                                "second-nested-file",
+                                "second.txt",
+                                secondNestedFile,
+                            ),
+                        ),
+                    ),
+                    InputFixtureNode.directory("root-empty", "second-empty"),
+                ),
+            )
+            val validHost = ReplacementHostSession(
+                target = hostArchive,
+                directory = hostDirectory,
+                beforeCommit = { assertEquals(1, validInput.verifyCalls) },
+            )
+            val added = session.runAddEntries(
+                host = validHost,
+                input = validInput,
+                operationId = validOperationId,
+                parentEntryId = "root",
+            )
+
+            assertNull(added.failure)
+            assertEquals(
+                7,
+                requireNotNull(added.completed)
+                    .getInt(ExplorerArchiveMutationKeys.MUTATED_ENTRIES),
+            )
+            assertEquals(1, validInput.verifyCalls)
+            assertEquals(1, validInput.openCount("loose-file"))
+            assertEquals(1, validInput.openCount("nested-file"))
+            assertEquals(1, validInput.openCount("second-nested-file"))
+            assertTrue(validInput.closed)
+            assertEquals(1, validHost.commitCalls)
+            assertEquals(
+                setOf(
+                    "docs",
+                    "docs/original.txt",
+                    "loose.txt",
+                    "docs (2)",
+                    "docs (2)/nested.txt",
+                    "docs (2)/empty",
+                    "docs (3)",
+                    "docs (3)/second.txt",
+                    "second-empty",
+                ),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { entry -> entry.path },
+            )
+            assertEquals(
+                setOf("docs", "docs (2)", "docs (3)", "loose.txt", "second-empty"),
+                session.rootItems().mapTo(linkedSetOf()) { item ->
+                    item.getString(ExplorerArchiveSessionKeys.NAME)
+                },
+            )
+        } finally {
+            session.close()
+            hostDirectory.deleteRecursively()
+            inputDirectory.deleteRecursively()
+        }
+
+        assertFalse(stagedDirectory.exists())
+        assertFalse(hostDirectory.exists())
+        assertFalse(inputDirectory.exists())
+    }
+
+    @Test
+    fun archiveInputClientRejectsReservedNodeIdsAndAmbiguousActualSiblings() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val fixture = File(context.cacheDir, "archive-input-client-invalid-${UUID.randomUUID()}")
+        assertTrue(fixture.mkdirs())
+        val firstFile = File(fixture, "first.txt").apply { writeText("first") }
+        val secondFile = File(fixture, "second.txt").apply { writeText("second") }
+        val archiveSessionId = UUID.randomUUID().toString()
+
+        val reservedOperationId = UUID.randomUUID().toString()
+        val reservedInput = FakeArchiveInputSession(
+            archiveSessionId = archiveSessionId,
+            operationId = reservedOperationId,
+            roots = listOf(
+                InputFixtureNode.file(reservedOperationId, "reserved.txt", firstFile),
+            ),
+        )
+        ExplorerArchiveInputSessionClient(
+            reservedInput,
+            archiveSessionId,
+            reservedOperationId,
+        ).use { client ->
+            assertTrue(runCatching { client.buildMutation(ArchivePathPolicy.ROOT_PATH) }.isFailure)
+        }
+        assertTrue(reservedInput.closed)
+
+        val ambiguousOperationId = UUID.randomUUID().toString()
+        val ambiguousInput = FakeArchiveInputSession(
+            archiveSessionId = archiveSessionId,
+            operationId = ambiguousOperationId,
+            roots = listOf(
+                InputFixtureNode.directory(
+                    id = "ambiguous-directory",
+                    name = "folder",
+                    children = listOf(
+                        InputFixtureNode.file("first-file", "Name.txt", firstFile),
+                        InputFixtureNode.file("second-file", "name.TXT", secondFile),
+                    ),
+                ),
+            ),
+        )
+        ExplorerArchiveInputSessionClient(
+            ambiguousInput,
+            archiveSessionId,
+            ambiguousOperationId,
+        ).use { client ->
+            assertTrue(runCatching { client.buildMutation(ArchivePathPolicy.ROOT_PATH) }.isFailure)
+        }
+        assertTrue(ambiguousInput.closed)
+
+        fixture.deleteRecursively()
+        assertFalse(fixture.exists())
+    }
+
+    @Test
     fun writableZipSessionDeletesTheLastEntryAndReopensAsAnEmptyArchive() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val hostDirectory = File(context.cacheDir, "archive-session-empty-host-${UUID.randomUUID()}")
@@ -821,9 +1031,173 @@ class ExplorerArchiveSessionInstrumentationTest {
         return MutationAttemptResult(completed.get(), failure.get(), progress.toList())
     }
 
+    private fun ExplorerArchiveSession.runAddEntries(
+        host: ReplacementHostSession,
+        input: IExplorerArchiveInputSession,
+        operationId: String,
+        parentEntryId: String,
+    ): MutationAttemptResult {
+        val terminal = CountDownLatch(1)
+        val completed = AtomicReference<Bundle?>()
+        val failure = AtomicReference<Bundle?>()
+        val progress = mutableListOf<Bundle>()
+        addEntries(
+            Bundle().apply {
+                putString(ExplorerArchiveMutationKeys.OPERATION_ID, operationId)
+                putString(ExplorerArchiveMutationKeys.PARENT_ENTRY_ID, parentEntryId)
+            },
+            host,
+            input,
+            object : IExplorerArchiveOperationCallback.Stub() {
+                override fun onProgress(update: Bundle) {
+                    progress += Bundle(update)
+                }
+
+                override fun onCompleted(result: Bundle) {
+                    completed.set(result)
+                    terminal.countDown()
+                }
+
+                override fun onFailed(error: Bundle) {
+                    failure.set(error)
+                    terminal.countDown()
+                }
+            },
+        )
+        assertTrue("Timed out waiting for archive addition", terminal.await(30, TimeUnit.SECONDS))
+        return MutationAttemptResult(completed.get(), failure.get(), progress.toList())
+    }
+
+    private class FakeArchiveInputSession(
+        private val archiveSessionId: String,
+        private val operationId: String,
+        roots: List<InputFixtureNode>,
+        private val verificationStatus: Int = ExplorerArchiveInputValues.VERIFICATION_VALID,
+    ) : IExplorerArchiveInputSession.Stub() {
+
+        private val virtualRootId = "input-root"
+        private val nodesById = LinkedHashMap<String, InputFixtureNode>()
+        private val childrenByParentId = LinkedHashMap<String, List<InputFixtureNode>>()
+        private val openCounts = LinkedHashMap<String, Int>()
+        private val rootCount = roots.size
+        var verifyCalls = 0
+            private set
+        var closed = false
+            private set
+
+        init {
+            fun index(parentId: String, children: List<InputFixtureNode>) {
+                childrenByParentId[parentId] = children
+                children.forEach { node ->
+                    check(nodesById.put(node.id, node) == null)
+                    if (node.isDirectory) index(node.id, node.children)
+                }
+            }
+            index(virtualRootId, roots)
+        }
+
+        override fun getInfo(): Bundle = Bundle().apply {
+            putString(ExplorerArchiveInputKeys.GRANT_ID, UUID.randomUUID().toString())
+            putString(ExplorerArchiveInputKeys.ARCHIVE_SESSION_ID, archiveSessionId)
+            putString(ExplorerArchiveInputKeys.OPERATION_ID, operationId)
+            putString(ExplorerArchiveInputKeys.VIRTUAL_ROOT_ID, virtualRootId)
+            putInt(ExplorerArchiveInputKeys.ROOT_COUNT, rootCount)
+            putInt(ExplorerArchiveInputKeys.NODE_COUNT, nodesById.size)
+            putInt(
+                ExplorerArchiveInputKeys.FILE_COUNT,
+                nodesById.values.count { node -> !node.isDirectory },
+            )
+            putInt(
+                ExplorerArchiveInputKeys.DIRECTORY_COUNT,
+                nodesById.values.count(InputFixtureNode::isDirectory),
+            )
+            putLong(
+                ExplorerArchiveInputKeys.KNOWN_TOTAL_BYTES,
+                nodesById.values.sumOf { node -> node.file?.length() ?: 0L },
+            )
+        }
+
+        override fun listChildren(parentId: String, offset: Int, limit: Int): Bundle {
+            check(!closed)
+            val children = requireNotNull(childrenByParentId[parentId])
+            require(offset in 0..children.size)
+            require(limit > 0)
+            val end = (offset + limit).coerceAtMost(children.size)
+            return Bundle().apply {
+                putParcelableArrayList(
+                    ExplorerArchiveInputKeys.ITEMS,
+                    ArrayList(children.subList(offset, end).map { node ->
+                        Bundle().apply {
+                            putString(ExplorerArchiveInputKeys.ID, node.id)
+                            putString(ExplorerArchiveInputKeys.PARENT_ID, parentId)
+                            putString(ExplorerArchiveInputKeys.NAME, node.name)
+                            putInt(
+                                ExplorerArchiveInputKeys.KIND,
+                                if (node.isDirectory) {
+                                    ExplorerArchiveInputValues.KIND_DIRECTORY
+                                } else {
+                                    ExplorerArchiveInputValues.KIND_FILE
+                                },
+                            )
+                            putLong(ExplorerArchiveInputKeys.SIZE, node.file?.length() ?: -1L)
+                            putLong(ExplorerArchiveInputKeys.LAST_MODIFIED, node.lastModified)
+                        }
+                    }),
+                )
+                putInt(ExplorerArchiveInputKeys.NEXT_OFFSET, end)
+                putBoolean(ExplorerArchiveInputKeys.COMPLETE, end == children.size)
+            }
+        }
+
+        override fun openFile(itemId: String): ParcelFileDescriptor {
+            check(!closed)
+            val node = requireNotNull(nodesById[itemId])
+            val file = requireNotNull(node.file)
+            openCounts[itemId] = openCounts.getOrDefault(itemId, 0) + 1
+            return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        override fun verifySnapshot(): Bundle {
+            check(!closed)
+            verifyCalls++
+            return Bundle().apply {
+                putInt(ExplorerArchiveInputKeys.VERIFICATION_STATUS, verificationStatus)
+            }
+        }
+
+        override fun close() {
+            closed = true
+        }
+
+        fun openCount(itemId: String): Int = openCounts.getOrDefault(itemId, 0)
+    }
+
+    private data class InputFixtureNode(
+        val id: String,
+        val name: String,
+        val file: File? = null,
+        val children: List<InputFixtureNode> = emptyList(),
+        val lastModified: Long = file?.lastModified() ?: 0L,
+    ) {
+        val isDirectory: Boolean
+            get() = file == null
+
+        companion object {
+            fun file(id: String, name: String, file: File): InputFixtureNode =
+                InputFixtureNode(id = id, name = name, file = file)
+
+            fun directory(
+                id: String,
+                name: String,
+                children: List<InputFixtureNode> = emptyList(),
+            ): InputFixtureNode = InputFixtureNode(id = id, name = name, children = children)
+        }
+    }
+
     private class ReplacementHostSession(
         private val target: File,
         private val directory: File,
+        private val beforeCommit: () -> Unit = {},
     ) : UnusedTestExplorerActionHostSession() {
         private var transactionId = ""
         private val pendingFile: File
@@ -857,6 +1231,7 @@ class ExplorerArchiveSessionInstrumentationTest {
         override fun commitOutput(transactionId: String): Bundle {
             requireActive(transactionId)
             check(pendingFile.isFile)
+            beforeCommit()
             if (!target.delete() || !pendingFile.renameTo(target)) {
                 throw IOException("Test host could not replace the session ZIP")
             }

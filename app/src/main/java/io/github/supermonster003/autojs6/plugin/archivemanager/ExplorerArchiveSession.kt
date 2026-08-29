@@ -18,6 +18,7 @@ import org.autojs.plugin.explorer.api.ExplorerArchiveOperationKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
 import org.autojs.plugin.explorer.api.IExplorerActionHostSession
+import org.autojs.plugin.explorer.api.IExplorerArchiveInputSession
 import org.autojs.plugin.explorer.api.IExplorerArchiveOperationCallback
 import org.autojs.plugin.explorer.api.IExplorerArchiveSession
 import java.io.Closeable
@@ -181,7 +182,10 @@ internal class ExplorerArchiveSession(
                 ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY,
                 nodesById.getValue(rootId).canCreateChildren(this@toInfoBundle),
             )
-            putBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES, false)
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES,
+                nodesById.getValue(rootId).canCreateChildren(this@toInfoBundle),
+            )
             putStringArrayList(
                 ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAMES,
                 ArrayList(formatCapabilities.filenameCharsetNames),
@@ -373,6 +377,77 @@ internal class ExplorerArchiveSession(
         val operationId = requireCanonicalOperationId(
             request.getString(ExplorerArchiveMutationKeys.OPERATION_ID),
         )
+        startMutationOperation(
+            operationId = operationId,
+            outputSession = outputSession,
+            callback = callback,
+            prepareDecoded = { indexState ->
+                val decoded = request.decodeMutation(indexState)
+                val decode: () -> DecodedMutation = { decoded }
+                decode
+            },
+        )
+    }
+
+    override fun addEntries(
+        request: Bundle,
+        outputSession: IExplorerActionHostSession,
+        inputSession: IExplorerArchiveInputSession,
+        callback: IExplorerArchiveOperationCallback,
+    ) {
+        checkCaller()
+        val operationId = requireCanonicalOperationId(
+            request.getString(ExplorerArchiveMutationKeys.OPERATION_ID),
+        )
+        val inputClient = ExplorerArchiveInputSessionClient(
+            remote = inputSession,
+            expectedArchiveSessionId = sessionId,
+            expectedOperationId = operationId,
+        )
+        try {
+            startMutationOperation(
+                operationId = operationId,
+                outputSession = outputSession,
+                callback = callback,
+                prepareDecoded = { indexState ->
+                    val parentEntryId = requireNotNull(
+                        request.getString(ExplorerArchiveMutationKeys.PARENT_ENTRY_ID),
+                    ) { "Archive destination directory ID is missing" }
+                    require(
+                        parentEntryId.length in
+                            1..ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH,
+                    ) { "Archive destination directory ID is invalid" }
+                    val parent = requireNotNull(indexState.nodesById[parentEntryId]) {
+                        "Archive destination directory does not exist"
+                    }
+                    require(parent.canCreateChildren(indexState)) {
+                        "Archive destination does not support child creation"
+                    }
+                    val parentPath = parent.node.path
+                    val decode: () -> DecodedMutation = {
+                        inputClient.buildMutation(parentPath).let { mutation ->
+                            DecodedMutation(mutation.request, mutation.nodeCount)
+                        }
+                    }
+                    decode
+                },
+                beforeOutputVerification = inputClient::verifySnapshot,
+                onFinished = inputClient::close,
+            )
+        } catch (error: Throwable) {
+            runCatching { inputClient.close() }
+            throw error
+        }
+    }
+
+    private fun startMutationOperation(
+        operationId: String,
+        outputSession: IExplorerActionHostSession,
+        callback: IExplorerArchiveOperationCallback,
+        prepareDecoded: (SessionIndexState) -> (() -> DecodedMutation),
+        beforeOutputVerification: () -> Unit = {},
+        onFinished: () -> Unit = {},
+    ) {
 
         var job: Job? = null
         var operationState: AsyncOperationState? = null
@@ -383,12 +458,13 @@ internal class ExplorerArchiveSession(
                 check(synchronized(streamLock) { activeStreamWriters.isEmpty() }) {
                     "Archive entries are still being read"
                 }
-                val decoded = request.decodeMutation(indexState)
-                val retainedIdsByPath = retainedIdsByPath(indexState, decoded.request)
+                val decode = prepareDecoded(indexState)
                 reindexing = true
                 val createdJob = operationScope.launch(start = CoroutineStart.LAZY) {
                     var unownedOutcome: ExplorerArchiveMutationOutcome? = null
                     try {
+                        val decoded = decode()
+                        val retainedIdsByPath = retainedIdsByPath(indexState, decoded.request)
                         val outcome = ExplorerArchiveMutationOperation(
                             operationId = operationId,
                             displayName = displayName,
@@ -398,6 +474,7 @@ internal class ExplorerArchiveSession(
                             request = decoded.request,
                             outputSession = outputSession,
                             callback = callback,
+                            beforeOutputVerification = beforeOutputVerification,
                         ).run()
                         unownedOutcome = outcome
                         val replacementState = buildIndexState(
@@ -443,6 +520,7 @@ internal class ExplorerArchiveSession(
                         }
                         reportMutationFailure(callback, operationId, error)
                     } finally {
+                        runCatching { onFinished() }
                         operationState?.let { expected -> finishOperation(operationId, expected) }
                     }
                 }
@@ -686,7 +764,10 @@ internal class ExplorerArchiveSession(
                 ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN,
                 canCreateChildren(state),
             )
-            putBoolean(ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN, false)
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN,
+                canCreateChildren(state),
+            )
         }
     }
 
@@ -877,10 +958,10 @@ internal class ExplorerArchiveSession(
                         else -> oldPath
                     }
                 }
-                is ArchiveMutationRequest.AddDirectory -> oldPath
+                is ArchiveMutationRequest.AddDirectory,
                 is ArchiveMutationRequest.AddFiles,
                 is ArchiveMutationRequest.AddTree,
-                -> error("Explorer archive input mutations require a bounded input session")
+                -> oldPath
             } ?: return@forEach
             check(retained.put(newPath, sessionNode.id) == null) {
                 "Archive mutation produced duplicate stable entry paths"

@@ -7,6 +7,7 @@ import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.CompressionLevel
 import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
+import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -208,9 +209,16 @@ internal object ZipArchiveMutationPlanner {
         snapshot: ArchiveSnapshot,
     ): List<ZipArchiveMutationEntry> {
         if (request.entries.isEmpty()) {
-            fail(ArchiveFailureCode.EMPTY_SELECTION, "The selected folder is empty or unavailable")
+            fail(ArchiveFailureCode.EMPTY_SELECTION, "No files or folders were selected")
         }
         val parent = validatedParentPath(request.parentPath, original, snapshot)
+        data class ValidatedInput(
+            val path: String,
+            val added: ArchiveMutationAddedTreeEntry,
+            val rootKey: String,
+            val sourceRoot: String,
+        )
+
         val validated = request.entries.map { added ->
             val path = ArchivePathPolicy.validateEntryPath(
                 sourceName = added.relativePath,
@@ -218,7 +226,7 @@ internal object ZipArchiveMutationPlanner {
                 limits = snapshot.structureLimits,
             ).path
             if (path != added.relativePath) {
-                fail(ArchiveFailureCode.INVALID_PATH, "The selected folder contains an ambiguous path")
+                fail(ArchiveFailureCode.INVALID_PATH, "The selected items contain an ambiguous path")
             }
             if (
                 added is ArchiveMutationAddedTreeEntry.FileEntry &&
@@ -226,40 +234,83 @@ internal object ZipArchiveMutationPlanner {
             ) {
                 fail(ArchiveFailureCode.INVALID_DESTINATION_NAME, "A selected file name changed while scanning")
             }
-            path to added
+            val sourceRoot = path.substringBefore('/')
+            val rootKey = added.inputRootId?.let { inputRootId ->
+                if (
+                    inputRootId.length !in 1..ExplorerActionProtocol.MAX_ARCHIVE_INPUT_NODE_ID_LENGTH ||
+                    inputRootId.any { character ->
+                        character.isWhitespace() || character.code < 0x20 || character.code == 0x7F
+                    }
+                ) {
+                    fail(ArchiveFailureCode.INVALID_PATH, "A selected folder root identity is invalid")
+                }
+                "input:$inputRootId"
+            } ?: "path:$sourceRoot"
+            ValidatedInput(path, added, rootKey, sourceRoot)
         }
-        val sourceRoots = validated.mapTo(linkedSetOf()) { (path, _) -> path.substringBefore('/') }
-        if (sourceRoots.size != 1) {
-            fail(ArchiveFailureCode.INVALID_PATH, "The selected folder does not have one stable root")
+        val rootNames = LinkedHashMap<String, String>()
+        val entryKeys = HashSet<Pair<String, String>>()
+        validated.forEach { input ->
+            val previousName = rootNames.putIfAbsent(input.rootKey, input.sourceRoot)
+            if (previousName != null && previousName != input.sourceRoot) {
+                fail(ArchiveFailureCode.INVALID_PATH, "A selected folder root name changed while scanning")
+            }
+            if (!entryKeys.add(input.rootKey to input.path)) {
+                fail(ArchiveFailureCode.DUPLICATE_PATH, "The selected items contain a duplicate path")
+            }
         }
-        val sourceRoot = sourceRoots.single()
         val directories = validated
-            .filter { (_, added) -> added is ArchiveMutationAddedTreeEntry.Directory }
-            .mapTo(hashSetOf()) { (path, _) -> path }
-        if (sourceRoot !in directories) {
-            fail(ArchiveFailureCode.INVALID_PATH, "The selected folder root is missing")
-        }
-        validated.forEach { (path, _) ->
-            val immediateParent = path.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
-            if (immediateParent.isNotEmpty() && immediateParent !in directories) {
-                fail(ArchiveFailureCode.INVALID_PATH, "The selected folder tree has a missing directory")
+            .filter { input -> input.added is ArchiveMutationAddedTreeEntry.Directory }
+            .mapTo(hashSetOf()) { input -> input.rootKey to input.path }
+        validated.forEach { input ->
+            val immediateParent = input.path.substringBeforeLast('/', ArchivePathPolicy.ROOT_PATH)
+            if (immediateParent.isNotEmpty() && input.rootKey to immediateParent !in directories) {
+                fail(ArchiveFailureCode.INVALID_PATH, "A selected folder tree has a missing directory")
             }
         }
 
-        val targetRoot = availableChildName(
-            original = original,
-            parent = parent,
-            requested = sourceRoot,
-            limits = snapshot.structureLimits,
-        )
-        val additions = validated.map { (relativePath, added) ->
-            val remappedRelativePath = targetRoot + relativePath.removePrefix(sourceRoot)
+        val rootEntries = LinkedHashMap<String, ValidatedInput>()
+        validated.filter { input -> '/' !in input.path }.forEach { input ->
+            if (rootEntries.put(input.rootKey, input) != null) {
+                fail(ArchiveFailureCode.DUPLICATE_PATH, "The selected items contain a duplicate root")
+            }
+        }
+        if (rootEntries.keys != rootNames.keys) {
+            fail(ArchiveFailureCode.INVALID_PATH, "A selected folder root is missing")
+        }
+
+        val occupiedRootKeys = occupiedChildKeys(original, parent)
+        rootEntries.values.forEach { input ->
+            if (
+                input.added is ArchiveMutationAddedTreeEntry.FileEntry &&
+                !occupiedRootKeys.add(ArchivePathPolicy.destinationCollisionKey(input.sourceRoot))
+            ) {
+                fail(ArchiveFailureCode.DUPLICATE_PATH, "A selected file conflicts with another root")
+            }
+        }
+        val targetRoots = LinkedHashMap<String, String>()
+        rootEntries.forEach { (rootKey, input) ->
+            val targetRoot = if (input.added is ArchiveMutationAddedTreeEntry.Directory) {
+                availableChildName(
+                    occupiedKeys = occupiedRootKeys,
+                    parent = parent,
+                    requested = input.sourceRoot,
+                    limits = snapshot.structureLimits,
+                )
+            } else {
+                input.sourceRoot
+            }
+            targetRoots[rootKey] = targetRoot
+        }
+        val additions = validated.map { input ->
+            val targetRoot = targetRoots.getValue(input.rootKey)
+            val remappedRelativePath = targetRoot + input.path.removePrefix(input.sourceRoot)
             val archivePath = if (parent.isEmpty()) {
                 remappedRelativePath
             } else {
                 "$parent/$remappedRelativePath"
             }
-            val source = when (added) {
+            val source = when (val added = input.added) {
                 is ArchiveMutationAddedTreeEntry.Directory ->
                     ZipArchiveMutationSource.AddedDirectory(added.lastModified)
                 is ArchiveMutationAddedTreeEntry.FileEntry ->
@@ -270,27 +321,31 @@ internal object ZipArchiveMutationPlanner {
         return original + additions
     }
 
-    private fun availableChildName(
+    private fun occupiedChildKeys(
         original: List<ZipArchiveMutationEntry>,
+        parent: String,
+    ): MutableSet<String> = original.mapNotNullTo(hashSetOf()) { entry ->
+        val relative = when {
+            parent.isEmpty() -> entry.archivePath
+            entry.archivePath.startsWith("$parent/") -> entry.archivePath.removePrefix("$parent/")
+            else -> return@mapNotNullTo null
+        }
+        relative.substringBefore('/').takeIf(String::isNotEmpty)
+            ?.let(ArchivePathPolicy::destinationCollisionKey)
+    }
+
+    private fun availableChildName(
+        occupiedKeys: MutableSet<String>,
         parent: String,
         requested: String,
         limits: ArchiveStructureLimits,
     ): String {
-        val occupiedKeys = original.mapNotNullTo(hashSetOf()) { entry ->
-            val relative = when {
-                parent.isEmpty() -> entry.archivePath
-                entry.archivePath.startsWith("$parent/") -> entry.archivePath.removePrefix("$parent/")
-                else -> return@mapNotNullTo null
-            }
-            relative.substringBefore('/').takeIf(String::isNotEmpty)
-                ?.let(ArchivePathPolicy::destinationCollisionKey)
-        }
-        if (ArchivePathPolicy.destinationCollisionKey(requested) !in occupiedKeys) return requested
+        if (occupiedKeys.add(ArchivePathPolicy.destinationCollisionKey(requested))) return requested
         for (index in 2..MAX_AUTO_RENAME_ATTEMPTS) {
             val candidate = "$requested ($index)"
             requireLeafName(candidate)
             portableChildPath(parent, candidate, limits)
-            if (ArchivePathPolicy.destinationCollisionKey(candidate) !in occupiedKeys) return candidate
+            if (occupiedKeys.add(ArchivePathPolicy.destinationCollisionKey(candidate))) return candidate
         }
         fail(ArchiveFailureCode.DUPLICATE_PATH, "No available ZIP folder name could be reserved")
     }
@@ -530,6 +585,7 @@ internal class ZipArchiveMutationProvider(
         prepared: PreparedArchiveMutation,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
+        beforeOutputVerification: () -> Unit,
     ): HostOutputTransaction {
         checkCancelled()
         val plan = prepared as? ZipArchiveMutationPlan
@@ -576,6 +632,7 @@ internal class ZipArchiveMutationProvider(
                 password = password,
                 checkCancelled = checkCancelled,
                 progress = progress,
+                beforeOutputVerification = beforeOutputVerification,
             )
         } finally {
             password?.fill('\u0000')
@@ -625,6 +682,7 @@ internal class ZipArchiveMutationProvider(
         password: CharArray?,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
+        beforeOutputVerification: () -> Unit,
     ): HostOutputTransaction {
         val prepared = runCreationOutputOperation(
             operation = ArchiveCreationOutputOperation.PREPARE,
@@ -658,6 +716,8 @@ internal class ZipArchiveMutationProvider(
                     )
                 }
             }
+            checkCancelled()
+            beforeOutputVerification()
             checkCancelled()
             progress.onProgress(
                 ArchiveMutationProgress(

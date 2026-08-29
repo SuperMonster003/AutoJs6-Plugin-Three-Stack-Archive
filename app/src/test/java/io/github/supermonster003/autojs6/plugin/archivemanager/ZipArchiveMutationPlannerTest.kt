@@ -190,7 +190,82 @@ class ZipArchiveMutationPlannerTest {
     }
 
     @Test
-    fun `rejects folder trees with missing parents or more than one root`() {
+    fun `adds mixed files and multiple folder roots as one batch`() {
+        var opened = false
+        val plan = ZipArchiveMutationPlanner.plan(
+            snapshot(),
+            ArchiveMutationRequest.AddTree(
+                parentPath = "",
+                entries = listOf(
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        "loose.txt",
+                        ArchiveMutationAddedFile("loose.txt", size = 5L) {
+                            opened = true
+                            ByteArrayInputStream("loose".encodeToByteArray())
+                        },
+                    ),
+                    ArchiveMutationAddedTreeEntry.Directory("docs"),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        "docs/new.txt",
+                        ArchiveMutationAddedFile("new.txt", size = 3L) {
+                            opened = true
+                            ByteArrayInputStream("new".encodeToByteArray())
+                        },
+                    ),
+                    ArchiveMutationAddedTreeEntry.Directory("empty"),
+                ),
+            ),
+        )
+
+        assertFalse(opened)
+        assertEquals(
+            listOf("loose.txt", "docs (2)", "docs (2)/new.txt", "empty"),
+            plan.entries.takeLast(4).map(ZipArchiveMutationEntry::archivePath),
+        )
+        assertTrue(plan.entries.last().isDirectory)
+    }
+
+    @Test
+    fun `keeps same named selected folders separate while numbering archive conflicts`() {
+        val plan = ZipArchiveMutationPlanner.plan(
+            snapshot(),
+            ArchiveMutationRequest.AddTree(
+                parentPath = "",
+                entries = listOf(
+                    ArchiveMutationAddedTreeEntry.Directory(
+                        relativePath = "docs",
+                        inputRootId = "first-root",
+                    ),
+                    ArchiveMutationAddedTreeEntry.Directory(
+                        relativePath = "docs",
+                        inputRootId = "second-root",
+                    ),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        relativePath = "docs/first.txt",
+                        file = ArchiveMutationAddedFile("first.txt") {
+                            ByteArrayInputStream("first".encodeToByteArray())
+                        },
+                        inputRootId = "first-root",
+                    ),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        relativePath = "docs/second.txt",
+                        file = ArchiveMutationAddedFile("second.txt") {
+                            ByteArrayInputStream("second".encodeToByteArray())
+                        },
+                        inputRootId = "second-root",
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf("docs (2)", "docs (3)", "docs (2)/first.txt", "docs (3)/second.txt"),
+            plan.entries.takeLast(4).map(ZipArchiveMutationEntry::archivePath),
+        )
+    }
+
+    @Test
+    fun `rejects folder trees with missing parents`() {
         val missingParent = ArchiveMutationRequest.AddTree(
             parentPath = "",
             entries = listOf(
@@ -204,16 +279,26 @@ class ZipArchiveMutationPlannerTest {
         expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
             ZipArchiveMutationPlanner.plan(snapshot(), missingParent)
         }
+    }
 
-        val multipleRoots = ArchiveMutationRequest.AddTree(
-            parentPath = "",
-            entries = listOf(
-                ArchiveMutationAddedTreeEntry.Directory("one"),
-                ArchiveMutationAddedTreeEntry.Directory("two"),
-            ),
-        )
-        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.INVALID_PATH) {
-            ZipArchiveMutationPlanner.plan(snapshot(), multipleRoots)
+    @Test
+    fun `direct file collision rejects the complete mixed batch`() {
+        expectArchiveFailure<ArchiveValidationException>(ArchiveFailureCode.DUPLICATE_PATH) {
+            ZipArchiveMutationPlanner.plan(
+                snapshot(),
+                ArchiveMutationRequest.AddTree(
+                    parentPath = "",
+                    entries = listOf(
+                        ArchiveMutationAddedTreeEntry.FileEntry(
+                            "root.bin",
+                            ArchiveMutationAddedFile("root.bin", size = 1L) {
+                                ByteArrayInputStream(byteArrayOf(9))
+                            },
+                        ),
+                        ArchiveMutationAddedTreeEntry.Directory("new-folder"),
+                    ),
+                ),
+            )
         }
     }
 

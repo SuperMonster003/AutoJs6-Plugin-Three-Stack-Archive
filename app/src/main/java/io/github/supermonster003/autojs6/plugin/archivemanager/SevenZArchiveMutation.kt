@@ -180,6 +180,7 @@ internal class SevenZArchiveMutationProvider(
         prepared: PreparedArchiveMutation,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
+        beforeOutputVerification: () -> Unit,
     ): HostOutputTransaction {
         checkCancelled()
         val plan = prepared as? ArchiveRewritePlan
@@ -210,6 +211,7 @@ internal class SevenZArchiveMutationProvider(
             manifest = manifest,
             checkCancelled = checkCancelled,
             progress = progress,
+            beforeOutputVerification = beforeOutputVerification,
         )
     }
 
@@ -255,6 +257,7 @@ internal class SevenZArchiveMutationProvider(
         manifest: ArchiveSourceManifest,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener,
+        beforeOutputVerification: () -> Unit,
     ): HostOutputTransaction {
         val prepared = runCreationOutputOperation(
             operation = ArchiveCreationOutputOperation.PREPARE,
@@ -287,6 +290,8 @@ internal class SevenZArchiveMutationProvider(
                     )
                 }
             }
+            checkCancelled()
+            beforeOutputVerification()
             checkCancelled()
             progress.onProgress(
                 ArchiveMutationProgress(

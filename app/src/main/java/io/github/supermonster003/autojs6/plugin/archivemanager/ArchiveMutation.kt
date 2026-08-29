@@ -61,15 +61,18 @@ internal class ArchiveMutationAddedFile(
 internal sealed interface ArchiveMutationAddedTreeEntry {
     val relativePath: String
     val lastModified: Long
+    val inputRootId: String?
 
     data class Directory(
         override val relativePath: String,
         override val lastModified: Long = -1L,
+        override val inputRootId: String? = null,
     ) : ArchiveMutationAddedTreeEntry
 
     data class FileEntry(
         override val relativePath: String,
         val file: ArchiveMutationAddedFile,
+        override val inputRootId: String? = null,
     ) : ArchiveMutationAddedTreeEntry {
         override val lastModified: Long
             get() = file.lastModified
@@ -247,6 +250,7 @@ internal interface ArchiveMutationProvider {
         prepared: PreparedArchiveMutation,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener = ArchiveMutationProgressListener.NONE,
+        beforeOutputVerification: () -> Unit = {},
     ): HostOutputTransaction
 
     fun mutate(
@@ -257,6 +261,7 @@ internal interface ArchiveMutationProvider {
         request: ArchiveMutationRequest,
         checkCancelled: () -> Unit,
         progress: ArchiveMutationProgressListener = ArchiveMutationProgressListener.NONE,
+        beforeOutputVerification: () -> Unit = {},
     ): HostOutputTransaction = execute(
         source = source,
         snapshot = snapshot,
@@ -265,5 +270,6 @@ internal interface ArchiveMutationProvider {
         prepared = prepare(snapshot, request),
         checkCancelled = checkCancelled,
         progress = progress,
+        beforeOutputVerification = beforeOutputVerification,
     )
 }

@@ -131,6 +131,87 @@ class ArchiveRewritePlannerTest {
     }
 
     @Test
+    fun `tree import accepts mixed files and multiple directory roots`() {
+        var opened = false
+        val plan = planTarArchiveRewrite(
+            ordinarySnapshot(),
+            ArchiveMutationRequest.AddTree(
+                parentPath = "",
+                entries = listOf(
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        "loose.txt",
+                        ArchiveMutationAddedFile("loose.txt", size = 5L) {
+                            opened = true
+                            ByteArrayInputStream("loose".encodeToByteArray())
+                        },
+                    ),
+                    ArchiveMutationAddedTreeEntry.Directory("docs"),
+                    ArchiveMutationAddedTreeEntry.Directory("docs/empty"),
+                    ArchiveMutationAddedTreeEntry.Directory("second"),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        "second/nested.txt",
+                        ArchiveMutationAddedFile("nested.txt", size = 6L) {
+                            opened = true
+                            ByteArrayInputStream("nested".encodeToByteArray())
+                        },
+                    ),
+                ),
+            ),
+        )
+
+        assertFalse(opened)
+        assertEquals(
+            listOf(
+                "loose.txt",
+                "docs (2)",
+                "docs (2)/empty",
+                "second",
+                "second/nested.txt",
+            ),
+            plan.entries.takeLast(5).map(ArchiveRewriteEntry::archivePath),
+        )
+    }
+
+    @Test
+    fun `tree import keeps same named selected folders separate while numbering conflicts`() {
+        val plan = planTarArchiveRewrite(
+            ordinarySnapshot(),
+            ArchiveMutationRequest.AddTree(
+                parentPath = "",
+                entries = listOf(
+                    ArchiveMutationAddedTreeEntry.Directory(
+                        relativePath = "docs",
+                        inputRootId = "first-root",
+                    ),
+                    ArchiveMutationAddedTreeEntry.Directory(
+                        relativePath = "docs",
+                        inputRootId = "second-root",
+                    ),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        relativePath = "docs/first.txt",
+                        file = ArchiveMutationAddedFile("first.txt") {
+                            ByteArrayInputStream("first".encodeToByteArray())
+                        },
+                        inputRootId = "first-root",
+                    ),
+                    ArchiveMutationAddedTreeEntry.FileEntry(
+                        relativePath = "docs/second.txt",
+                        file = ArchiveMutationAddedFile("second.txt") {
+                            ByteArrayInputStream("second".encodeToByteArray())
+                        },
+                        inputRootId = "second-root",
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(
+            listOf("docs (2)", "docs (3)", "docs (2)/first.txt", "docs (3)/second.txt"),
+            plan.entries.takeLast(4).map(ArchiveRewriteEntry::archivePath),
+        )
+    }
+
+    @Test
     fun `duplicate portable names and missing selections fail before output reservation`() {
         val snapshot = ordinarySnapshot()
 

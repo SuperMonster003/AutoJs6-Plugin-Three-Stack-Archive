@@ -16,7 +16,7 @@ internal data class ExplorerArchiveMutationOutcome(
     val committedSize: Long,
 )
 
-/** Executes one v19 mutation through the host's atomic target-replacement transaction. */
+/** Executes one v20 mutation through the host's atomic target-replacement transaction. */
 internal class ExplorerArchiveMutationOperation(
     private val operationId: String,
     private val displayName: String,
@@ -26,6 +26,7 @@ internal class ExplorerArchiveMutationOperation(
     private val request: ArchiveMutationRequest,
     private val outputSession: IExplorerActionHostSession,
     private val callback: IExplorerArchiveOperationCallback,
+    private val beforeOutputVerification: () -> Unit = {},
 ) {
 
     suspend fun run(): ExplorerArchiveMutationOutcome {
@@ -46,6 +47,7 @@ internal class ExplorerArchiveMutationOperation(
                 prepared = prepared,
                 checkCancelled = coroutineContext::ensureActive,
                 progress = ArchiveMutationProgressListener(::reportProgress),
+                beforeOutputVerification = beforeOutputVerification,
             )
             val committedSize = requireNotNull(committed.size) {
                 "Host replacement result has no archive size"
