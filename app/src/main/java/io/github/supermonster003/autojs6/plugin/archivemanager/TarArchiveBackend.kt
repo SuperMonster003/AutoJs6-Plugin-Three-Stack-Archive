@@ -101,7 +101,24 @@ internal object TarBzip2ArchiveBackend : TarArchiveBackendBase(
 internal object TarZstdArchiveBackend : TarArchiveBackendBase(
     format = ArchiveFormat.TAR_ZSTD,
     container = TarContainer.ZSTD,
-)
+    canMutate = true,
+), ArchiveMutationBackend {
+    override val mutationCapabilities = TAR_ZSTD_MUTATION_CAPABILITIES
+
+    override fun mutationAvailability(snapshot: ArchiveSnapshot): ArchiveMutationAvailability =
+        tarMutationAvailability(snapshot)
+
+    override fun createMutationProvider(
+        session: ExplorerActionHostSessionClient,
+        cacheDirectory: File,
+        engine: ArchiveEngine,
+    ): ArchiveMutationProvider = TarArchiveMutationProvider(
+        session = session,
+        cacheDirectory = cacheDirectory,
+        engine = engine,
+        format = format,
+    )
+}
 
 internal abstract class TarArchiveBackendBase(
     override val format: ArchiveFormat,

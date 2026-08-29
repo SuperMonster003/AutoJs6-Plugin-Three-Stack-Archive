@@ -47,10 +47,18 @@ internal val TAR_BZIP2_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
         ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
 )
 
+internal val TAR_ZSTD_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
+    metadataEffects = TAR_MUTATION_CAPABILITIES.metadataEffects +
+        ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+)
+
 internal const val TAR_XZ_MUTATION_COMPRESSION_LEVEL = 4
 internal const val TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB = 64 * 1_024
 internal const val TAR_BZIP2_MUTATION_COMPRESSION_LEVEL = 6
 internal const val TAR_BZIP2_MUTATION_MAX_ENCODER_MEMORY_BYTES = 16 * 1_024 * 1_024
+internal const val TAR_ZSTD_MUTATION_COMPRESSION_LEVEL = 3
+internal const val TAR_ZSTD_MUTATION_WINDOW_LOG = 20
+internal const val TAR_ZSTD_MUTATION_MAX_ENCODER_MEMORY_BYTES = 8 * 1_024 * 1_024
 
 /**
  * Conservatively bounds the Commons Compress BZIP2 encoder's live workspace.
@@ -68,6 +76,17 @@ internal fun estimateTarBzip2MutationEncoderMemoryBytes(compressionLevel: Int): 
     )
 }
 
+/**
+ * Bounds the zstd-jni 1.5.7-15 single-threaded streaming encoder configured
+ * with level 3, a 1 MiB window, and a frame checksum. The native estimate is
+ * produced by ZSTD_estimateCStreamSize_usingCCtxParams(); the second term is
+ * the array-backed output buffer returned by ZSTD_CStreamOutSize().
+ */
+internal fun estimateTarZstdMutationEncoderMemoryBytes(): Long = Math.addExact(
+    TAR_ZSTD_1_5_7_NATIVE_CSTREAM_ESTIMATE_BYTES,
+    TAR_ZSTD_1_5_7_OUTPUT_BUFFER_BYTES,
+)
+
 internal fun tarMutationCompressionLevel(format: ArchiveFormat): Int = when (format) {
     ArchiveFormat.TAR -> 0
     ArchiveFormat.TAR_GZIP -> 6
@@ -83,10 +102,15 @@ internal fun tarMutationCompressionLevel(format: ArchiveFormat): Int = when (for
             "TAR.BZ2 mutation encoder requires $encoderMemoryUsageBytes bytes"
         }
     }
+    ArchiveFormat.TAR_ZSTD -> TAR_ZSTD_MUTATION_COMPRESSION_LEVEL.also {
+        val encoderMemoryUsageBytes = estimateTarZstdMutationEncoderMemoryBytes()
+        check(encoderMemoryUsageBytes <= TAR_ZSTD_MUTATION_MAX_ENCODER_MEMORY_BYTES) {
+            "TAR.ZST mutation encoder requires $encoderMemoryUsageBytes bytes"
+        }
+    }
     ArchiveFormat.ZIP,
     ArchiveFormat.SEVEN_Z,
     ArchiveFormat.RAR,
-    ArchiveFormat.TAR_ZSTD,
     -> error("${format.displayName} does not have a TAR mutation compression level")
 }
 
@@ -96,10 +120,10 @@ internal fun tarMutationCapabilities(format: ArchiveFormat): ArchiveMutationCapa
         ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
         ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_CAPABILITIES
         ArchiveFormat.TAR_BZIP2 -> TAR_BZIP2_MUTATION_CAPABILITIES
+        ArchiveFormat.TAR_ZSTD -> TAR_ZSTD_MUTATION_CAPABILITIES
         ArchiveFormat.ZIP,
         ArchiveFormat.SEVEN_Z,
         ArchiveFormat.RAR,
-        ArchiveFormat.TAR_ZSTD,
         -> null
     }
 
@@ -876,6 +900,11 @@ internal class TarArchiveMutationProvider(
                     format = format,
                     output = bufferedOutput,
                     compressionLevel = compressionLevel,
+                    zstdWindowLog = if (format == ArchiveFormat.TAR_ZSTD) {
+                        TAR_ZSTD_MUTATION_WINDOW_LOG
+                    } else {
+                        null
+                    },
                 )
                 TarArchiveOutputStream(containerOutput, StandardCharsets.UTF_8.name()).use { output ->
                     configureOutput(output)
@@ -1232,3 +1261,5 @@ internal class TarArchiveMutationProvider(
 private const val TAR_REGULAR_FILE_METHOD = "TAR"
 private const val TAR_BZIP2_ENCODER_BYTES_PER_BLOCK_BYTE = 13L
 private const val TAR_BZIP2_ENCODER_FIXED_ALLOWANCE_BYTES = 512L * 1_024L
+private const val TAR_ZSTD_1_5_7_NATIVE_CSTREAM_ESTIMATE_BYTES = 2_614_809L
+private const val TAR_ZSTD_1_5_7_OUTPUT_BUFFER_BYTES = 131_591L

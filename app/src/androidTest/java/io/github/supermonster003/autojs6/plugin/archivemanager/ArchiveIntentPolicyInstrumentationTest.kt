@@ -98,7 +98,7 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
-    fun manageArchiveAcceptsOrdinaryGzipXzAndBzip2TarButNotZstd() {
+    fun manageArchiveAcceptsOrdinaryAndCompressedTarWrappers() {
         val hostSession = UnusedTestExplorerActionHostSession()
         fun managedIntent(displayName: String, mimeType: String) =
             validIntent(displayName, mimeType)
@@ -118,15 +118,12 @@ class ArchiveIntentPolicyInstrumentationTest {
             "bundle.txz" to "application/x-xz-compressed-tar",
             "bundle.tar.bz2" to "application/x-bzip2-compressed-tar",
             "bundle.tbz2" to "application/x-bzip2-compressed-tar",
+            "bundle.tar.zst" to "application/x-zstd-compressed-tar",
+            "bundle.tzst" to "application/x-zstd-compressed-tar",
         ).forEach { (displayName, mimeType) ->
             val resolved = ArchiveIntentPolicy.resolve(managedIntent(displayName, mimeType))
             assertNotNull(displayName, resolved)
             assertEquals(ArchiveRequestedAction.MANAGE, resolved?.requestedAction)
-        }
-        listOf(
-            "bundle.tar.zst" to "application/x-zstd-compressed-tar",
-        ).forEach { (displayName, mimeType) ->
-            assertNull(ArchiveIntentPolicy.resolve(managedIntent(displayName, mimeType)))
         }
     }
 

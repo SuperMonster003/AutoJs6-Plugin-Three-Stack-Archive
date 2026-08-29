@@ -166,7 +166,7 @@ class TarArchiveMutationPlannerTest {
     }
 
     @Test
-    fun `gzip xz and bzip2 tar have explicit mutation while zstd remains read only`() {
+    fun `all compressed tar wrappers have explicit rewrite mutation`() {
         val gzipSnapshot = ArchiveScanner().scan(
             writeTarGzip(
                 temporaryFolder.newFile("compressed.tar.gz"),
@@ -185,11 +185,18 @@ class TarArchiveMutationPlannerTest {
                 TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
             ),
         )
+        val zstdSnapshot = ArchiveScanner().scan(
+            writeTarZstd(
+                temporaryFolder.newFile("compressed.tar.zst"),
+                TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+            ),
+        )
 
         listOf(
             Triple(ArchiveFormat.TAR_GZIP, TAR_GZIP_MUTATION_CAPABILITIES, gzipSnapshot),
             Triple(ArchiveFormat.TAR_XZ, TAR_XZ_MUTATION_CAPABILITIES, xzSnapshot),
             Triple(ArchiveFormat.TAR_BZIP2, TAR_BZIP2_MUTATION_CAPABILITIES, bzip2Snapshot),
+            Triple(ArchiveFormat.TAR_ZSTD, TAR_ZSTD_MUTATION_CAPABILITIES, zstdSnapshot),
         ).forEach { (format, capabilities, snapshot) ->
             assertEquals(format, snapshot.format)
             assertEquals(
@@ -215,23 +222,6 @@ class TarArchiveMutationPlannerTest {
                 ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED in
                     plan.metadataEffects,
             )
-        }
-
-        listOf(
-            ArchiveScanner().scan(
-                writeTarZstd(
-                    temporaryFolder.newFile("compressed.tar.zst"),
-                    TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
-                ),
-            ),
-        ).forEach { snapshot ->
-            assertEquals(null, ArchiveEngine.DEFAULT.mutationCapabilities(snapshot.format))
-            assertEquals(
-                ArchiveMutationUnavailableReason.FORMAT_NOT_SUPPORTED,
-                ArchiveEngine.DEFAULT.mutationAvailability(snapshot).unavailableReason,
-            )
-            assertFalse(snapshot.entries.single().capabilities.canDelete)
-            assertFalse(snapshot.entries.single().capabilities.canRename)
         }
     }
 

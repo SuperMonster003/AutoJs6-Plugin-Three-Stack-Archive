@@ -229,27 +229,37 @@ internal object TarArchiveCompression {
         format: ArchiveFormat,
         output: OutputStream,
         compressionLevel: Int,
-    ): OutputStream = try {
-        when (format) {
-            ArchiveFormat.TAR -> output
-            ArchiveFormat.TAR_GZIP -> GzipCompressorOutputStream(
-                output,
-                GzipParameters().apply {
-                    setCompressionLevel(compressionLevel)
-                    setModificationTime(0L)
-                    setOperatingSystem(GZIP_OS_UNKNOWN)
-                },
-            )
-            ArchiveFormat.TAR_XZ -> XZCompressorOutputStream(output, compressionLevel)
-            ArchiveFormat.TAR_BZIP2 -> BZip2CompressorOutputStream(output, compressionLevel)
-            ArchiveFormat.TAR_ZSTD -> ZstdOutputStream(output, compressionLevel).setChecksum(true)
-            ArchiveFormat.ZIP,
-            ArchiveFormat.SEVEN_Z,
-            ArchiveFormat.RAR,
-            -> error("${format.displayName} does not use the TAR writer")
+        zstdWindowLog: Int? = null,
+    ): OutputStream {
+        require(zstdWindowLog == null || format == ArchiveFormat.TAR_ZSTD) {
+            "A Zstandard window can only be configured for TAR.ZST"
         }
-    } catch (error: LinkageError) {
-        throw IOException("${format.displayName} encoder is unavailable on this runtime", error)
+        return try {
+            when (format) {
+                ArchiveFormat.TAR -> output
+                ArchiveFormat.TAR_GZIP -> GzipCompressorOutputStream(
+                    output,
+                    GzipParameters().apply {
+                        setCompressionLevel(compressionLevel)
+                        setModificationTime(0L)
+                        setOperatingSystem(GZIP_OS_UNKNOWN)
+                    },
+                )
+                ArchiveFormat.TAR_XZ -> XZCompressorOutputStream(output, compressionLevel)
+                ArchiveFormat.TAR_BZIP2 -> BZip2CompressorOutputStream(output, compressionLevel)
+                ArchiveFormat.TAR_ZSTD -> ZstdOutputStream(output, compressionLevel).apply {
+                    setWorkers(0)
+                    zstdWindowLog?.let { setWindowLog(it) }
+                    setChecksum(true)
+                }
+                ArchiveFormat.ZIP,
+                ArchiveFormat.SEVEN_Z,
+                ArchiveFormat.RAR,
+                -> error("${format.displayName} does not use the TAR writer")
+            }
+        } catch (error: LinkageError) {
+            throw IOException("${format.displayName} encoder is unavailable on this runtime", error)
+        }
     }
 
     private const val GZIP_OS_UNKNOWN = 255

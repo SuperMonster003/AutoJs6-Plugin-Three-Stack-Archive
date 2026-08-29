@@ -53,6 +53,14 @@ class ArchiveManagementInfoTest {
         ),
     )
 
+    private fun tarZstdSnapshot(): ArchiveSnapshot = ArchiveScanner().scan(
+        writeTarZstd(
+            temporaryFolder.newFile(),
+            TarFixtureEntry("docs/", type = TarFixtureEntryType.DIRECTORY),
+            TarFixtureEntry("docs/readme.txt", "readme".encodeToByteArray()),
+        ),
+    )
+
     @Test
     fun `ordinary zip is writable only in a management session with target replacement`() {
         val archive = snapshot()
@@ -199,6 +207,31 @@ class ArchiveManagementInfoTest {
 
         assertTrue(writable.isWritable)
         assertEquals(TAR_BZIP2_MUTATION_CAPABILITIES, writable.capabilities)
+        assertEquals(null, writable.readOnlyReason)
+        assertFalse(noReplacement.isWritable)
+        assertEquals(
+            ArchiveManagementReadOnlyReason.HOST_REPLACEMENT_UNAVAILABLE,
+            noReplacement.readOnlyReason,
+        )
+    }
+
+    @Test
+    fun `zstandard tar is writable while preserving the management session boundary`() {
+        val archive = tarZstdSnapshot()
+
+        val writable = ArchiveEngine.DEFAULT.managementStatus(
+            archive,
+            ArchiveRequestedAction.MANAGE,
+            hasHostReplacementSession = true,
+        )
+        val noReplacement = ArchiveEngine.DEFAULT.managementStatus(
+            archive,
+            ArchiveRequestedAction.MANAGE,
+            hasHostReplacementSession = false,
+        )
+
+        assertTrue(writable.isWritable)
+        assertEquals(TAR_ZSTD_MUTATION_CAPABILITIES, writable.capabilities)
         assertEquals(null, writable.readOnlyReason)
         assertFalse(noReplacement.isWritable)
         assertEquals(

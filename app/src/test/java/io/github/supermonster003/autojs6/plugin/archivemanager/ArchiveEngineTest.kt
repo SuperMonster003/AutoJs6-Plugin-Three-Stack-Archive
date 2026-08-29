@@ -8,6 +8,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.tukaani.xz.LZMA2Options
+import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import java.util.zip.ZipEntry
 
@@ -76,15 +77,16 @@ class ArchiveEngineTest {
                 ArchiveFormat.TAR_GZIP,
                 ArchiveFormat.TAR_XZ,
                 ArchiveFormat.TAR_BZIP2,
+                ArchiveFormat.TAR_ZSTD,
             ),
             engine.mutationFormats,
         )
         assertEquals(
-            listOf("tar", "tbz2", "tgz", "txz", "zip"),
+            listOf("tar", "tbz2", "tgz", "txz", "tzst", "zip"),
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
         )
         assertEquals(
-            listOf("tar.bz2", "tar.gz", "tar.xz"),
+            listOf("tar.bz2", "tar.gz", "tar.xz", "tar.zst"),
             ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
         )
         val mutation = requireNotNull(engine.mutationCapabilities(ArchiveFormat.ZIP))
@@ -103,7 +105,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `ordinary gzip xz and bzip2 tar expose rewrite mutation while zstd remains read only`() {
+    fun `ordinary and compressed tar wrappers expose rewrite mutation`() {
         val engine = ArchiveEngine.DEFAULT
 
         listOf(
@@ -117,7 +119,8 @@ class ArchiveEngineTest {
             val canMutate = format == ArchiveFormat.TAR ||
                 format == ArchiveFormat.TAR_GZIP ||
                 format == ArchiveFormat.TAR_XZ ||
-                format == ArchiveFormat.TAR_BZIP2
+                format == ArchiveFormat.TAR_BZIP2 ||
+                format == ArchiveFormat.TAR_ZSTD
             assertTrue(capabilities.supports(ArchiveOperation.DETECT))
             assertTrue(capabilities.supports(ArchiveOperation.LIST))
             assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
@@ -155,6 +158,7 @@ class ArchiveEngineTest {
                     ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
                     ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_CAPABILITIES
                     ArchiveFormat.TAR_BZIP2 -> TAR_BZIP2_MUTATION_CAPABILITIES
+                    ArchiveFormat.TAR_ZSTD -> TAR_ZSTD_MUTATION_CAPABILITIES
                     else -> null
                 },
                 engine.mutationCapabilities(format),
@@ -188,6 +192,11 @@ class ArchiveEngineTest {
                 ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
             TAR_BZIP2_MUTATION_CAPABILITIES.metadataEffects,
         )
+        assertEquals(
+            TAR_MUTATION_CAPABILITIES.metadataEffects +
+                ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+            TAR_ZSTD_MUTATION_CAPABILITIES.metadataEffects,
+        )
     }
 
     @Test
@@ -209,6 +218,29 @@ class ArchiveEngineTest {
         assertEquals(6, tarMutationCompressionLevel(ArchiveFormat.TAR_BZIP2))
         assertEquals(8_324_288L, estimatedBytes)
         assertTrue(estimatedBytes <= TAR_BZIP2_MUTATION_MAX_ENCODER_MEMORY_BYTES)
+    }
+
+    @Test
+    fun `zstd mutation preset stays within its audited single threaded encoder memory budget`() {
+        val estimatedBytes = estimateTarZstdMutationEncoderMemoryBytes()
+
+        assertEquals(3, tarMutationCompressionLevel(ArchiveFormat.TAR_ZSTD))
+        assertEquals(20, TAR_ZSTD_MUTATION_WINDOW_LOG)
+        assertEquals(2_746_400L, estimatedBytes)
+        assertTrue(estimatedBytes <= TAR_ZSTD_MUTATION_MAX_ENCODER_MEMORY_BYTES)
+
+        val encoded = ByteArrayOutputStream().also { target ->
+            TarArchiveCompression.openOutput(
+                format = ArchiveFormat.TAR_ZSTD,
+                output = target,
+                compressionLevel = TAR_ZSTD_MUTATION_COMPRESSION_LEVEL,
+                zstdWindowLog = TAR_ZSTD_MUTATION_WINDOW_LOG,
+            ).use { it.write(ByteArray(2 * 1_024 * 1_024)) }
+        }.toByteArray()
+        val magic = byteArrayOf(0x28, 0xB5.toByte(), 0x2F, 0xFD.toByte())
+        assertArrayEquals(magic, encoded.copyOf(magic.size))
+        assertTrue(encoded[4].toInt() and 0x04 != 0)
+        assertEquals(0x50, encoded[5].toInt() and 0xFF)
     }
 
     @Test
