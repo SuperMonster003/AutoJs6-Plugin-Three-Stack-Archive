@@ -37,6 +37,17 @@ class SevenZArchiveBackendTest {
         assertTrue(
             snapshot.entries.filterNot(ArchiveEntry::isDirectory).all(ArchiveEntry::canExtract),
         )
+        assertTrue(snapshot.entries.none { it.capabilities.canDelete })
+        assertTrue(snapshot.entries.none { it.capabilities.canRename })
+        assertTrue(
+            snapshot.entries.all {
+                ArchiveEntryLimitation.SOLID_COMPRESSION in it.capabilities.limitations
+            },
+        )
+        assertEquals(
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+            ArchiveEngine.DEFAULT.mutationAvailability(snapshot).unavailableReason,
+        )
         assertTrue(
             snapshot.entries.filter { it.uncompressedSize > 0L }.all {
                 it.compressionMethod == ArchiveCompressionMethod.LZMA2 &&
@@ -70,6 +81,9 @@ class SevenZArchiveBackendTest {
         assertTrue("BCJ_X86_FILTER" in entry.compressionMethodId)
         assertTrue("LZMA2" in entry.compressionMethodId)
         assertTrue(entry.canExtract)
+        assertTrue(entry.capabilities.canDelete)
+        assertTrue(entry.capabilities.canRename)
+        assertTrue(ArchiveEngine.DEFAULT.mutationAvailability(snapshot).isAvailable)
 
         val output = ByteArrayOutputStream()
         ArchiveEntryStreamer(source, snapshot).stream(entry, output)
@@ -84,6 +98,10 @@ class SevenZArchiveBackendTest {
         val lockedEntry = lockedSnapshot.entries.single { it.path == "plain.txt" }
         assertTrue(lockedEntry.isEncrypted)
         assertFalse(lockedEntry.canExtract)
+        assertEquals(
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+            ArchiveEngine.DEFAULT.mutationAvailability(lockedSnapshot).unavailableReason,
+        )
         expectArchiveFailure<ArchiveExtractionException>(ArchiveFailureCode.PASSWORD_REQUIRED) {
             ArchiveEntryStreamer(source, lockedSnapshot).stream(
                 lockedEntry,
@@ -113,6 +131,10 @@ class SevenZArchiveBackendTest {
             correctSnapshot.entries.filter { it.uncompressedSize > 0L }.all {
                 it.isEncrypted && it.encryptionMethod == ArchiveEncryptionMethod.AES
             },
+        )
+        assertEquals(
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+            ArchiveEngine.DEFAULT.mutationAvailability(correctSnapshot).unavailableReason,
         )
         val correctEntry = correctSnapshot.entries.single { it.path == "plain.txt" }
         val output = ByteArrayOutputStream()
@@ -144,11 +166,86 @@ class SevenZArchiveBackendTest {
         )
         assertEquals(ArchiveFormat.SEVEN_Z, snapshot.format)
         assertTrue(snapshot.entries.any(ArchiveEntry::isEncrypted))
+        assertEquals(
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+            ArchiveEngine.DEFAULT.mutationAvailability(snapshot).unavailableReason,
+        )
         val entry = snapshot.entries.single { it.path == "plain.txt" }
         val output = ByteArrayOutputStream()
         ArchiveEntryStreamer(source, snapshot).stream(entry, output)
         assertArrayEquals(EXPECTED_PLAIN_BYTES, output.toByteArray())
         snapshot.readerOptions.clearPassword()
+    }
+
+    @Test
+    fun `generated non-solid archive exposes mutation only inside the proven boundary`() {
+        val source = writeSevenZ(
+            temporaryFolder.newFile("ordinary.7z"),
+            SevenZFixtureEntry("docs", isDirectory = true),
+            SevenZFixtureEntry("docs/readme.txt", "readme".encodeToByteArray()),
+            SevenZFixtureEntry("empty.bin"),
+        )
+        val snapshot = ArchiveScanner().scan(source)
+
+        assertEquals(ArchiveFormat.SEVEN_Z, snapshot.format)
+        assertTrue(snapshot.entries.all { it.capabilities.canDelete })
+        assertTrue(snapshot.entries.all { it.capabilities.canRename })
+        assertTrue(
+            snapshot.entries.none {
+                ArchiveEntryLimitation.SOLID_COMPRESSION in it.capabilities.limitations ||
+                    ArchiveEntryLimitation.MUTATION_UNAVAILABLE in it.capabilities.limitations
+            },
+        )
+        assertEquals(
+            SEVEN_Z_MUTATION_CAPABILITIES,
+            ArchiveEngine.DEFAULT.mutationAvailability(snapshot).capabilities,
+        )
+
+        val plan = SevenZArchiveMutationPlanner.plan(
+            snapshot,
+            ArchiveMutationRequest.Rename("docs", "manual"),
+        )
+        assertEquals(
+            listOf("manual", "manual/readme.txt", "empty.bin"),
+            plan.entries.map(TarArchiveMutationEntry::archivePath),
+        )
+        assertEquals(6L, plan.workEstimate.knownContentBytesToRead)
+        assertEquals(
+            setOf(
+                ArchiveMutationMetadataEffect.EXTRA_FIELDS_NORMALIZED,
+                ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+            ),
+            plan.metadataEffects,
+        )
+    }
+
+    @Test
+    fun `mutation decoder budget is enforced independently from ordinary reading`() {
+        val source = writeSevenZ(
+            temporaryFolder.newFile("ordinary.7z"),
+            SevenZFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+        )
+        val readable = ArchiveScanner().scan(source)
+        val overBudget = readable.copy(
+            entries = readable.entries.map { entry ->
+                entry.copy(
+                    capabilities = entry.capabilities.copy(
+                        canDelete = false,
+                        canRename = false,
+                        limitations = entry.capabilities.limitations + setOf(
+                            ArchiveEntryLimitation.MUTATION_RESOURCE_BUDGET_EXCEEDED,
+                            ArchiveEntryLimitation.MUTATION_UNAVAILABLE,
+                        ),
+                    ),
+                )
+            },
+        )
+
+        assertTrue(overBudget.entries.all(ArchiveEntry::canOpen))
+        assertEquals(
+            ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+            ArchiveEngine.DEFAULT.mutationAvailability(overBudget).unavailableReason,
+        )
     }
 
     @Test

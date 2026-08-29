@@ -98,7 +98,7 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
-    fun manageArchiveAcceptsOrdinaryAndCompressedTarWrappers() {
+    fun manageArchiveAcceptsSevenZAndWritableTarWrappers() {
         val hostSession = UnusedTestExplorerActionHostSession()
         fun managedIntent(displayName: String, mimeType: String) =
             validIntent(displayName, mimeType)
@@ -111,6 +111,7 @@ class ArchiveIntentPolicyInstrumentationTest {
                 )
 
         listOf(
+            "bundle.7z" to "application/x-7z-compressed",
             "bundle.tar" to "application/x-tar",
             "bundle.tar.gz" to "application/x-compressed-tar",
             "bundle.tgz" to "application/x-compressed-tar",

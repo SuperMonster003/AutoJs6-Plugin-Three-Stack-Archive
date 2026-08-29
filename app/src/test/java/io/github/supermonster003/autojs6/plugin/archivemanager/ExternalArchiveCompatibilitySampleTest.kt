@@ -88,6 +88,36 @@ class ExternalArchiveCompatibilitySampleTest {
     }
 
     @Test
+    fun `MT Manager 7Z samples expose the safe mutation boundary`() {
+        val directory = externalCorpusDirectory()
+        val plainSource = verifiedSample(directory, MT_MANAGER_SEVEN_Z)
+        val plain = ArchiveScanner().scan(plainSource)
+
+        assertEquals(ArchiveFormat.SEVEN_Z, plain.format)
+        assertTrue(ArchiveEngine.DEFAULT.mutationAvailability(plain).isAvailable)
+        assertTrue(plain.entries.all { it.capabilities.canDelete && it.capabilities.canRename })
+
+        val encryptedSource = verifiedSample(directory, MT_MANAGER_ENCRYPTED_SEVEN_Z)
+        val encrypted = ArchiveScanner().scan(
+            encryptedSource,
+            ArchiveReaderOptions(password = CORPUS_PASSWORD.toCharArray()),
+        )
+        try {
+            assertEquals(ArchiveFormat.SEVEN_Z, encrypted.format)
+            assertTrue(encrypted.entries.all(ArchiveEntry::isEncrypted))
+            assertTrue(encrypted.entries.none {
+                it.capabilities.canDelete || it.capabilities.canRename
+            })
+            assertEquals(
+                ArchiveMutationUnavailableReason.BACKEND_VARIANT_READ_ONLY,
+                ArchiveEngine.DEFAULT.mutationAvailability(encrypted).unavailableReason,
+            )
+        } finally {
+            encrypted.readerOptions.clearPassword()
+        }
+    }
+
+    @Test
     fun `complete WinRAR volume set lists and streams reconstructed entry data`() {
         val directory = externalCorpusDirectory()
         val primary = verifiedSample(directory, WINRAR_SPLIT_PRIMARY)
@@ -176,20 +206,22 @@ class ExternalArchiveCompatibilitySampleTest {
         const val CORPUS_PASSWORD = "archive-test-2026"
         const val WINRAR_SPLIT_PRIMARY = "2-winrar.part01.rar"
         const val WINRAR_SPLIT_COMPANION = "2-winrar.part02.rar"
+        const val MT_MANAGER_SEVEN_Z = "4-mt-manager.7z"
+        const val MT_MANAGER_ENCRYPTED_SEVEN_Z = "4-mt-manager-pw.7z"
 
         val PLAIN_ARCHIVES = listOf(
             ExternalFixture("1-bandizip.zip", ArchiveFormat.ZIP),
             ExternalFixture("2-winrar-rar4.rar", ArchiveFormat.RAR),
             ExternalFixture("2-winrar-rar5.rar", ArchiveFormat.RAR),
             ExternalFixture("2-winrar.zip", ArchiveFormat.ZIP),
-            ExternalFixture("4-mt-manager.7z", ArchiveFormat.SEVEN_Z),
+            ExternalFixture(MT_MANAGER_SEVEN_Z, ArchiveFormat.SEVEN_Z),
             ExternalFixture("4-mt-manager.tar", ArchiveFormat.TAR),
             ExternalFixture("4-mt-manager.zip", ArchiveFormat.ZIP),
             ExternalFixture("5-删除这台电脑6个文件夹.zip", ArchiveFormat.ZIP),
         )
         val ENCRYPTED_ARCHIVES = listOf(
             ExternalFixture("2-winrar-rar5-pw.rar", ArchiveFormat.RAR),
-            ExternalFixture("4-mt-manager-pw.7z", ArchiveFormat.SEVEN_Z),
+            ExternalFixture(MT_MANAGER_ENCRYPTED_SEVEN_Z, ArchiveFormat.SEVEN_Z),
         )
         val STANDALONE_STREAMS = setOf(
             "4-mt-manager.gz",

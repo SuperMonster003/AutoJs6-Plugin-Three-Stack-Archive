@@ -3,16 +3,22 @@ package io.github.supermonster003.autojs6.plugin.archivemanager
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarConstants
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
+import org.apache.commons.compress.archivers.sevenz.SevenZMethod
+import org.apache.commons.compress.archivers.sevenz.SevenZMethodConfiguration
+import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream
 import org.junit.Assert.fail
+import org.tukaani.xz.LZMA2Options
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.file.Files
+import java.util.Date
 import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -22,6 +28,31 @@ internal data class FixtureEntry(
     val bytes: ByteArray = ByteArray(0),
     val method: Int = ZipEntry.DEFLATED,
 )
+
+internal data class SevenZFixtureEntry(
+    val name: String,
+    val bytes: ByteArray = ByteArray(0),
+    val isDirectory: Boolean = false,
+)
+
+internal fun writeSevenZ(file: File, vararg entries: SevenZFixtureEntry): File {
+    SevenZOutputFile(file).use { output ->
+        output.setContentMethods(
+            listOf(SevenZMethodConfiguration(SevenZMethod.LZMA2, LZMA2Options(3))),
+        )
+        entries.forEach { fixture ->
+            val entry = SevenZArchiveEntry().apply {
+                name = fixture.name.trimEnd('/')
+                isDirectory = fixture.isDirectory
+                lastModifiedDate = Date(FIXED_ZIP_TIME)
+            }
+            output.putArchiveEntry(entry)
+            if (!fixture.isDirectory) output.write(fixture.bytes)
+            output.closeArchiveEntry()
+        }
+    }
+    return file
+}
 
 internal enum class TarFixtureEntryType {
     FILE,

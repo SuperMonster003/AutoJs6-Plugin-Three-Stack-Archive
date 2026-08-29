@@ -199,10 +199,13 @@ internal object TarArchiveMutationPlanner {
     fun plan(
         snapshot: ArchiveSnapshot,
         request: ArchiveMutationRequest,
+        capabilitiesOverride: ArchiveMutationCapabilities? = null,
+        validateRetainedEntry: (TarArchiveMutationEntry, ArchiveFormat) -> Unit =
+            ::requireRewritableEntry,
     ): TarArchiveMutationPlan {
-        val capabilities = requireNotNull(tarMutationCapabilities(snapshot.format)) {
-            "${snapshot.format.displayName} does not have a TAR mutation provider"
-        }
+        val capabilities = capabilitiesOverride ?: requireNotNull(
+            tarMutationCapabilities(snapshot.format),
+        ) { "${snapshot.format.displayName} does not have a full-rewrite mutation provider" }
         val original = snapshot.entries.map { entry ->
             TarArchiveMutationEntry(entry.path, TarArchiveMutationSource.Existing(entry))
         }
@@ -214,7 +217,7 @@ internal object TarArchiveMutationPlanner {
             is ArchiveMutationRequest.AddTree -> addTree(original, request, snapshot)
         }
         validateFinalEntries(entries, snapshot.structureLimits, snapshot.format)
-        entries.forEach { requireRewritableEntry(it, snapshot.format) }
+        entries.forEach { validateRetainedEntry(it, snapshot.format) }
         return TarArchiveMutationPlan(
             entries = entries.toList(),
             format = snapshot.format,
@@ -231,7 +234,7 @@ internal object TarArchiveMutationPlanner {
         snapshot: ArchiveSnapshot,
     ): List<TarArchiveMutationEntry> {
         if (requestedPaths.isEmpty()) {
-            fail(ArchiveFailureCode.EMPTY_SELECTION, "No TAR entries selected", snapshot.format)
+            fail(ArchiveFailureCode.EMPTY_SELECTION, "No archive entries selected", snapshot.format)
         }
         val paths = requestedPaths.mapTo(linkedSetOf()) { requested ->
             validatedSelectionPath(requested, snapshot)
@@ -240,7 +243,7 @@ internal object TarArchiveMutationPlanner {
             if (!pathExists(original, path)) {
                 fail(
                     ArchiveFailureCode.UNKNOWN_SELECTION,
-                    "The selected TAR entry no longer exists",
+                    "The selected archive entry no longer exists",
                     snapshot.format,
                 )
             }
@@ -257,7 +260,7 @@ internal object TarArchiveMutationPlanner {
         if (!pathExists(original, sourcePath)) {
             fail(
                 ArchiveFailureCode.UNKNOWN_SELECTION,
-                "The selected TAR entry no longer exists",
+                "The selected archive entry no longer exists",
                 snapshot.format,
             )
         }
@@ -267,7 +270,7 @@ internal object TarArchiveMutationPlanner {
         if (targetPath == sourcePath) {
             fail(
                 ArchiveFailureCode.INVALID_DESTINATION_NAME,
-                "The TAR entry name did not change",
+                "The archive entry name did not change",
                 snapshot.format,
             )
         }
@@ -295,7 +298,7 @@ internal object TarArchiveMutationPlanner {
         if (pathExists(original, path)) {
             fail(
                 ArchiveFailureCode.DUPLICATE_PATH,
-                "A TAR entry with this name already exists",
+                "An archive entry with this name already exists",
                 snapshot.format,
             )
         }
@@ -440,7 +443,7 @@ internal object TarArchiveMutationPlanner {
         }
         fail(
             ArchiveFailureCode.DUPLICATE_PATH,
-            "No available TAR folder name could be reserved",
+            "No available archive folder name could be reserved",
             format,
         )
     }
@@ -456,7 +459,7 @@ internal object TarArchiveMutationPlanner {
         if (explicitFile != null || !pathExists(original, path)) {
             fail(
                 ArchiveFailureCode.UNKNOWN_SELECTION,
-                "The destination TAR folder no longer exists",
+                "The destination archive folder no longer exists",
                 snapshot.format,
             )
         }
@@ -472,7 +475,7 @@ internal object TarArchiveMutationPlanner {
         if (snapshot.isIsolatedPath(normalized)) {
             fail(
                 ArchiveFailureCode.INVALID_PATH,
-                "Unsafe TAR paths cannot be rewritten",
+                "Unsafe archive paths cannot be rewritten",
                 snapshot.format,
             )
         }
@@ -493,7 +496,7 @@ internal object TarArchiveMutationPlanner {
         ArchiveIntentPolicy.validateDisplayName(value)
             ?: fail(
                 ArchiveFailureCode.INVALID_DESTINATION_NAME,
-                "The TAR entry name is invalid",
+                "The archive entry name is invalid",
                 format,
             )
 
@@ -508,7 +511,7 @@ internal object TarArchiveMutationPlanner {
         if (entries.size > limits.maxEntries) {
             fail(
                 ArchiveFailureCode.ENTRY_LIMIT_EXCEEDED,
-                "The rewritten TAR has too many entries",
+                "The rewritten archive has too many entries",
                 format,
             )
         }
@@ -527,7 +530,7 @@ internal object TarArchiveMutationPlanner {
                     } else {
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT
                     },
-                    "The rewritten TAR contains a duplicate or conflicting path",
+                    "The rewritten archive contains a duplicate or conflicting path",
                     format,
                 )
             }
@@ -538,7 +541,7 @@ internal object TarArchiveMutationPlanner {
                 if (explicitTypes[parent] == false) {
                     fail(
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
-                        "A rewritten TAR file is also used as a directory",
+                        "A rewritten archive file is also used as a directory",
                         format,
                     )
                 }
@@ -559,7 +562,7 @@ internal object TarArchiveMutationPlanner {
                     } else {
                         ArchiveFailureCode.DUPLICATE_PATH
                     },
-                    "The TAR change introduces case-insensitive or Unicode-equivalent names",
+                    "The archive change introduces case-insensitive or Unicode-equivalent names",
                     format,
                 )
             }
@@ -577,7 +580,7 @@ internal object TarArchiveMutationPlanner {
                 ) {
                     fail(
                         ArchiveFailureCode.FILE_DIRECTORY_CONFLICT,
-                        "The TAR change uses a case-insensitive or Unicode-equivalent file as a directory",
+                        "The archive change uses a case-insensitive or Unicode-equivalent file as a directory",
                         format,
                     )
                 }
@@ -597,7 +600,7 @@ internal object TarArchiveMutationPlanner {
         if (entry.pathStatus != ArchiveEntryPathStatus.SAFE) {
             fail(
                 ArchiveFailureCode.INVALID_PATH,
-                "Unsafe TAR paths cannot be preserved by rewriting",
+                "Unsafe archive paths cannot be preserved by rewriting",
                 format,
             )
         }

@@ -100,17 +100,31 @@ class ArchiveManagementInfoTest {
     }
 
     @Test
-    fun `format without a mutation provider reports a backend boundary`() {
+    fun `seven z snapshot outside its proven rewrite boundary stays read only`() {
+        val ordinaryZip = snapshot()
         val status = ArchiveEngine.DEFAULT.managementStatus(
-            snapshot().copy(format = ArchiveFormat.SEVEN_Z),
+            ordinaryZip.copy(
+                format = ArchiveFormat.SEVEN_Z,
+                entries = ordinaryZip.entries.map { entry ->
+                    entry.copy(
+                        capabilities = entry.capabilities.copy(
+                            canDelete = false,
+                            canRename = false,
+                            limitations = entry.capabilities.limitations +
+                                ArchiveEntryLimitation.SOLID_COMPRESSION +
+                                ArchiveEntryLimitation.MUTATION_UNAVAILABLE,
+                        ),
+                    )
+                },
+            ),
             ArchiveRequestedAction.MANAGE,
             hasHostReplacementSession = true,
         )
 
         assertFalse(status.isWritable)
-        assertEquals(null, status.capabilities)
+        assertEquals(SEVEN_Z_MUTATION_CAPABILITIES, status.capabilities)
         assertEquals(
-            ArchiveManagementReadOnlyReason.FORMAT_NOT_SUPPORTED,
+            ArchiveManagementReadOnlyReason.BACKEND_VARIANT_READ_ONLY,
             status.readOnlyReason,
         )
     }

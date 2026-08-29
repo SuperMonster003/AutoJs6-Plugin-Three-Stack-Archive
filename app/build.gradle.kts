@@ -67,7 +67,7 @@ val generatedSevenZFileSource = layout.buildDirectory.file(
 )
 
 val generateCommonsCompressAndroidPatch by tasks.registering {
-    description = "Patches Commons Compress 7Z entry ordering for Android 7 runtimes"
+    description = "Patches Commons Compress 7Z entry ordering and solid detection"
     inputs.files(originalCommonsCompressSources)
     outputs.file(generatedSevenZFileSource)
 
@@ -88,6 +88,42 @@ val generateCommonsCompressAndroidPatch by tasks.registering {
             }
             archive.files = entries.toArray(SevenZArchiveEntry.EMPTY_SEVEN_Z_ARCHIVE_ENTRY_ARRAY);
         """.trimIndent()
+        val entriesAccessor = """
+            public Iterable<SevenZArchiveEntry> getEntries() {
+                return new ArrayList<>(Arrays.asList(archive.files));
+            }
+        """.trimIndent().prependIndent("    ")
+        val entriesAccessorWithSolidDetection = """
+            public Iterable<SevenZArchiveEntry> getEntries() {
+                return new ArrayList<>(Arrays.asList(archive.files));
+            }
+
+            /**
+             * Returns whether at least two non-empty files share one 7z folder.
+             *
+             * <p>This is the format-level definition needed by Archive Manager before it offers
+             * a full rewrite. Commons Compress exposes random entry streams but doesn't otherwise
+             * expose the folder map through its public API.</p>
+             *
+             * @return whether this archive contains a solid compression block
+             */
+            public boolean hasSolidCompression() {
+                if (archive.streamMap == null || archive.folders.length == 0) {
+                    return false;
+                }
+                final int[] nonEmptyFilesPerFolder = new int[archive.folders.length];
+                for (int i = 0; i < archive.files.length; i++) {
+                    if (!archive.files[i].hasStream()) {
+                        continue;
+                    }
+                    final int folderIndex = archive.streamMap.fileFolderIndex[i];
+                    if (folderIndex >= 0 && ++nonEmptyFilesPerFolder[folderIndex] > 1) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        """.trimIndent().prependIndent("    ")
         val source = sourceFile.readText(Charsets.UTF_8)
         check(source.indexOf(streamBasedAssembly) >= 0) {
             "Commons Compress SevenZFile entry assembly no longer matches the Android patch"
@@ -95,9 +131,20 @@ val generateCommonsCompressAndroidPatch by tasks.registering {
         check(source.indexOf(streamBasedAssembly) == source.lastIndexOf(streamBasedAssembly)) {
             "Commons Compress SevenZFile entry assembly matched more than once"
         }
+        check(source.indexOf(entriesAccessor) >= 0) {
+            "Commons Compress SevenZFile entries accessor no longer matches the solid patch"
+        }
+        check(source.indexOf(entriesAccessor) == source.lastIndexOf(entriesAccessor)) {
+            "Commons Compress SevenZFile entries accessor matched more than once"
+        }
         val output = generatedSevenZFileSource.get().asFile
         output.parentFile.mkdirs()
-        output.writeText(source.replace(streamBasedAssembly, stableAssembly), Charsets.UTF_8)
+        output.writeText(
+            source
+                .replace(streamBasedAssembly, stableAssembly)
+                .replace(entriesAccessor, entriesAccessorWithSolidDetection),
+            Charsets.UTF_8,
+        )
     }
 }
 

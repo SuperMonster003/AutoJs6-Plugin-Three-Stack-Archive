@@ -73,6 +73,7 @@ class ArchiveEngineTest {
         assertEquals(
             listOf(
                 ArchiveFormat.ZIP,
+                ArchiveFormat.SEVEN_Z,
                 ArchiveFormat.TAR,
                 ArchiveFormat.TAR_GZIP,
                 ArchiveFormat.TAR_XZ,
@@ -82,7 +83,7 @@ class ArchiveEngineTest {
             engine.mutationFormats,
         )
         assertEquals(
-            listOf("tar", "tbz2", "tgz", "txz", "tzst", "zip"),
+            listOf("7z", "tar", "tbz2", "tgz", "txz", "tzst", "zip"),
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
         )
         assertEquals(
@@ -244,7 +245,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `7z capabilities expose solid reading and non-solid creation without overclaiming`() {
+    fun `7z capabilities expose dynamic non-solid rewrite without overclaiming`() {
         val capabilities = ArchiveEngine.DEFAULT.capabilities(ArchiveFormat.SEVEN_Z)
 
         assertTrue(capabilities.supports(ArchiveOperation.DETECT))
@@ -253,10 +254,13 @@ class ArchiveEngineTest {
         assertTrue(capabilities.supports(ArchiveOperation.OPEN))
         assertTrue(capabilities.supports(ArchiveOperation.EXTRACT))
         assertTrue(capabilities.supports(ArchiveOperation.CREATE))
-        assertFalse(capabilities.supports(ArchiveOperation.ADD))
-        assertFalse(capabilities.supports(ArchiveOperation.DELETE))
-        assertFalse(capabilities.supports(ArchiveOperation.RENAME))
-        assertEquals(null, ArchiveEngine.DEFAULT.mutationCapabilities(ArchiveFormat.SEVEN_Z))
+        assertTrue(capabilities.supports(ArchiveOperation.ADD))
+        assertTrue(capabilities.supports(ArchiveOperation.DELETE))
+        assertTrue(capabilities.supports(ArchiveOperation.RENAME))
+        assertEquals(
+            SEVEN_Z_MUTATION_CAPABILITIES,
+            ArchiveEngine.DEFAULT.mutationCapabilities(ArchiveFormat.SEVEN_Z),
+        )
         assertEquals(ArchiveOptionMode.OPTIONAL, capabilities.password)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.filenameEncryption)
         assertEquals(ArchiveOptionMode.UNSUPPORTED, capabilities.splitVolumes)
@@ -279,6 +283,17 @@ class ArchiveEngineTest {
         assertEquals("application/x-7z-compressed", ArchiveFormat.SEVEN_Z.primaryMimeType)
         assertEquals(setOf("7z"), ArchiveFormat.SEVEN_Z.extensions)
         assertTrue(ArchiveFormat.SEVEN_Z.matchesFileName("ARCHIVE.7Z"))
+    }
+
+    @Test
+    fun `7z mutation preset stays within explicit encoder and decoder memory budgets`() {
+        val options = LZMA2Options(SEVEN_Z_MUTATION_COMPRESSION_LEVEL)
+
+        assertEquals(3, sevenZMutationCompressionLevel())
+        assertEquals(4 * 1_024 * 1_024, options.dictSize)
+        assertEquals(31_410, options.encoderMemoryUsage)
+        assertTrue(options.encoderMemoryUsage <= SEVEN_Z_MUTATION_MAX_ENCODER_MEMORY_KIB)
+        assertEquals(64 * 1_024, SEVEN_Z_MUTATION_MAX_DECODER_MEMORY_KIB)
     }
 
     @Test
