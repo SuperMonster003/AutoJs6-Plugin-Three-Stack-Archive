@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.15.0
+
+_2026/08/29_
+
+- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
+- `Ajout` Les archives TAR.BZ2 et TBZ2 ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+- `Correction` L'action de gestion reconnaît désormais précisément `.tar.bz2` et `.tbz2`; TAR.ZST/TZST est la seule enveloppe TAR compressée qui reste en lecture seule
+- `Amélioration` Les modifications TAR.BZ2 utilisent le preset 6 borné de taille de bloc BZIP2 et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
+
 ## v2.14.0
 
 _2026/08/29_

@@ -5,6 +5,21 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依賴",
   "$data": {
+    "v2.15.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "此版本仍需配合使用具備 Explorer Action v18 的 AutoJs6 6.8.0 構建 (版本代碼 5276 或更新版本)"
+      ],
+      "feature": [
+        "只包含安全一般檔案及目錄的 TAR.BZ2 與 TBZ2, 現可於管理頁加入檔案或完整資料夾樹、新增空目錄、重新命名及刪除"
+      ],
+      "fix": [
+        "管理動作現會準確識別 `.tar.bz2` 與 `.tbz2`; TAR.ZST/TZST 是唯一仍保持唯讀的壓縮 TAR 包裝層"
+      ],
+      "improvement": [
+        "TAR.BZ2 修改採用有界的 BZIP2 區塊大小 preset 6, 並直接串流重建至主程式持有的待提交輸出; 取消、結尾完整性、實際寫入失敗、來源變更及完整讀回均納入回復界線"
+      ]
+    },
     "v2.14.0": {
       "released_date": "2026/08/29",
       "hint": [

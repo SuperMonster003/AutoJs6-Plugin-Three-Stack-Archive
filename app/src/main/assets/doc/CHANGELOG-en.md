@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.15.0
+
+_2026/08/29_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` TAR.BZ2 and TBZ2 archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` The management action now recognizes `.tar.bz2` and `.tbz2` precisely; TAR.ZST/TZST is the only compressed TAR wrapper that remains read-only
+- `Improved` TAR.BZ2 changes use bounded BZIP2 block-size preset 6 and stream directly into host-owned pending output; cancellation, trailer integrity, real write failures, source changes, and complete readback remain inside the rollback boundary
+
 ## v2.14.0
 
 _2026/08/29_
