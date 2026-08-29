@@ -42,8 +42,31 @@ internal val TAR_XZ_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
         ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
 )
 
+internal val TAR_BZIP2_MUTATION_CAPABILITIES = TAR_MUTATION_CAPABILITIES.copy(
+    metadataEffects = TAR_MUTATION_CAPABILITIES.metadataEffects +
+        ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+)
+
 internal const val TAR_XZ_MUTATION_COMPRESSION_LEVEL = 4
 internal const val TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB = 64 * 1_024
+internal const val TAR_BZIP2_MUTATION_COMPRESSION_LEVEL = 6
+internal const val TAR_BZIP2_MUTATION_MAX_ENCODER_MEMORY_BYTES = 16 * 1_024 * 1_024
+
+/**
+ * Conservatively bounds the Commons Compress BZIP2 encoder's live workspace.
+ *
+ * Its primary block, suffix-map, shared quadrant/MTF, and fallback eclass arrays
+ * consume up to 13 bytes per input byte. The fixed allowance covers sort tables,
+ * Huffman tables, selectors, array headers, and object alignment.
+ */
+internal fun estimateTarBzip2MutationEncoderMemoryBytes(compressionLevel: Int): Long {
+    require(compressionLevel in 1..9)
+    val blockBytes = compressionLevel.toLong() * 100_000L
+    return Math.addExact(
+        Math.multiplyExact(blockBytes, TAR_BZIP2_ENCODER_BYTES_PER_BLOCK_BYTE),
+        TAR_BZIP2_ENCODER_FIXED_ALLOWANCE_BYTES,
+    )
+}
 
 internal fun tarMutationCompressionLevel(format: ArchiveFormat): Int = when (format) {
     ArchiveFormat.TAR -> 0
@@ -54,10 +77,15 @@ internal fun tarMutationCompressionLevel(format: ArchiveFormat): Int = when (for
             "TAR.XZ mutation encoder requires $encoderMemoryUsageKiB KiB"
         }
     }
+    ArchiveFormat.TAR_BZIP2 -> TAR_BZIP2_MUTATION_COMPRESSION_LEVEL.also { level ->
+        val encoderMemoryUsageBytes = estimateTarBzip2MutationEncoderMemoryBytes(level)
+        check(encoderMemoryUsageBytes <= TAR_BZIP2_MUTATION_MAX_ENCODER_MEMORY_BYTES) {
+            "TAR.BZ2 mutation encoder requires $encoderMemoryUsageBytes bytes"
+        }
+    }
     ArchiveFormat.ZIP,
     ArchiveFormat.SEVEN_Z,
     ArchiveFormat.RAR,
-    ArchiveFormat.TAR_BZIP2,
     ArchiveFormat.TAR_ZSTD,
     -> error("${format.displayName} does not have a TAR mutation compression level")
 }
@@ -67,10 +95,10 @@ internal fun tarMutationCapabilities(format: ArchiveFormat): ArchiveMutationCapa
         ArchiveFormat.TAR -> TAR_MUTATION_CAPABILITIES
         ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
         ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_CAPABILITIES
+        ArchiveFormat.TAR_BZIP2 -> TAR_BZIP2_MUTATION_CAPABILITIES
         ArchiveFormat.ZIP,
         ArchiveFormat.SEVEN_Z,
         ArchiveFormat.RAR,
-        ArchiveFormat.TAR_BZIP2,
         ArchiveFormat.TAR_ZSTD,
         -> null
     }
@@ -1202,3 +1230,5 @@ internal class TarArchiveMutationProvider(
 }
 
 private const val TAR_REGULAR_FILE_METHOD = "TAR"
+private const val TAR_BZIP2_ENCODER_BYTES_PER_BLOCK_BYTE = 13L
+private const val TAR_BZIP2_ENCODER_FIXED_ALLOWANCE_BYTES = 512L * 1_024L

@@ -75,15 +75,16 @@ class ArchiveEngineTest {
                 ArchiveFormat.TAR,
                 ArchiveFormat.TAR_GZIP,
                 ArchiveFormat.TAR_XZ,
+                ArchiveFormat.TAR_BZIP2,
             ),
             engine.mutationFormats,
         )
         assertEquals(
-            listOf("tar", "tgz", "txz", "zip"),
+            listOf("tar", "tbz2", "tgz", "txz", "zip"),
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
         )
         assertEquals(
-            listOf("tar.gz", "tar.xz"),
+            listOf("tar.bz2", "tar.gz", "tar.xz"),
             ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
         )
         val mutation = requireNotNull(engine.mutationCapabilities(ArchiveFormat.ZIP))
@@ -102,7 +103,7 @@ class ArchiveEngineTest {
     }
 
     @Test
-    fun `ordinary gzip and xz tar expose rewrite mutation while later wrappers remain read only`() {
+    fun `ordinary gzip xz and bzip2 tar expose rewrite mutation while zstd remains read only`() {
         val engine = ArchiveEngine.DEFAULT
 
         listOf(
@@ -115,7 +116,8 @@ class ArchiveEngineTest {
             val capabilities = engine.capabilities(format)
             val canMutate = format == ArchiveFormat.TAR ||
                 format == ArchiveFormat.TAR_GZIP ||
-                format == ArchiveFormat.TAR_XZ
+                format == ArchiveFormat.TAR_XZ ||
+                format == ArchiveFormat.TAR_BZIP2
             assertTrue(capabilities.supports(ArchiveOperation.DETECT))
             assertTrue(capabilities.supports(ArchiveOperation.LIST))
             assertTrue(capabilities.supports(ArchiveOperation.PREVIEW))
@@ -152,6 +154,7 @@ class ArchiveEngineTest {
                     ArchiveFormat.TAR -> TAR_MUTATION_CAPABILITIES
                     ArchiveFormat.TAR_GZIP -> TAR_GZIP_MUTATION_CAPABILITIES
                     ArchiveFormat.TAR_XZ -> TAR_XZ_MUTATION_CAPABILITIES
+                    ArchiveFormat.TAR_BZIP2 -> TAR_BZIP2_MUTATION_CAPABILITIES
                     else -> null
                 },
                 engine.mutationCapabilities(format),
@@ -180,6 +183,11 @@ class ArchiveEngineTest {
                 ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
             TAR_XZ_MUTATION_CAPABILITIES.metadataEffects,
         )
+        assertEquals(
+            TAR_MUTATION_CAPABILITIES.metadataEffects +
+                ArchiveMutationMetadataEffect.COMPRESSION_SETTINGS_NORMALIZED,
+            TAR_BZIP2_MUTATION_CAPABILITIES.metadataEffects,
+        )
     }
 
     @Test
@@ -190,6 +198,17 @@ class ArchiveEngineTest {
         assertEquals(4 * 1_024 * 1_024, options.dictSize)
         assertEquals(48_058, options.encoderMemoryUsage)
         assertTrue(options.encoderMemoryUsage <= TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB)
+    }
+
+    @Test
+    fun `bzip2 mutation preset stays within its explicit worst case encoder memory budget`() {
+        val estimatedBytes = estimateTarBzip2MutationEncoderMemoryBytes(
+            TAR_BZIP2_MUTATION_COMPRESSION_LEVEL,
+        )
+
+        assertEquals(6, tarMutationCompressionLevel(ArchiveFormat.TAR_BZIP2))
+        assertEquals(8_324_288L, estimatedBytes)
+        assertTrue(estimatedBytes <= TAR_BZIP2_MUTATION_MAX_ENCODER_MEMORY_BYTES)
     }
 
     @Test

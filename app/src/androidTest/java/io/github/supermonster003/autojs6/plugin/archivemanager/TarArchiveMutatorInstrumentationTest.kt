@@ -11,6 +11,7 @@ import androidx.test.runner.AndroidJUnit4
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarConstants
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipParameters
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
@@ -75,6 +76,10 @@ class TarArchiveMutatorInstrumentationTest {
         val originalHeader = archive.readBytes().copyOf(GZIP_HEADER_SIZE)
         assertTrue(originalHeader[GZIP_FLAGS_OFFSET].toInt() and GZIP_FLAG_NAME != 0)
         assertTrue(originalHeader[GZIP_FLAGS_OFFSET].toInt() and GZIP_FLAG_COMMENT != 0)
+        assertFalse(
+            originalHeader.copyOfRange(GZIP_MTIME_OFFSET, GZIP_MTIME_OFFSET + 4)
+                .contentEquals(byteArrayOf(0, 0, 0, 0)),
+        )
 
         exerciseSuccessfulMutations(
             directory = directory,
@@ -123,6 +128,37 @@ class TarArchiveMutatorInstrumentationTest {
         assertEquals(4 * 1_024 * 1_024, options.dictSize)
         assertEquals(48_058, options.encoderMemoryUsage)
         assertTrue(options.encoderMemoryUsage <= TAR_XZ_MUTATION_MAX_ENCODER_MEMORY_KIB)
+        directory.deleteRecursively()
+    }
+
+    @Test
+    fun bzip2TarMutationStreamsOneSourcePassWithABoundedEncoderPreset() {
+        val directory = newTestDirectory()
+        val archive = writeTestTarBzip2(
+            File(directory, BZIP2_ARCHIVE_NAME),
+            TarFixture("docs", directory = true),
+            TarFixture("docs/readme.txt", "readme".encodeToByteArray()),
+            TarFixture("root.bin", byteArrayOf(1, 2, 3)),
+        )
+
+        exerciseSuccessfulMutations(
+            directory = directory,
+            archive = archive,
+            format = ArchiveFormat.TAR_BZIP2,
+            exportArgument = EXPORT_BZIP2_VALIDATION_ARGUMENT,
+            exportedArchiveName = EXPORTED_BZIP2_ARCHIVE_NAME,
+        )
+
+        val rewrittenHeader = archive.readBytes().copyOf(BZIP2_HEADER_SIZE)
+        assertArrayEquals(BZIP2_MAGIC, rewrittenHeader.copyOf(BZIP2_MAGIC.size))
+        assertEquals(
+            '0'.code + TAR_BZIP2_MUTATION_COMPRESSION_LEVEL,
+            rewrittenHeader[BZIP2_BLOCK_SIZE_OFFSET].toInt() and 0xFF,
+        )
+        assertTrue(
+            estimateTarBzip2MutationEncoderMemoryBytes(TAR_BZIP2_MUTATION_COMPRESSION_LEVEL) <=
+                TAR_BZIP2_MUTATION_MAX_ENCODER_MEMORY_BYTES,
+        )
         directory.deleteRecursively()
     }
 
@@ -270,7 +306,7 @@ class TarArchiveMutatorInstrumentationTest {
     fun cancellingCompressedTarRewriteDoesNotDrainTheRemainingSource() {
         val directory = newTestDirectory()
         val payload = ByteArray(LARGE_PAYLOAD_SIZE).also { Random(20260829L).nextBytes(it) }
-        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+        WRITABLE_COMPRESSED_TAR_FORMATS.forEach { format ->
             val archive = writeTestCompressedTar(
                 format,
                 File(directory, archiveName(format)),
@@ -315,7 +351,7 @@ class TarArchiveMutatorInstrumentationTest {
     @Test
     fun compressedTarSourceIdentityChangeAfterPlanningAbortsBeforeReplacement() {
         val directory = newTestDirectory()
-        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+        WRITABLE_COMPRESSED_TAR_FORMATS.forEach { format ->
             val archive = writeTestCompressedTar(
                 format,
                 File(directory, archiveName(format)),
@@ -359,7 +395,7 @@ class TarArchiveMutatorInstrumentationTest {
     @Test
     fun damagedCompressedTarTrailerDuringReadbackAbortsWithoutReplacingTheOriginal() {
         val directory = newTestDirectory()
-        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+        WRITABLE_COMPRESSED_TAR_FORMATS.forEach { format ->
             val archive = writeTestCompressedTar(
                 format,
                 File(directory, archiveName(format)),
@@ -404,7 +440,7 @@ class TarArchiveMutatorInstrumentationTest {
     @Test
     fun compressedTarOutputWriteFailureAbortsWithoutPublishingAPartialReplacement() {
         val directory = newTestDirectory()
-        listOf(ArchiveFormat.TAR_GZIP, ArchiveFormat.TAR_XZ).forEach { format ->
+        WRITABLE_COMPRESSED_TAR_FORMATS.forEach { format ->
             val archive = writeTestCompressedTar(
                 format,
                 File(directory, archiveName(format)),
@@ -502,7 +538,6 @@ class TarArchiveMutatorInstrumentationTest {
     private fun writeTestTarGzip(file: File, vararg fixtures: TarFixture): File {
         val parameters = GzipParameters().apply {
             setCompressionLevel(6)
-            setModificationTime(FIXED_TIME)
             setFilename("original-source.tar")
             setComment("Archive Manager mutation metadata fixture")
             setOperatingSystem(3)
@@ -510,6 +545,13 @@ class TarArchiveMutatorInstrumentationTest {
         FileOutputStream(file).use { rawOutput ->
             GzipCompressorOutputStream(rawOutput, parameters).use { gzipOutput ->
                 writeTarPayload(gzipOutput, fixtures)
+            }
+        }
+        RandomAccessFile(file, "rw").use { archive ->
+            val modificationTimeSeconds = FIXED_TIME / 1_000L
+            archive.seek(GZIP_MTIME_OFFSET.toLong())
+            repeat(4) { byteIndex ->
+                archive.write((modificationTimeSeconds ushr (byteIndex * 8)).toInt() and 0xFF)
             }
         }
         return file
@@ -524,6 +566,15 @@ class TarArchiveMutatorInstrumentationTest {
         return file
     }
 
+    private fun writeTestTarBzip2(file: File, vararg fixtures: TarFixture): File {
+        FileOutputStream(file).use { rawOutput ->
+            BZip2CompressorOutputStream(rawOutput, BZIP2_FIXTURE_COMPRESSION_LEVEL).use { bzip2Output ->
+                writeTarPayload(bzip2Output, fixtures)
+            }
+        }
+        return file
+    }
+
     private fun writeTestCompressedTar(
         format: ArchiveFormat,
         file: File,
@@ -531,12 +582,14 @@ class TarArchiveMutatorInstrumentationTest {
     ): File = when (format) {
         ArchiveFormat.TAR_GZIP -> writeTestTarGzip(file, *fixtures)
         ArchiveFormat.TAR_XZ -> writeTestTarXz(file, *fixtures)
+        ArchiveFormat.TAR_BZIP2 -> writeTestTarBzip2(file, *fixtures)
         else -> error("$format is not a writable compressed TAR test format")
     }
 
     private fun archiveName(format: ArchiveFormat): String = when (format) {
         ArchiveFormat.TAR_GZIP -> GZIP_ARCHIVE_NAME
         ArchiveFormat.TAR_XZ -> XZ_ARCHIVE_NAME
+        ArchiveFormat.TAR_BZIP2 -> BZIP2_ARCHIVE_NAME
         else -> error("$format is not a writable compressed TAR test format")
     }
 
@@ -659,12 +712,8 @@ class TarArchiveMutatorInstrumentationTest {
             check(pendingFile.isFile)
             if (corruptPendingBeforeVerify && !pendingCorrupted) {
                 RandomAccessFile(pendingFile, "rw").use { file ->
-                    check(file.length() > 0L)
-                    file.seek(file.length() - 1L)
-                    val original = file.read()
-                    check(original >= 0)
-                    file.seek(file.length() - 1L)
-                    file.write(original xor 0x01)
+                    check(file.length() > DAMAGED_TRAILER_BYTES)
+                    file.setLength(file.length() - DAMAGED_TRAILER_BYTES)
                 }
                 pendingCorrupted = true
             }
@@ -716,12 +765,15 @@ class TarArchiveMutatorInstrumentationTest {
         const val ARCHIVE_NAME = "managed.tar"
         const val GZIP_ARCHIVE_NAME = "managed.tar.gz"
         const val XZ_ARCHIVE_NAME = "managed.tar.xz"
+        const val BZIP2_ARCHIVE_NAME = "managed.tar.bz2"
         const val EXPORTED_ARCHIVE_NAME = "ordinary-tar-mutation-e2e.tar"
         const val EXPORTED_GZIP_ARCHIVE_NAME = "gzip-tar-mutation-e2e.tar.gz"
         const val EXPORTED_XZ_ARCHIVE_NAME = "xz-tar-mutation-e2e.tar.xz"
+        const val EXPORTED_BZIP2_ARCHIVE_NAME = "bzip2-tar-mutation-e2e.tar.bz2"
         const val EXPORT_VALIDATION_ARGUMENT = "exportTarMutationArtifact"
         const val EXPORT_GZIP_VALIDATION_ARGUMENT = "exportTarGzipMutationArtifact"
         const val EXPORT_XZ_VALIDATION_ARGUMENT = "exportTarXzMutationArtifact"
+        const val EXPORT_BZIP2_VALIDATION_ARGUMENT = "exportTarBzip2MutationArtifact"
         const val FIXED_TIME = 1_700_000_000_000L
         const val LARGE_PAYLOAD_SIZE = 2 * 1_024 * 1_024
         const val CANCEL_AFTER_COMPRESSED_BYTES = 128L * 1_024L
@@ -733,6 +785,10 @@ class TarArchiveMutatorInstrumentationTest {
         const val GZIP_FLAG_COMMENT = 0x10
         const val GZIP_OS_UNKNOWN = 255
         const val XZ_FIXTURE_COMPRESSION_LEVEL = 1
+        const val BZIP2_FIXTURE_COMPRESSION_LEVEL = 1
+        const val BZIP2_HEADER_SIZE = 4
+        const val BZIP2_BLOCK_SIZE_OFFSET = 3
+        const val DAMAGED_TRAILER_BYTES = 2L
         const val XZ_STREAM_FLAGS_START = 6
         const val XZ_STREAM_FLAGS_END = 8
         const val XZ_CHECK_CRC64: Byte = 0x04
@@ -745,6 +801,12 @@ class TarArchiveMutatorInstrumentationTest {
             0x58,
             0x5A,
             0x00,
+        )
+        val BZIP2_MAGIC = byteArrayOf(0x42, 0x5A, 0x68)
+        val WRITABLE_COMPRESSED_TAR_FORMATS = listOf(
+            ArchiveFormat.TAR_GZIP,
+            ArchiveFormat.TAR_XZ,
+            ArchiveFormat.TAR_BZIP2,
         )
     }
 }

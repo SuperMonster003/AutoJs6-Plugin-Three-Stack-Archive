@@ -166,7 +166,7 @@ class TarArchiveMutationPlannerTest {
     }
 
     @Test
-    fun `gzip and xz tar have explicit mutation while later wrappers remain read only`() {
+    fun `gzip xz and bzip2 tar have explicit mutation while zstd remains read only`() {
         val gzipSnapshot = ArchiveScanner().scan(
             writeTarGzip(
                 temporaryFolder.newFile("compressed.tar.gz"),
@@ -179,10 +179,17 @@ class TarArchiveMutationPlannerTest {
                 TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
             ),
         )
+        val bzip2Snapshot = ArchiveScanner().scan(
+            writeTarBzip2(
+                temporaryFolder.newFile("compressed.tar.bz2"),
+                TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
+            ),
+        )
 
         listOf(
             Triple(ArchiveFormat.TAR_GZIP, TAR_GZIP_MUTATION_CAPABILITIES, gzipSnapshot),
             Triple(ArchiveFormat.TAR_XZ, TAR_XZ_MUTATION_CAPABILITIES, xzSnapshot),
+            Triple(ArchiveFormat.TAR_BZIP2, TAR_BZIP2_MUTATION_CAPABILITIES, bzip2Snapshot),
         ).forEach { (format, capabilities, snapshot) ->
             assertEquals(format, snapshot.format)
             assertEquals(
@@ -211,12 +218,6 @@ class TarArchiveMutationPlannerTest {
         }
 
         listOf(
-            ArchiveScanner().scan(
-                writeTarBzip2(
-                    temporaryFolder.newFile("compressed.tar.bz2"),
-                    TarFixtureEntry("payload.txt", "payload".encodeToByteArray()),
-                ),
-            ),
             ArchiveScanner().scan(
                 writeTarZstd(
                     temporaryFolder.newFile("compressed.tar.zst"),
