@@ -1,5 +1,14 @@
 # Notas de la versión
 
+## v2.20.0
+
+_2026/08/30_
+
+- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v20 (código de versión 5276 o posterior)
+- `Añadido` Las páginas nativas de archivos modificables ya pueden crear carpetas vacías y añadir una selección mixta explícita de archivos y árboles de carpetas completos; se conservan las carpetas vacías y las raíces con el mismo nombre se numeran de forma segura
+- `Corregido` La instantánea de entrada congelada se vuelve a validar antes de confirmar; una cancelación, un cambio de origen, una ambigüedad de nombres equivalentes dentro de un árbol elegido o un conflicto directo de archivo cancela toda la adición y conserva el archivo original
+- `Mejorado` Explorer Action v20 solo expone nodos opacos acotados, metadatos y descriptores de solo lectura de un uso para las entradas elegidas; no concede rutas, URI, elementos hermanos no elegidos ni acceso general al almacenamiento, y mantiene intacto el diseño normal del gestor de archivos
+
 ## v2.19.0
 
 _2026/08/29_

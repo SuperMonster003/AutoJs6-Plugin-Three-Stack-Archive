@@ -5,6 +5,21 @@
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v2.20.0": {
+      "released_date": "2026/08/30",
+      "hint": [
+        "Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v20 (code de version 5276 ou supérieur)"
+      ],
+      "feature": [
+        "Les pages d'archive natives modifiables peuvent désormais créer des dossiers vides et ajouter une sélection mixte explicite de fichiers et d'arborescences complètes; les dossiers vides sont conservés et les racines de même nom sont numérotées sans risque"
+      ],
+      "fix": [
+        "L'instantané d'entrée figé est revérifié avant validation; une annulation, une modification de source, une ambiguïté de noms équivalents dans une arborescence choisie ou un conflit de fichier direct annule tout l'ajout et conserve l'archive originale"
+      ],
+      "improvement": [
+        "Explorer Action v20 n'expose pour les entrées choisies que des noeuds opaques bornés, des métadonnées et des descripteurs ponctuels en lecture seule; il n'accorde aucun chemin, URI, voisin non choisi ni accès général au stockage, et ne modifie pas la disposition ordinaire du gestionnaire de fichiers"
+      ]
+    },
     "v2.19.0": {
       "released_date": "2026/08/29",
       "hint": [

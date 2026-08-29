@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.20.0
+
+_2026/08/30_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v20 (version code 5276 or newer)
+- `Added` Writable native archive pages can now create empty folders and add an explicit mixed selection of files and complete folder trees; empty folders are preserved and same-named directory roots are safely numbered
+- `Fixed` The frozen input snapshot is revalidated before commit; cancellation, source changes, equivalent-name ambiguity inside a selected tree, or a direct-file conflict fail the whole addition and preserve the original archive
+- `Improved` Explorer Action v20 exposes only bounded opaque nodes, metadata, and one-shot read-only descriptors for the selected inputs; it grants no paths, URIs, unselected siblings, or general storage access, and leaves the ordinary file-manager layout unchanged
+
 ## v2.19.0
 
 _2026/08/29_
