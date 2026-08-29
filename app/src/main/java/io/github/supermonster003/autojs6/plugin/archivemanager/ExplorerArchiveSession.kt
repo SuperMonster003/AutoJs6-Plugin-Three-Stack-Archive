@@ -85,6 +85,10 @@ internal class ExplorerArchiveSession(
         val nodesByPath = LinkedHashMap<String, SessionNode>()
         val mutableNodesById = LinkedHashMap<String, SessionNode>()
         val mutableChildren = LinkedHashMap<String, MutableList<SessionNode>>()
+        val reservedEntryIds = preferredIdsByPath.values.toSet()
+        check(reservedEntryIds.size == preferredIdsByPath.size && rootId !in reservedEntryIds) {
+            "Archive preferred entry IDs are invalid"
+        }
         val rootNode = requireNotNull(index.node(ArchivePathPolicy.ROOT_PATH))
         val rootSessionNode = SessionNode(rootId, null, rootNode)
         nodesByPath[rootNode.path] = rootSessionNode
@@ -97,7 +101,12 @@ internal class ExplorerArchiveSession(
             val parentSessionNode = nodesByPath.getValue(parent.path)
             val children = index.children(parent.path).map { child ->
                 val sessionNode = SessionNode(
-                    id = preferredIdsByPath[child.path] ?: stableEntryId(child, index),
+                    id = preferredIdsByPath[child.path] ?: unusedStableEntryId(
+                        child,
+                        index,
+                        reservedEntryIds,
+                        mutableNodesById,
+                    ),
                     parentId = parentSessionNode.id,
                     node = child,
                 )
@@ -168,6 +177,11 @@ internal class ExplorerArchiveSession(
                 ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES,
                 canRequestAnyMutation(this@toInfoBundle, ArchiveOperation.RENAME),
             )
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY,
+                nodesById.getValue(rootId).canCreateChildren(this@toInfoBundle),
+            )
+            putBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES, false)
             putStringArrayList(
                 ExplorerArchiveSessionKeys.FILENAME_CHARSET_NAMES,
                 ArrayList(formatCapabilities.filenameCharsetNames),
@@ -668,6 +682,11 @@ internal class ExplorerArchiveSession(
                 ExplorerArchiveSessionKeys.CAN_RENAME,
                 canRequestMutation(state, ArchiveOperation.RENAME),
             )
+            putBoolean(
+                ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN,
+                canCreateChildren(state),
+            )
+            putBoolean(ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN, false)
         }
     }
 
@@ -725,6 +744,18 @@ internal class ExplorerArchiveSession(
                 ArchiveOperation.RENAME -> entry.capabilities.canRename
                 else -> false
             }
+        }
+    }
+
+    private fun SessionNode.canCreateChildren(state: SessionIndexState): Boolean {
+        val path = node.path
+        val capabilities = state.mutationAvailability.capabilities ?: return false
+        if (!node.isDirectory || !capabilities.supports(ArchiveOperation.ADD)) return false
+        if (path == ArchivePathPolicy.ROOT_PATH) return true
+        if (state.snapshot.isIsolatedPath(path)) return false
+        return state.snapshot.entries.any { entry ->
+            entry.pathStatus == ArchiveEntryPathStatus.SAFE &&
+                (entry.path == path || entry.path.startsWith("$path/"))
         }
     }
 
@@ -787,6 +818,33 @@ internal class ExplorerArchiveSession(
                     mutatedEntries = 1,
                 )
             }
+            ExplorerArchiveSessionValues.MUTATION_CREATE_DIRECTORY -> {
+                val parentEntryId = requireNotNull(
+                    getString(ExplorerArchiveMutationKeys.PARENT_ENTRY_ID),
+                ) { "Archive destination directory ID is missing" }
+                require(
+                    parentEntryId.length in 1..ExplorerActionProtocol.MAX_ARCHIVE_ENTRY_ID_LENGTH,
+                ) { "Archive destination directory ID is invalid" }
+                val newName = requireNotNull(
+                    getString(ExplorerArchiveMutationKeys.NEW_NAME),
+                ) { "Archive directory name is missing" }
+                require(newName.length <= ExplorerActionProtocol.MAX_ARCHIVE_MUTATION_NAME_LENGTH) {
+                    "Archive directory name is too long"
+                }
+                val validatedName = requireNotNull(ArchiveIntentPolicy.validateDisplayName(newName)) {
+                    "Archive directory name is invalid"
+                }
+                val parent = requireNotNull(state.nodesById[parentEntryId]) {
+                    "Archive destination directory does not exist"
+                }
+                require(parent.canCreateChildren(state)) {
+                    "Archive destination does not support child creation"
+                }
+                DecodedMutation(
+                    ArchiveMutationRequest.AddDirectory(parent.node.path, validatedName),
+                    mutatedEntries = 1,
+                )
+            }
             else -> throw IllegalArgumentException("Archive mutation operation is invalid")
         }
     }
@@ -819,7 +877,10 @@ internal class ExplorerArchiveSession(
                         else -> oldPath
                     }
                 }
-                else -> error("Explorer archive mutation only supports deletion and rename")
+                is ArchiveMutationRequest.AddDirectory -> oldPath
+                is ArchiveMutationRequest.AddFiles,
+                is ArchiveMutationRequest.AddTree,
+                -> error("Explorer archive input mutations require a bounded input session")
             } ?: return@forEach
             check(retained.put(newPath, sessionNode.id) == null) {
                 "Archive mutation produced duplicate stable entry paths"
@@ -916,7 +977,24 @@ internal class ExplorerArchiveSession(
         }) { "Archive filename charset is not supported" }
     }
 
-    private fun stableEntryId(node: ArchiveNode, index: ArchiveIndex): String {
+    private fun unusedStableEntryId(
+        node: ArchiveNode,
+        index: ArchiveIndex,
+        reservedEntryIds: Set<String>,
+        assignedNodes: Map<String, SessionNode>,
+    ): String {
+        repeat(ExplorerActionProtocol.MAX_ARCHIVE_ITEMS + 1) { collisionIndex ->
+            val candidate = stableEntryId(node, index, collisionIndex)
+            if (candidate !in reservedEntryIds && candidate !in assignedNodes) return candidate
+        }
+        error("Archive entry ID allocation exhausted")
+    }
+
+    private fun stableEntryId(
+        node: ArchiveNode,
+        index: ArchiveIndex,
+        collisionIndex: Int = 0,
+    ): String {
         val identity = node.entry?.let { entry ->
             "entry:${entry.ordinal}"
         } ?: buildString {
@@ -928,8 +1006,13 @@ internal class ExplorerArchiveSession(
             append(':')
             append(ordinals.joinToString(","))
         }
+        val collisionSafeIdentity = if (collisionIndex == 0) {
+            identity
+        } else {
+            "$identity:collision:$collisionIndex:${node.path}"
+        }
         return MessageDigest.getInstance("SHA-256")
-            .digest(identity.toByteArray(UTF_8))
+            .digest(collisionSafeIdentity.toByteArray(UTF_8))
             .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }
     }
 

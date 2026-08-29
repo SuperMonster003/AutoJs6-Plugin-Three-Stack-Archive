@@ -153,6 +153,8 @@ class ExplorerArchiveSessionInstrumentationTest {
             onClosed = {},
         )
         try {
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val page = session.listChildren(
                 "root",
                 0,
@@ -227,6 +229,8 @@ class ExplorerArchiveSessionInstrumentationTest {
             onClosed = {},
         )
         try {
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val page = session.listChildren(
                 "root",
                 0,
@@ -294,6 +298,9 @@ class ExplorerArchiveSessionInstrumentationTest {
                 "Quarantined paths",
                 isolatedFolder.getString(ExplorerArchiveSessionKeys.NAME),
             )
+            assertFalse(
+                isolatedFolder.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN),
+            )
 
             val isolatedPage = session.listChildren(
                 requireNotNull(isolatedFolder.getString(ExplorerArchiveSessionKeys.ID)),
@@ -357,6 +364,8 @@ class ExplorerArchiveSessionInstrumentationTest {
             assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES))
             assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE_ENTRIES))
             assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val item = session.listChildren(
                 "root",
                 0,
@@ -365,6 +374,8 @@ class ExplorerArchiveSessionInstrumentationTest {
             assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
             assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE))
             assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME))
+            assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN))
+            assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN))
         } finally {
             session.close()
         }
@@ -502,13 +513,22 @@ class ExplorerArchiveSessionInstrumentationTest {
         try {
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE_ENTRIES))
             assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES))
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_DIRECTORY))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_ENTRIES))
             val initialRoot = session.rootItems()
             val folder = initialRoot.single { item ->
                 item.getString(ExplorerArchiveSessionKeys.NAME) == "folder"
             }
             assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE))
             assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME))
+            assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN))
+            assertFalse(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_ADD_CHILDREN))
             val folderId = requireNotNull(folder.getString(ExplorerArchiveSessionKeys.ID))
+            val keepFile = initialRoot.single { item ->
+                item.getString(ExplorerArchiveSessionKeys.NAME) == "keep.txt"
+            }
+            assertFalse(keepFile.getBoolean(ExplorerArchiveSessionKeys.CAN_CREATE_CHILDREN))
+            val keepFileId = requireNotNull(keepFile.getString(ExplorerArchiveSessionKeys.ID))
             val nestedId = requireNotNull(
                 session.children(folderId).single().getString(ExplorerArchiveSessionKeys.ID),
             )
@@ -545,6 +565,83 @@ class ExplorerArchiveSessionInstrumentationTest {
             )
             assertEquals(
                 setOf("keep.txt", "renamed", "renamed/nested.txt"),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
+            )
+
+            val rejectedCreateHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val rejectedCreate = runCatching {
+                session.runMutation(
+                    host = rejectedCreateHost,
+                    request = Bundle().apply {
+                        putString(
+                            ExplorerArchiveMutationKeys.OPERATION_ID,
+                            UUID.randomUUID().toString(),
+                        )
+                        putInt(
+                            ExplorerArchiveMutationKeys.OPERATION,
+                            ExplorerArchiveSessionValues.MUTATION_CREATE_DIRECTORY,
+                        )
+                        putString(ExplorerArchiveMutationKeys.PARENT_ENTRY_ID, keepFileId)
+                        putString(ExplorerArchiveMutationKeys.NEW_NAME, "child")
+                    },
+                )
+            }
+            assertTrue(rejectedCreate.isFailure)
+            assertEquals(0, rejectedCreateHost.commitCalls)
+            assertEquals(
+                setOf("keep.txt", "renamed", "renamed/nested.txt"),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
+            )
+
+            val createHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val created = session.runMutation(
+                host = createHost,
+                request = Bundle().apply {
+                    putString(ExplorerArchiveMutationKeys.OPERATION_ID, UUID.randomUUID().toString())
+                    putInt(
+                        ExplorerArchiveMutationKeys.OPERATION,
+                        ExplorerArchiveSessionValues.MUTATION_CREATE_DIRECTORY,
+                    )
+                    putString(ExplorerArchiveMutationKeys.PARENT_ENTRY_ID, folderId)
+                    putString(ExplorerArchiveMutationKeys.NEW_NAME, "empty")
+                },
+            )
+            assertNull(created.failure)
+            assertEquals(
+                1,
+                requireNotNull(created.completed)
+                    .getInt(ExplorerArchiveMutationKeys.MUTATED_ENTRIES),
+            )
+            assertEquals(1, createHost.commitCalls)
+            assertEquals(
+                setOf("empty", "nested.txt"),
+                session.children(folderId).mapTo(linkedSetOf()) { item ->
+                    item.getString(ExplorerArchiveSessionKeys.NAME)
+                },
+            )
+            assertEquals(
+                setOf("keep.txt", "renamed", "renamed/empty", "renamed/nested.txt"),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
+            )
+
+            val duplicateCreateHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val duplicateCreate = session.runMutation(
+                host = duplicateCreateHost,
+                request = Bundle().apply {
+                    putString(ExplorerArchiveMutationKeys.OPERATION_ID, UUID.randomUUID().toString())
+                    putInt(
+                        ExplorerArchiveMutationKeys.OPERATION,
+                        ExplorerArchiveSessionValues.MUTATION_CREATE_DIRECTORY,
+                    )
+                    putString(ExplorerArchiveMutationKeys.PARENT_ENTRY_ID, folderId)
+                    putString(ExplorerArchiveMutationKeys.NEW_NAME, "empty")
+                },
+            )
+            assertTrue(duplicateCreate.failure != null)
+            assertNull(duplicateCreate.completed)
+            assertEquals(0, duplicateCreateHost.commitCalls)
+            assertEquals(
+                setOf("keep.txt", "renamed", "renamed/empty", "renamed/nested.txt"),
                 ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
             )
 
