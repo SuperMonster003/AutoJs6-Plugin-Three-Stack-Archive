@@ -579,6 +579,112 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertFalse(hostDirectory.exists())
     }
 
+    @Test
+    fun writableZipSessionDeletesTheLastEntryAndReopensAsAnEmptyArchive() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostDirectory = File(context.cacheDir, "archive-session-empty-host-${UUID.randomUUID()}")
+        val stagedDirectory = File(context.cacheDir, "archive-input-session-empty-${UUID.randomUUID()}")
+        assertTrue(hostDirectory.mkdirs())
+        assertTrue(stagedDirectory.mkdirs())
+        val hostArchive = File(hostDirectory, "empty-after-delete.zip")
+        ZipOutputStream(FileOutputStream(hostArchive)).use { output ->
+            output.putNextEntry(ZipEntry("last.txt"))
+            output.write("last payload".encodeToByteArray())
+            output.closeEntry()
+        }
+        val stagedArchiveFile = File(stagedDirectory, "source.archive")
+        hostArchive.copyTo(stagedArchiveFile)
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = hostArchive.name,
+            stagedArchive = StagedArchive(
+                stagedArchiveFile.asArchiveReadSource(),
+                stagedArchiveFile.length(),
+            ),
+            cacheDirectory = context.cacheDir,
+            snapshot = ArchiveScanner().scan(stagedArchiveFile),
+            onClosed = {},
+        )
+
+        try {
+            val lastEntryId = requireNotNull(
+                session.rootItems().single().getString(ExplorerArchiveSessionKeys.ID),
+            )
+            val deleteHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val deleted = session.runMutation(
+                host = deleteHost,
+                request = Bundle().apply {
+                    putString(ExplorerArchiveMutationKeys.OPERATION_ID, UUID.randomUUID().toString())
+                    putInt(
+                        ExplorerArchiveMutationKeys.OPERATION,
+                        ExplorerArchiveSessionValues.MUTATION_DELETE,
+                    )
+                    putStringArrayList(
+                        ExplorerArchiveMutationKeys.ENTRY_IDS,
+                        arrayListOf(lastEntryId),
+                    )
+                },
+            )
+
+            assertNull(deleted.failure)
+            assertEquals(
+                1,
+                requireNotNull(deleted.completed)
+                    .getInt(ExplorerArchiveMutationKeys.MUTATED_ENTRIES),
+            )
+            assertEquals(1, deleteHost.commitCalls)
+            assertTrue(session.rootItems().isEmpty())
+            val committedSnapshot = ArchiveScanner().scan(hostArchive)
+            assertEquals(ArchiveFormat.ZIP, committedSnapshot.format)
+            assertTrue(committedSnapshot.entries.isEmpty())
+            assertEquals(0L, committedSnapshot.totalUncompressedBytes)
+            if (
+                InstrumentationRegistry.getArguments()
+                    .getString(EXPORT_EMPTY_ZIP_ARGUMENT)
+                    .toBoolean()
+            ) {
+                val exportDirectory = requireNotNull(context.getExternalFilesDir("validation"))
+                val exported = File(exportDirectory, EXPORTED_EMPTY_ZIP_NAME)
+                check(!exported.exists() || exported.delete())
+                hostArchive.copyTo(exported)
+                assertArrayEquals(hostArchive.readBytes(), exported.readBytes())
+            }
+        } finally {
+            session.close()
+        }
+
+        assertFalse(stagedDirectory.exists())
+        val reopenedStagedDirectory = File(
+            context.cacheDir,
+            "archive-input-session-empty-reopened-${UUID.randomUUID()}",
+        )
+        assertTrue(reopenedStagedDirectory.mkdirs())
+        val reopenedStagedArchive = File(reopenedStagedDirectory, "source.archive")
+        hostArchive.copyTo(reopenedStagedArchive)
+        val reopenedSession = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = hostArchive.name,
+            stagedArchive = StagedArchive(
+                reopenedStagedArchive.asArchiveReadSource(),
+                reopenedStagedArchive.length(),
+            ),
+            cacheDirectory = context.cacheDir,
+            snapshot = ArchiveScanner().scan(reopenedStagedArchive),
+            onClosed = {},
+        )
+
+        try {
+            assertEquals("zip", reopenedSession.info.getString(ExplorerArchiveSessionKeys.FORMAT_ID))
+            assertTrue(reopenedSession.rootItems().isEmpty())
+        } finally {
+            reopenedSession.close()
+            hostDirectory.deleteRecursively()
+        }
+
+        assertFalse(reopenedStagedDirectory.exists())
+        assertFalse(hostDirectory.exists())
+    }
+
     private fun ExplorerArchiveSession.rootItems(): List<Bundle> = children("root")
 
     private fun ExplorerArchiveSession.children(parentId: String): List<Bundle> = listChildren(
@@ -723,6 +829,8 @@ class ExplorerArchiveSessionInstrumentationTest {
     )
 
     private companion object {
+        const val EXPORTED_EMPTY_ZIP_NAME = "empty-after-last-entry-delete.zip"
+        const val EXPORT_EMPTY_ZIP_ARGUMENT = "exportEmptyZipMutationArtifact"
         const val SOURCE_TARGET_ID = "archive-source"
     }
 }
