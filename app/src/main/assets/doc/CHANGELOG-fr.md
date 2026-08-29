@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.16.0
+
+_2026/08/29_
+
+- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
+- `Ajout` Les archives TAR.ZST et TZST ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+- `Correction` L'action de gestion reconnaît désormais précisément `.tar.zst` et `.tzst`; toutes les enveloppes TAR prises en charge utilisent maintenant la même limite de reconstruction modifiable vérifiée
+- `Amélioration` Les modifications TAR.ZST utilisent Zstandard niveau 3 borné et monothread avec une fenêtre de 1 MiB et une somme de contrôle de trame, puis reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de la somme, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
+
 ## v2.15.0
 
 _2026/08/29_

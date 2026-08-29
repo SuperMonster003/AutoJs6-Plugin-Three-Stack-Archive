@@ -1,5 +1,14 @@
 # Notas de la versión
 
+## v2.16.0
+
+_2026/08/29_
+
+- `Nota` Esta versión sigue requiriendo la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Añadido` Los archivos TAR.ZST y TZST que solo contienen archivos y directorios normales seguros ya permiten añadir archivos o árboles completos, crear carpetas vacías, cambiar nombres y eliminar desde la página de gestión
+- `Corregido` La acción de gestión ahora reconoce `.tar.zst` y `.tzst` con precisión; todos los contenedores TAR compatibles usan el mismo límite de reconstrucción editable verificada
+- `Mejorado` Los cambios de TAR.ZST usan Zstandard nivel 3 acotado y de un solo hilo, con ventana de 1 MiB y suma de comprobación de trama, y se reconstruyen directamente en una salida pendiente del host; la cancelación, la integridad de la suma, los fallos reales de escritura, los cambios de origen y la lectura completa permanecen dentro del límite de reversión
+
 ## v2.15.0
 
 _2026/08/29_

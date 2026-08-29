@@ -44,7 +44,7 @@ Archive Manager funciona dentro del gestor de archivos de AutoJs6 en lugar de su
 - Explorar, previsualizar y extraer conjuntos completos estándar `.z01 + .zip`, WinRAR modernos `partN.rar`, `.zip.001` numerados y `.7z.001` numerados mediante descriptores hermanos acotados y autorizados por el host; los volúmenes ausentes o modificados fallan de forma explícita.
 - Crear ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 y TAR.ZST desde un elemento o una selección con el mismo padre; ZIP también admite AES-256, volúmenes estándar y un archivo por elemento.
 - Los ZIP divididos estándar y la compresión por elemento publican todas las salidas físicas verificadas mediante un lote recuperable; un fallo o reinicio del host nunca se presenta como un resultado parcial correcto.
-- Editar ZIP ordinarios de un solo volumen y TAR, TAR.GZ/TGZ, TAR.XZ/TXZ o TAR.BZ2/TBZ2 compatibles mediante reconstrucción verificada: añadir archivos o árboles de carpetas, crear carpetas vacías, renombrar y eliminar, y sustituir la fuente de forma atómica.
+- Editar ZIP ordinarios de un solo volumen y TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 o TAR.ZST/TZST compatibles mediante reconstrucción verificada: añadir archivos o árboles de carpetas, crear carpetas vacías, renombrar y eliminar, y sustituir la fuente de forma atómica.
 - Tras editar correctamente un ZIP o un TAR editable, restaura la versión anterior desde el mensaje de éxito o el menú de gestión; el host ofrece una sola restauración durante una retención limitada y la rechaza si otra aplicación cambió el destino.
 - La página de gestión reúne el formato real, los totales de contenido, las modificaciones disponibles y el motivo exacto del modo de solo lectura; antes de reservar una salida, cada cambio de ZIP o TAR editable muestra el trabajo real, la reconstrucción completa y los efectos en metadatos, mientras que cancelar no crea ninguna salida pendiente.
 - Aislar en modo de solo lectura los nombres peligrosos, aplicar límites estructurales y de recursos antes de escribir y leer directamente el descriptor seekable del host cuando sea posible.
@@ -64,7 +64,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior). RAR, los archivos divididos y TAR.ZST/TZST son deliberadamente de solo lectura; se pueden editar `.zip`, `.tar`, `.tar.gz`, `.tgz`, `.tar.xz`, `.txz`, `.tar.bz2` y `.tbz2` ordinarios de un solo volumen que contengan solo archivos y directorios normales seguros. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de JAR/AAR/WAR, 7Z, RAR o los demás contenedores TAR comprimidos siguen sin estar disponibles.
+> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura; se pueden editar `.zip`, `.tar`, `.tar.gz`, `.tgz`, `.tar.xz`, `.txz`, `.tar.bz2`, `.tbz2`, `.tar.zst` y `.tzst` ordinarios de un solo volumen que contengan solo archivos y directorios normales seguros. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de JAR/AAR/WAR, 7Z o RAR siguen sin estar disponibles.
 
 ### Uso
 
@@ -72,7 +72,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 2. Pulsa la acción principal de un archivo compatible o elige Abrir archivo. Si no se reconoce el nombre, elige Abrir como archivo comprimido... en el menú. Navega como por una carpeta con la barra de ruta, que indica el formato detectado cuando el nombre era engañoso.
 3. Usa la acción de extracción de la barra de ruta para la carpeta interna actual o la acción de codificación para corregir nombres ZIP, mantén pulsado para extraer una selección o elige Extraer en... en el menú del archivo para extraerlo completo. La contraseña se solicita cuando hace falta.
 4. Elige Comprimir... para un archivo o carpeta, o selecciona varios elementos del mismo directorio y usa la acción de la barra inferior. Para limpiar las fuentes después del éxito, activa expresamente la opción desactivada de forma predeterminada que las mueve a la papelera tras comprimir.
-5. Elige Gestionar archivo... para añadir, renombrar o eliminar contenido de un ZIP ordinario de un solo volumen o un TAR, TAR.GZ/TGZ, TAR.XZ/TXZ o TAR.BZ2/TBZ2 compatible.
+5. Elige Gestionar archivo... para añadir, renombrar o eliminar contenido de un ZIP ordinario de un solo volumen o un TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 o TAR.ZST/TZST compatible.
 
 ### Permisos y datos
 
@@ -84,11 +84,20 @@ Explorer Action v18 guarda el archivo anterior solo en almacenamiento privado y 
 
 ### Roadmap
 
-El trabajo restante se sigue con casillas verificables: reconstrucciones editables de TAR.ZST y 7Z, deshacer en grupo e historial de la papelera, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
+El trabajo restante se sigue con casillas verificables: reconstrucción editable de 7Z, deshacer en grupo e historial de la papelera, el resto de la matriz de dispositivos y productores y el material para la primera publicación pública.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.16.0
+
+_2026/08/29_
+
+- `Nota` Esta versión sigue requiriendo la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Añadido` Los archivos TAR.ZST y TZST que solo contienen archivos y directorios normales seguros ya permiten añadir archivos o árboles completos, crear carpetas vacías, cambiar nombres y eliminar desde la página de gestión
+- `Corregido` La acción de gestión ahora reconoce `.tar.zst` y `.tzst` con precisión; todos los contenedores TAR compatibles usan el mismo límite de reconstrucción editable verificada
+- `Mejorado` Los cambios de TAR.ZST usan Zstandard nivel 3 acotado y de un solo hilo, con ventana de 1 MiB y suma de comprobación de trama, y se reconstruyen directamente en una salida pendiente del host; la cancelación, la integridad de la suma, los fallos reales de escritura, los cambios de origen y la lectura completa permanecen dentro del límite de reversión
 
 #### v2.15.0
 
@@ -107,15 +116,6 @@ _2026/08/29_
 - `Añadido` Los archivos TAR.XZ y TXZ que solo contienen archivos y directorios normales seguros ya permiten añadir archivos o árboles completos, crear carpetas vacías, cambiar nombres y eliminar desde la página de gestión
 - `Corregido` La acción de gestión ahora reconoce `.tar.xz` y `.txz` con precisión, mientras TAR.BZ2/TBZ2 y TAR.ZST/TZST siguen siendo de solo lectura
 - `Mejorado` Los cambios de TAR.XZ usan el preset XZ 4 fijo (diccionario de 4 MiB; 48.058 KiB de memoria de codificación indicada por la biblioteca, por debajo de un presupuesto de 64 MiB) y se reconstruyen directamente en una salida pendiente del host; la cancelación, la integridad del final del contenedor, los fallos reales de escritura, los cambios de origen y la lectura completa permanecen dentro del límite de reversión
-
-#### v2.13.0
-
-_2026/08/29_
-
-- `Nota` Esta versión sigue requiriendo la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
-- `Añadido` Los TAR.GZ y TGZ que solo contienen archivos y directorios normales seguros ya pueden añadir archivos o árboles completos, crear carpetas vacías, renombrar y eliminar desde la página de gestión
-- `Corregido` La acción de gestión reconoce con precisión `.tar.gz` y `.tgz`, pero sigue rechazando JAR/AAR/WAR y los contenedores TAR.XZ, TAR.BZ2 y TAR.ZST de solo lectura
-- `Mejorado` Los cambios TAR.GZ reconstruyen el flujo fuente comprimido directamente en la salida pendiente del host, sin una copia TAR privada sin comprimir; la cancelación, la integridad del final GZIP, los fallos de escritura y la relectura completa permanecen dentro del límite de reversión
 
 ##### Historial completo
 

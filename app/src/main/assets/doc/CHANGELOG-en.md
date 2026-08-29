@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.16.0
+
+_2026/08/29_
+
+- `Note` This release continues to require the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` TAR.ZST and TZST archives containing only safe regular files and directories can now add files or complete folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` The management action now recognizes `.tar.zst` and `.tzst` precisely; every supported TAR wrapper now uses the same verified writable rebuild boundary
+- `Improved` TAR.ZST changes use bounded single-threaded Zstandard level 3 with a 1 MiB window and frame checksum, and stream directly into host-owned pending output; cancellation, checksum integrity, real write failures, source changes, and complete readback remain inside the rollback boundary
+
 ## v2.15.0
 
 _2026/08/29_

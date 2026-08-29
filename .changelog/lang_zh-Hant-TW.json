@@ -5,6 +5,21 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "相依性",
   "$data": {
+    "v2.16.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "此版本仍需搭配具備 Explorer Action v18 的 AutoJs6 6.8.0 建置 (版本代碼 5276 或更新版本)"
+      ],
+      "feature": [
+        "只包含安全一般檔案與目錄的 TAR.ZST 和 TZST, 現在可在管理頁加入檔案或完整資料夾樹、新增空目錄、重新命名與刪除"
+      ],
+      "fix": [
+        "管理動作現在會精確識別 `.tar.zst` 與 `.tzst`; 所有支援的 TAR 包裝層現在採用相同的已驗證可寫重建邊界"
+      ],
+      "improvement": [
+        "TAR.ZST 修改採用有界的單執行緒 Zstandard 等級 3、1 MiB 視窗與訊框校驗和, 並直接串流重建至主程式持有的待提交輸出; 取消、校驗和完整性、實際寫入失敗、來源變更與完整讀回均納入回復邊界"
+      ]
+    },
     "v2.15.0": {
       "released_date": "2026/08/29",
       "hint": [
