@@ -7,9 +7,12 @@ import android.os.ParcelFileDescriptor
 import android.os.Process
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
+import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
+import org.autojs.plugin.explorer.api.ExplorerArchiveMutationKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
+import org.autojs.plugin.explorer.api.IExplorerArchiveOperationCallback
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
@@ -27,9 +30,13 @@ import org.junit.runner.RunWith
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.UUID
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -268,6 +275,8 @@ class ExplorerArchiveSessionInstrumentationTest {
             onClosed = {},
         )
         try {
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE_ENTRIES))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES))
             val rootPage = session.listChildren(
                 "root",
                 0,
@@ -297,6 +306,8 @@ class ExplorerArchiveSessionInstrumentationTest {
                 .single()
             assertEquals("../preview.txt", isolatedEntry.getString(ExplorerArchiveSessionKeys.NAME))
             assertFalse(isolatedEntry.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+            assertFalse(isolatedEntry.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE))
+            assertFalse(isolatedEntry.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME))
 
             val actual = ParcelFileDescriptor.AutoCloseInputStream(
                 session.openEntry(requireNotNull(isolatedEntry.getString(ExplorerArchiveSessionKeys.ID))),
@@ -344,12 +355,16 @@ class ExplorerArchiveSessionInstrumentationTest {
 
         try {
             assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT_ENTRIES))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE_ENTRIES))
+            assertFalse(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES))
             val item = session.listChildren(
                 "root",
                 0,
                 ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
             ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty().single()
             assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_EXTRACT))
+            assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE))
+            assertFalse(item.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME))
         } finally {
             session.close()
         }
@@ -452,6 +467,240 @@ class ExplorerArchiveSessionInstrumentationTest {
         assertFalse(directory.exists())
     }
 
+    @Test
+    fun writableZipSessionRenamesAndDeletesThroughHostReplacementWhilePreservingStableIds() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostDirectory = File(context.cacheDir, "archive-session-mutation-host-${UUID.randomUUID()}")
+        val stagedDirectory = File(context.cacheDir, "archive-input-session-mutation-${UUID.randomUUID()}")
+        assertTrue(hostDirectory.mkdirs())
+        assertTrue(stagedDirectory.mkdirs())
+        val hostArchive = File(hostDirectory, "managed.zip")
+        ZipOutputStream(FileOutputStream(hostArchive)).use { output ->
+            output.putNextEntry(ZipEntry("folder/"))
+            output.closeEntry()
+            output.putNextEntry(ZipEntry("folder/nested.txt"))
+            output.write("nested payload".encodeToByteArray())
+            output.closeEntry()
+            output.putNextEntry(ZipEntry("keep.txt"))
+            output.write("keep payload".encodeToByteArray())
+            output.closeEntry()
+        }
+        val stagedArchiveFile = File(stagedDirectory, "source.archive")
+        hostArchive.copyTo(stagedArchiveFile)
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = hostArchive.name,
+            stagedArchive = StagedArchive(
+                stagedArchiveFile.asArchiveReadSource(),
+                stagedArchiveFile.length(),
+            ),
+            cacheDirectory = context.cacheDir,
+            snapshot = ArchiveScanner().scan(stagedArchiveFile),
+            onClosed = {},
+        )
+
+        try {
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE_ENTRIES))
+            assertTrue(session.info.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME_ENTRIES))
+            val initialRoot = session.rootItems()
+            val folder = initialRoot.single { item ->
+                item.getString(ExplorerArchiveSessionKeys.NAME) == "folder"
+            }
+            assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_DELETE))
+            assertTrue(folder.getBoolean(ExplorerArchiveSessionKeys.CAN_RENAME))
+            val folderId = requireNotNull(folder.getString(ExplorerArchiveSessionKeys.ID))
+            val nestedId = requireNotNull(
+                session.children(folderId).single().getString(ExplorerArchiveSessionKeys.ID),
+            )
+
+            val renameHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val renamed = session.runMutation(
+                host = renameHost,
+                request = Bundle().apply {
+                    putString(ExplorerArchiveMutationKeys.OPERATION_ID, UUID.randomUUID().toString())
+                    putInt(
+                        ExplorerArchiveMutationKeys.OPERATION,
+                        ExplorerArchiveSessionValues.MUTATION_RENAME,
+                    )
+                    putString(ExplorerArchiveMutationKeys.ENTRY_ID, folderId)
+                    putString(ExplorerArchiveMutationKeys.NEW_NAME, "renamed")
+                },
+            )
+            assertNull(renamed.failure)
+            assertEquals(1, requireNotNull(renamed.completed).getInt(ExplorerArchiveMutationKeys.MUTATED_ENTRIES))
+            assertTrue(
+                renamed.progress.any { update ->
+                    update.getInt(ExplorerArchiveMutationKeys.PHASE) ==
+                        ExplorerArchiveSessionValues.MUTATION_PHASE_REINDEXING
+                },
+            )
+            assertEquals(1, renameHost.commitCalls)
+            val renamedFolder = session.rootItems().single { item ->
+                item.getString(ExplorerArchiveSessionKeys.NAME) == "renamed"
+            }
+            assertEquals(folderId, renamedFolder.getString(ExplorerArchiveSessionKeys.ID))
+            assertEquals(
+                nestedId,
+                session.children(folderId).single().getString(ExplorerArchiveSessionKeys.ID),
+            )
+            assertEquals(
+                setOf("keep.txt", "renamed", "renamed/nested.txt"),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
+            )
+
+            val deleteHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val deleted = session.runMutation(
+                host = deleteHost,
+                request = Bundle().apply {
+                    putString(ExplorerArchiveMutationKeys.OPERATION_ID, UUID.randomUUID().toString())
+                    putInt(
+                        ExplorerArchiveMutationKeys.OPERATION,
+                        ExplorerArchiveSessionValues.MUTATION_DELETE,
+                    )
+                    putStringArrayList(ExplorerArchiveMutationKeys.ENTRY_IDS, arrayListOf(folderId))
+                },
+            )
+            assertNull(deleted.failure)
+            assertEquals(1, requireNotNull(deleted.completed).getInt(ExplorerArchiveMutationKeys.MUTATED_ENTRIES))
+            assertEquals(1, deleteHost.commitCalls)
+            assertEquals(listOf("keep.txt"), session.rootItems().map { item ->
+                item.getString(ExplorerArchiveSessionKeys.NAME)
+            })
+            assertEquals(
+                listOf("keep.txt"),
+                ArchiveScanner().scan(hostArchive).entries.map { it.path },
+            )
+        } finally {
+            session.close()
+            hostDirectory.deleteRecursively()
+        }
+
+        assertFalse(stagedDirectory.exists())
+        assertFalse(hostDirectory.exists())
+    }
+
+    private fun ExplorerArchiveSession.rootItems(): List<Bundle> = children("root")
+
+    private fun ExplorerArchiveSession.children(parentId: String): List<Bundle> = listChildren(
+        parentId,
+        0,
+        ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE,
+    ).getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS).orEmpty()
+
+    private fun ExplorerArchiveSession.runMutation(
+        host: ReplacementHostSession,
+        request: Bundle,
+    ): MutationAttemptResult {
+        val terminal = CountDownLatch(1)
+        val completed = AtomicReference<Bundle?>()
+        val failure = AtomicReference<Bundle?>()
+        val progress = mutableListOf<Bundle>()
+        mutateEntries(
+            request,
+            host,
+            object : IExplorerArchiveOperationCallback.Stub() {
+                override fun onProgress(update: Bundle) {
+                    progress += Bundle(update)
+                }
+
+                override fun onCompleted(result: Bundle) {
+                    completed.set(result)
+                    terminal.countDown()
+                }
+
+                override fun onFailed(error: Bundle) {
+                    failure.set(error)
+                    terminal.countDown()
+                }
+            },
+        )
+        assertTrue("Timed out waiting for archive mutation", terminal.await(30, TimeUnit.SECONDS))
+        return MutationAttemptResult(completed.get(), failure.get(), progress.toList())
+    }
+
+    private class ReplacementHostSession(
+        private val target: File,
+        private val directory: File,
+    ) : UnusedTestExplorerActionHostSession() {
+        private var transactionId = ""
+        private val pendingFile: File
+            get() = File(directory, ".archive-session-replacement-${hashCode()}.tmp")
+        var commitCalls = 0
+            private set
+
+        override fun prepareTargetReplacement(targetId: String): Bundle {
+            require(targetId == SOURCE_TARGET_ID)
+            check(transactionId.isEmpty())
+            transactionId = UUID.randomUUID().toString()
+            return outputBundle(includeIdentity = false)
+        }
+
+        override fun openOutput(transactionId: String): ParcelFileDescriptor {
+            requireActive(transactionId)
+            return ParcelFileDescriptor.open(
+                pendingFile,
+                ParcelFileDescriptor.MODE_CREATE or
+                    ParcelFileDescriptor.MODE_TRUNCATE or
+                    ParcelFileDescriptor.MODE_READ_WRITE,
+            )
+        }
+
+        override fun openPendingOutput(transactionId: String): ParcelFileDescriptor {
+            requireActive(transactionId)
+            check(pendingFile.isFile)
+            return ParcelFileDescriptor.open(pendingFile, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        override fun commitOutput(transactionId: String): Bundle {
+            requireActive(transactionId)
+            check(pendingFile.isFile)
+            if (!target.delete() || !pendingFile.renameTo(target)) {
+                throw IOException("Test host could not replace the session ZIP")
+            }
+            commitCalls++
+            val result = outputBundle(includeIdentity = true)
+            this.transactionId = ""
+            return result
+        }
+
+        override fun openFile(targetId: String, relativePath: String): ParcelFileDescriptor {
+            require(targetId == SOURCE_TARGET_ID)
+            require(relativePath == ArchivePathPolicy.ROOT_PATH)
+            return ParcelFileDescriptor.open(target, ParcelFileDescriptor.MODE_READ_ONLY)
+        }
+
+        override fun abortOutput(transactionId: String) {
+            requireActive(transactionId)
+            pendingFile.delete()
+            this.transactionId = ""
+        }
+
+        override fun close() {
+            pendingFile.delete()
+            transactionId = ""
+        }
+
+        private fun requireActive(value: String) {
+            require(value == transactionId && value.isNotEmpty())
+        }
+
+        private fun outputBundle(includeIdentity: Boolean): Bundle = Bundle().apply {
+            putString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID, transactionId)
+            putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_NAME, target.name)
+            putString(ExplorerActionHostSessionKeys.OUTPUT_DISPLAY_PATH, target.absolutePath)
+            if (includeIdentity) {
+                putLong(ExplorerActionHostSessionKeys.SIZE, target.length())
+                putLong(ExplorerActionHostSessionKeys.LAST_MODIFIED, target.lastModified())
+            }
+        }
+    }
+
+    private data class MutationAttemptResult(
+        val completed: Bundle?,
+        val failure: Bundle?,
+        val progress: List<Bundle>,
+    )
+
     private fun createArchive(target: File) {
         ZipOutputStream(FileOutputStream(target)).use { output ->
             output.putNextEntry(ZipEntry("folder/"))
@@ -472,4 +721,8 @@ class ExplorerArchiveSessionInstrumentationTest {
         val format: ArchiveFormat,
         val compressor: (OutputStream) -> OutputStream,
     )
+
+    private companion object {
+        const val SOURCE_TARGET_ID = "archive-source"
+    }
 }

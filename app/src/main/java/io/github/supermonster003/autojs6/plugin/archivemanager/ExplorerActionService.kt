@@ -159,6 +159,7 @@ class ExplorerActionService : Service() {
                 stagedArchive = staged,
                 source = sessionSource,
                 volumeLease = volumeClient,
+                cacheDirectory = cacheDir,
                 snapshot = snapshot,
                 isolatedPathDisplayName = getString(R.string.text_unsafe_paths_folder),
                 onClosed = sessions::remove,
