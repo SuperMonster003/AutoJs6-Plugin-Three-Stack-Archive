@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.17.0
+
+_2026/08/29_
+
+- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+- `Ajout` Les 7Z ordinaires à volume unique, non chiffrés, non solid et dans le budget du décodeur peuvent désormais ajouter des fichiers ou des arborescences, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+- `Correction` L'action de gestion inclut maintenant `.7z`; les variantes chiffrées, solid, fractionnées, dangereuses, non prises en charge ou hors budget restent en lecture seule après inspection de la structure
+- `Amélioration` Les modifications 7Z reconstruisent une sortie LZMA2 non solid et bornée, puis la relisent entièrement avant le remplacement atomique; l'annulation, les changements de source, une sortie en attente endommagée ou un échec d'écriture préservent l'original
+
 ## v2.16.0
 
 _2026/08/29_

@@ -40,14 +40,14 @@ UI、扫描器、预览流、解压器和宿主会话不得直接依赖 ZIP 类.
 | --- | --- | --- | --- | --- |
 | 结构识别/列表/预览/打开/解压 | 支持; ZipCrypto/AES 条目在提供密码后可读取, 其他条目仍受具体压缩方法约束 | 支持普通与 solid 档案、常见压缩/过滤器链及 AES 内容/头部加密读取; 头部加密必须先提供密码, 解码内存上限为 262,144 KiB | 支持单卷及完整分卷 RAR4/RAR5, 包括内容/头部加密; 头部加密必须先提供密码, 字典上限为 256 MiB | 支持 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST; 识别 POSIX/GNU/Ant/AIX 及校验和有效的 V7 头 |
 | 创建 | 支持普通 ZIP; 选择分卷后, 超过阈值时输出标准 `.z01 + .zip`, 较小结果仍为单个 `.zip`; 压缩级别 0 至 9, 可选密码使用 AES-256 | 支持非 solid 输出; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 可选密码使用 AES-256 内容加密 | 不支持; 不注册 writer | 支持; TAR 为级别 0, GZIP 为 0 至 9, XZ/BZIP2/Zstandard 为 1 至 9, 不支持密码 |
-| 添加/删除/重命名 | 普通单卷 `.zip` 支持添加文件、导入完整目录树、新建空目录、删除和重命名; 通过 Explorer Action v8 重建、完整校验并原子替换. JAR/AAR/WAR 只读, 分卷 ZIP 在结构探测后拒绝修改 | 不支持; 必须先实现格式重建事务 | 不支持; 明确保持只读 | 仅含安全普通文件和目录的 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST 支持完整重建; 特殊条目 TAR 保持只读 |
+| 添加/删除/重命名 | 普通单卷 `.zip` 支持添加文件、导入完整目录树、新建空目录、删除和重命名; 通过 Explorer Action v8 重建、完整校验并原子替换. JAR/AAR/WAR 只读, 分卷 ZIP 在结构探测后拒绝修改 | 普通单卷、未加密、非 solid、路径与方法安全且解码器位于 64 MiB 修改预算内的输入支持完整重建; 加密、solid、分卷及超预算变体保持只读 | 不支持; 明确保持只读 | 仅含安全普通文件和目录的 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 与 TAR.ZST/TZST 支持完整重建; 特殊条目 TAR 保持只读 |
 | 密码 | 可选; 无密码仍可浏览加密条目的目录元数据 | 可选; 仅内容加密时无密码可列出目录, 头部加密时索引返回 `PASSWORD_REQUIRED` | 可选; 内容加密时可先列出目录, 头部加密时索引返回 `PASSWORD_REQUIRED` | 不支持 |
 | 文件名加密 | 不支持; ZIP AES-256 输出仍公开中央目录文件名 | 可读取头部加密输入, 但 writer 不创建加密头部, 因此创建选项保持不支持 | 可读取加密头部, 但不创建 RAR, 因此创建选项保持不支持 | 不支持 |
 | 分卷 | 创建及只读打开支持标准 `.z01 + .zip`; Explorer Action v14/v12 另支持从 `.zip.001` 首卷只读打开连续编号卷组 | Explorer Action v14/v12 支持从 `.7z.001` 首卷只读打开连续编号卷组; 不支持分卷创建 | v12 支持现代 `partN.rar` 及传统 `.rar/.r00` 只读卷组; 缺卷返回 `MISSING_VOLUME`, 卷身份变化返回 `SOURCE_CHANGED` | 不支持 |
 
 TAR 普通文件可预览和解压, 目录可创建; 符号链接、硬链接、FIFO、设备节点、未知特殊类型及稀疏项保留在列表中并准确声明不可打开、不可解压. 首阶段不跟随链接, 也不把特殊项物化为普通文件.
 
-`jar`、`aar` 和 `war` 是 ZIP 后端的只读扩展名别名, 不是独立格式, 也不继承 `.zip` 替换入口. `7z` 与 `rar` 使用各自独立的格式标识和后端. `tar` 及 `tar.gz`/`tgz`、`tar.xz`/`txz`、`tar.bz2`/`tbz2`、`tar.zst`/`tzst` 各有独立格式标识, 但共用 TAR 条目模型、源遍历器和 writer. 动作目录和 Intent 初筛使用已注册的可列表格式生成, 创建菜单只使用已注册 writer 的格式, 管理动作另从真实 mutation provider 生成安全叶扩展名与复合后缀; 当前发布 `.zip`、`.tar`、`.tgz`、`.txz`、`.tbz2`、`.tzst` 与 `.tar.gz`、`.tar.xz`、`.tar.bz2`、`.tar.zst`, 并在索引后复核单卷结构和条目类型, 避免文档、菜单和实际后端能力出现三份不同来源.
+`jar`、`aar` 和 `war` 是 ZIP 后端的只读扩展名别名, 不是独立格式, 也不继承 `.zip` 替换入口. `7z` 与 `rar` 使用各自独立的格式标识和后端. `tar` 及 `tar.gz`/`tgz`、`tar.xz`/`txz`、`tar.bz2`/`tbz2`、`tar.zst`/`tzst` 各有独立格式标识, 但共用 TAR 条目模型、源遍历器和 writer. 动作目录和 Intent 初筛使用已注册的可列表格式生成, 创建菜单只使用已注册 writer 的格式, 管理动作另从真实 mutation provider 生成安全叶扩展名与复合后缀; 当前发布 `.zip`、`.7z`、`.tar`、`.tgz`、`.txz`、`.tbz2`、`.tzst` 与 `.tar.gz`、`.tar.xz`、`.tar.bz2`、`.tar.zst`, 并在索引后复核单卷结构、solid/加密状态、方法资源和条目类型, 避免文档、菜单和实际后端能力出现三份不同来源.
 
 Explorer Action v14 增加有界复合文件名后缀字段, 当前用于精确发布 `.zip.001`、`.7z.001` 与 `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.tar.zst`, 不把任意 `.001` 或普通 `.gz`/`.xz`/`.bz2`/`.zst` 压缩流误识别为档案. `tgz`/`txz`/`tbz2`/`tzst` 继续作为无歧义叶别名发布; 收到动作后仍核对外层压缩签名和解压后的 TAR 结构.
 
@@ -75,9 +75,13 @@ ZIP 加密原型已满足 API 24、真实 AES/ZipCrypto 样本、错误密码分
 
 标准 ZIP 分卷创建继续复用 Zip4j 2.11.5 的 `SplitOutputStream`, 不引入新的依赖或 ABI. 该 API 需要本地可寻址文件, 所以 writer 在插件私有缓存的平面工作区完整生成卷组并通过 Zip4j 读回校验, 再把实际 `.zNN` 与最终 `.zip` 逐个复制到宿主待提交事务. 如果压缩结果未超过所选大小, Zip4j 合法地产生单个最终 `.zip`, writer 不人为填充或制造空编号卷. 整组名称在发布前精确预留, 自动冲突编号对所有实际输出一致; 每个宿主待提交卷都以 v7 只读描述符和本地卷逐字节比对, 全部通过后才清理私有工作区. 两个及以上卷通过 Explorer Action v15 一次登记为可恢复输出批次; 宿主先持久记录父目录和文件身份, 再顺序发布并同步目录, 失败或重启时仅回滚身份仍匹配的成员. 该方案不宣称底层多文件改名原子, 但消除了正常故障路径中的部分成功语义; 外部改写会保留并进入人工恢复状态.
 
-7Z 复用既有 Commons Compress 1.28.0, 不新增 Maven 组件或 ABI. 官方 `SevenZFile`/`SevenZOutputFile` API 与 1.28.0 源码确认 reader 支持 seekable channel、solid 档案、AES-256-SHA256 及常见方法链, writer 的密码构造器会对条目内容加入 AES 层, 但仍把文件名写入未加密头部. 因此 reader 公布普通/solid/内容加密/头部加密能力, writer 只公布非 solid 与可选内容加密, 不公布创建文件名加密或分卷. reader 与 writer 都从宿主文件描述符构造自有 seekable channel, 不依赖 Android API 26 才提供的 `Path` 路线; reader 把 Commons 的最大内存限制固定为 262,144 KiB. solid 档案按随机条目打开时可能需要重放同一 solid block, 这是当前 Java 后端的性能边界, 不伪装为常数时间访问.
+7Z 复用既有 Commons Compress 1.28.0, 不新增 Maven 组件或 ABI. 官方 [`SevenZFile`/`SevenZOutputFile` API](https://commons.apache.org/proper/commons-compress/apidocs/org/apache/commons/compress/archivers/sevenz/SevenZOutputFile.html)、[格式限制说明](https://commons.apache.org/proper/commons-compress/limitations.html)与 1.28.0 源码确认 reader 支持 seekable channel、solid 档案、AES-256-SHA256 及常见方法链, writer 的密码构造器会对条目内容加入 AES 层, 但没有 solid、头部压缩或头部加密写出能力. 因此 reader 公布普通/solid/内容加密/头部加密能力, writer 只公布非 solid 与可选内容加密, 不公布创建文件名加密或分卷. reader 与 writer 都从宿主文件描述符构造自有 seekable channel, 不依赖 Android API 26 才提供的 `Path` 路线; reader 把 Commons 的普通浏览最大内存限制固定为 262,144 KiB. solid 档案按随机条目打开时可能需要重放同一 solid block, 这是当前 Java 后端的性能边界, 不伪装为常数时间访问.
 
-创建 7Z 时, 级别 0 映射为 Copy, 级别 1 至 9 映射为对应 preset 的 LZMA2; 每个源项目独立写入, 因而输出不是 solid. 受控源遍历、Unicode 名称、空目录、修改时间、源大小复核、进度、取消、待提交输出和失败回滚与其他 writer 共用. 只有在需要创建加密头部、分卷、档案内修改或 Java 后端无法接受的 solid 随机读取性能时, 才启动 libarchive/原生 7-Zip 原型; 当前交付不为这些未完成能力引入额外原生后端.
+创建 7Z 时, 级别 0 映射为 Copy, 级别 1 至 9 映射为对应 preset 的 LZMA2; 每个源项目独立写入, 因而输出不是 solid. 受控源遍历、Unicode 名称、空目录、修改时间、源大小复核、进度、取消、待提交输出和失败回滚与其他 writer 共用.
+
+档案修改只对普通单卷、未加密、非 solid、路径安全、全部保留条目均可读取且源 LZMA/LZMA2 解码器报告内存不超过 64 MiB 的输入开放. 输出固定使用非 solid LZMA2 preset 3, 字典为 4 MiB, XZ for Java 报告编码内存 31,410 KiB, 并以 40 MiB 显式上限封闭. provider 在预留输出前给出保留与新增内容的事实读取量, 直接把源条目流重压缩到 v8 待提交输出, 核对源身份、声明大小、可用 CRC 和内容指纹, 再通过统一 verifier 完整重开结果后提交. 取消、源变化、损坏待提交头部或真实写入失败都中止事务并保留原档案.
+
+加密输入无论是否已提供密码都保持只读, 因为当前 writer 无法保留头部加密, 不能把修改静默降级为公开文件名. solid 输入同样保持只读, 避免在无法准确表达 block 重放成本时给出虚假的预检工作量. 编号或其他多卷输入、危险路径、不支持的方法、anti item 和超出修改资源预算的输入也不会进入 provider. 只有在需要创建加密头部、分卷、修改上述只读变体或 Java 后端无法接受的 solid 随机读取性能时, 才启动 libarchive/原生 7-Zip 原型; 当前交付不为这些边界引入额外原生后端.
 
 RAR 读取采用 Junrar 8.1.0 的纯 Java reader, 不为当前能力引入 JNI 或新的 ABI. `RarArchiveBackend` 通过应用自己的只读 `SeekableByteChannel` 适配器读取已经验证的宿主描述符, 不调用 Junrar 的文件系统解压便利 API; 条目数据继续经过中立源身份、路径、声明/实际大小、可用 CRC、资源预算和输出事务检查. RAR4、RAR5、内容加密及头部加密已由固定样本和 Android 运行时验证. Junrar 的最大字典设置为 256 MiB, 防止档案元数据直接触发无界内存请求.
 
@@ -111,14 +115,14 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - provider 在宿主输出预留前固化源版本、最终条目计划、事实型工作量和辅助元数据政策. 输出大小受压缩比影响时保持未知, 不用看似精确的猜测替代预检事实;
 - 管理页通过统一状态模型展示探测格式、内容统计、真实操作集合及稳定的动态只读原因; 可写格式的辅助元数据影响不再只存在于后端实现中;
 - Activity 必须在任何宿主输出预留之前展示 provider 的不可变计划, 只有用户明确继续后才执行该计划. 取消预检不产生宿主写调用, 不创建待提交输出, 也不丢失当前选择;
-- Explorer Action v8 的目标替换事务不依赖档案格式, 后续 TAR/7Z 整包重建可直接复用. Explorer Action v18 只补充 v8 不具备的宿主持有最近版本与一次恢复, 不把新增可写格式本身误当作升级协议的理由;
+- Explorer Action v8 的目标替换事务不依赖档案格式, ZIP、7Z 与 TAR 整包重建直接复用同一合同. Explorer Action v18 只补充 v8 不具备的宿主持有最近版本与一次恢复, 不把新增可写格式本身误当作升级协议的理由;
 - 安全校验继续基于中立快照, 更换底层库不会绕过源身份、大小和 CRC 校验.
 - 不可配置的索引结构上限与可配置的解压资源预算分离; 超过预算不会让某个后端格式失去浏览能力, 单次确认也不会绕过路径或完整性校验.
 - 宿主提供的只读普通文件描述符通过进程自身 `fdinfo` 模式位、`fstat`、`lseek`、首尾 `pread` 与报告大小验证后由会话直接租用; ZIP、7Z、RAR 与 TAR reader 在同一租约上分别建立拥有独立逻辑位置的 `pread` 通道, 不依赖 `/proc/self/fd` 路径重新打开. 管道、不可 seek 或可写输入、Android 7, 以及必须使用本地 `File` 的兼容后端才复制到有空间边界和生命周期清理的私有缓存; 当前加密 ZIP 在 Zip4j 请求本地文件时才延迟物化, 普通 ZIP 保持直读.
 
 代价与未完成项:
 
-- 普通单卷 ZIP 以及符合条件的 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2、TAR.ZST/TZST 已开放添加文件、导入完整目录树、新建空目录、删除、重命名及最近一次替换的一次恢复; 辅助元数据完全无损保留、多版本历史、分卷 ZIP、JAR/AAR/WAR、7Z 与 RAR 修改仍未开放;
+- 普通单卷 ZIP、安全普通 7Z，以及符合条件的 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2、TAR.ZST/TZST 已开放添加文件、导入完整目录树、新建空目录、删除、重命名及最近一次替换的一次恢复; 辅助元数据完全无损保留、多版本历史、分卷 ZIP、JAR/AAR/WAR、RAR，以及加密/solid/分卷 7Z 修改仍未开放;
 - 宿主文件管理器深度重构完成后, v18 按重构后的替换事务边界落地; 变化只涉及宿主私有恢复存储、会话 API 与插件管理 Activity, 没有改变文件管理器整体布局;
 - TAR.ZST 为 APK 引入四个 Android ABI, 不支持这些 ABI 的设备不会发现该插件动作;
 - 宿主动作初筛不在建立菜单时读取魔数; v17 仅在用户明确选择“作为压缩档案打开...”后, 通过既有只读会话执行一次结构识别;
@@ -127,8 +131,8 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 
 ## 验证
 
-- 单元测试验证 ZIP 能力表声明可选密码、可选分卷和普通单卷添加/删除/重命名, 但不误报文件名加密; JAR/AAR/WAR、分卷 ZIP、7Z、RAR 与特殊条目 TAR 不获得管理动作;
-- 单元测试验证引擎把 ZIP 与五种 TAR 容器全部注册为当前可写 provider, provider 操作集合与格式能力完全一致, `.tgz`/`.tar.gz`、`.txz`/`.tar.xz`、`.tbz2`/`.tar.bz2` 与 `.tzst`/`.tar.zst` 都进入管理目录而 JAR/AAR/WAR、7Z 与 RAR 不进入; 分卷、危险路径与特殊条目快照返回稳定只读原因, 准备计划绑定源版本并给出条目、目录、已知字节与未知大小数量;
+- 单元测试验证 ZIP 能力表声明可选密码、可选分卷和普通单卷添加/删除/重命名, 7Z 能力表声明动态添加/删除/重命名但不误报文件名加密或分卷; JAR/AAR/WAR、分卷 ZIP、RAR、加密/solid/分卷 7Z 与特殊条目 TAR 不获得实际修改能力;
+- 单元测试验证引擎把 ZIP、7Z 与五种 TAR 容器全部注册为当前可写 provider, provider 操作集合与格式能力完全一致, `.7z`、`.tgz`/`.tar.gz`、`.txz`/`.tar.xz`、`.tbz2`/`.tar.bz2` 与 `.tzst`/`.tar.zst` 都进入管理目录而 JAR/AAR/WAR 与 RAR 不进入; 分卷、危险路径、solid、加密、超资源预算与特殊条目快照返回稳定只读原因, 准备计划绑定源版本并给出条目、目录、已知字节与未知大小数量;
 - 单元测试验证 ZIP 变更计划对文件添加、空目录、文件及目录子树重命名/删除生成稳定结果, 并在写出前拒绝危险路径、重复或等价名称、文件/目录碰撞和无法保留的条目;
 - 宿主与插件自动化验证 v18 最近替换的可用/恢复/失效/需要恢复状态、一次性语义、外部改写拒绝覆盖、提交与恢复中断日志以及备份损坏清理; 真实进程终止和真实低存储两阶段门禁继续列在 Roadmap, 不以合成故障冒充设备结果;
 - 单元测试验证改名为 `.bin` 的真实 ZIP 仍由结构探测识别;
@@ -136,7 +140,7 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - 单元测试使用固定 SHA-256 的 Zip4j 2.11.5 两卷样本验证 `.z01` 首卷标记、`.zip` 末卷 EOCD、缺卷 `INDEX/MISSING_VOLUME` 映射、授权完整卷组的精确数据流、精确卷名和恶意大卷数下的有界摘要; Android 7 与 Android 15 运行时另外创建真实分卷并通过 v12 Binder 复核同一链路;
 - 单元测试覆盖 ZIP 分卷预设、自定义 MiB 边界、完整卷组名称长度和统一编号; Android 仪器测试覆盖普通/AES 分卷往返、伴随卷冲突、询问策略、取消、提交中途失败及回滚失败. 真实 AutoJs6 宿主产物由独立 7-Zip 完整测试、解压并与源文件核对 SHA-256;
 - 单元测试验证 reader 输出中立方法标识、条目能力和实际数据流;
-- 单元测试使用 7-Zip 22.00 夹具验证 solid LZMA2、BCJ + LZMA2、AES 内容加密、AES 头部加密、无密码/错误密码/正确密码、签名和截断诊断; 能力表不误报创建时文件名加密、分卷或档案内修改;
+- 单元测试使用 7-Zip 22.00 夹具验证 solid LZMA2、BCJ + LZMA2、AES 内容加密、AES 头部加密、无密码/错误密码/正确密码、签名和截断诊断; 普通非 solid BCJ + LZMA2 与 MT Manager v2.26.8 普通样本进入修改边界, solid、加密及超资源预算输入保持只读, 能力表不误报创建时文件名加密或分卷;
 - 单元测试使用固定 SHA-256 的 WinRAR RAR4、RAR5、内容加密、头部加密与三卷 RAR5 样本验证结构探测、Unicode 目录、完整卷组精确内容流、缺少最终卷、卷变化、缺少/错误/正确密码和 `MISSING_VOLUME`/`SOURCE_CHANGED`; 能力表不误报 writer 或档案修改;
 - 单元测试验证 TAR 的 Unicode、空档案、V7 头、校验和损坏、截断数据、预览流和解压闭环; 指向父级或绝对路径的符号/硬链接保持不可打开和不可解压, 4 GiB old GNU sparse 条目只公开真实大小与压缩占用元数据, 不作为普通文件读取;
 - 单元测试验证 GZIP/XZ/BZIP2/Zstandard 外层签名、内部 TAR 二次验证、改名识别、空档案、连接流、截断与损坏尾部、Unicode 预览及格式中立解压;
@@ -161,5 +165,6 @@ zstd-jni 只用于 Zstandard 流式编解码, 不代表选择 libarchive 或原�
 - G8441 上的 TAR.XZ 端到端修改产物由 7-Zip 22.00 验证 LZMA2 preset 4、CRC64 与内层 TAR, 并由 bsdtar 3.8.4/libarchive 3.8.4 完整列出和提取; 同一五次连续修改、取消、损坏尾部、源变化及 `/dev/full` 的真实 `ENOSPC` 均验证原档案保持不变且待提交输出被中止.
 - G8441 上的 TAR.BZ2 端到端修改产物由 7-Zip 22.00 验证 `BZh6` 包装层与 6,144 bytes 内层 TAR, 并由 bsdtar 3.8.4/libarchive 3.8.4 直接完整列出和提取; 同一五次连续修改、取消、损坏尾部、源变化及 `/dev/full` 的真实 `ENOSPC` 均验证原档案保持不变且待提交输出被中止. 最终 250 bytes 产物 SHA-256 为 `488B2717BFEB790437C60539FE3B335E2448A61A14A7F4FB775BFF4D468800CF`, 3 个文件/4 个目录与 17 bytes 内容在两种外部工具间一致.
 - G8441 上的 TAR.ZST 端到端修改产物由官方 Zstandard CLI 1.5.7 验证单帧、1 MiB 窗口与 XXH64 checksum, 由 bsdtar 3.8.4/libarchive 3.8.4 直接完整列出和提取, 并由 7-Zip 22.00 验证解压后的 6,144 bytes 内层 TAR; 同一五次连续修改、取消、checksum 损坏、源变化及 `/dev/full` 的真实 `ENOSPC` 均验证原档案保持不变且待提交输出被中止. 最终 234 bytes 产物 SHA-256 为 `8D399043AE807DCAAAA8A1F95193E901C892CECA20411CF85365891F166899E4`, 内层 TAR SHA-256 为 `31D2044CD97944484C9986127C27C6F41F02AC21D30E6CA24F9B3C4D8B6618E0`, 3 个文件/4 个目录与 17 bytes 内容一致; 7-Zip 22.00 不识别外层 Zstandard 容器, 因而不把它作为该包装层的直接门禁.
+- G8441 上的 7Z 端到端修改连续完成目录子树重命名、删除、新建空目录、未知大小文件添加和完整目录树导入; 另覆盖取消时停止压缩源读取、源身份变化、损坏待提交头部及 `/dev/full` 的真实 `ENOSPC`, 所有失败路径均保留原档案. 最终 386 bytes 非 solid LZMA2 产物由 7-Zip 22.00 完整测试、列出及提取, 并由 bsdtar 3.8.4/libarchive 3.8.4 直接列出和提取; 3 个文件/4 个目录与 17 bytes 内容一致.
 - 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建 TAR.ZST 与普通 TAR; bsdtar 3.8.4/libarchive 3.8.4 完整提取 TAR.ZST, 7-Zip 22.00 与 bsdtar 均验证普通 TAR, 创建产物还能由宿主原生档案页面重新打开并预览哈希一致的 Unicode 条目.
 - 插件在 `emulator-5554` 通过真实 AutoJs6 压缩入口创建普通与 AES-256 内容加密 7Z; 7-Zip 22.00 验证非 solid/LZMA2、正确与错误密码行为、完整提取、空目录和 Unicode 内容 SHA-256, 宿主原生档案页面重新打开普通产物并通过路径栏与预览器读取同一 Unicode 条目.

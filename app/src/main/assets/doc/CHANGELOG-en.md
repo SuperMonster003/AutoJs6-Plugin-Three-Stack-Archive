@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.17.0
+
+_2026/08/29_
+
+- `Note` This release still requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
+- `Added` Ordinary single-volume, unencrypted, non-solid 7Z archives within the decoder budget can now add files or complete folder trees, create empty folders, rename, and delete from the management page
+- `Fixed` The management action now includes `.7z`; encrypted, solid, split, unsafe, unsupported-method, and over-budget 7Z variants remain read-only after structural inspection
+- `Improved` 7Z edits rebuild to bounded non-solid LZMA2 output and fully read it back before atomic replacement; cancellation, source changes, damaged pending output, and write failures preserve the original
+
 ## v2.16.0
 
 _2026/08/29_

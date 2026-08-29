@@ -5,6 +5,21 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
+    "v2.17.0": {
+      "released_date": "2026/08/29",
+      "hint": [
+        "本版本仍需配套使用 Explorer Action v18 的 AutoJs6 6.8.0 构建 (版本代码 5276 或更高)"
+      ],
+      "feature": [
+        "普通单卷、未加密、非 solid 且解码器位于资源预算内的 7Z, 现可在管理页添加文件或完整目录树、新建空目录、重命名和删除"
+      ],
+      "fix": [
+        "管理入口现包含 `.7z`; 加密、solid、分卷、危险路径、不支持方法或超预算的 7Z 会在结构探测后保持只读"
+      ],
+      "improvement": [
+        "7Z 修改采用有界的非 solid LZMA2 重建, 并在原子替换前完整读回; 取消、源变化、待提交输出损坏或写入失败均会保留原档案"
+      ]
+    },
     "v2.16.0": {
       "released_date": "2026/08/29",
       "hint": [

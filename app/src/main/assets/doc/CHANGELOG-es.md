@@ -1,5 +1,14 @@
 # Notas de la versión
 
+## v2.17.0
+
+_2026/08/29_
+
+- `Nota` Esta versión sigue necesitando la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v18 (código de versión 5276 o posterior)
+- `Añadido` Los 7Z normales de un solo volumen, sin cifrar, no solid y dentro del presupuesto del decodificador ya pueden añadir archivos o árboles completos, crear carpetas vacías, renombrar y eliminar desde la página de gestión
+- `Corregido` La acción de gestión ahora incluye `.7z`; las variantes cifradas, solid, divididas, peligrosas, no compatibles o fuera del presupuesto siguen siendo de solo lectura tras inspeccionar su estructura
+- `Mejorado` Los cambios de 7Z reconstruyen una salida LZMA2 no solid y acotada, y la releen por completo antes del reemplazo atómico; la cancelación, los cambios de origen, una salida pendiente dañada o los fallos de escritura conservan el original
+
 ## v2.16.0
 
 _2026/08/29_

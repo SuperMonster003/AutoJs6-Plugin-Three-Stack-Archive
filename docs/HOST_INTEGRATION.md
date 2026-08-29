@@ -3,7 +3,7 @@
 本文档同时记录两类内容:
 
 - 已经落地并通过验证的 Explorer Action v4 受控文件会话、v5 只读档案列表、v6 条目读取会话、v7 待提交输出校验、v8 原目标替换、v9 目录输出事务、v10 宿主原生解压、v11 原生密码恢复、v12 有界同级分卷输入、v13 原生文件名编码重建、v14 有界复合文件名后缀匹配、v15 可恢复多输出批次、v16 经验证的源项目回收站交接、v17 显式档案复核与 v18 最近替换恢复;
-- 当前 ZIP 管理 Activity 的写入边界, 以及为宿主原生档案页创建、删除、重命名和更多可写格式预留的后续合同.
+- 当前统一档案管理 Activity 的写入边界, 以及为宿主原生档案页创建、删除、重命名和更多可写格式预留的后续合同.
 
 完成状态以 [`ROADMAP.md`](../ROADMAP.md) 为准. 文中标记为“当前”的能力可以在现有宿主与插件中使用; 标记为“后续”的内容仍不可当作已发布功能.
 
@@ -41,7 +41,7 @@ v4 在保留 v1-v3 解析能力的同时加入多目标与受控输出. v5 再�
 | `probeForActionId` | v17 可选; 指向同目录中一个宿主原生只读主动作 |
 | `priority` | 多个插件动作同时匹配时的稳定排序依据 |
 
-当前压缩动作使用通配 MIME/扩展名和 `FILE`/`DIRECTORY`/`MIXED` 目标, 因此能覆盖普通文件、目录和同父级混合多选. 打开与整包快捷解压动作匹配 ZIP/JAR/AAR/WAR、7Z、RAR、TAR 及 `tgz`/`txz`/`tbz2`/`tzst` 别名; v14 完整文件名字段精确匹配 `.zip.001`、`.7z.001`、`.tar.gz`、`.tar.xz`、`.tar.bz2` 与 `.tar.zst`. 通用 `gz`/`xz`/`bz2`/`zst` 叶扩展名不再发布, 避免把普通压缩流当作 TAR. 名称未命中时可由用户明确选择 `open-as-archive`, 再执行一次完整结构探测. `manage-archive` 目录只按已注册可写 provider 的 `.zip`、`.tar`、`.tgz`、`.txz`、`.tbz2`、`.tzst` 叶扩展名与 `.tar.gz`、`.tar.xz`、`.tar.bz2`、`.tar.zst` 复合后缀初筛, 不匹配编号首卷、JAR/AAR/WAR、7Z 或 RAR; 标准分卷末卷也以 `.zip` 结尾, 含特殊条目的 TAR 也可能命中可写名称, 因而它们都必须在插件结构探测后保持不可修改.
+当前压缩动作使用通配 MIME/扩展名和 `FILE`/`DIRECTORY`/`MIXED` 目标, 因此能覆盖普通文件、目录和同父级混合多选. 打开与整包快捷解压动作匹配 ZIP/JAR/AAR/WAR、7Z、RAR、TAR 及 `tgz`/`txz`/`tbz2`/`tzst` 别名; v14 完整文件名字段精确匹配 `.zip.001`、`.7z.001`、`.tar.gz`、`.tar.xz`、`.tar.bz2` 与 `.tar.zst`. 通用 `gz`/`xz`/`bz2`/`zst` 叶扩展名不再发布, 避免把普通压缩流当作 TAR. 名称未命中时可由用户明确选择 `open-as-archive`, 再执行一次完整结构探测. `manage-archive` 目录按已注册可写 provider 的 `.zip`、`.7z`、`.tar`、`.tgz`、`.txz`、`.tbz2`、`.tzst` 叶扩展名与 `.tar.gz`、`.tar.xz`、`.tar.bz2`、`.tar.zst` 复合后缀初筛, 不匹配编号首卷、JAR/AAR/WAR 或 RAR; 分卷 ZIP 末卷、加密/solid/分卷 7Z 与特殊条目 TAR 仍可能命中名称, 因而必须在插件结构探测后保持不可修改.
 
 每个目录字段都有数量或长度上限. 宿主会拒绝非法目标类型、基数、位置、授权和呈现方式组合, 而不是静默扩大插件权限. `HOST_EXPLORER` 在 v5-v16 只允许 `FILE + SINGLE + READ_ONLY + PRIMARY`; v17 唯一增加的组合是无匹配器、引用上述主动作的 `FILE + SINGLE + READ_ONLY + OVERFLOW` 复核动作. 它不能获取目录写入、多选、输出、替换或 Activity 能力, 每个主动作也只能被一个有效复核动作引用. v8 的 `REPLACE_TARGET` 只接受 `FILE + SINGLE + OVERFLOW + ACTIVITY`, 且不能同时声明独立输出. v9 目录输出复用 `CREATE_IN_PARENT` 授权; `manage-archive` 的替换授权不会隐式扩大为父目录创建权限. v10 解压请求只传递当前会话内的不透明条目 ID; 实际写入只能通过宿主单独建立的 v9 输出树进行. v11 密码只存在于一次同步 Binder 请求中, 不增加文件或目录授权. v12 同级卷源只允许宿主按所选名称推导出的 ZIP/RAR 分卷候选, 插件只看到不透明 ID、受控显示名和身份元数据, 不获得父目录 URI、路径或任意名称查询能力. v13 文件名编码请求只接受插件已公布的最多 32 个名称之一或自动模式, 不创建新的文件、目录或 URI 授权. v14 的 `fileNameSuffixes` 只接受以非句点字符开头的有界复合后缀; 匹配完整文件名且不把通用叶扩展名 `001` 当作授权. v13 及更早目录不能发布该字段. v15 只组合会话已经预留并验证的新文件输出, 不新增目标、路径、覆盖或删除授权. v16 只接受会话原始完整目标 ID 列表与本次全部已提交输出事务 ID, 不接受路径、附加目标或目标子集. v17 复用现有 `openArchiveV11` 只读会话, 不新增授权类型. v18 只让协议版本不低于 18 的 `REPLACE_TARGET`/`MANAGE_TARGET` 动作查询和恢复其原始单文件目标, 不扩大路径、目录或任意覆盖能力; v8-v17 会话仍按旧行为执行且不创建替换备份.
 
@@ -315,7 +315,7 @@ prepareTargetReplacement
 
 宿主创建同目录隐藏暂存文件, 在提交前同步数据并复核原目标身份, 然后以同目录原子改名替换. 未读回校验、目标已由其他进程修改、暂存输出损坏或任何 Binder 调用失败都会拒绝提交; 插件随后中止事务, 原档案保持不变. 成功后宿主更新会话中的目标身份并发布条目变更事件, 支持同一管理页连续修改与自动刷新.
 
-该合同只约束“替换哪个目标”和“何时允许提交”, 不解释待提交文件的档案格式. 因而普通单卷 ZIP、后续 TAR/7Z 或其他整包重建都可以复用同一个 v8 流程; 新增一种可写格式本身不需要增加 AIDL 方法或提升宿主协议版本. v8-v17 不保留被替换旧版本; 只有下述 v18 会话由宿主在提交边界建立最近版本, 插件不能私自复制路径或伪造回滚.
+该合同只约束“替换哪个目标”和“何时允许提交”, 不解释待提交文件的档案格式. 因而普通单卷 ZIP、7Z、TAR 或其他整包重建都可以复用同一个 v8 流程; 新增一种可写格式本身不需要增加 AIDL 方法或提升宿主协议版本. v8-v17 不保留被替换旧版本; 只有下述 v18 会话由宿主在提交边界建立最近版本, 插件不能私自复制路径或伪造回滚.
 
 ### Explorer Action v18 最近替换恢复
 
@@ -392,7 +392,7 @@ v17 会话在结构探测成功后返回有界的稳定格式 ID、显示名称,
 
 ## 管理页解压与档案修改
 
-文件菜单中的 `manage-archive` 动作以 v8 单文件目标替换请求打开 ZIP 或可写 TAR 管理页, 不会触发整包快捷解压. 档案完成索引后, 解压按钮根据当前位置提供真实可用的范围:
+文件菜单中的 `manage-archive` 动作以 v8 单文件目标替换请求打开 ZIP、可写 7Z 或可写 TAR 管理页, 不会触发整包快捷解压. 档案完成索引后, 解压按钮根据当前位置提供真实可用的范围:
 
 - “全部”始终选择档案根;
 - “当前目录”只在档案内部可提取的非根目录显示, 并选择当前目录的完整子树; 危险名称的只读隔离目录不会伪装成可提取范围;
@@ -406,7 +406,7 @@ v17 会话在结构探测成功后返回有界的稳定格式 ID、显示名称,
 
 ZIP 重建按原顺序复制保留条目, 支持 Stored/Deflate、ZipCrypto 与 AES, 保留可用时间戳; 加密档案中新增文件使用 AES. TAR 重建以一次顺序源扫描复制保留的普通文件与目录, 保留可用时间戳, 并按需使用 POSIX/PAX 表达长名称或非 ASCII 名称. TAR.GZ、TAR.XZ、TAR.BZ2 与 TAR.ZST 在同一次源扫描中流式解压, 再分别以固定 GZIP 级别 6、XZ preset 4、BZIP2 block-size preset 6 和 Zstandard 级别 3 直接写入宿主持有的待提交输出; 四者都不创建私有未压缩 TAR. 输出 GZIP 的修改时间固定为 0, 不写原文件名或注释, OS 字段固定为 255. 输出 XZ 使用 4 MiB 字典与 CRC64 检查; XZ for Java 1.12 报告 preset 4 编码内存为 48,058 KiB, 低于 mutation provider 的 64 MiB 显式预算. 输出 BZIP2 使用 600,000-byte block; provider 按 Commons Compress 1.28 的主排序区、映射区与后备排序区保守估算 8,324,288 bytes 最坏工作区, 低于 16 MiB 显式预算. 输出 Zstandard 固定为单线程、1 MiB 窗口和帧 checksum; 官方 Zstandard 1.5.7 的 arm64 流编码器估算与 zstd-jni 输出缓冲合计 2,746,400 bytes, 低于 8 MiB 显式预算. 因此界面会说明四种包装层的压缩设置与容器元数据可能被规范化.
 
-所有可写格式生成后都通过统一 `CreatedArchiveVerifier` 重新读取全部条目并核对路径、类型、大小、可用 CRC 与实际内容指纹, 之后才提交. 压缩 TAR 的 reader 会在关闭时继续读取到容器尾部以验证校验值, 同时逐块响应取消; 取消、GZIP/XZ/BZIP2/Zstandard 尾部或 checksum 损坏、输出写入失败、验证失败或源变化都会中止待提交输出. 四种压缩 TAR 的磁盘空间模型都不包含私有未压缩 TAR, 但仍需要宿主同目录待提交压缩输出以及 v18 最近替换恢复副本. JAR/AAR/WAR、7Z、RAR 与含特殊条目的 TAR 没有管理入口; 分卷 ZIP 虽可能通过 `.zip` 扩展名初筛, 但结构探测不会进入可写状态.
+所有可写格式生成后都通过统一 `CreatedArchiveVerifier` 重新读取全部条目并核对路径、类型、大小、可用 CRC 与实际内容指纹, 之后才提交. 压缩 TAR 的 reader 会在关闭时继续读取到容器尾部以验证校验值, 同时逐块响应取消; 取消、GZIP/XZ/BZIP2/Zstandard 尾部或 checksum 损坏、输出写入失败、验证失败或源变化都会中止待提交输出. 四种压缩 TAR 的磁盘空间模型都不包含私有未压缩 TAR, 但仍需要宿主同目录待提交压缩输出以及 v18 最近替换恢复副本. 7Z 修改同样直接写入宿主持有的待提交输出并完整读回; 加密、solid、分卷或解码资源超预算的 7Z 保持只读. JAR/AAR/WAR、RAR 与含特殊条目的 TAR 没有管理能力; 分卷 ZIP 虽可能通过 `.zip` 扩展名初筛, 但结构探测不会进入可写状态.
 
 ### 输出名称冲突
 
@@ -466,7 +466,7 @@ cancelTask(taskId)
 
 这些管理信息与预检均为插件内部实现. 宿主文件管理器深度重构完成后, v18 只在既有替换事务和插件管理 Activity 边界增加最近版本恢复, 最低宿主版本代码继续为 5276; 宿主原生列表、路径栏、选择栏及整体视觉结构没有改动.
 
-`ArchiveEngine` 启动时强制要求 `FormatCapabilities.canAdd/canDelete/canRename` 与 provider 操作集合完全一致. “管理压缩档案...”的扩展名和复合后缀只从已注册 provider 的安全叶扩展名与复合后缀生成; 因此创建 writer 存在并不会自动开放档案修改, JAR/AAR/WAR 也不会因为共享 ZIP reader 而获得修改入口. 当前已注册普通单卷 ZIP、TAR、TAR.GZ、TAR.XZ、TAR.BZ2 与 TAR.ZST provider; `.tgz`/`.txz`/`.tbz2`/`.tzst` 作为安全叶别名进入目录, `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.tar.zst` 使用 v14 复合后缀. 7Z 必须先完成重建器、元数据政策和闭环测试才可注册.
+`ArchiveEngine` 启动时强制要求 `FormatCapabilities.canAdd/canDelete/canRename` 与 provider 操作集合完全一致. “管理压缩档案...”的扩展名和复合后缀只从已注册 provider 的安全叶扩展名与复合后缀生成; 因此创建 writer 存在并不会自动开放档案修改, JAR/AAR/WAR 也不会因为共享 ZIP reader 而获得修改入口. 当前已注册普通单卷 ZIP、符合安全边界的 7Z、TAR、TAR.GZ、TAR.XZ、TAR.BZ2 与 TAR.ZST provider; `.tgz`/`.txz`/`.tbz2`/`.tzst` 作为安全叶别名进入目录, `.tar.gz`/`.tar.xz`/`.tar.bz2`/`.tar.zst` 使用 v14 复合后缀. 7Z provider 在索引后拒绝加密、solid、分卷、危险路径、不支持方法或解码资源超预算的输入.
 
 ZIP 后端同时公布可用的文件名解码覆盖列表. 管理/解压 Activity 与 v13 宿主原生页面均可在自动识别结果与 UTF-8/GB18030/Shift_JIS/EUC-KR/windows-1251/windows-1256/windows-1252/IBM437 之间切换, 每次切换都会重新索引同一暂存输入. 扫描快照保存最终选择, 预览流和解压器重新打开档案时必须复用它, 防止列表名称正确而实际写出时使用另一套编码. 一次性密码请求由 v11 落地: 加密 ZIP/7Z/RAR 可在首次打开或解压条目时留在宿主原生页面完成解锁与错误密码重试; v13 重建索引时复制既有密码到替换快照, 成功或失败后清理不再使用的缓冲.
 
@@ -493,7 +493,7 @@ FormatCapabilities
 
 特别是“同时加密文件名”应按三态显示: 不支持时关闭且禁用; 可选时默认关闭; 格式强制时开启且禁用. 禁用控件旁必须展示原因, 不能仅用灰色暗示.
 
-当前注册 ZIP、7Z、RAR 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是只读扩展名别名. 普通单卷 `.zip` 另声明添加文件、新建空目录、删除与重命名能力, 并通过 v8 事务重建; 别名格式与分卷 ZIP 不声明这些能力. ZIP writer 声明可选分卷, reader 通过 v12 读取完整标准 `.z01 + .zip` 卷组并在伴随卷不可用时给出精确诊断. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. RAR reader 支持单卷或完整分卷 RAR4/RAR5、内容加密与头部加密读取, 使用 256 MiB 字典上限; 它不声明创建、添加、删除或重命名, 缺卷时只保留安全元数据或返回类型化失败. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. 仅含安全普通文件和目录的五种 TAR 容器另声明添加/删除/重命名并通过 v8 事务重建; 特殊条目 TAR 不声明这些能力. TAR writer 与重建器使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得新增文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 7Z 与 RAR 后端不声明添加/删除/重命名, 所有 writer 均不声明创建时文件名加密; 7Z 与 TAR writer 也不声明分卷. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
+当前注册 ZIP、7Z、RAR 与 TAR 族后端. ZIP 支持识别/列表/预览/打开/解压/创建和可选密码, 读取传统 ZipCrypto 与 AES, 加密创建固定使用 AES-256; `jar`、`aar` 和 `war` 是只读扩展名别名. 普通单卷 `.zip` 另声明添加文件、新建空目录、删除与重命名能力, 并通过 v8 事务重建; 别名格式与分卷 ZIP 不声明这些能力. ZIP writer 声明可选分卷, reader 通过 v12 读取完整标准 `.z01 + .zip` 卷组并在伴随卷不可用时给出精确诊断. 7Z 支持普通/solid 档案及 AES 内容/头部加密读取, 创建非 solid 输出并可选 AES-256 内容加密; 级别 0 使用 Copy, 1 至 9 使用 LZMA2, 文件名保持可见. 普通单卷、未加密、非 solid 且解码资源位于 64 MiB 修改预算内的 7Z 另声明添加/删除/重命名, 以固定非 solid LZMA2 preset 3 通过 v8 重建; 加密、solid、分卷与超预算变体保持只读. RAR reader 支持单卷或完整分卷 RAR4/RAR5、内容加密与头部加密读取, 使用 256 MiB 字典上限; 它不声明创建、添加、删除或重命名, 缺卷时只保留安全元数据或返回类型化失败. TAR 族支持识别/列表/预览/打开/解压/创建, 包含未压缩 TAR 以及 GZIP/XZ/BZIP2/Zstandard 容器. 仅含安全普通文件和目录的五种 TAR 容器另声明添加/删除/重命名并通过 v8 事务重建; 特殊条目 TAR 不声明这些能力. TAR writer 与重建器使用 POSIX PAX 处理 UTF-8 与长路径, 不跟随源符号链接; 无法预先获得新增文件大小时会先测量再重新打开输入. Zstandard 使插件 APK 包含 `arm64-v8a`、`armeabi-v7a`、`x86` 与 `x86_64` 原生库, `PluginInfo.supportedAbis` 必须与该完整清单一致. 所有 writer 均不声明创建时文件名加密; 7Z 与 TAR writer 也不声明分卷. 后端路线、APK/ABI/许可证门禁和测试要求见 [`docs/adr/0001-archive-engine-and-backend-strategy.md`](adr/0001-archive-engine-and-backend-strategy.md).
 
 外部工具生成的兼容性样本、复现命令和 SHA-256 清单位于 [`compatibility`](../compatibility/README.md). Android、Windows 资源管理器、7-Zip、WinRAR、Info-ZIP、macOS Archive Utility 及 Java/Kotlin 工具链均已有行为样本; 其中 Windows Explorer、7-Zip、WinRAR、Info-ZIP 与 Java/Kotlin 生产者使用可复现的已提交夹具, MT Manager v2.26.8 与两个外部 macOS ZIP 使用固定哈希的本地观察语料. 后两类只有在取得原始创建设置后才可提升为可重新生成的已提交夹具, 但不再阻塞格式行为矩阵.
 
