@@ -482,6 +482,7 @@ class TarArchiveMutatorInstrumentationTest {
     @Test
     fun compressedTarOutputWriteFailureAbortsWithoutPublishingAPartialReplacement() {
         val directory = newTestDirectory()
+        val payload = ByteArray(LARGE_PAYLOAD_SIZE).also { Random(20260830L).nextBytes(it) }
         WRITABLE_COMPRESSED_TAR_FORMATS.forEach { format ->
             val archive = writeTestCompressedTar(
                 format,
@@ -507,7 +508,17 @@ class TarArchiveMutatorInstrumentationTest {
                     snapshot = snapshot,
                     targetId = TARGET_ID,
                     displayName = archive.name,
-                    request = ArchiveMutationRequest.AddDirectory("", "new-folder"),
+                    request = ArchiveMutationRequest.AddFiles(
+                        parentPath = "",
+                        files = listOf(
+                            ArchiveMutationAddedFile(
+                                displayName = "incompressible.bin",
+                                size = payload.size.toLong(),
+                            ) {
+                                ByteArrayInputStream(payload)
+                            },
+                        ),
+                    ),
                     checkCancelled = {},
                 )
             }
@@ -752,9 +763,11 @@ class TarArchiveMutatorInstrumentationTest {
                         ParcelFileDescriptor.MODE_WRITE_ONLY,
                     )
                 }
-                val pipe = ParcelFileDescriptor.createPipe()
-                pipe[0].close()
-                return pipe[1]
+                check(pendingFile.createNewFile())
+                return ParcelFileDescriptor.open(
+                    pendingFile,
+                    ParcelFileDescriptor.MODE_READ_ONLY,
+                )
             }
             return ParcelFileDescriptor.open(
                 pendingFile,

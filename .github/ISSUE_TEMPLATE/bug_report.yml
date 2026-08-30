@@ -1,0 +1,102 @@
+name: Bug report
+description: Report a reproducible Archive Manager behavior that is not specific to one archive producer.
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Archive Manager. Do not attach private archives, passwords, personal paths, account data, or proprietary files to a public issue.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I searched existing issues and did not find the same problem.
+          required: true
+        - label: I can reproduce this with a supported AutoJs6 host that advertises the Explorer Action protocol required by my plugin version.
+          required: true
+        - label: I removed passwords and private data from logs, screenshots, and samples.
+          required: true
+
+  - type: input
+    id: plugin_version
+    attributes:
+      label: Archive Manager version
+      placeholder: 2.22.0 (versionCode 28)
+    validations:
+      required: true
+
+  - type: input
+    id: host_version
+    attributes:
+      label: AutoJs6 host version
+      description: Include version name, versionCode, and Explorer Action protocol when known.
+      placeholder: 6.8.0, versionCode 5276, Explorer Action v21
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: Sony G8441, Android 9, arm64-v8a
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      options:
+        - Light
+        - Dark
+        - System or dynamic color
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open...
+        2. Select...
+        3. Observe...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the stable format, stage, and error code shown by Archive Manager when available.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized evidence
+      description: Add screenshots or short log excerpts only after removing private data. Do not paste passwords.
+
+  - type: textarea
+    id: regression
+    attributes:
+      label: Last known working version
+      placeholder: 2.21.0, or Not known
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context

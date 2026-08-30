@@ -67,6 +67,15 @@
             android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ExplorerActionService"
             android:exported="true"
             android:permission="org.autojs.permission.PLUGIN">
+            <meta-data
+                android:name="requiresHostVersion"
+                android:value="@string/plugin_requires_host_version" />
+            <meta-data
+                android:name="org.autojs.plugin.contract.RUNTIME_COMPONENT"
+                android:value="@string/plugin_runtime_component" />
+            <meta-data
+                android:name="org.autojs.plugin.contract.SUPPORTED_ABIS"
+                android:value="@string/plugin_supported_abis" />
             <intent-filter>
                 <action android:name="org.autojs.plugin.EXPLORER_ACTION" />
             </intent-filter>

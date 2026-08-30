@@ -353,6 +353,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         resValue("string", "plugin_author", "SuperMonster003")
+        resValue("string", "plugin_requires_host_version", "5276")
+        resValue(
+            "string",
+            "plugin_runtime_component",
+            "$codeNamespace/$codeNamespace.ExplorerActionService",
+        )
+        resValue(
+            "string",
+            "plugin_supported_abis",
+            "arm64-v8a,armeabi-v7a,x86,x86_64",
+        )
         resValue("string", "plugin_version_date", utils.getDateString("MMM d, yyyy", "GMT+08:00"))
     }
 

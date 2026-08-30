@@ -50,7 +50,7 @@
     <string name="error_source_restore_failed">无法恢复源项目. 原因: %1$s</string>
     <string name="error_permission_missing">缺少压缩包读取权限</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
-    <string name="plugin_description">文件管理器插件. 浏览、解压和创建 ZIP 与 TAR 档案</string>
+    <string name="plugin_description">浏览和解压 ZIP、7Z、RAR 与 TAR 档案, 并创建和安全管理支持写入的格式</string>
     <string name="text_cancelled">已取消</string>
     <string name="text_archive_creation_safety_note">只有全部压缩输出完成校验并提交后, 源项目才会移入 AutoJs6 回收站. 文件名加密目前仍不可用.</string>
     <string name="text_apply_password">应用</string>

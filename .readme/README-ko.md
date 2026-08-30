@@ -33,6 +33,23 @@ README는 다음 언어로 제공됩니다:
 
 Archive Manager는 AutoJs6 파일 관리자를 대체하지 않고 그 안에서 동작합니다. 지원되는 압축 파일은 호스트의 목록, 경로 표시줄, 테마, 뷰어, 선택 모드, 진행 UI 및 디렉터리 새로 고침을 그대로 사용합니다. 별도 관리 페이지는 상세 형식 정보와 더 풍부한 양식이 필요한 추가 설정에 사용합니다.
 
+### 스크린샷
+
+실제 Android 화면에서 호스트 메뉴 연동, 네이티브 압축 파일 탐색, 압축 파일 만들기 및 상세 관리를 보여 줍니다. 공개 가능한 합성 데이터만 사용했습니다.
+
+<table>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+  </tr>
+</table>
+
+- 촬영 정보와 전체 스크린샷: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/README.md)
+
 ### 현재 기능
 
 - ZIP/JAR/AAR/WAR, 7Z, RAR4/RAR5 및 TAR 계열을 AutoJs6 기본 목록에서 탐색하고 내부 경로 표시줄, 검색, 정렬 및 뒤로 가기를 사용할 수 있습니다.
@@ -65,7 +82,7 @@ zip, zip.001, jar, aar, war, 7z, 7z.001, rar, tar, tar.gz, tgz, tar.xz, txz, tar
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> 기본 통합에는 Explorer Action v20을 제공하는 대응 AutoJs6 6.8.0 빌드 (버전 코드 5276 이상) 가 필요합니다. RAR 및 분할 압축 파일은 읽기 전용입니다. 일반 단일 볼륨 ZIP, 비암호화 비 solid 단일 볼륨이며 디코더 예산 안에 있는 7Z, 안전한 일반 파일과 디렉터리만 포함한 TAR 계열 압축 파일을 편집할 수 있습니다. 암호화, solid, 분할, 위험 경로, 미지원 방식 또는 예산 초과 7Z는 읽기 전용입니다. 표준 분할 ZIP은 최종 `.zip`에서, 최신 WinRAR 세트는 첫 `partN.rar`에서, 번호형 ZIP 또는 7Z는 `.001` 볼륨에서 열고 필요한 모든 볼륨을 같은 폴더에 두어야 합니다. 생성 시 파일 이름 암호화 및 JAR/AAR/WAR, RAR 내부 편집은 계속 지원하지 않습니다.
+> 기본 통합에는 Explorer Action v21을 제공하는 대응 AutoJs6 6.8.0 빌드 (버전 코드 5276 이상) 가 필요합니다. RAR 및 분할 압축 파일은 읽기 전용입니다. 일반 단일 볼륨 ZIP, 비암호화 비 solid 단일 볼륨이며 디코더 예산 안에 있는 7Z, 안전한 일반 파일과 디렉터리만 포함한 TAR 계열 압축 파일을 편집할 수 있습니다. 암호화, solid, 분할, 위험 경로, 미지원 방식 또는 예산 초과 7Z는 읽기 전용입니다. 표준 분할 ZIP은 최종 `.zip`에서, 최신 WinRAR 세트는 첫 `partN.rar`에서, 번호형 ZIP 또는 7Z는 `.001` 볼륨에서 열고 필요한 모든 볼륨을 같은 폴더에 두어야 합니다. 생성 시 파일 이름 암호화 및 JAR/AAR/WAR, RAR 내부 편집은 계속 지원하지 않습니다.
 
 ### 사용법
 
@@ -81,15 +98,25 @@ Archive Manager는 저장소 또는 네트워크 권한을 요청하지 않습�
 
 Explorer Action v15는 같은 세션에서 검증된 새 출력만 최대 128개 멤버의 복구 가능 배치로 묶습니다. Explorer Action v16은 플러그인이 원래의 전체 선택을 순서대로 제출하고 커밋된 모든 출력 트랜잭션을 정확히 증명한 경우에만 호스트가 원본과 출력을 다시 검증해 원본을 휴지통으로 옮깁니다. 호스트는 원본 데이터를 제거하기 전에 복구 사본을 동기화하고 기록을 영구 저장합니다. 플러그인에는 임의 경로나 직접 삭제 권한이 없습니다. Binder 응답이 유실되면 이동을 재시도하지 않고 같은 멱등 종단 결과를 조회합니다.
 
-Explorer Action v18은 이전 압축 파일을 호스트 비공개 영구 저장소에만 보관하고 백업 경로가 아닌 불투명 기록 ID를 반환합니다. 상위 폴더와 대상이 정확한 커밋 교체 결과와 일치할 때 한 번만 복원할 수 있습니다. 외부 변경이 있으면 기록이 무효화되며, 중단된 복구 증거는 호스트가 해결할 때까지 보존되고 같은 대상의 다음 교체를 막습니다. 일반 기록은 기간, 개수, 총 바이트 및 여유 공간 제한을 받으며 v8-v17 세션은 교체 백업을 만들지 않습니다. Explorer Action v19는 허용된 항목의 삭제 또는 이름 변경에 필요한 불투명 ID와 안전한 마지막 이름만 전달합니다. Explorer Action v20은 명시적으로 선택한 입력 루트에만 고정 권한을 추가합니다. 플러그인은 제한된 불투명 노드, 메타데이터 및 일회용 읽기 전용 디스크립터만 받고 원본 경로, URI, 선택하지 않은 형제 항목 또는 일반 저장소 접근은 받지 않습니다. 호스트는 커밋 전에 전체 스냅샷을 다시 검증하며 변경되거나 실패한 입력이 하나라도 있으면 전체 압축 파일 교체를 중단합니다.
+Explorer Action v18은 이전 압축 파일을 호스트 비공개 영구 저장소에만 보관하고 백업 경로가 아닌 불투명 기록 ID를 반환합니다. 상위 폴더와 대상이 정확한 커밋 교체 결과와 일치할 때 한 번만 복원할 수 있습니다. 외부 변경이 있으면 기록이 무효화되며, 중단된 복구 증거는 호스트가 해결할 때까지 보존되고 같은 대상의 다음 교체를 막습니다. 일반 기록은 기간, 개수, 총 바이트 및 여유 공간 제한을 받으며 v8-v17 세션은 교체 백업을 만들지 않습니다. Explorer Action v19는 허용된 항목의 삭제 또는 이름 변경에 필요한 불투명 ID와 안전한 마지막 이름만 전달합니다. Explorer Action v20은 명시적으로 선택한 입력 루트에만 고정 권한을 추가합니다. 플러그인은 제한된 불투명 노드, 메타데이터 및 일회용 읽기 전용 디스크립터만 받고 원본 경로, URI, 선택하지 않은 형제 항목 또는 일반 저장소 접근은 받지 않습니다. 호스트는 커밋 전에 전체 스냅샷을 다시 검증하며 변경되거나 실패한 입력이 하나라도 있으면 전체 압축 파일 교체를 중단합니다. Explorer Action v21은 Activity 또는 호스트 세션을 다시 만든 뒤에도 호스트 소유의 제한된 원본 복구 배치를 유지합니다. 원본 복원은 사용 중인 이름을 덮어쓰거나 만든 압축 파일을 삭제하지 않습니다.
 
 ### Roadmap
 
-호스트 기본 생성, 추가, 삭제 및 이름 변경은 일반 파일 관리자 레이아웃을 바꾸지 않고 완료되었습니다. 남은 체크 항목은 휴지통 그룹 실행 취소와 기록, 나머지 기기 매트릭스 및 첫 공개 릴리스 자료입니다.
+기본 탐색, 풀기, 만들기, 압축 파일 변경, 이전 버전 복원 및 영구 원본 복구는 일반 파일 관리자 레이아웃을 바꾸지 않고 완료되었습니다. Roadmap의 미체크 항목은 향후 선택적 프로토콜, 백엔드 또는 경계 사례 개선이며 현재 기능이 아닙니다.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### 릴리스 노트
+
+#### v2.22.0
+
+_2026/08/30_
+
+- `참고` 이 릴리스에는 Explorer Action v21이 포함된 대응 AutoJs6 6.8.0 빌드 (버전 코드 5276 이상) 가 필요합니다
+- `추가` 플러그인 센터가 필요한 호스트 버전, 실행 서비스 및 포함된 기기 아키텍처를 플러그인에서 직접 식별할 수 있습니다
+- `수정` 공개 설명과 사용 안내가 탐색, 압축 풀기, 만들기, 편집, 암호화 및 볼륨 지원을 정확히 구분하고 쓰기 가능한 형식을 과장하지 않습니다
+- `수정` 압축 파일 추가 작업이 최종 콜백 전에 입력 권한과 활성 상태를 해제하여 완료 또는 실패 직후 재시도가 다른 작업 실행 중으로 잘못 거부되지 않습니다
+- `개선` 형식별 기능표와 설치 안내를 통해 설치 전에 호환성, 읽기 전용 경계, 복구 동작 및 문제 해결 방법을 쉽게 확인할 수 있습니다
 
 #### v2.21.0
 
@@ -108,15 +135,6 @@ _2026/08/30_
 - `추가` 쓰기 가능한 네이티브 압축 파일 페이지에서 빈 폴더를 만들고 파일과 전체 폴더 트리의 명시적 혼합 선택을 추가할 수 있습니다. 빈 폴더를 보존하고 이름이 같은 루트 폴더는 안전하게 번호를 붙입니다
 - `수정` 커밋 전에 고정된 입력 스냅샷을 다시 검증합니다. 취소, 원본 변경, 선택한 트리 안의 동등 이름 모호성 또는 직접 파일 충돌이 있으면 전체 추가가 실패하고 원본 압축 파일을 보존합니다
 - `개선` Explorer Action v20은 선택한 입력에 대해 제한된 불투명 노드, 메타데이터 및 일회용 읽기 전용 디스크립터만 공개합니다. 경로, URI, 선택하지 않은 형제 항목 또는 일반 저장소 접근을 허용하지 않으며 일반 파일 관리자 레이아웃도 변경하지 않습니다
-
-#### v2.19.0
-
-_2026/08/29_
-
-- `참고` 이 릴리스에는 Explorer Action v19를 제공하는 대응 AutoJs6 6.8.0 빌드 (버전 코드 5276 이상) 가 필요합니다
-- `추가` 쓰기 가능한 압축 파일의 파일과 폴더를 AutoJs6 기본 압축 파일 목록에서 바로 이름 변경하거나 삭제할 수 있으며 다중 선택 삭제도 지원합니다. 대화 상자, 진행률, 경로 및 선택 복원은 기존 호스트 프레임워크를 재사용합니다
-- `수정` 삭제와 이름 변경은 이제 세션 및 항목별 기능을 모두 확인합니다. 위험 경로, 누락 볼륨, RAR, 분할 압축 파일 및 기타 읽기 전용 변형은 사용할 수 없는 변경 동작을 표시하지 않습니다
-- `개선` Explorer Action v19는 제한된 불투명 항목 ID와 안전한 마지막 이름만 전달하고 호스트 소유 보류 출력에서 재구성, 전체 재읽기, 원자적 교체 및 현재 위치 재인덱싱을 수행합니다. 일반 파일 관리자 레이아웃과 시각 스타일은 변경하지 않았습니다
 
 ##### 전체 기록
 
@@ -138,6 +156,9 @@ Release 빌드:
 
 ### 링크
 
+- 설치 안내: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/INSTALLATION.md)
+- 형식별 기능표: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/FORMAT_CAPABILITIES.md)
+- 보안 정책: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/SECURITY.md)
 - AutoJs6 문서: https://docs.autojs6.com
 - 타사 소프트웨어 고지: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

@@ -1,5 +1,15 @@
 # Notes de version
 
+## v2.22.0
+
+_2026/08/30_
+
+- `Note` Cette version exige la version associée d'AutoJs6 6.8.0 avec Explorer Action v21 (code de version 5276 ou plus récent)
+- `Ajout` Le centre de plugins peut maintenant identifier directement la version hôte requise, le service d'exécution et les architectures d'appareil incluses
+- `Correction` Les descriptions et instructions publiques distinguent désormais correctement navigation, extraction, création, modification, chiffrement et volumes sans exagérer les formats modifiables
+- `Correction` Les autorisations d'entrée et l'état actif d'un ajout à l'archive sont maintenant libérés avant le rappel final, afin qu'une nouvelle tentative immédiate ne soit plus refusée à tort comme une opération déjà en cours
+- `Amélioration` Une matrice des capacités et un guide d'installation facilitent la vérification de la compatibilité, des limites en lecture seule, de la récupération et du dépannage avant l'installation
+
 ## v2.21.0
 
 _2026/08/30_

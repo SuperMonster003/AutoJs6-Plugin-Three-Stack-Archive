@@ -1,0 +1,53 @@
+name: Feature request
+description: Propose a user-visible archive workflow or format capability.
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I checked the format matrix and Roadmap and confirmed this is not already available.
+          required: true
+        - label: I understand that dependency support alone is not a user-facing capability until safety, host integration, and rollback behavior are defined.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: Describe the workflow problem rather than only naming a library or implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+    validations:
+      required: true
+
+  - type: textarea
+    id: formats
+    attributes:
+      label: Formats and variants
+      description: Include encryption, solid, split-volume, special-entry, and filename-encoding details when relevant.
+
+  - type: textarea
+    id: safety
+    attributes:
+      label: Expected safety and conflict behavior
+      description: Explain what should happen on cancellation, overwrite conflict, low space, source change, or partial failure.
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: textarea
+    id: samples
+    attributes:
+      label: Reproducible public samples or specifications
+      description: Link only to material that can legally and safely be redistributed.

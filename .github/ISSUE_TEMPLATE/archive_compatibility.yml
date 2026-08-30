@@ -1,0 +1,145 @@
+name: Archive compatibility report
+description: Report a format, producer, encryption, filename-encoding, or volume-set compatibility problem.
+title: "[Compatibility] "
+labels:
+  - compatibility
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Archive samples are often sensitive. Do not upload a real personal or proprietary archive. Prefer a newly generated, minimal, redistributable sample containing synthetic data.
+
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Sample safety
+      options:
+        - label: Any sample I provide contains only synthetic data and I am authorized to redistribute it.
+          required: true
+        - label: I will provide a SHA-256 digest and the exact producer/tool version for any sample.
+          required: true
+
+  - type: input
+    id: plugin_version
+    attributes:
+      label: Archive Manager version
+      placeholder: 2.22.0 (versionCode 28)
+    validations:
+      required: true
+
+  - type: input
+    id: host_version
+    attributes:
+      label: AutoJs6 host and Explorer Action version
+      placeholder: AutoJs6 6.8.0 (5276), Explorer Action v21
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device, Android version, and ABI
+      placeholder: Android 15, arm64-v8a
+    validations:
+      required: true
+
+  - type: dropdown
+    id: format
+    attributes:
+      label: Detected or expected format
+      options:
+        - ZIP, JAR, AAR, or WAR
+        - 7Z
+        - RAR4
+        - RAR5
+        - TAR
+        - TAR.GZ or TGZ
+        - TAR.XZ or TXZ
+        - TAR.BZ2 or TBZ2
+        - TAR.ZST or TZST
+        - Unknown or misdetected
+    validations:
+      required: true
+
+  - type: input
+    id: producer
+    attributes:
+      label: Producer and exact version
+      placeholder: MT Manager 2.26.8, WinRAR 7.x, macOS Archive Utility, or exact command
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operation
+    attributes:
+      label: Failing operation
+      options:
+        - Detection or open
+        - List or path navigation
+        - Preview
+        - Extract
+        - Create
+        - Add or create folder
+        - Rename or delete
+        - Previous-version restore
+        - Source recovery after compression
+    validations:
+      required: true
+
+  - type: dropdown
+    id: encryption
+    attributes:
+      label: Encryption
+      options:
+        - None
+        - ZipCrypto
+        - AES content encryption
+        - Header or filename encryption
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: volumes
+    attributes:
+      label: Volume layout
+      description: State whether the archive is single-volume or list every physical volume name in order.
+      placeholder: Single-volume, or archive.z01 + archive.zip
+    validations:
+      required: true
+
+  - type: textarea
+    id: contents
+    attributes:
+      label: Minimal archive contents
+      description: Describe entry names, sizes, methods, empty directories, and special entries without including private data.
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure
+    attributes:
+      label: Failure details
+      description: Include the displayed format, processing stage, stable error code, and message.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction or generation steps
+      description: Include exact commands and options when possible.
+    validations:
+      required: true
+
+  - type: input
+    id: digest
+    attributes:
+      label: Sample SHA-256
+      placeholder: 64 hexadecimal characters, or Sample not yet available
+
+  - type: textarea
+    id: availability
+    attributes:
+      label: Sample availability
+      description: State how a maintainer can obtain the synthetic sample. Do not paste a password into this field.

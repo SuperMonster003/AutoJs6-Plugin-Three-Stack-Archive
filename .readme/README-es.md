@@ -33,6 +33,23 @@ El README está disponible en los siguientes idiomas:
 
 Archive Manager funciona dentro del gestor de archivos de AutoJs6 en lugar de sustituirlo. Los archivos compatibles usan la lista, la barra de ruta, el tema, los visores, la selección, el progreso y la actualización del host. La página de gestión separada queda para información detallada del formato y ajustes que necesitan un formulario más completo.
 
+### Capturas de pantalla
+
+Estas capturas reales de Android muestran la integración con el menú del host, la exploración nativa de archivos, la creación y la gestión detallada. Solo contienen datos sintéticos públicos.
+
+<table>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+  </tr>
+</table>
+
+- Condiciones de captura y colección completa: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/README.md)
+
 ### Disponible ahora
 
 - Explorar ZIP/JAR/AAR/WAR, 7Z, RAR4/RAR5 y la familia TAR en la lista nativa de AutoJs6, con ruta interna, búsqueda, ordenación y navegación Atrás.
@@ -65,7 +82,7 @@ La versión actual puede crear estos formatos:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v20 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura. Se pueden editar ZIP normales de un solo volumen, 7Z de un solo volumen sin cifrar, no solid y dentro del presupuesto del decodificador, y archivos TAR que contengan solo archivos y directorios normales seguros. Los 7Z cifrados, solid, divididos, peligrosos, no compatibles o fuera del presupuesto siguen siendo de solo lectura. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de JAR/AAR/WAR o RAR siguen sin estar disponibles.
+> La integración nativa requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v21 (código de versión 5276 o posterior). RAR y los archivos divididos son deliberadamente de solo lectura. Se pueden editar ZIP normales de un solo volumen, 7Z de un solo volumen sin cifrar, no solid y dentro del presupuesto del decodificador, y archivos TAR que contengan solo archivos y directorios normales seguros. Los 7Z cifrados, solid, divididos, peligrosos, no compatibles o fuera del presupuesto siguen siendo de solo lectura. Abre un ZIP dividido estándar desde su `.zip` final, un conjunto WinRAR moderno desde su primer `partN.rar` y un ZIP o 7Z numerado desde su volumen `.001`, con todos los volúmenes necesarios en el mismo directorio. El cifrado de nombres al crear y la edición interna de JAR/AAR/WAR o RAR siguen sin estar disponibles.
 
 ### Uso
 
@@ -81,15 +98,25 @@ Archive Manager no solicita permisos de almacenamiento ni de red. El host entreg
 
 Explorer Action v15 agrupa solo salidas nuevas verificadas de una sesión en un lote recuperable de hasta 128 miembros. Explorer Action v16 permite que el host revalide fuentes y salidas y mueva las fuentes a la papelera solo cuando el plugin aporta la selección original completa y ordenada y todas las transacciones de salida confirmadas. El host sincroniza una copia recuperable y persiste su registro antes de retirar datos de origen; el plugin no recibe rutas arbitrarias ni eliminación directa. Si se pierde una respuesta Binder se consulta el mismo resultado terminal idempotente, sin repetir el movimiento.
 
-Explorer Action v18 guarda el archivo anterior solo en almacenamiento privado y persistente del host y devuelve un ID opaco, nunca una ruta de copia. Solo permite una restauración mientras el directorio padre y el destino coincidan exactamente con el reemplazo confirmado. Los cambios externos invalidan el historial; la evidencia de una recuperación interrumpida se conserva y bloquea otro reemplazo del mismo destino hasta que el host lo resuelva. El historial normal está limitado por antigüedad, cantidad, bytes totales y reserva de espacio libre; las sesiones v8-v17 no crean copias de reemplazo. Explorer Action v19 solo transmite los ID opacos y el nombre de hoja seguro necesarios para eliminar o renombrar entradas autorizadas. Explorer Action v20 añade una concesión congelada limitada a las raíces de entrada elegidas explícitamente: el plugin recibe nodos opacos acotados, metadatos y descriptores de solo lectura de un uso, nunca rutas de origen, URI, elementos hermanos no elegidos ni acceso general al almacenamiento. El host vuelve a validar la instantánea completa antes de confirmar, y cualquier entrada modificada o fallida cancela todo el reemplazo del archivo.
+Explorer Action v18 guarda el archivo anterior solo en almacenamiento privado y persistente del host y devuelve un ID opaco, nunca una ruta de copia. Solo permite una restauración mientras el directorio padre y el destino coincidan exactamente con el reemplazo confirmado. Los cambios externos invalidan el historial; la evidencia de una recuperación interrumpida se conserva y bloquea otro reemplazo del mismo destino hasta que el host lo resuelva. El historial normal está limitado por antigüedad, cantidad, bytes totales y reserva de espacio libre; las sesiones v8-v17 no crean copias de reemplazo. Explorer Action v19 solo transmite los ID opacos y el nombre de hoja seguro necesarios para eliminar o renombrar entradas autorizadas. Explorer Action v20 añade una concesión congelada limitada a las raíces de entrada elegidas explícitamente: el plugin recibe nodos opacos acotados, metadatos y descriptores de solo lectura de un uso, nunca rutas de origen, URI, elementos hermanos no elegidos ni acceso general al almacenamiento. El host vuelve a validar la instantánea completa antes de confirmar, y cualquier entrada modificada o fallida cancela todo el reemplazo del archivo. Explorer Action v21 conserva lotes de recuperación de fuentes, acotados y propiedad del host, tras recrear la Activity o la sesión; restaurar las fuentes no sobrescribe ningún nombre ocupado ni elimina el archivo creado.
 
 ### Roadmap
 
-La creación, adición, eliminación y cambio de nombre nativos del host están completos sin cambiar el diseño normal del gestor de archivos. El trabajo verificable restante cubre deshacer en grupo e historial de la papelera, la matriz de dispositivos restante y el material para la primera publicación pública.
+La exploración, extracción, creación, modificación, restauración de la versión anterior y recuperación persistente de fuentes están completas sin cambiar el diseño normal del gestor de archivos. Los elementos sin marcar del Roadmap son futuras mejoras opcionales de protocolo, motor o casos límite, no funciones actuales.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Notas de la versión
+
+#### v2.22.0
+
+_2026/08/30_
+
+- `Nota` Esta versión requiere la compilación asociada de AutoJs6 6.8.0 con Explorer Action v21 (código de versión 5276 o posterior)
+- `Añadido` El Centro de plugins ahora puede identificar directamente la versión del host requerida, el servicio de ejecución y las arquitecturas de dispositivo incluidas
+- `Corregido` Las descripciones e instrucciones públicas ahora distinguen correctamente exploración, extracción, creación, edición, cifrado y volúmenes sin exagerar los formatos editables
+- `Corregido` Los permisos de entrada y el estado activo al añadir contenido ahora se liberan antes de la devolución final, evitando que un reintento inmediato se rechace por error como otra operación en curso
+- `Mejorado` Una matriz de capacidades y una guía de instalación facilitan comprobar compatibilidad, límites de solo lectura, recuperación y solución de problemas antes de instalar
 
 #### v2.21.0
 
@@ -108,15 +135,6 @@ _2026/08/30_
 - `Añadido` Las páginas nativas de archivos modificables ya pueden crear carpetas vacías y añadir una selección mixta explícita de archivos y árboles de carpetas completos; se conservan las carpetas vacías y las raíces con el mismo nombre se numeran de forma segura
 - `Corregido` La instantánea de entrada congelada se vuelve a validar antes de confirmar; una cancelación, un cambio de origen, una ambigüedad de nombres equivalentes dentro de un árbol elegido o un conflicto directo de archivo cancela toda la adición y conserva el archivo original
 - `Mejorado` Explorer Action v20 solo expone nodos opacos acotados, metadatos y descriptores de solo lectura de un uso para las entradas elegidas; no concede rutas, URI, elementos hermanos no elegidos ni acceso general al almacenamiento, y mantiene intacto el diseño normal del gestor de archivos
-
-#### v2.19.0
-
-_2026/08/29_
-
-- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v19 (código de versión 5276 o posterior)
-- `Añadido` Los archivos y carpetas de un archivo modificable ya se pueden renombrar o eliminar directamente en la lista nativa de AutoJs6, incluida la eliminación de una selección múltiple; los diálogos, el progreso, la ruta y la restauración de la selección reutilizan el marco del host
-- `Corregido` Eliminar y renombrar ahora requieren capacidades de sesión y por entrada; las rutas peligrosas, los volúmenes ausentes, RAR, los archivos divididos y otras variantes de solo lectura no anuncian operaciones no disponibles
-- `Mejorado` Explorer Action v19 solo transmite ID opacos acotados y un nombre de hoja seguro, y reconstruye en una salida pendiente del host con relectura completa, reemplazo atómico y reindexación en el sitio; el diseño y el estilo del gestor de archivos normal no cambian
 
 ##### Historial completo
 
@@ -138,6 +156,9 @@ Usa Gradle Wrapper desde la raíz; `version.properties` define los requisitos de
 
 ### Enlaces
 
+- Guía de instalación: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/INSTALLATION.md)
+- Matriz de capacidades por formato: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/FORMAT_CAPABILITIES.md)
+- Política de seguridad: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/SECURITY.md)
 - Documentación de AutoJs6: https://docs.autojs6.com
 - Avisos de software de terceros: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

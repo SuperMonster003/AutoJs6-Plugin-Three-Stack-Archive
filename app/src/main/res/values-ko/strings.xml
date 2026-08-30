@@ -28,7 +28,7 @@
     <string name="error_no_safe_entries">선택 항목에 안전하게 압축 해제할 수 있는 항목이 없습니다</string>
     <string name="error_permission_missing">압축 파일 읽기 권한이 없습니다</string>
     <string name="error_with_reason">%1$s\n이유: %2$s</string>
-    <string name="plugin_description">파일 관리자 플러그인. ZIP/TAR 압축 파일 탐색, 풀기 및 만들기</string>
+    <string name="plugin_description">ZIP, 7Z, RAR, TAR 압축 파일을 탐색하고 풀며, 지원되는 쓰기 가능 형식을 만들고 안전하게 관리</string>
     <string name="text_cancelled">취소됨</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">일부 출력을 정리하는 중...</string>
     <string name="dialog_title_extraction_scope">압축 해제 범위</string>

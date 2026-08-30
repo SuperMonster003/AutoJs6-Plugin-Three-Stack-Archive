@@ -490,9 +490,11 @@ class SevenZArchiveMutatorInstrumentationTest {
                         ParcelFileDescriptor.MODE_WRITE_ONLY,
                     )
                 }
-                val pipe = ParcelFileDescriptor.createPipe()
-                pipe[0].close()
-                return pipe[1]
+                check(pendingFile.createNewFile())
+                return ParcelFileDescriptor.open(
+                    pendingFile,
+                    ParcelFileDescriptor.MODE_READ_ONLY,
+                )
             }
             return ParcelFileDescriptor.open(
                 pendingFile,

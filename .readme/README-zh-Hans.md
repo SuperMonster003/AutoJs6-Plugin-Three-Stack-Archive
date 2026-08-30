@@ -33,6 +33,23 @@ README 提供以下语言版本:
 
 Archive Manager 直接工作在 AutoJs6 文件管理器内, 不再另造一套文件列表. 受支持档案复用宿主的列表、路径栏、主题、预览器、多选、进度与目录刷新. 独立管理页只用于需要更完整表单的详细格式信息与附加设置.
 
+### 界面截图
+
+以下 Android 真实界面截图展示宿主菜单集成、原生档案浏览、档案创建与详细管理, 仅使用可公开的合成数据.
+
+<table>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+  </tr>
+</table>
+
+- 截图说明与完整集合: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/README.md)
+
 ### 当前能力
 
 - 在 AutoJs6 原生文件列表中浏览 ZIP/JAR/AAR/WAR、7Z、RAR4/RAR5 与 TAR 系列档案, 并复用内部路径栏、搜索、排序和返回导航.
@@ -65,7 +82,7 @@ zip, zip.001, jar, aar, war, 7z, 7z.001, rar, tar, tar.gz, tgz, tar.xz, txz, tar
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> 原生集成需要配套的 AutoJs6 6.8.0 Explorer Action v20 构建 (版本代码 5276 或更高). RAR 与分卷档案明确保持只读. 普通单卷 ZIP、未加密且非 solid 并位于解码资源预算内的普通单卷 7Z，以及只含安全普通文件和目录的 TAR 系列档案可以修改; 加密、solid、分卷、危险路径、不支持方法或超预算的 7Z 保持只读. 标准分卷 ZIP 应从最终 `.zip` 打开, 现代 WinRAR 卷组应从首个 `partN.rar` 打开, 编号 ZIP 或 7Z 应从 `.001` 打开, 且全部必需同级卷须位于同一目录. 创建时加密文件名, 以及修改 JAR/AAR/WAR 和 RAR 仍不是当前能力.
+> 原生集成需要配套的 AutoJs6 6.8.0 Explorer Action v21 构建 (版本代码 5276 或更高). RAR 与分卷档案明确保持只读. 普通单卷 ZIP、未加密且非 solid 并位于解码资源预算内的普通单卷 7Z，以及只含安全普通文件和目录的 TAR 系列档案可以修改; 加密、solid、分卷、危险路径、不支持方法或超预算的 7Z 保持只读. 标准分卷 ZIP 应从最终 `.zip` 打开, 现代 WinRAR 卷组应从首个 `partN.rar` 打开, 编号 ZIP 或 7Z 应从 `.001` 打开, 且全部必需同级卷须位于同一目录. 创建时加密文件名, 以及修改 JAR/AAR/WAR 和 RAR 仍不是当前能力.
 
 ### 使用方法
 
@@ -81,15 +98,25 @@ Archive Manager 不申请存储或网络权限. 宿主只提供短生命周期�
 
 Explorer Action v15 只将同一会话中已验证的新文件输出组成最多 128 项的可恢复批次. Explorer Action v16 只有在插件提交完整有序源选择和全部已提交输出事务的精确证明后, 才允许宿主重新核对源与输出身份并把源项目移入回收站. 宿主先同步恢复副本并持久记录条目, 再移除源数据; 插件不获得任意路径或直接删除能力. Binder 响应丢失时只查询同一幂等终态, 不盲目重试.
 
-Explorer Action v18 只在宿主私有持久存储中保留上一版档案, 向插件返回不透明历史 ID 而不是备份路径. 只有父目录与目标仍精确匹配本次提交结果时才能恢复一次. 外部改写会使历史失效; 中断的恢复证据会保留, 并在宿主处理前阻止再次替换同一目标. 普通历史受保留时间、数量、总字节数和剩余空间约束, v8-v17 会话不会创建替换备份. Explorer Action v19 只为能力允许的现有条目传递删除或重命名所需的不透明 ID 与安全叶名称. Explorer Action v20 只为明确选定的输入根提供冻结授权: 插件得到有界的不透明节点、元数据和一次性只读描述符, 不会得到源路径、URI、未选同级项目或通用存储访问. 宿主在提交前重新验证完整快照, 任一输入变化或失败都会中止整个档案替换.
+Explorer Action v18 只在宿主私有持久存储中保留上一版档案, 向插件返回不透明历史 ID 而不是备份路径. 只有父目录与目标仍精确匹配本次提交结果时才能恢复一次. 外部改写会使历史失效; 中断的恢复证据会保留, 并在宿主处理前阻止再次替换同一目标. 普通历史受保留时间、数量、总字节数和剩余空间约束, v8-v17 会话不会创建替换备份. Explorer Action v19 只为能力允许的现有条目传递删除或重命名所需的不透明 ID 与安全叶名称. Explorer Action v20 只为明确选定的输入根提供冻结授权: 插件得到有界的不透明节点、元数据和一次性只读描述符, 不会得到源路径、URI、未选同级项目或通用存储访问. 宿主在提交前重新验证完整快照, 任一输入变化或失败都会中止整个档案替换. Explorer Action v21 在 Activity 与宿主会话重建后仍保留有界的宿主持有源恢复批次; 恢复源项目不会覆盖已有名称, 也不会删除已经创建的档案.
 
 ### Roadmap
 
-宿主原生创建、添加、删除与重命名已经完成, 且没有改变普通文件管理器布局. 剩余可勾选工作包括回收站组级撤销与历史、其余设备矩阵, 以及首次公开发布资料.
+宿主原生浏览、解压、创建、档案修改、上一版本恢复与持久源恢复均已完成, 且没有改变普通文件管理器布局. Roadmap 中未勾选的项目属于后续可选协议、后端或边界增强, 不代表当前能力.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### 版本记录
+
+#### v2.22.0
+
+_2026/08/30_
+
+- `提示` 本版本需要配套使用 Explorer Action v21 的 AutoJs6 6.8.0 构建 (版本代码 5276 或更高)
+- `新增` 插件中心现可直接从插件识别所需宿主版本、运行服务与已打包的设备架构
+- `修复` 公开简介与使用说明现会准确区分浏览、解压、创建、修改、加密与分卷支持, 不再夸大可写格式范围
+- `修复` 压缩档案添加操作现会在终态回调前关闭输入授权并注销活动状态, 完成或失败后立即重试不再误报已有操作正在运行
+- `优化` 新增格式能力矩阵与安装指南, 安装前即可核对兼容性、只读边界、恢复行为与故障排查方式
 
 #### v2.21.0
 
@@ -108,15 +135,6 @@ _2026/08/30_
 - `新增` 可写档案的宿主原生页面现可直接新建空目录, 并从文件与完整目录树的显式混合选择中添加内容; 空目录会保留, 同名目录根会安全编号
 - `修复` 提交前会重新校验冻结的输入快照; 取消、源内容变化、所选目录树内出现等价名称歧义或直接文件冲突时, 整批添加都会失败并保留原档案
 - `优化` Explorer Action v20 只为选定输入公开有界的不透明节点、元数据和一次性只读描述符; 不授予路径、URI、未选同级项目或通用存储访问, 且不改变普通文件管理器布局
-
-#### v2.19.0
-
-_2026/08/29_
-
-- `提示` 本版本需要配套使用 Explorer Action v19 的 AutoJs6 6.8.0 构建 (版本代码 5276 或更高)
-- `新增` 可写档案中的文件与目录现可直接在 AutoJs6 原生档案列表中重命名或删除, 并支持多选删除; 对话框、进度反馈、路径栏和选择恢复均复用宿主现有框架
-- `修复` 删除与重命名入口现在同时受会话级和逐条目能力约束; 危险路径、缺卷、RAR、分卷档案及其他只读变体不会误报可用操作
-- `优化` Explorer Action v19 只传递有界的不透明条目 ID 和安全叶名称, 通过宿主持有的待提交输出完成重建、完整读回、原子替换及原位重索引; 没有改动普通文件管理器的布局或既有视觉样式
 
 ##### 完整记录
 
@@ -138,6 +156,9 @@ Release 构建:
 
 ### 相关链接
 
+- 安装指南: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/INSTALLATION.md)
+- 格式能力矩阵: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/FORMAT_CAPABILITIES.md)
+- 安全策略: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/SECURITY.md)
 - AutoJs6 文档: https://docs.autojs6.com
 - 第三方软件声明: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

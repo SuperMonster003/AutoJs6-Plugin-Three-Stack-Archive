@@ -28,7 +28,7 @@
     <string name="error_no_safe_entries">選択範囲に安全に展開できるエントリがありません</string>
     <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
     <string name="error_with_reason">%1$s\n理由: %2$s</string>
-    <string name="plugin_description">ファイルマネージャープラグイン. ZIP/TAR の閲覧、展開、作成</string>
+    <string name="plugin_description">ZIP、7Z、RAR、TAR を閲覧・展開し、対応する書き込み可能形式を作成・安全に管理</string>
     <string name="text_cancelled">キャンセルしました</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
     <string name="dialog_title_extraction_scope">展開範囲</string>

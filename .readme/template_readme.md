@@ -24,6 +24,23 @@
 
 {{ p_introduction_current }}
 
+### {{ h3_screenshots }}
+
+{{ p_screenshots_current }}
+
+<table>
+  <tr>
+    <td><img src="{{ repo_url }}/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="{{ repo_url }}/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+  </tr>
+  <tr>
+    <td><img src="{{ repo_url }}/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="{{ repo_url }}/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+  </tr>
+</table>
+
+- {{ text_link_screenshot_notes }}: [docs/images/screenshots/README.md]({{ repo_url }}/blob/master/docs/images/screenshots/README.md)
+
 ### {{ h3_functions }}
 
 {{ placeholder_features }}
@@ -86,6 +103,9 @@
 
 ### {{ h3_links }}
 
+- {{ text_link_installation }}: [docs/INSTALLATION.md]({{ repo_url }}/blob/master/docs/INSTALLATION.md)
+- {{ text_link_format_capabilities }}: [docs/FORMAT_CAPABILITIES.md]({{ repo_url }}/blob/master/docs/FORMAT_CAPABILITIES.md)
+- {{ text_link_security_policy }}: [SECURITY.md]({{ repo_url }}/blob/master/SECURITY.md)
 - {{ text_link_autojs6_docs }}: {{ docs_autojs6_url }}
 - {{ text_link_third_party_notices }}: [THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md)
 - {{ text_link_android_saf }}: https://developer.android.com/guide/topics/providers/document-provider

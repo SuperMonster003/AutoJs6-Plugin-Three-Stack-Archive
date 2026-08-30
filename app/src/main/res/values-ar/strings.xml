@@ -28,7 +28,7 @@
     <string name="error_no_safe_entries">لا يحتوي التحديد على عناصر يمكن استخراجها بأمان</string>
     <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
     <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
-    <string name="plugin_description">ملحق مدير الملفات. يتصفح أرشيفات ZIP وTAR ويستخرجها وينشئها</string>
+    <string name="plugin_description">تصفح واستخراج أرشيفات ZIP و7Z وRAR وTAR، وإنشاء التنسيقات المدعومة القابلة للكتابة وإدارتها بأمان</string>
     <string name="text_cancelled">تم الإلغاء</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
     <string name="dialog_title_extraction_scope">نطاق الاستخراج</string>

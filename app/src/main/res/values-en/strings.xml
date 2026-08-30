@@ -40,7 +40,7 @@
     <string name="error_source_restore_failed">Source items could not be restored. Reason: %1$s</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
-    <string name="plugin_description">File manager plugin. Browse, extract, and create ZIP and TAR archives</string>
+    <string name="plugin_description">Browse and extract ZIP, 7Z, RAR, and TAR archives; create and safely manage supported writable formats</string>
     <string name="text_cancelled">Cancelled</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Cleaning up partial output...</string>
     <string name="dialog_title_extraction_scope">Extraction range</string>

@@ -33,6 +33,23 @@ The README is available in these languages:
 
 Archive Manager works inside the AutoJs6 file manager instead of replacing it. Supported archives use the host list, path bar, theme, viewers, selection mode, progress UI, and directory refresh. A separate management page remains for detailed format information and settings that need a richer form.
 
+### Screenshots
+
+Authentic Android captures show the host menu integration, native archive browsing, archive creation, and detailed management. Only synthetic public data is shown.
+
+<table>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+  </tr>
+</table>
+
+- Capture notes and full screenshot set: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/README.md)
+
 ### Available now
 
 - Browse ZIP/JAR/AAR/WAR, 7Z, RAR4/RAR5, and TAR-family archives in the native AutoJs6 file list, including internal path-bar navigation, search, sorting, and Back behavior.
@@ -65,7 +82,7 @@ The current release can create these formats:
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v20 (version code 5276 or newer). RAR and split archives are deliberately read-only. Editing is available for ordinary single-volume ZIP, unencrypted non-solid single-volume 7Z within the decoder budget, and TAR-family archives that contain only safe regular files and directories. Encrypted, solid, split, unsafe, unsupported-method, or over-budget 7Z variants remain read-only. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR and RAR are unavailable.
+> Native integration requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer). RAR and split archives are deliberately read-only. Editing is available for ordinary single-volume ZIP, unencrypted non-solid single-volume 7Z within the decoder budget, and TAR-family archives that contain only safe regular files and directories. Encrypted, solid, split, unsafe, unsupported-method, or over-budget 7Z variants remain read-only. Open a standard split ZIP through its final `.zip`, a modern WinRAR set through its first `partN.rar` volume, and a numbered ZIP or 7Z set through its `.001` volume, with every required sibling in the same directory. Filename-encrypted creation and in-archive editing for JAR/AAR/WAR and RAR are unavailable.
 
 ### Usage
 
@@ -81,15 +98,25 @@ Archive Manager requests neither storage nor network permission. The host suppli
 
 Explorer Action v15 groups only verified new-file outputs from one session into a recoverable batch of at most 128 members. Explorer Action v16 lets the host revalidate sources and outputs and move sources to Trash only after the plugin supplies the exact ordered original selection and every committed output transaction. The host syncs a recovery copy and persists its record before removing source data; the plugin receives no arbitrary-path or direct-delete capability. A lost Binder response is resolved by querying the same idempotent terminal result, not by retrying the move.
 
-Explorer Action v18 keeps the previous archive only in host-private durable storage and returns an opaque history ID, never a backup path. One restore is allowed only while the parent and target still match the exact committed replacement. External changes make the history stale; interrupted recovery evidence is retained and blocks another replacement of that target until the host can resolve it. Normal history is bounded by age, count, total bytes, and free-space reserve, while v8-v17 sessions create no replacement backup. Explorer Action v19 passes only opaque IDs and a safe leaf name for existing entries whose capabilities allow delete or rename. Explorer Action v20 adds a frozen grant for only the explicitly selected input roots: the plugin receives bounded opaque nodes, metadata, and one-shot read-only descriptors, never source paths, URIs, unselected siblings, or general storage access. The host revalidates the complete snapshot before commit, and any changed or failed input aborts the whole archive replacement.
+Explorer Action v18 keeps the previous archive only in host-private durable storage and returns an opaque history ID, never a backup path. One restore is allowed only while the parent and target still match the exact committed replacement. External changes make the history stale; interrupted recovery evidence is retained and blocks another replacement of that target until the host can resolve it. Normal history is bounded by age, count, total bytes, and free-space reserve, while v8-v17 sessions create no replacement backup. Explorer Action v19 passes only opaque IDs and a safe leaf name for existing entries whose capabilities allow delete or rename. Explorer Action v20 adds a frozen grant for only the explicitly selected input roots: the plugin receives bounded opaque nodes, metadata, and one-shot read-only descriptors, never source paths, URIs, unselected siblings, or general storage access. The host revalidates the complete snapshot before commit, and any changed or failed input aborts the whole archive replacement. Explorer Action v21 keeps bounded host-owned source-recovery batches across Activity and host-session recreation; source restore never overwrites an occupied name or removes the created archive.
 
 ### Roadmap
 
-Host-native creation, addition, deletion, and renaming are complete without changing the ordinary file-manager layout. Remaining checkable work covers grouped Trash undo and history, the remaining device matrix, and first-public-release material.
+Native browsing, extraction, creation, archive mutation, previous-version restore, and durable source recovery are complete without changing the ordinary file-manager layout. Unchecked Roadmap items are future optional protocol, backend, or edge-case enhancements and are not current features.
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.22.0
+
+_2026/08/30_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer)
+- `Added` Plugin Center can now identify the required host version, runtime service, and packaged device architectures directly from the plugin
+- `Fixed` Public descriptions and instructions now distinguish browsing, extraction, creation, editing, encryption, and volume support without overstating writable formats
+- `Fixed` Archive input grants and active-operation state now close before the terminal callback, so an immediate retry is no longer rejected as another operation already running
+- `Improved` A format capability matrix and installation guide now make compatibility, read-only boundaries, recovery behavior, and troubleshooting easier to check before installation
 
 #### v2.21.0
 
@@ -108,15 +135,6 @@ _2026/08/30_
 - `Added` Writable native archive pages can now create empty folders and add an explicit mixed selection of files and complete folder trees; empty folders are preserved and same-named directory roots are safely numbered
 - `Fixed` The frozen input snapshot is revalidated before commit; cancellation, source changes, equivalent-name ambiguity inside a selected tree, or a direct-file conflict fail the whole addition and preserve the original archive
 - `Improved` Explorer Action v20 exposes only bounded opaque nodes, metadata, and one-shot read-only descriptors for the selected inputs; it grants no paths, URIs, unselected siblings, or general storage access, and leaves the ordinary file-manager layout unchanged
-
-#### v2.19.0
-
-_2026/08/29_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v19 (version code 5276 or newer)
-- `Added` Files and folders in writable archives can now be renamed or deleted directly in the native AutoJs6 archive list, including multi-selection deletion; dialogs, progress, path navigation, and selection restoration reuse the host framework
-- `Fixed` Delete and rename actions are now gated by both session and per-entry capabilities; unsafe paths, missing volumes, RAR, split archives, and other read-only variants never advertise unavailable mutations
-- `Improved` Explorer Action v19 passes only bounded opaque entry IDs and a safe leaf name, then rebuilds through host-owned pending output with complete readback, atomic replacement, and in-place reindexing; the ordinary file-manager layout and visual style are unchanged
 
 ##### Full history
 
@@ -138,6 +156,9 @@ Run the Gradle Wrapper from the repository root; use `version.properties` as the
 
 ### Links
 
+- Installation guide: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/INSTALLATION.md)
+- Format capability matrix: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/FORMAT_CAPABILITIES.md)
+- Security policy: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/SECURITY.md)
 - AutoJs6 documentation: https://docs.autojs6.com
 - Third-party notices: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

@@ -5,6 +5,22 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v2.22.0": {
+      "released_date": "2026/08/30",
+      "hint": [
+        "This release requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer)"
+      ],
+      "feature": [
+        "Plugin Center can now identify the required host version, runtime service, and packaged device architectures directly from the plugin"
+      ],
+    "fix": [
+      "Public descriptions and instructions now distinguish browsing, extraction, creation, editing, encryption, and volume support without overstating writable formats",
+      "Archive input grants and active-operation state now close before the terminal callback, so an immediate retry is no longer rejected as another operation already running"
+      ],
+      "improvement": [
+        "A format capability matrix and installation guide now make compatibility, read-only boundaries, recovery behavior, and troubleshooting easier to check before installation"
+      ]
+    },
     "v2.21.0": {
       "released_date": "2026/08/30",
       "hint": [

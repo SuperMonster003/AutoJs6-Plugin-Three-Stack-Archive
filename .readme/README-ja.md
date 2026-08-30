@@ -33,6 +33,23 @@ README は次の言語で提供しています:
 
 Archive Manager は AutoJs6 のファイルマネージャーを置き換えず、その内部で動作します。対応アーカイブはホストの一覧、パスバー、テーマ、ビューアー、選択モード、進行表示、ディレクトリ更新をそのまま利用します。詳しい形式情報と、より詳細なフォームが必要な設定には専用管理ページを使用します。
 
+### スクリーンショット
+
+実際の Android 画面で、ホストメニューとの連携、ネイティブのアーカイブ参照、アーカイブ作成、詳細管理を示します。公開可能な合成データだけを使用しています。
+
+<table>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+  </tr>
+</table>
+
+- 撮影条件と全スクリーンショット: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/README.md)
+
 ### 現在利用できる機能
 
 - ZIP/JAR/AAR/WAR、7Z、RAR4/RAR5、TAR 系を AutoJs6 のネイティブ一覧で閲覧し、内部パスバー、検索、並べ替え、戻る操作を利用できます。
@@ -65,7 +82,7 @@ zip, zip.001, jar, aar, war, 7z, 7z.001, rar, tar, tar.gz, tgz, tar.xz, txz, tar
 zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ```
 
-> ネイティブ統合には Explorer Action v20 を備えた対応 AutoJs6 6.8.0 ビルド (バージョンコード 5276 以降) が必要です。RAR と分割アーカイブは読み取り専用です。通常の単一ボリューム ZIP、暗号化なし、非 solid、単一ボリュームかつデコーダー予算内の 7Z、安全な通常ファイルとフォルダーだけを含む TAR 系アーカイブを編集できます。暗号化、solid、分割、危険なパス、未対応方式、予算超過の 7Z は読み取り専用です。標準分割 ZIP は最終 `.zip`、最新 WinRAR セットは先頭 `partN.rar`、連番 ZIP または 7Z は `.001` から開き、必要な全ボリュームを同じフォルダーに置いてください。作成時のファイル名暗号化と JAR/AAR/WAR、RAR の内部編集には引き続き未対応です。
+> ネイティブ統合には Explorer Action v21 を備えた対応 AutoJs6 6.8.0 ビルド (バージョンコード 5276 以降) が必要です。RAR と分割アーカイブは読み取り専用です。通常の単一ボリューム ZIP、暗号化なし、非 solid、単一ボリュームかつデコーダー予算内の 7Z、安全な通常ファイルとフォルダーだけを含む TAR 系アーカイブを編集できます。暗号化、solid、分割、危険なパス、未対応方式、予算超過の 7Z は読み取り専用です。標準分割 ZIP は最終 `.zip`、最新 WinRAR セットは先頭 `partN.rar`、連番 ZIP または 7Z は `.001` から開き、必要な全ボリュームを同じフォルダーに置いてください。作成時のファイル名暗号化と JAR/AAR/WAR、RAR の内部編集には引き続き未対応です。
 
 ### 使い方
 
@@ -81,15 +98,25 @@ Archive Manager はストレージ権限もネットワーク権限も要求し�
 
 Explorer Action v15 は同一セッションで検証済みの新規出力だけを最大 128 件の復旧可能バッチにまとめます。Explorer Action v16 は、プラグインが元の選択全体を順序どおりに示し、コミット済みの全出力トランザクションを正確に証明した場合だけ、ホストが元項目と出力を再検証してゴミ箱へ移動します。ホストは元データを除去する前に復旧コピーを同期し記録を永続化します。プラグインには任意パスや直接削除の権限を与えません。Binder 応答を失った場合は移動を再試行せず、同じ冪等終端結果を照会します。
 
-Explorer Action v18 は前のアーカイブをホストの非公開永続ストレージだけに保存し、バックアップパスではなく不透明な履歴 ID を返します。親フォルダーと対象が確定した置換結果に完全一致する間だけ一度復元できます。外部変更があると履歴は無効になり、中断した復旧証拠はホストが解決するまで保持され、同じ対象の次の置換を止めます。通常履歴には期間、件数、総バイト数、空き容量の制限があり、v8-v17 セッションは置換バックアップを作成しません。Explorer Action v19 は許可された項目の削除または名前変更に必要な不透明 ID と安全な末尾名だけを渡します。Explorer Action v20 は明示的に選択した入力ルートだけに凍結権限を追加します。プラグインが受け取るのは上限付きの不透明ノード、メタデータ、1 回限りの読み取り専用記述子で、元のパス、URI、未選択の同階層項目、一般ストレージへのアクセスは受け取りません。ホストは確定前に完全なスナップショットを再検証し、変更または失敗した入力が一つでもあればアーカイブ置換全体を中止します。
+Explorer Action v18 は前のアーカイブをホストの非公開永続ストレージだけに保存し、バックアップパスではなく不透明な履歴 ID を返します。親フォルダーと対象が確定した置換結果に完全一致する間だけ一度復元できます。外部変更があると履歴は無効になり、中断した復旧証拠はホストが解決するまで保持され、同じ対象の次の置換を止めます。通常履歴には期間、件数、総バイト数、空き容量の制限があり、v8-v17 セッションは置換バックアップを作成しません。Explorer Action v19 は許可された項目の削除または名前変更に必要な不透明 ID と安全な末尾名だけを渡します。Explorer Action v20 は明示的に選択した入力ルートだけに凍結権限を追加します。プラグインが受け取るのは上限付きの不透明ノード、メタデータ、1 回限りの読み取り専用記述子で、元のパス、URI、未選択の同階層項目、一般ストレージへのアクセスは受け取りません。ホストは確定前に完全なスナップショットを再検証し、変更または失敗した入力が一つでもあればアーカイブ置換全体を中止します。Explorer Action v21 は Activity やホストセッションの再作成後も、ホスト所有の有界な元項目復元バッチを保持します。復元は使用中の名前を上書きせず、作成済みアーカイブも削除しません。
 
 ### Roadmap
 
-ホストネイティブの作成、追加、削除、名前変更は、通常のファイルマネージャーレイアウトを変えずに完了しました。残るチェック項目は、ゴミ箱のグループ取り消しと履歴、残りの端末マトリックス、初回公開リリース資料です。
+ネイティブの参照、展開、作成、アーカイブ変更、前バージョン復元、永続的な元項目復元は、通常のファイルマネージャーレイアウトを変えずに完了しました。Roadmap の未チェック項目は将来の任意のプロトコル、バックエンド、境界ケース改善であり、現在の機能ではありません。
 
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### リリースノート
+
+#### v2.22.0
+
+_2026/08/30_
+
+- `注記` このリリースには Explorer Action v21 を含む対応 AutoJs6 6.8.0 ビルド (バージョンコード 5276 以降) が必要です
+- `追加` プラグインセンターが、必要なホストバージョン、実行サービス、同梱された端末アーキテクチャをプラグインから直接識別できるようになりました
+- `修正` 公開説明と操作ガイドが、参照、展開、作成、編集、暗号化、ボリューム対応を正確に区別し、書き込み可能な形式を過大に示さなくなりました
+- `修正` アーカイブへの追加処理は終端コールバック前に入力権限と実行中状態を解放し、完了または失敗直後の再試行が別の処理中として誤って拒否されなくなりました
+- `改善` 形式別機能表とインストールガイドにより、導入前に互換性、読み取り専用の境界、復元動作、トラブルシューティングを確認しやすくなりました
 
 #### v2.21.0
 
@@ -108,15 +135,6 @@ _2026/08/30_
 - `追加` 書き込み可能なネイティブアーカイブページで、空フォルダーの作成と、ファイルおよび完全なフォルダーツリーの明示的な混在選択の追加が可能になりました。空フォルダーは保持され、同名のルートフォルダーは安全に連番化されます
 - `修正` 確定前に凍結した入力スナップショットを再検証します。キャンセル、入力元の変更、選択ツリー内の等価名の曖昧さ、または直下ファイルの競合があると追加全体が失敗し、元のアーカイブが保持されます
 - `改善` Explorer Action v20 が選択入力に公開するのは、上限付きの不透明ノード、メタデータ、1 回限りの読み取り専用記述子だけです。パス、URI、未選択の同階層項目、一般ストレージへのアクセスは付与せず、通常のファイルマネージャーレイアウトも変更しません
-
-#### v2.19.0
-
-_2026/08/29_
-
-- `注記` このリリースには Explorer Action v19 を備えた対応 AutoJs6 6.8.0 ビルド (バージョンコード 5276 以降) が必要です
-- `追加` 書き込み可能なアーカイブ内のファイルとフォルダーを AutoJs6 のネイティブ一覧から直接名前変更または削除でき、複数選択の削除にも対応しました。ダイアログ、進行状況、パス、選択の復元はホストの既存機構を再利用します
-- `修正` 削除と名前変更はセッションと各項目の両方の能力で制御されます。危険なパス、欠落ボリューム、RAR、分割アーカイブ、その他の読み取り専用形式は利用できない変更操作を表示しません
-- `改善` Explorer Action v19 は上限付きの不透明な項目 ID と安全な末尾名だけを渡し、ホスト所有の保留出力で再構築、完全再読み取り、原子的置換、同一画面での再索引を行います。通常のファイルマネージャーのレイアウトと視覚スタイルは変更していません
 
 ##### 全履歴
 
@@ -138,6 +156,9 @@ Release ビルド:
 
 ### リンク
 
+- インストールガイド: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/INSTALLATION.md)
+- 形式別機能表: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/FORMAT_CAPABILITIES.md)
+- セキュリティポリシー: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/SECURITY.md)
 - AutoJs6 ドキュメント: https://docs.autojs6.com
 - サードパーティーソフトウェアに関する通知: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider

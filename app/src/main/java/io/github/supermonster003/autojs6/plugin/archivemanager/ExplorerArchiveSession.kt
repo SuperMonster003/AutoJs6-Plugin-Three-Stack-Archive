@@ -462,6 +462,19 @@ internal class ExplorerArchiveSession(
                 reindexing = true
                 val createdJob = operationScope.launch(start = CoroutineStart.LAZY) {
                     var unownedOutcome: ExplorerArchiveMutationOutcome? = null
+                    var resourcesFinished = false
+                    fun finishResources() {
+                        if (resourcesFinished) return
+                        resourcesFinished = true
+                        runCatching { onFinished() }
+                    }
+                    var operationFinished = false
+                    fun finishOperationLifecycle() {
+                        finishResources()
+                        if (operationFinished) return
+                        operationFinished = true
+                        operationState?.let { expected -> finishOperation(operationId, expected) }
+                    }
                     try {
                         val decoded = decode()
                         val retainedIdsByPath = retainedIdsByPath(indexState, decoded.request)
@@ -495,6 +508,7 @@ internal class ExplorerArchiveSession(
                         }
                         indexState.snapshot.readerOptions.clearPassword()
                         previousStaged.close()
+                        finishOperationLifecycle()
                         runCatching {
                             callback.onCompleted(
                                 Bundle().apply {
@@ -518,10 +532,10 @@ internal class ExplorerArchiveSession(
                         synchronized(sessionStateLock) {
                             if (!closed.get()) reindexing = false
                         }
+                        finishOperationLifecycle()
                         reportMutationFailure(callback, operationId, error)
                     } finally {
-                        runCatching { onFinished() }
-                        operationState?.let { expected -> finishOperation(operationId, expected) }
+                        finishOperationLifecycle()
                     }
                 }
                 val createdDeathRecipient = IBinder.DeathRecipient {

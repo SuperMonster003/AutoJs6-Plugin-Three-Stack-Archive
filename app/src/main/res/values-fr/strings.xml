@@ -28,7 +28,7 @@
     <string name="error_no_safe_entries">La sélection ne contient aucune entrée pouvant être extraite en toute sécurité</string>
     <string name="error_permission_missing">L\'accès en lecture à l\'archive est manquant</string>
     <string name="error_with_reason">%1$s\nMotif : %2$s</string>
-    <string name="plugin_description">Plugin du gestionnaire de fichiers. Parcourt, extrait et crée des archives ZIP et TAR</string>
+    <string name="plugin_description">Parcourt et extrait les archives ZIP, 7Z, RAR et TAR; crée et gère en sécurité les formats inscriptibles pris en charge</string>
     <string name="text_cancelled">Annulé</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Nettoyage de la sortie partielle...</string>
     <string name="dialog_title_extraction_scope">Contenu à extraire</string>
