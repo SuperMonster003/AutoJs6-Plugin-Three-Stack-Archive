@@ -19,21 +19,28 @@ This file is the local release-preparation receipt for the metadata that AutoJs6
 
 The Explorer Action protocol is an integer protocol currently at v21. The optional official-index `protocolApiMin` and `protocolApiMax` fields require `major.minor` values, so they are deliberately omitted instead of encoding a misleading `21.0`. Runtime negotiation remains authoritative.
 
-## Expected release facts
+## Verified local release facts
 
-| Field | Value before final artifact verification |
+| Field | Verified value |
 | --- | --- |
 | Repository | `SuperMonster003/AutoJs6-Plugin-Archive-Manager` |
 | Release tag | `v2.22.0` |
+| Source commit | `c7f00d37803254122f2ed685412c5eacec26e618` |
 | Version name | `2.22.0` |
 | Version code | `28` |
 | APK asset | `autojs6-plugin-archive-manager-v2.22.0.apk` |
+| APK size | 4,573,880 bytes |
+| APK SHA-256 | `FED769348CE5A96233F8A53CBBCF710854E752973C1E2BFC66C80CED4ACBB90F` |
+| APK MD5 | `E6DE4FEFF75CA2BE03A47634B8E4A22F` |
+| APK signing | One v2 signer; certificate SHA-256 `31A681FCFFFB3E428420CAE280DED89292B12A3B0F59E19B7A73E32A8AE4C213` |
+| APK alignment | `zipalign -c -P 16 -v 4` passed |
+| Native ABIs | `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` |
 | Minimum Android | API 24 |
 | Target Android | API 36 |
 | Compile SDK | API 37 |
 | Required host | AutoJs6 6.8.0 (5276) with Explorer Action v21 |
 
-APK size, APK SHA-256, source commit, and signer admission evidence must be filled only after the final source commit and Release/R8 artifact exist. They must not be guessed or represented by placeholders in a machine-consumed manifest.
+The final Release/R8 APK embeds the same full source revision shown above. Its manifest has no `debuggable` or `testOnly` attribute, and its runtime component and ABI metadata resolve to the exact packaged service and four native ABI directories. The ignored local release copy was proven byte-identical to the clean-build output and was installed, read back, and compared on Android API 24, API 25, and API 36.
 
 ## Official index handoff
 
