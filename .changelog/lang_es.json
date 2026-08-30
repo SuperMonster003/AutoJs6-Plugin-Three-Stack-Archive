@@ -5,6 +5,21 @@
   "changelog_label_improvement": "Mejorado",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v2.21.0": {
+      "released_date": "2026/08/30",
+      "hint": [
+        "Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v21 (código de versión 5276 o posterior)"
+      ],
+      "feature": [
+        "La creación de archivos ahora conserva una página de finalización y un historial de recuperación de orígenes; los orígenes enviados a la Papelera por decisión explícita se pueden restaurar tras recrear la Activity o la sesión del host"
+      ],
+      "fix": [
+        "Restaurar los orígenes nunca sobrescribe un nombre existente ni elimina un archivo creado; los conflictos y las restauraciones parciales o interrumpidas conservan la evidencia de recuperación e informan los resultados por elemento"
+      ],
+      "improvement": [
+        "El host conserva el historial duradero y acotado y solo expone metadatos opacos; la recuperación permanece en la página de compresión del plugin y el diseño normal del gestor de archivos no cambia"
+      ]
+    },
     "v2.20.0": {
       "released_date": "2026/08/30",
       "hint": [

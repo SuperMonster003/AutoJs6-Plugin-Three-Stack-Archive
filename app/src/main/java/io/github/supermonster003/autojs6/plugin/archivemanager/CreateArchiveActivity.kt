@@ -1,7 +1,10 @@
 package io.github.supermonster003.autojs6.plugin.archivemanager
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.text.format.Formatter
+import android.view.Menu
+import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -22,6 +25,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 class CreateArchiveActivity : AppCompatActivity() {
@@ -43,6 +47,13 @@ class CreateArchiveActivity : AppCompatActivity() {
     private var unavailableNameDialog: androidx.appcompat.app.AlertDialog? = null
     private var sessionClosed = false
     private var terminalFailureMessage: String? = null
+    private var completedArchiveMessage: String? = null
+    private var completedRestoreMessage: String? = null
+    private var activeTargetTrashBatchId: String? = null
+    private var activeTargetTrashBatch: HostTargetTrashBatch? = null
+    private var targetTrashBatches: List<HostTargetTrashBatch> = emptyList()
+    private var targetTrashHistoryMenuItem: MenuItem? = null
+    private var targetTrashHistoryRefreshGeneration = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +74,11 @@ class CreateArchiveActivity : AppCompatActivity() {
             ?.takeIf { sizeMiB ->
                 sizeMiB in ArchiveSplitVolumePolicy.MIN_SIZE_MIB..
                     ArchiveSplitVolumePolicy.MAX_SIZE_MIB
-            }
+        }
         terminalFailureMessage = savedInstanceState?.getString(STATE_TERMINAL_FAILURE)
+        completedArchiveMessage = savedInstanceState?.getString(STATE_COMPLETED_ARCHIVE_MESSAGE)
+        completedRestoreMessage = savedInstanceState?.getString(STATE_COMPLETED_RESTORE_MESSAGE)
+        activeTargetTrashBatchId = savedInstanceState?.getString(STATE_TARGET_TRASH_BATCH_ID)
 
         val resolvedRequest = ArchiveCompressionIntentPolicy.resolve(intent)
         if (resolvedRequest == null) {
@@ -74,9 +88,17 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         request = resolvedRequest
         setupViews(resolvedRequest)
-        terminalFailureMessage?.let { message ->
-            closeHostSession()
-            renderTerminalFailure(message)
+        when {
+            terminalFailureMessage != null -> {
+                closeHostSession()
+                renderTerminalFailure(requireNotNull(terminalFailureMessage))
+            }
+            completedArchiveMessage != null -> {
+                renderCreationCompleted()
+                loadActiveTargetTrashBatch()
+                refreshTargetTrashHistory()
+            }
+            else -> refreshTargetTrashHistory()
         }
     }
 
@@ -88,6 +110,15 @@ class CreateArchiveActivity : AppCompatActivity() {
             outState.putLong(STATE_SPLIT_VOLUME_SIZE_MIB, it)
         }
         terminalFailureMessage?.let { outState.putString(STATE_TERMINAL_FAILURE, it) }
+        completedArchiveMessage?.let {
+            outState.putString(STATE_COMPLETED_ARCHIVE_MESSAGE, it)
+        }
+        completedRestoreMessage?.let {
+            outState.putString(STATE_COMPLETED_RESTORE_MESSAGE, it)
+        }
+        activeTargetTrashBatchId?.let {
+            outState.putString(STATE_TARGET_TRASH_BATCH_ID, it)
+        }
         super.onSaveInstanceState(outState)
     }
 
@@ -110,6 +141,20 @@ class CreateArchiveActivity : AppCompatActivity() {
 
     private fun setupViews(request: ArchiveCompressionRequest) = with(binding) {
         toolbar.setNavigationOnClickListener { handleBack() }
+        targetTrashHistoryMenuItem = toolbar.menu.add(
+            Menu.NONE,
+            MENU_TARGET_TRASH_HISTORY,
+            Menu.NONE,
+            R.string.action_source_recovery_history,
+        ).apply {
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            isVisible = false
+        }
+        toolbar.setOnMenuItemClickListener { item ->
+            if (item.itemId != MENU_TARGET_TRASH_HISTORY) return@setOnMenuItemClickListener false
+            showTargetTrashHistory()
+            true
+        }
         selectionSummary.text = resources.getQuantityString(
             R.plurals.text_compression_selection_summary,
             request.targets.size,
@@ -186,9 +231,19 @@ class CreateArchiveActivity : AppCompatActivity() {
         }
         renderCreationModeControls()
 
-        createButton.setOnClickListener { createArchive() }
+        createButton.setOnClickListener {
+            if (completedArchiveMessage == null) {
+                createArchive()
+            } else {
+                activeTargetTrashBatch?.takeIf { batch -> batch.canUndo }?.let {
+                    restoreTargetTrashBatch(it)
+                }
+            }
+        }
         cancelButton.setOnClickListener {
-            if (operationJob?.isActive == true && operationCancellable) {
+            if (completedArchiveMessage != null && operationJob?.isActive != true) {
+                finish()
+            } else if (operationJob?.isActive == true && operationCancellable) {
                 operationJob?.cancel()
             } else if (operationJob?.isActive != true) {
                 finish()
@@ -218,7 +273,9 @@ class CreateArchiveActivity : AppCompatActivity() {
     }
 
     private fun handleBack() {
-        if (operationJob?.isActive == true && operationCancellable) {
+        if (completedArchiveMessage != null && operationJob?.isActive != true) {
+            finish()
+        } else if (operationJob?.isActive == true && operationCancellable) {
             operationJob?.cancel()
         } else if (operationJob?.isActive != true) {
             finish()
@@ -428,9 +485,24 @@ class CreateArchiveActivity : AppCompatActivity() {
                     }
                 }
                 val message = appendTargetTrashResult(archiveMessage, targetTrashResult)
-                Toast.makeText(this@CreateArchiveActivity, message, Toast.LENGTH_LONG).show()
-                closeHostSession()
-                finish()
+                val targetTrashBatchId = targetTrashResult?.batchId
+                if (targetTrashBatchId == null) {
+                    Toast.makeText(this@CreateArchiveActivity, message, Toast.LENGTH_LONG).show()
+                    closeHostSession()
+                    finish()
+                } else {
+                    completedArchiveMessage = message
+                    completedRestoreMessage = null
+                    activeTargetTrashBatchId = targetTrashBatchId
+                    activeTargetTrashBatch = withContext(Dispatchers.IO) {
+                        runCatching {
+                            ExplorerActionHostSessionClient(resolvedRequest.hostSession)
+                                .queryTargetTrashBatch(targetTrashBatchId)
+                        }.getOrNull()
+                    }
+                    renderCreationCompleted()
+                    refreshTargetTrashHistory()
+                }
             } catch (error: ArchiveCreationPartialFailureException) {
                 if (!isFinishing && !isDestroyed) renderPartialCreationFailure(error)
             } catch (error: ArchiveCreationPartialOutputException) {
@@ -951,6 +1023,271 @@ class CreateArchiveActivity : AppCompatActivity() {
         -> format.displayName
     }
 
+    private fun loadActiveTargetTrashBatch() {
+        val batchId = activeTargetTrashBatchId ?: return
+        val resolvedRequest = request ?: return
+        lifecycleScope.launch {
+            val batch = withContext(Dispatchers.IO) {
+                runCatching {
+                    ExplorerActionHostSessionClient(resolvedRequest.hostSession)
+                        .queryTargetTrashBatch(batchId)
+                }.getOrNull()
+            }
+            if (
+                !sessionClosed &&
+                activeTargetTrashBatchId == batchId &&
+                completedArchiveMessage != null
+            ) {
+                activeTargetTrashBatch = batch
+                renderCreationCompleted()
+            }
+        }
+    }
+
+    private fun refreshTargetTrashHistory() {
+        if (sessionClosed) return
+        val resolvedRequest = request ?: return
+        val generation = ++targetTrashHistoryRefreshGeneration
+        lifecycleScope.launch {
+            val batches = withContext(Dispatchers.IO) {
+                runCatching {
+                    ExplorerActionHostSessionClient(resolvedRequest.hostSession)
+                        .listTargetTrashBatches()
+                }.getOrDefault(emptyList())
+            }
+            if (sessionClosed || generation != targetTrashHistoryRefreshGeneration) return@launch
+            targetTrashBatches = batches
+            if (completedArchiveMessage != null) {
+                activeTargetTrashBatchId?.let { batchId ->
+                    batches.firstOrNull { batch -> batch.id == batchId }?.let { batch ->
+                        activeTargetTrashBatch = batch
+                        renderCreationCompleted()
+                    }
+                }
+            }
+            targetTrashHistoryMenuItem?.apply {
+                isVisible = batches.isNotEmpty()
+                isEnabled = operationJob?.isActive != true
+            }
+        }
+    }
+
+    private fun showTargetTrashHistory() {
+        val batches = targetTrashBatches
+        if (batches.isEmpty() || isFinishing || isDestroyed) return
+        val labels = batches.map(::targetTrashHistoryLabel).toTypedArray()
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_source_recovery_history)
+            .setItems(labels) { dialog, index ->
+                dialog.dismiss()
+                showTargetTrashBatchDetails(batches[index])
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun targetTrashHistoryLabel(batch: HostTargetTrashBatch): String {
+        val names = buildString {
+            append(batch.items.take(MAX_HISTORY_PREVIEW_NAMES).joinToString(", ") { item ->
+                ArchivePathPolicy.unsafeSourceNameForDisplay(item.displayName)
+            })
+            val remaining = batch.items.size - MAX_HISTORY_PREVIEW_NAMES
+            if (remaining > 0) {
+                append(" ")
+                append(
+                    resources.getQuantityString(
+                        R.plurals.text_more_source_items,
+                        remaining,
+                        remaining,
+                    ),
+                )
+            }
+        }
+        return getString(
+            R.string.text_source_recovery_history_item,
+            names,
+            targetTrashBatchStateLabel(batch.state),
+            formatTargetTrashHistoryDate(batch.createdAt),
+        )
+    }
+
+    private fun showTargetTrashBatchDetails(batch: HostTargetTrashBatch) {
+        val displayedItems = batch.items.take(MAX_HISTORY_DETAIL_NAMES)
+            .joinToString("\n") { item ->
+                "- ${ArchivePathPolicy.unsafeSourceNameForDisplay(item.displayName)}"
+            }
+        val remaining = batch.items.size - MAX_HISTORY_DETAIL_NAMES
+        val itemList = if (remaining > 0) {
+            "$displayedItems\n- ${
+                resources.getQuantityString(
+                    R.plurals.text_more_source_items,
+                    remaining,
+                    remaining,
+                )
+            }"
+        } else {
+            displayedItems
+        }
+        val message = getString(
+            R.string.text_source_recovery_details,
+            formatTargetTrashHistoryDate(batch.createdAt),
+            targetTrashBatchStateLabel(batch.state),
+            batch.movedCount,
+            batch.restoredCount,
+            batch.recoveryCount,
+            itemList,
+        )
+        val builder = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.dialog_title_source_recovery_details)
+            .setMessage(message)
+        if (batch.canUndo) {
+            builder
+                .setPositiveButton(R.string.action_restore_sources) { _, _ ->
+                    restoreTargetTrashBatch(batch)
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+        } else {
+            builder.setPositiveButton(android.R.string.ok, null)
+        }
+        builder.show()
+    }
+
+    private fun restoreTargetTrashBatch(batch: HostTargetTrashBatch) {
+        if (!batch.canUndo || operationJob?.isActive == true || sessionClosed) return
+        val resolvedRequest = request ?: return
+        val activeCompletionBatch = completedArchiveMessage != null &&
+            activeTargetTrashBatchId == batch.id
+        setBusy(
+            busy = true,
+            message = getString(R.string.text_restoring_sources),
+            cancellable = false,
+        )
+        operationJob = lifecycleScope.launch {
+            try {
+                val restored = withContext(NonCancellable + Dispatchers.IO) {
+                    ExplorerActionHostSessionClient(resolvedRequest.hostSession)
+                        .undoTargetTrashBatch(batch.id)
+                }
+                val resultMessage = targetTrashUndoResultMessage(restored)
+                if (activeCompletionBatch) {
+                    activeTargetTrashBatch = restored
+                    completedRestoreMessage = resultMessage
+                    renderCreationCompleted()
+                } else if (completedArchiveMessage != null) {
+                    renderCreationCompleted()
+                    Toast.makeText(this@CreateArchiveActivity, resultMessage, Toast.LENGTH_LONG).show()
+                } else {
+                    setBusy(false, resultMessage)
+                }
+            } catch (error: Throwable) {
+                val message = getString(
+                    R.string.error_source_restore_failed,
+                    userFacingReason(error),
+                )
+                if (activeCompletionBatch) {
+                    completedRestoreMessage = message
+                    renderCreationCompleted()
+                    loadActiveTargetTrashBatch()
+                } else if (completedArchiveMessage != null) {
+                    renderCreationCompleted()
+                    Toast.makeText(this@CreateArchiveActivity, message, Toast.LENGTH_LONG).show()
+                } else {
+                    setBusy(false, message)
+                }
+            } finally {
+                operationJob = null
+                refreshTargetTrashHistory()
+            }
+        }
+    }
+
+    private fun targetTrashUndoResultMessage(batch: HostTargetTrashBatch): String {
+        val remaining = batch.items.count { item ->
+            item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED ||
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_STALE ||
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RECOVERY_REQUIRED
+        }
+        return buildList {
+            if (batch.restoredCount > 0) {
+                add(
+                    resources.getQuantityString(
+                        R.plurals.text_sources_restored_from_trash,
+                        batch.restoredCount,
+                        batch.restoredCount,
+                    ),
+                )
+            }
+            if (remaining > 0) {
+                add(
+                    resources.getQuantityString(
+                        R.plurals.warning_sources_not_restored,
+                        remaining,
+                        remaining,
+                    ),
+                )
+            }
+            if (isEmpty()) add(getString(R.string.text_source_restore_no_change))
+        }.joinToString("\n")
+    }
+
+    private fun targetTrashBatchStateLabel(state: Int): String = getString(
+        when (state) {
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE ->
+                R.string.text_source_recovery_state_available
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_PARTIAL ->
+                R.string.text_source_recovery_state_partial
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED ->
+                R.string.text_source_recovery_state_restored
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_STALE ->
+                R.string.text_source_recovery_state_stale
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RECOVERY_REQUIRED ->
+                R.string.text_source_recovery_state_recovery_required
+            else -> R.string.text_source_recovery_state_failed
+        },
+    )
+
+    private fun formatTargetTrashHistoryDate(timestamp: Long): String {
+        val date = Date(timestamp)
+        return DateFormat.getMediumDateFormat(this).format(date) + " " +
+            DateFormat.getTimeFormat(this).format(date)
+    }
+
+    private fun renderCreationCompleted() = with(binding) {
+        progress.isVisible = false
+        status.isVisible = true
+        status.text = listOfNotNull(completedArchiveMessage, completedRestoreMessage)
+            .joinToString("\n")
+        password.text?.clear()
+        passwordConfirmation.text?.clear()
+        passwordConfirmationLayout.error = null
+        outputNameLayout.isEnabled = false
+        creationConflictPolicyLayout.isEnabled = false
+        creationConflictPolicy.isEnabled = false
+        format.isEnabled = false
+        compressionLevel.isEnabled = false
+        passwordLayout.isEnabled = false
+        password.isEnabled = false
+        passwordConfirmationLayout.isEnabled = false
+        passwordConfirmation.isEnabled = false
+        encryptFileNames.isEnabled = false
+        splitVolumeLayout.isEnabled = false
+        splitVolume.isEnabled = false
+        separateArchives.isEnabled = false
+        moveSourcesToTrash.isEnabled = false
+        createButton.isVisible = activeTargetTrashBatch?.canUndo == true
+        createButton.isEnabled = activeTargetTrashBatch?.canUndo == true
+        createButton.setText(
+            if (completedRestoreMessage == null) {
+                R.string.action_restore_sources
+            } else {
+                R.string.action_retry_source_restore
+            },
+        )
+        cancelButton.isEnabled = true
+        cancelButton.setText(R.string.dialog_button_done)
+        targetTrashHistoryMenuItem?.isEnabled = true
+    }
+
     private fun setBusy(
         busy: Boolean,
         message: String,
@@ -975,6 +1312,7 @@ class CreateArchiveActivity : AppCompatActivity() {
         createButton.isEnabled = !busy
         cancelButton.isEnabled = !busy || cancellable
         cancelButton.text = getString(R.string.dialog_button_cancel)
+        targetTrashHistoryMenuItem?.isEnabled = !busy
     }
 
     private fun appendTargetTrashResult(
@@ -1044,11 +1382,17 @@ class CreateArchiveActivity : AppCompatActivity() {
         val UI_PROGRESS_INTERVAL_NANOS = TimeUnit.MILLISECONDS.toNanos(100)
         const val MAX_ERROR_REASON_LENGTH = 500
         const val MAX_SEPARATE_ARCHIVE_PREVIEW_NAMES = 5
+        const val MAX_HISTORY_PREVIEW_NAMES = 2
+        const val MAX_HISTORY_DETAIL_NAMES = 12
+        const val MENU_TARGET_TRASH_HISTORY = 21_001
         const val STATE_CONFLICT_POLICY = "creation_conflict_policy"
         const val STATE_SEPARATE_ARCHIVES = "separate_archives"
         const val STATE_MOVE_SOURCES_TO_TRASH = "move_sources_to_trash"
         const val STATE_SPLIT_VOLUME_SIZE_MIB = "split_volume_size_mib"
         const val STATE_TERMINAL_FAILURE = "terminal_creation_failure"
+        const val STATE_COMPLETED_ARCHIVE_MESSAGE = "completed_archive_message"
+        const val STATE_COMPLETED_RESTORE_MESSAGE = "completed_restore_message"
+        const val STATE_TARGET_TRASH_BATCH_ID = "target_trash_batch_id"
     }
 
     private data class SplitVolumeChoice(

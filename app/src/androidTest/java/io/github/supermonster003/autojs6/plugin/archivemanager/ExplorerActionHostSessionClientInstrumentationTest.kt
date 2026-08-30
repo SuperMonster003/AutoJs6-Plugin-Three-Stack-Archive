@@ -7,6 +7,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionValues
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
@@ -18,11 +19,13 @@ class ExplorerActionHostSessionClientInstrumentationTest {
     fun lostMoveResponseRecoversTheTerminalCommittedResult() {
         val outputId = UUID.randomUUID().toString()
         val trashId = UUID.randomUUID().toString()
+        val batchId = UUID.randomUUID().toString()
         val terminal = targetTrashBundle(
             state = ExplorerActionHostSessionValues.TARGET_TRASH_STATE_COMMITTED,
             trashItemIds = listOf(trashId),
             movedCount = 1,
             recoveryCount = 0,
+            batchId = batchId,
         )
         val host = object : UnusedTestExplorerActionHostSession() {
             private var queryResult = targetTrashBundle(
@@ -54,6 +57,7 @@ class ExplorerActionHostSessionClientInstrumentationTest {
         assertEquals(listOf(trashId), result.trashItemIds)
         assertEquals(1, result.movedCount)
         assertEquals(0, result.recoveryCount)
+        assertEquals(batchId, result.batchId)
     }
 
     @Test
@@ -82,6 +86,7 @@ class ExplorerActionHostSessionClientInstrumentationTest {
     @Test
     fun inconsistentRecoveryResultIsRejected() {
         val outputId = UUID.randomUUID().toString()
+        val batchId = UUID.randomUUID().toString()
         val host = object : UnusedTestExplorerActionHostSession() {
             override fun moveTargetsToTrash(
                 targetIds: MutableList<String>,
@@ -91,6 +96,7 @@ class ExplorerActionHostSessionClientInstrumentationTest {
                 trashItemIds = emptyList(),
                 movedCount = 1,
                 recoveryCount = 0,
+                batchId = batchId,
             )
         }
 
@@ -99,6 +105,107 @@ class ExplorerActionHostSessionClientInstrumentationTest {
                 targetIds = listOf("target-1"),
                 outputTransactionIds = listOf(outputId),
             )
+        }
+    }
+
+    @Test
+    fun targetTrashBatchHistoryIsDecodedAndLostUndoResponseIsRecovered() {
+        val batchId = UUID.randomUUID().toString()
+        val available = targetTrashBatchBundle(
+            batchId = batchId,
+            state = ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE,
+            items = listOf(
+                "source.txt" to ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED,
+            ),
+            movedCount = 1,
+            restoredCount = 0,
+            recoveryCount = 0,
+        )
+        val restored = targetTrashBatchBundle(
+            batchId = batchId,
+            state = ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED,
+            items = listOf(
+                "source.txt" to ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RESTORED,
+            ),
+            movedCount = 1,
+            restoredCount = 1,
+            recoveryCount = 0,
+            updatedAt = 2_000L,
+        )
+        val host = object : UnusedTestExplorerActionHostSession() {
+            private var current = Bundle(available)
+
+            override fun listTargetTrashBatches(): Bundle = Bundle().apply {
+                putParcelableArrayList(
+                    ExplorerActionHostSessionKeys.TARGET_TRASH_BATCHES,
+                    arrayListOf(Bundle(current)),
+                )
+            }
+
+            override fun queryTargetTrashBatch(targetTrashBatchId: String): Bundle {
+                assertEquals(batchId, targetTrashBatchId)
+                return Bundle(current)
+            }
+
+            override fun undoTargetTrashBatch(targetTrashBatchId: String): Bundle {
+                assertEquals(batchId, targetTrashBatchId)
+                current = Bundle(restored)
+                throw RemoteException("simulated lost undo response")
+            }
+        }
+        val client = ExplorerActionHostSessionClient(host)
+
+        val listed = client.listTargetTrashBatches().single()
+        assertEquals(batchId, listed.id)
+        assertTrue(listed.canUndo)
+        assertEquals("source.txt", listed.items.single().displayName)
+        assertEquals(1_000L, listed.createdAt)
+
+        val recovered = client.undoTargetTrashBatch(batchId)
+        assertEquals(ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED, recovered.state)
+        assertEquals(1, recovered.restoredCount)
+        assertFalse(recovered.canUndo)
+        assertEquals(recovered, client.queryTargetTrashBatch(batchId))
+    }
+
+    @Test
+    fun unknownTargetTrashBatchReturnsNullWithoutAcceptingMetadata() {
+        val batchId = UUID.randomUUID().toString()
+        val host = object : UnusedTestExplorerActionHostSession() {
+            override fun queryTargetTrashBatch(targetTrashBatchId: String): Bundle = Bundle().apply {
+                putString(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID, batchId)
+                putInt(
+                    ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_STATE,
+                    ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN,
+                )
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT, 0)
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RESTORED_COUNT, 0)
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, 0)
+            }
+        }
+
+        assertEquals(null, ExplorerActionHostSessionClient(host).queryTargetTrashBatch(batchId))
+    }
+
+    @Test
+    fun inconsistentTargetTrashBatchCountsAreRejected() {
+        val batchId = UUID.randomUUID().toString()
+        val host = object : UnusedTestExplorerActionHostSession() {
+            override fun queryTargetTrashBatch(targetTrashBatchId: String): Bundle =
+                targetTrashBatchBundle(
+                    batchId = batchId,
+                    state = ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE,
+                    items = listOf(
+                        "source.txt" to ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED,
+                    ),
+                    movedCount = 0,
+                    restoredCount = 0,
+                    recoveryCount = 0,
+                )
+        }
+
+        expectIllegalArgument {
+            ExplorerActionHostSessionClient(host).queryTargetTrashBatch(batchId)
         }
     }
 
@@ -177,6 +284,7 @@ class ExplorerActionHostSessionClientInstrumentationTest {
             trashItemIds: List<String>,
             movedCount: Int,
             recoveryCount: Int,
+            batchId: String? = null,
         ): Bundle = Bundle().apply {
             putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_STATE, state)
             putStringArrayList(
@@ -185,6 +293,45 @@ class ExplorerActionHostSessionClientInstrumentationTest {
             )
             putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT, movedCount)
             putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, recoveryCount)
+            batchId?.let {
+                putString(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID, it)
+            }
+        }
+
+        fun targetTrashBatchBundle(
+            batchId: String,
+            state: Int,
+            items: List<Pair<String, Int>>,
+            movedCount: Int,
+            restoredCount: Int,
+            recoveryCount: Int,
+            createdAt: Long = 1_000L,
+            updatedAt: Long = createdAt,
+        ): Bundle = Bundle().apply {
+            putString(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID, batchId)
+            putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_STATE, state)
+            putLong(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_CREATED_AT, createdAt)
+            putLong(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_UPDATED_AT, updatedAt)
+            putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT, movedCount)
+            putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RESTORED_COUNT, restoredCount)
+            putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, recoveryCount)
+            putParcelableArrayList(
+                ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ITEMS,
+                ArrayList(
+                    items.map { (displayName, itemState) ->
+                        Bundle().apply {
+                            putString(
+                                ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_DISPLAY_NAME,
+                                displayName,
+                            )
+                            putInt(
+                                ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_STATE,
+                                itemState,
+                            )
+                        }
+                    },
+                ),
+            )
         }
 
         fun targetReplacementBundle(

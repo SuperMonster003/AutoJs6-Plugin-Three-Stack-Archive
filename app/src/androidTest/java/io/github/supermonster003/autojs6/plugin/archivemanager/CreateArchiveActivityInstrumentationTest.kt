@@ -12,6 +12,7 @@ import android.os.ParcelFileDescriptor
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnit4
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textfield.TextInputLayout
 import org.autojs.plugin.explorer.api.ExplorerActionHostSessionKeys
@@ -80,10 +81,55 @@ class CreateArchiveActivityInstrumentationTest {
                     assertFalse(activity.isFinishing)
                 }
                 hostSession.allowMove.countDown()
-                assertTrue(hostSession.closeCalled.await(10, TimeUnit.SECONDS))
+                waitForActivity(scenario) { activity ->
+                    val restoreButton = activity.findViewById<android.widget.Button>(
+                        R.id.createButton,
+                    )
+                    val menu = activity.findViewById<MaterialToolbar>(R.id.toolbar).menu
+                    restoreButton.isShown &&
+                        restoreButton.text == activity.getString(R.string.action_restore_sources) &&
+                        (0 until menu.size()).any { index ->
+                            val item = menu.getItem(index)
+                            item.isVisible &&
+                                item.title == activity.getString(
+                                    R.string.action_source_recovery_history,
+                                )
+                        }
+                }
                 assertTrue(hostSession.outputCommittedBeforeMove.get())
                 assertEquals(listOf("target-1"), hostSession.receivedTargetIds)
                 assertEquals(listOf(hostSession.transactionId), hostSession.receivedOutputIds)
+                assertFalse(hostSession.sourceExists())
+                assertTrue(hostSession.committedOutputExists())
+                assertEquals(1L, hostSession.closeCalled.count)
+
+                scenario.recreate()
+                waitForActivity(scenario) { activity ->
+                    activity.findViewById<android.widget.Button>(R.id.createButton).isShown &&
+                        activity.findViewById<android.widget.Button>(R.id.cancelButton).text ==
+                        activity.getString(R.string.dialog_button_done)
+                }
+                scenario.onActivity { activity ->
+                    activity.findViewById<android.view.View>(R.id.createButton).performClick()
+                }
+                assertTrue(hostSession.undoCompleted.await(10, TimeUnit.SECONDS))
+                waitForActivity(scenario) { activity ->
+                    !activity.findViewById<android.view.View>(R.id.createButton).isShown &&
+                        activity.findViewById<android.widget.TextView>(R.id.status).text
+                            .contains(
+                                activity.resources.getQuantityString(
+                                    R.plurals.text_sources_restored_from_trash,
+                                    1,
+                                    1,
+                                ),
+                            )
+                }
+                assertTrue(hostSession.sourceExists())
+                assertTrue(hostSession.committedOutputExists())
+                scenario.onActivity { activity ->
+                    activity.findViewById<android.view.View>(R.id.cancelButton).performClick()
+                }
+                assertTrue(hostSession.closeCalled.await(10, TimeUnit.SECONDS))
             }
         } finally {
             hostSession.allowMove.countDown()
@@ -901,16 +947,21 @@ class CreateArchiveActivityInstrumentationTest {
     private class SuccessfulTargetTrashHostSession(context: Context) : TestExplorerActionHostSession() {
         val transactionId: String = UUID.randomUUID().toString()
         private val trashItemId = UUID.randomUUID().toString()
+        private val targetTrashBatchId = UUID.randomUUID().toString()
         private val root = File(context.cacheDir, "create-archive-v16-${System.nanoTime()}").apply {
             check(mkdirs())
         }
         private val source = File(root, "report.txt").apply { writeText("source") }
+        private val trashedSource = File(root, ".trashed-report.txt")
         private val pending = File(root, ".pending")
         private val committed = File(root, "report.txt.zip")
         private val outputCommitted = AtomicBoolean()
+        @Volatile
+        private var targetTrashBatchState = ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN
         val outputCommittedBeforeMove = AtomicBoolean()
         val moveStarted = CountDownLatch(1)
         val allowMove = CountDownLatch(1)
+        val undoCompleted = CountDownLatch(1)
         val closeCalled = CountDownLatch(1)
         var receivedTargetIds: List<String> = emptyList()
             private set
@@ -982,6 +1033,8 @@ class CreateArchiveActivityInstrumentationTest {
             outputCommittedBeforeMove.set(outputCommitted.get() && committed.isFile)
             moveStarted.countDown()
             check(allowMove.await(10, TimeUnit.SECONDS))
+            check(source.renameTo(trashedSource))
+            targetTrashBatchState = ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE
             return targetTrashBundle(
                 ExplorerActionHostSessionValues.TARGET_TRASH_STATE_COMMITTED,
             ).also { trashResult = Bundle(it) }
@@ -990,6 +1043,34 @@ class CreateArchiveActivityInstrumentationTest {
         override fun queryTargetTrash(): Bundle = trashResult?.let(::Bundle) ?: targetTrashBundle(
             ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN,
         )
+
+        override fun queryTargetTrashBatch(targetTrashBatchId: String): Bundle {
+            assertEquals(this.targetTrashBatchId, targetTrashBatchId)
+            return targetTrashBatchBundle()
+        }
+
+        override fun listTargetTrashBatches(): Bundle = Bundle().apply {
+            putParcelableArrayList(
+                ExplorerActionHostSessionKeys.TARGET_TRASH_BATCHES,
+                if (
+                    targetTrashBatchState ==
+                    ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN
+                ) {
+                    arrayListOf()
+                } else {
+                    arrayListOf(targetTrashBatchBundle())
+                },
+            )
+        }
+
+        override fun undoTargetTrashBatch(targetTrashBatchId: String): Bundle {
+            assertEquals(this.targetTrashBatchId, targetTrashBatchId)
+            check(targetTrashBatchState == ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE)
+            check(!source.exists())
+            check(trashedSource.renameTo(source))
+            targetTrashBatchState = ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED
+            return targetTrashBatchBundle().also { undoCompleted.countDown() }
+        }
 
         override fun commitOutputBatch(batchId: String): Bundle =
             error("Output batches are not expected")
@@ -1001,6 +1082,10 @@ class CreateArchiveActivityInstrumentationTest {
         fun cleanup() {
             root.deleteRecursively()
         }
+
+        fun sourceExists(): Boolean = source.isFile
+
+        fun committedOutputExists(): Boolean = committed.isFile
 
         private fun outputBundle(state: Int, includeSize: Boolean): Bundle = Bundle().apply {
             putString(ExplorerActionHostSessionKeys.OUTPUT_TRANSACTION_ID, transactionId)
@@ -1028,6 +1113,66 @@ class CreateArchiveActivityInstrumentationTest {
                 if (state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN) 0 else 1,
             )
             putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, 0)
+            if (state != ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN) {
+                putString(
+                    ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID,
+                    targetTrashBatchId,
+                )
+            }
+        }
+
+        private fun targetTrashBatchBundle(): Bundle = Bundle().apply {
+            putString(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID, targetTrashBatchId)
+            putInt(
+                ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_STATE,
+                targetTrashBatchState,
+            )
+            if (
+                targetTrashBatchState !=
+                ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN
+            ) {
+                putLong(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_CREATED_AT, 1_000L)
+                putLong(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_UPDATED_AT, 2_000L)
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT, 1)
+                putInt(
+                    ExplorerActionHostSessionKeys.TARGET_TRASH_RESTORED_COUNT,
+                    if (
+                        targetTrashBatchState ==
+                        ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED
+                    ) {
+                        1
+                    } else {
+                        0
+                    },
+                )
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, 0)
+                putParcelableArrayList(
+                    ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ITEMS,
+                    arrayListOf(
+                        Bundle().apply {
+                            putString(
+                                ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_DISPLAY_NAME,
+                                source.name,
+                            )
+                            putInt(
+                                ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_STATE,
+                                if (
+                                    targetTrashBatchState ==
+                                    ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED
+                                ) {
+                                    ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RESTORED
+                                } else {
+                                    ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED
+                                },
+                            )
+                        },
+                    ),
+                )
+            } else {
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT, 0)
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RESTORED_COUNT, 0)
+                putInt(ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT, 0)
+            }
         }
     }
 

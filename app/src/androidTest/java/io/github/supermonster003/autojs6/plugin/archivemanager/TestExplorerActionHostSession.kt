@@ -44,6 +44,13 @@ internal abstract class TestExplorerActionHostSession : IExplorerActionHostSessi
 
     override fun queryTargetTrash(): Bundle = Bundle()
 
+    override fun queryTargetTrashBatch(targetTrashBatchId: String): Bundle = Bundle()
+
+    override fun listTargetTrashBatches(): Bundle = Bundle()
+
+    override fun undoTargetTrashBatch(targetTrashBatchId: String): Bundle =
+        error("Target Trash batch undo is not used by this test host session")
+
     override fun queryTargetReplacement(targetId: String): Bundle = Bundle()
 
     override fun undoTargetReplacement(targetId: String, replacementHistoryId: String): Bundle =

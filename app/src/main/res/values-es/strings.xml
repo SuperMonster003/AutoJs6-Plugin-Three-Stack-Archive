@@ -272,4 +272,33 @@
     <string name="text_previous_archive_version_restored">Versión anterior: restaurada. Esta restauración de un solo uso ya se utilizó.</string>
     <string name="text_previous_archive_version_stale">Versión anterior: no disponible porque el archivo actual cambió después de actualizarse.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restaurando la versión anterior del archivo...</string>
+    <string name="action_source_recovery_history">Historial de recuperación de fuentes</string>
+    <string name="action_restore_sources">Restaurar fuentes</string>
+    <string name="action_retry_source_restore">Reintentar restauración</string>
+    <string name="dialog_button_done">Listo</string>
+    <string name="dialog_title_source_recovery_history">Historial de recuperación de fuentes</string>
+    <string name="dialog_title_source_recovery_details">Detalles de recuperación de fuentes</string>
+    <string name="error_source_restore_failed">No se pudieron restaurar los elementos de origen. Motivo: %1$s</string>
+    <string name="text_restoring_sources">Restaurando elementos de origen desde la papelera</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Creado: %1$s\nEstado: %2$s\nRegistros en la papelera: %3$d\nRestaurados: %4$d\nRequieren atención: %5$d\n\nElementos de origen:\n%6$s</string>
+    <string name="text_source_recovery_state_available">Disponible para restaurar</string>
+    <string name="text_source_recovery_state_partial">Disponible parcialmente</string>
+    <string name="text_source_recovery_state_restored">Restaurado</string>
+    <string name="text_source_recovery_state_stale">Conflicto de nombre o historial obsoleto</string>
+    <string name="text_source_recovery_state_recovery_required">La recuperación requiere atención</string>
+    <string name="text_source_recovery_state_failed">No se movió ningún elemento de origen</string>
+    <string name="text_source_restore_no_change">No se restauraron más elementos de origen. Los archivos comprimidos creados se conservaron.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ %1$d elemento más</item>
+        <item quantity="other">+ %1$d elementos más</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">Se restauró %1$d elemento de origen. Los archivos comprimidos creados se conservaron.</item>
+        <item quantity="other">Se restauraron %1$d elementos de origen. Los archivos comprimidos creados se conservaron.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">No se restauró %1$d elemento de origen porque su nombre original está ocupado o la recuperación aún requiere atención. Permanece en la papelera de AutoJs6 si hay una copia disponible.</item>
+        <item quantity="other">No se restauraron %1$d elementos de origen porque sus nombres originales están ocupados o la recuperación aún requiere atención. Permanecen en la papelera de AutoJs6 si hay copias disponibles.</item>
+    </plurals>
 </resources>

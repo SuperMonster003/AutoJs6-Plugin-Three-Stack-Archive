@@ -1,5 +1,14 @@
 # Notes de version
 
+## v2.21.0
+
+_2026/08/30_
+
+- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v21 (code de version 5276 ou supérieur)
+- `Ajout` La création d'archive conserve désormais une page de fin et un historique de récupération des sources; les sources envoyées à la Corbeille après accord explicite peuvent être restaurées après recréation de l'Activity ou de la session hôte
+- `Correction` La restauration des sources n'écrase jamais un nom existant et ne supprime jamais une archive créée; les conflits et restaurations partielles ou interrompues conservent les preuves de récupération et signalent le résultat de chaque élément
+- `Amélioration` L'hôte conserve l'historique durable et borné et n'expose que des métadonnées opaques; la récupération reste dans la page de compression du plugin et la disposition ordinaire du gestionnaire de fichiers ne change pas
+
 ## v2.20.0
 
 _2026/08/30_

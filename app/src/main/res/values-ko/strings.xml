@@ -272,4 +272,30 @@
     <string name="text_previous_archive_version_restored">이전 버전: 복원됨. 일회성 복원을 이미 사용했습니다.</string>
     <string name="text_previous_archive_version_stale">이전 버전: 업데이트 후 현재 압축 파일이 변경되어 사용할 수 없습니다.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">이전 압축 파일 버전을 복원하는 중...</string>
+    <string name="action_source_recovery_history">원본 항목 복원 기록</string>
+    <string name="action_restore_sources">원본 항목 복원</string>
+    <string name="action_retry_source_restore">복원 다시 시도</string>
+    <string name="dialog_button_done">완료</string>
+    <string name="dialog_title_source_recovery_history">원본 항목 복원 기록</string>
+    <string name="dialog_title_source_recovery_details">원본 항목 복원 세부정보</string>
+    <string name="error_source_restore_failed">원본 항목을 복원하지 못했습니다. 이유: %1$s</string>
+    <string name="text_restoring_sources">휴지통에서 원본 항목을 복원하는 중</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">생성 시간: %1$s\n상태: %2$s\n휴지통 기록: %3$d\n복원됨: %4$d\n확인 필요: %5$d\n\n원본 항목:\n%6$s</string>
+    <string name="text_source_recovery_state_available">복원 가능</string>
+    <string name="text_source_recovery_state_partial">일부 복원 가능</string>
+    <string name="text_source_recovery_state_restored">복원됨</string>
+    <string name="text_source_recovery_state_stale">이름 충돌 또는 만료된 기록</string>
+    <string name="text_source_recovery_state_recovery_required">복구 확인 필요</string>
+    <string name="text_source_recovery_state_failed">이동된 원본 항목 없음</string>
+    <string name="text_source_restore_no_change">추가로 복원된 원본 항목이 없습니다. 생성된 압축 파일은 유지되었습니다.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="other">항목 %1$d개 더 있음</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="other">원본 항목 %1$d개를 복원했습니다. 생성된 압축 파일은 유지되었습니다.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="other">원래 이름이 사용 중이거나 복구 확인이 필요하여 원본 항목 %1$d개를 복원하지 못했습니다. 복구 사본이 있으면 AutoJs6 휴지통에 계속 보관됩니다.</item>
+    </plurals>
 </resources>

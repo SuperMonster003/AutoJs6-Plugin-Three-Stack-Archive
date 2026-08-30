@@ -54,7 +54,32 @@ internal data class HostTargetTrashResult(
     val trashItemIds: List<String>,
     val movedCount: Int,
     val recoveryCount: Int,
+    val batchId: String? = null,
 )
+
+internal data class HostTargetTrashBatchItem(
+    val displayName: String,
+    val state: Int,
+)
+
+internal data class HostTargetTrashBatch(
+    val id: String,
+    val state: Int,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val movedCount: Int,
+    val restoredCount: Int,
+    val recoveryCount: Int,
+    val items: List<HostTargetTrashBatchItem>,
+) {
+    val canUndo: Boolean
+        get() = (
+            state == ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE ||
+                state == ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_PARTIAL
+            ) && items.any { item ->
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED
+            }
+}
 
 internal data class HostTargetReplacementHistory(
     val id: String,
@@ -365,6 +390,45 @@ internal class ExplorerActionHostSessionClient(
         expectedTargetCount,
     )
 
+    fun queryTargetTrashBatch(targetTrashBatchId: String): HostTargetTrashBatch? {
+        require(isCanonicalUuid(targetTrashBatchId)) {
+            "Host target Trash batch ID is invalid"
+        }
+        val result = remote.queryTargetTrashBatch(targetTrashBatchId)
+            ?: error("Host returned no target Trash batch state")
+        return decodeTargetTrashBatch(result, targetTrashBatchId)
+    }
+
+    fun listTargetTrashBatches(): List<HostTargetTrashBatch> {
+        val result = remote.listTargetTrashBatches()
+            ?: error("Host returned no target Trash batch list")
+        return result.parcelableBundleArrayList(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCHES)
+            .orEmpty()
+            .take(ExplorerActionProtocol.MAX_TARGET_TRASH_BATCH_RESULTS)
+            .mapNotNull { bundle -> runCatching { decodeTargetTrashBatch(bundle) }.getOrNull() }
+    }
+
+    fun undoTargetTrashBatch(targetTrashBatchId: String): HostTargetTrashBatch {
+        require(isCanonicalUuid(targetTrashBatchId)) {
+            "Host target Trash batch ID is invalid"
+        }
+        val result = try {
+            remote.undoTargetTrashBatch(targetTrashBatchId)
+                ?: error("Host returned no target Trash batch undo result")
+        } catch (error: Exception) {
+            val recovered = try {
+                remote.queryTargetTrashBatch(targetTrashBatchId)?.let { bundle ->
+                    decodeTargetTrashBatch(bundle, targetTrashBatchId)
+                }
+            } catch (_: Exception) {
+                null
+            }
+            return recovered ?: throw error
+        }
+        return decodeTargetTrashBatch(result, targetTrashBatchId)
+            ?: error("Host returned an empty target Trash batch undo result")
+    }
+
     fun queryTargetReplacement(targetId: String): HostTargetReplacementHistory? =
         decodeTargetReplacement(
             remote.queryTargetReplacement(targetId)
@@ -483,7 +547,146 @@ internal class ExplorerActionHostSessionClient(
                     recoveryCount <= trashItemIds.size,
             ) { "Host target Trash recovery state is inconsistent" }
         }
-        return HostTargetTrashResult(state, trashItemIds, movedCount, recoveryCount)
+        val batchId = bundle.getString(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID)?.also {
+            require(isCanonicalUuid(it)) { "Host target Trash batch ID is invalid" }
+        }
+        if (state == ExplorerActionHostSessionValues.TARGET_TRASH_STATE_UNKNOWN) {
+            require(batchId == null) { "Unknown host target Trash state contains a batch ID" }
+        } else {
+            require(batchId != null) { "Host target Trash result has no batch ID" }
+        }
+        return HostTargetTrashResult(state, trashItemIds, movedCount, recoveryCount, batchId)
+    }
+
+    private fun decodeTargetTrashBatch(
+        bundle: Bundle,
+        expectedBatchId: String? = null,
+    ): HostTargetTrashBatch? {
+        val id = bundle.getString(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ID)
+            ?.takeIf(::isCanonicalUuid)
+            ?: error("Host target Trash batch ID is invalid")
+        expectedBatchId?.let { expected ->
+            require(id == expected) { "Host target Trash batch ID changed" }
+        }
+        val state = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_STATE,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN,
+        )
+        require(state in VALID_TARGET_TRASH_BATCH_STATES) {
+            "Host target Trash batch state is invalid"
+        }
+        val itemBundles = bundle.parcelableBundleArrayList(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_ITEMS,
+        ).orEmpty()
+        require(itemBundles.size <= ExplorerActionProtocol.MAX_TARGET_TRASH_ITEM_RESULTS) {
+            "Host target Trash batch item count is invalid"
+        }
+        val items = itemBundles.map { item ->
+            val displayName = ArchiveCompressionIntentPolicy.validateLeafName(
+                item.getString(ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_DISPLAY_NAME),
+            ) ?: error("Host target Trash item display name is invalid")
+            val itemState = item.getInt(
+                ExplorerActionHostSessionKeys.TARGET_TRASH_ITEM_STATE,
+                ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_UNKNOWN,
+            )
+            require(itemState in VALID_TARGET_TRASH_ITEM_STATES) {
+                "Host target Trash item state is invalid"
+            }
+            HostTargetTrashBatchItem(displayName, itemState)
+        }
+        val movedCount = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_MOVED_COUNT,
+            -1,
+        )
+        val restoredCount = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_RESTORED_COUNT,
+            -1,
+        )
+        val recoveryCount = bundle.getInt(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_RECOVERY_COUNT,
+            -1,
+        )
+        require(
+            movedCount in 0..items.size &&
+                restoredCount in 0..movedCount &&
+                recoveryCount in 0..movedCount,
+        ) { "Host target Trash batch counts are invalid" }
+        if (state == ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN) {
+            require(
+                items.isEmpty() && movedCount == 0 && restoredCount == 0 && recoveryCount == 0 &&
+                    !bundle.containsKey(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_CREATED_AT) &&
+                    !bundle.containsKey(ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_UPDATED_AT),
+            ) { "Unknown host target Trash batch contains results" }
+            return null
+        }
+        require(items.isNotEmpty()) { "Host target Trash batch has no item results" }
+        val createdAt = bundle.getLong(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_CREATED_AT,
+            -1L,
+        )
+        val updatedAt = bundle.getLong(
+            ExplorerActionHostSessionKeys.TARGET_TRASH_BATCH_UPDATED_AT,
+            -1L,
+        )
+        require(createdAt >= 0L && updatedAt >= createdAt) {
+            "Host target Trash batch timestamps are invalid"
+        }
+        val crossedTrashBoundary = items.count { item ->
+            item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED ||
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RESTORED ||
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_STALE ||
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RECOVERY_REQUIRED
+        }
+        require(movedCount == crossedTrashBoundary) {
+            "Host target Trash moved count is inconsistent"
+        }
+        require(
+            restoredCount == items.count { item ->
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RESTORED
+            } && recoveryCount == items.count { item ->
+                item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_STALE ||
+                    item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RECOVERY_REQUIRED
+            },
+        ) { "Host target Trash terminal counts are inconsistent" }
+        val hasMoved = items.any { item ->
+            item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED
+        }
+        when (state) {
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE ->
+                require(items.all { item ->
+                    item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED
+                }) { "Available host target Trash batch is incomplete" }
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_PARTIAL ->
+                require(hasMoved && items.any { item ->
+                    item.state != ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED
+                }) { "Partial host target Trash batch is inconsistent" }
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED ->
+                require(!hasMoved && restoredCount > 0 && recoveryCount == 0) {
+                    "Restored host target Trash batch is inconsistent"
+                }
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_STALE ->
+                require(!hasMoved && items.any { item ->
+                    item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_STALE
+                }) { "Stale host target Trash batch is inconsistent" }
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RECOVERY_REQUIRED ->
+                require(!hasMoved && items.any { item ->
+                    item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RECOVERY_REQUIRED
+                }) { "Host target Trash recovery batch is inconsistent" }
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_FAILED ->
+                require(movedCount == 0 && items.all { item ->
+                    item.state == ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_NOT_MOVED
+                }) { "Failed host target Trash batch contains moved items" }
+        }
+        return HostTargetTrashBatch(
+            id = id,
+            state = state,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            movedCount = movedCount,
+            restoredCount = restoredCount,
+            recoveryCount = recoveryCount,
+            items = items,
+        )
     }
 
     private fun decodeTargetReplacement(bundle: Bundle): HostTargetReplacementHistory? {
@@ -735,6 +938,23 @@ internal class ExplorerActionHostSessionClient(
             ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_STALE,
             ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_RECOVERY_REQUIRED,
             ExplorerActionHostSessionValues.TARGET_REPLACEMENT_UNDO_STATE_UNKNOWN,
+        )
+        val VALID_TARGET_TRASH_BATCH_STATES = setOf(
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_AVAILABLE,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_PARTIAL,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RESTORED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_STALE,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_RECOVERY_REQUIRED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_FAILED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_BATCH_STATE_UNKNOWN,
+        )
+        val VALID_TARGET_TRASH_ITEM_STATES = setOf(
+            ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_MOVED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_NOT_MOVED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RESTORED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_STALE,
+            ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_RECOVERY_REQUIRED,
+            ExplorerActionHostSessionValues.TARGET_TRASH_ITEM_STATE_UNKNOWN,
         )
     }
 }

@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.21.0
+
+_2026/08/30_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer)
+- `Added` Archive creation now keeps a completion page and Source recovery history; sources moved to Trash by explicit opt-in can be restored after Activity or host-session recreation
+- `Fixed` Source restore never overwrites an existing name or deletes a created archive; conflicts and partial or interrupted restores retain recovery evidence and report per-item outcomes
+- `Improved` The host owns the bounded durable history and exposes only opaque metadata; recovery UI stays inside the plugin compression page and the ordinary file-manager layout remains unchanged
+
 ## v2.20.0
 
 _2026/08/30_

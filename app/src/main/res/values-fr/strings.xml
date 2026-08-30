@@ -272,4 +272,33 @@
     <string name="text_previous_archive_version_restored">Version précédente: restaurée. Cette restauration à usage unique a été utilisée.</string>
     <string name="text_previous_archive_version_stale">Version précédente: indisponible, car l\'archive actuelle a changé après sa mise à jour.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restauration de la version précédente de l\'archive...</string>
+    <string name="action_source_recovery_history">Historique de récupération des sources</string>
+    <string name="action_restore_sources">Restaurer les sources</string>
+    <string name="action_retry_source_restore">Réessayer la restauration</string>
+    <string name="dialog_button_done">Terminé</string>
+    <string name="dialog_title_source_recovery_history">Historique de récupération des sources</string>
+    <string name="dialog_title_source_recovery_details">Détails de récupération des sources</string>
+    <string name="error_source_restore_failed">Les éléments sources n\'ont pas pu être restaurés. Motif: %1$s</string>
+    <string name="text_restoring_sources">Restauration des éléments sources depuis la corbeille</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Créé: %1$s\nÉtat: %2$s\nEnregistrements de corbeille: %3$d\nRestaurés: %4$d\nNécessitent une intervention: %5$d\n\nÉléments sources:\n%6$s</string>
+    <string name="text_source_recovery_state_available">Disponible à la restauration</string>
+    <string name="text_source_recovery_state_partial">Partiellement disponible</string>
+    <string name="text_source_recovery_state_restored">Restauré</string>
+    <string name="text_source_recovery_state_stale">Conflit de nom ou historique obsolète</string>
+    <string name="text_source_recovery_state_recovery_required">La récupération nécessite une intervention</string>
+    <string name="text_source_recovery_state_failed">Aucun élément source déplacé</string>
+    <string name="text_source_restore_no_change">Aucun autre élément source n\'a été restauré. Les archives créées ont été conservées.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ %1$d élément supplémentaire</item>
+        <item quantity="other">+ %1$d éléments supplémentaires</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">%1$d élément source restauré. Les archives créées ont été conservées.</item>
+        <item quantity="other">%1$d éléments sources restaurés. Les archives créées ont été conservées.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">%1$d élément source n\'a pas été restauré car son nom d\'origine est occupé ou la récupération nécessite encore une intervention. Il reste dans la corbeille AutoJs6 si une copie est disponible.</item>
+        <item quantity="other">%1$d éléments sources n\'ont pas été restaurés car leurs noms d\'origine sont occupés ou la récupération nécessite encore une intervention. Ils restent dans la corbeille AutoJs6 si des copies sont disponibles.</item>
+    </plurals>
 </resources>

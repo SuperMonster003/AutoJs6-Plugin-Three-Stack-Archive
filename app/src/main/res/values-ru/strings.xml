@@ -272,4 +272,39 @@
     <string name="text_previous_archive_version_restored">Предыдущая версия: восстановлена. Однократное восстановление уже использовано.</string>
     <string name="text_previous_archive_version_stale">Предыдущая версия: недоступна, поскольку текущий архив изменился после обновления.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Восстановление предыдущей версии архива...</string>
+    <string name="action_source_recovery_history">История восстановления исходных элементов</string>
+    <string name="action_restore_sources">Восстановить исходные элементы</string>
+    <string name="action_retry_source_restore">Повторить восстановление</string>
+    <string name="dialog_button_done">Готово</string>
+    <string name="dialog_title_source_recovery_history">История восстановления исходных элементов</string>
+    <string name="dialog_title_source_recovery_details">Сведения о восстановлении исходных элементов</string>
+    <string name="error_source_restore_failed">Не удалось восстановить исходные элементы. Причина: %1$s</string>
+    <string name="text_restoring_sources">Восстановление исходных элементов из корзины</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Создано: %1$s\nСостояние: %2$s\nЗаписи корзины: %3$d\nВосстановлено: %4$d\nТребует внимания: %5$d\n\nИсходные элементы:\n%6$s</string>
+    <string name="text_source_recovery_state_available">Доступно для восстановления</string>
+    <string name="text_source_recovery_state_partial">Доступно частично</string>
+    <string name="text_source_recovery_state_restored">Восстановлено</string>
+    <string name="text_source_recovery_state_stale">Конфликт имени или устаревшая история</string>
+    <string name="text_source_recovery_state_recovery_required">Восстановление требует внимания</string>
+    <string name="text_source_recovery_state_failed">Исходные элементы не перемещены</string>
+    <string name="text_source_restore_no_change">Дополнительные исходные элементы не восстановлены. Созданные архивы сохранены.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ ещё %1$d элемент</item>
+        <item quantity="few">+ ещё %1$d элемента</item>
+        <item quantity="many">+ ещё %1$d элементов</item>
+        <item quantity="other">+ ещё %1$d элемента</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">Восстановлен %1$d исходный элемент. Созданные архивы сохранены.</item>
+        <item quantity="few">Восстановлено %1$d исходных элемента. Созданные архивы сохранены.</item>
+        <item quantity="many">Восстановлено %1$d исходных элементов. Созданные архивы сохранены.</item>
+        <item quantity="other">Восстановлено %1$d исходного элемента. Созданные архивы сохранены.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">%1$d исходный элемент не восстановлен: его исходное имя занято или восстановление требует внимания. Копия остается в корзине AutoJs6, если она доступна.</item>
+        <item quantity="few">%1$d исходных элемента не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
+        <item quantity="many">%1$d исходных элементов не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
+        <item quantity="other">%1$d исходного элемента не восстановлено: исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
+    </plurals>
 </resources>

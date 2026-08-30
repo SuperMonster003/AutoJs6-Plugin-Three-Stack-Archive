@@ -272,4 +272,30 @@
     <string name="text_previous_archive_version_restored">上一版本: 已恢復. 此一次性恢復操作已使用.</string>
     <string name="text_previous_archive_version_stale">上一版本: 不可用, 因為目前的壓縮檔案在更新後又發生了變更.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">正在恢復壓縮檔案的上一版本...</string>
+    <string name="action_source_recovery_history">來源項目恢復記錄</string>
+    <string name="action_restore_sources">恢復來源項目</string>
+    <string name="action_retry_source_restore">重試恢復</string>
+    <string name="dialog_button_done">完成</string>
+    <string name="dialog_title_source_recovery_history">來源項目恢復記錄</string>
+    <string name="dialog_title_source_recovery_details">來源項目恢復詳情</string>
+    <string name="error_source_restore_failed">無法恢復來源項目. 原因: %1$s</string>
+    <string name="text_restoring_sources">正在從垃圾桶恢復來源項目</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">建立時間: %1$s\n狀態: %2$s\n垃圾桶記錄: %3$d\n已恢復: %4$d\n需要處理: %5$d\n\n來源項目:\n%6$s</string>
+    <string name="text_source_recovery_state_available">可恢復</string>
+    <string name="text_source_recovery_state_partial">部分可恢復</string>
+    <string name="text_source_recovery_state_restored">已恢復</string>
+    <string name="text_source_recovery_state_stale">名稱衝突或記錄已失效</string>
+    <string name="text_source_recovery_state_recovery_required">恢復需要處理</string>
+    <string name="text_source_recovery_state_failed">沒有來源項目被移動</string>
+    <string name="text_source_restore_no_change">沒有恢復其他來源項目. 已建立的壓縮檔案仍會保留.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="other">另有 %1$d 個項目</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="other">已恢復 %1$d 個來源項目. 已建立的壓縮檔案仍會保留.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="other">有 %1$d 個來源項目因原名稱已被佔用或仍需處理而未恢復. 如果恢復副本仍可用, 它們會繼續保留在 AutoJs6 垃圾桶中.</item>
+    </plurals>
 </resources>

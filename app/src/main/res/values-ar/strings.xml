@@ -272,4 +272,45 @@
     <string name="text_previous_archive_version_restored">الإصدار السابق: تمت استعادته. تم استخدام هذه الاستعادة لمرة واحدة.</string>
     <string name="text_previous_archive_version_stale">الإصدار السابق: غير متاح لأن الأرشيف الحالي تغير بعد تحديثه.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">جارٍ استعادة الإصدار السابق من الأرشيف...</string>
+    <string name="action_source_recovery_history">سجل استعادة العناصر المصدر</string>
+    <string name="action_restore_sources">استعادة العناصر المصدر</string>
+    <string name="action_retry_source_restore">إعادة محاولة الاستعادة</string>
+    <string name="dialog_button_done">تم</string>
+    <string name="dialog_title_source_recovery_history">سجل استعادة العناصر المصدر</string>
+    <string name="dialog_title_source_recovery_details">تفاصيل استعادة العناصر المصدر</string>
+    <string name="error_source_restore_failed">تعذرت استعادة العناصر المصدر. السبب: %1$s</string>
+    <string name="text_restoring_sources">جارٍ استعادة العناصر المصدر من المهملات</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">تاريخ الإنشاء: %1$s\nالحالة: %2$s\nسجلات المهملات: %3$d\nتمت استعادته: %4$d\nيحتاج إلى انتباه: %5$d\n\nالعناصر المصدر:\n%6$s</string>
+    <string name="text_source_recovery_state_available">متاح للاستعادة</string>
+    <string name="text_source_recovery_state_partial">متاح جزئيًا</string>
+    <string name="text_source_recovery_state_restored">تمت الاستعادة</string>
+    <string name="text_source_recovery_state_stale">تعارض في الاسم أو سجل قديم</string>
+    <string name="text_source_recovery_state_recovery_required">تحتاج الاستعادة إلى انتباه</string>
+    <string name="text_source_recovery_state_failed">لم تُنقل أي عناصر مصدر</string>
+    <string name="text_source_restore_no_change">لم تتم استعادة عناصر مصدر إضافية. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="zero">لا عناصر إضافية</item>
+        <item quantity="one">+ عنصر إضافي واحد</item>
+        <item quantity="two">+ عنصران إضافيان</item>
+        <item quantity="few">+ %1$d عناصر إضافية</item>
+        <item quantity="many">+ %1$d عنصرًا إضافيًا</item>
+        <item quantity="other">+ %1$d عنصر إضافي</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="zero">لم تتم استعادة أي عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="one">تمت استعادة عنصر مصدر واحد. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="two">تمت استعادة عنصري مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="few">تمت استعادة %1$d عناصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="many">تمت استعادة %1$d عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="other">تمت استعادة %1$d عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="zero">لم يتبق أي عنصر مصدر غير مستعاد.</item>
+        <item quantity="one">لم تتم استعادة عنصر مصدر واحد لأن اسمه الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
+        <item quantity="two">لم تتم استعادة عنصري مصدر لأن اسميهما الأصليين مستخدمان أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقيان في مهملات AutoJs6 إذا توفرت نسختا استرداد.</item>
+        <item quantity="few">لم تتم استعادة %1$d عناصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
+        <item quantity="many">لم تتم استعادة %1$d عنصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
+        <item quantity="other">لم تتم استعادة %1$d عنصر مصدر لأن الاسم الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
+    </plurals>
 </resources>

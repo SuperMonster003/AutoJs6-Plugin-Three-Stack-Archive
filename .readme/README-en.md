@@ -35,33 +35,21 @@ Archive Manager works inside the AutoJs6 file manager instead of replacing it. S
 
 ### Available now
 
-- Open ZIP-, 7Z-, and TAR-family archives directly in the native AutoJs6 file list, using the host theme, dark mode, and dynamic colors.
-- Show the external directory, archive name, and internal directory in the path bar; jump by tapping a level and use Back to move up before leaving the archive.
-- Extract the current internal folder from the path bar, or enter selection mode and extract selected files and folders, without leaving the native host page; progress is shown, the task can be cancelled, and the parent directory refreshes on completion.
-- Preview supported document, image, audio, and video entries with the host's existing viewers.
-- Use Extract to... to extract an entire archive into the recommended same-directory folder, or choose another folder with the Android system picker; equivalent existing folder names are safely numbered.
-- Choose Manage archive... to open the management page, extract the entire archive, current internal folder, or current checkbox selection, or edit an ordinary single-volume ZIP or eligible TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, or TAR.ZST/TZST archive with Add files..., Add folder..., New folder..., Rename..., and Delete; Extract to... remains the whole-archive shortcut.
-- ZIP and TAR changes are planned before writing, rebuilt into host-owned pending output, fully read back, and atomically replace the original only after verification. Cancellation or failure leaves the source unchanged, and a successful commit refreshes Explorer automatically.
-- Choose Ask each time, Skip, Overwrite, or Auto rename for equivalent output names; Apply to all handles compatible remaining conflicts, while existing output folders are always numbered and preserved.
-- Browse directories, search, and sort archive content.
-- Build the listing from directory metadata without decompressing every entry first.
-- Browse ordinary archives directly through the host's seekable read-only descriptor with independent positional channels and no whole-file copy; pipes, writable or non-seekable sources, Android 7, and readers that require a process-readable local file (currently encrypted ZIP) fall back to private cache, which is removed on close.
-- Choose Compatible, Strict, or Custom extraction budgets; an archive that exceeds entry, path, output-size, or compression-ratio thresholds stays browsable and shows its estimated space and risks for one-time confirmation before writing.
-- Show extraction entry and byte progress, the current item, transfer rate, and estimated time remaining; cancellation or failure rolls back the newly created output root, and a provider-refused residual is listed by name and URI.
-- Put parent-traversal, absolute, drive-prefixed, or control-character names in a path-bar-visible Unsafe paths folder; readable data remains previewable, while whole-archive extraction requires explicitly skipping those entries and leaves normal entries unaffected.
-- Browse, preview, and extract uncompressed TAR files; symbolic links, hard links, device nodes, and sparse entries are listed but never written as ordinary files.
-- Browse, preview, and extract TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives with the same internal paths, special-entry isolation, and integrity checks.
-- Browse, preview, and extract ordinary or solid 7Z archives, including common compression/filter pipelines plus content- and header-encrypted inputs; missing and wrong passwords receive explicit diagnostics.
-- Verify the actual ZIP/7Z/TAR structure and apply one capability model to preview, extraction, and creation, keeping unavailable options disabled.
-- Handle Zip64, self-extracting-style preambles, legacy filename encodings, and Windows path separators.
-- Browse, preview, and extract complete standard `.z01 + .zip` sets through bounded host-authorized sibling descriptors; create standard split ZIPs with preset or custom MiB sizes, and report missing or changed volumes explicitly.
-- Browse and extract ZIP files protected with ZipCrypto or AES, retry a wrong password in place, and optionally create AES-256 encrypted ZIP files whose names remain visible; encrypted creation requires matching password confirmation.
-- Override the ZIP filename encoding when automatic detection is wrong; browsing and extraction reuse the same selection.
-- Show archive failures with the format, processing stage, stable code, and a clear reason; debug builds can copy detailed diagnostics.
-- Offer Compress... for ordinary files, folders, and same-parent multi-selections.
-- Create one archive per item in a same-parent multi-selection; the form previews the output count and derived names, while existing or repeated names are numbered without overwriting. Each output commits independently; cancellation or failure keeps and reports completed outputs while blocking an ambiguous whole-batch retry.
-- Create ordinary or standard split ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST with a configurable name and only the compression levels and password options supported by the selected format.
-- Write to a same-directory temporary file and commit atomically; choose automatic numbering or try the exact name and decide before a numbered retry, without overwriting existing files. After name reservation, the sources are scanned into a bounded snapshot before temporary output is opened; the form distinguishes scanning, compression, verification, and commit while showing total files, bytes read, and unknown-size files. Verification fully reads the still-hidden output and checks its format, entries, sizes, CRC values, and content fingerprints before publication. Failed creation or verification aborts the transaction; if the host cannot confirm temporary-output cleanup, the form shows the intended path and prevents another attempt.
+- Browse ZIP/JAR/AAR/WAR, 7Z, RAR4/RAR5, and TAR-family archives in the native AutoJs6 file list, including internal path-bar navigation, search, sorting, and Back behavior.
+- When a file name does not match a supported archive, offer an explicit Open as archive... recheck and label the detected format in the path bar; exact TAR compound suffixes no longer make ordinary `.gz`, `.xz`, `.bz2`, or `.zst` streams look like archives.
+- Preview readable documents, images, audio, and video with the host's existing viewers, without extracting the whole archive first.
+- Extract the whole archive, the current internal folder, or selected entries with progress, cancellation, safe conflict naming, output verification, and rollback before publication.
+- Handle encrypted ZIP, 7Z, and RAR input with host-native password prompts for initial opening or extraction; a wrong password can be corrected without losing the current archive path.
+- Correct ZIP filename encoding directly from the host path bar; the same read-only session rebuilds its index in place and preserves the current internal path and available selection where possible.
+- Browse, preview, and extract complete standard `.z01 + .zip`, modern WinRAR `partN.rar`, numbered `.zip.001`, and numbered `.7z.001` sets through bounded host-authorized sibling-volume descriptors; missing or changed volumes fail explicitly.
+- Create ZIP, 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST from one item or a same-parent selection; ZIP also supports AES-256 and standard split output, and a selection can create one archive per item.
+- Standard split ZIP and Compress each item separately publish all verified physical outputs through one recoverable batch; failure or host restart is never presented as a successful partial result.
+- Edit ordinary single-volume ZIP, safe ordinary 7Z, and eligible TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives through a verified rebuild: add files or complete folder trees, create empty folders, rename, and delete, then atomically replace the source only after read-back verification.
+- Use archive-only path-bar actions to add an explicit mixed selection of files or complete folder trees and to create an empty folder; rename entries or delete a multi-selection directly in the same native list. Existing dialogs, progress UI, path restoration, and selection restoration are reused, and actions appear only when the session and relevant entries allow them.
+- After a successful writable-archive edit, restore the previous archive version from the success message or the management-page menu; the host offers one rollback during bounded retention and refuses it if another app changed the target.
+- Use the management page to see the actual format, content totals, available edit operations, and exact read-only reason; every edit reviews factual work, the full rebuild, and metadata effects before reserving output, while cancellation creates no pending output.
+- Keep unsafe archive names read-only and isolated, apply structural and resource limits before writing, and prefer direct reads from the host's seekable descriptor over whole-file copies.
+- Optionally move the complete source selection to the host Trash only after every physical output is verified and committed; this option is off by default, and changed sources or incomplete output proof stop before source data is removed.
 
 ### Current formats
 
@@ -81,14 +69,11 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 ### Usage
 
-1. Install the plugin and enable it in the AutoJs6 Plugin Center.
-2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.
-3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
-4. To extract the entire archive, choose Extract to... from its file menu. Use the recommended current folder or choose another folder with the Android system picker, then confirm the exact output path.
-5. To extract the current internal folder, use the extraction button at the right of the path bar. To extract specific entries, touch and hold an entry, select files or folders, and tap Extract in the bottom bar. Use Manage archive... or Extract to... when a password, encoding correction, unsafe-path confirmation, conflict policy, or another destination is required.
-6. To edit an ordinary single-volume ZIP or eligible TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, or TAR.ZST/TZST archive, choose Manage archive... and use Add files..., Add folder... to import a complete folder tree, New folder... to create an empty folder, Rename..., or Delete. Wait for rebuilding, verification, and the success message before leaving the page.
-7. On the management page, choose how equivalent output names are handled before extraction. Ask each time can apply one skip, overwrite, or auto-rename decision to all compatible remaining conflicts.
-8. To create an archive, choose Compress... from an ordinary file or folder menu, or select multiple items in one directory and use Compress... in the bottom action bar. To create one archive per item, enable Compress each item separately, review the output preview, and create; this mode always resolves name conflicts with safe automatic numbering. For ZIP, choose No split, a common MiB preset, or a custom whole number from 1 to 4096 MiB; when output exceeds that size, it consists of `.z01`, `.z02`, ... numbered volumes and a final `.zip`, while smaller output remains one `.zip`.
+1. Install Archive Manager and enable it in the AutoJs6 Plugin Center.
+2. Tap the primary archive action or choose Open archive for a supported file. If its name is not recognized, choose Open as archive... from the file menu. Browse it like a normal directory with the host path bar, which labels a detected format when the name was misleading.
+3. Use the path-bar extraction action for the current internal folder or the filename-encoding action to correct ZIP names, long-press entries to extract a selection, or choose Extract to... from the archive's file menu for the whole archive. Password prompts appear when required.
+4. Choose Compress... for a file or folder, or select several items in one directory and use Compress... in the bottom action bar. To clean up sources after success, explicitly enable the off-by-default Move source items to Trash after compression option.
+5. In a writable native archive page, use the path-bar Add files or folders and New folder actions, rename an entry directly, or delete a multi-selection; choose Manage archive... for detailed format information and additional settings.
 
 ### Permissions and data
 
@@ -105,6 +90,15 @@ Host-native creation, addition, deletion, and renaming are complete without chan
 - [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
 
 ### Release notes
+
+#### v2.21.0
+
+_2026/08/30_
+
+- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer)
+- `Added` Archive creation now keeps a completion page and Source recovery history; sources moved to Trash by explicit opt-in can be restored after Activity or host-session recreation
+- `Fixed` Source restore never overwrites an existing name or deletes a created archive; conflicts and partial or interrupted restores retain recovery evidence and report per-item outcomes
+- `Improved` The host owns the bounded durable history and exposes only opaque metadata; recovery UI stays inside the plugin compression page and the ordinary file-manager layout remains unchanged
 
 #### v2.20.0
 
@@ -123,13 +117,6 @@ _2026/08/29_
 - `Added` Files and folders in writable archives can now be renamed or deleted directly in the native AutoJs6 archive list, including multi-selection deletion; dialogs, progress, path navigation, and selection restoration reuse the host framework
 - `Fixed` Delete and rename actions are now gated by both session and per-entry capabilities; unsafe paths, missing volumes, RAR, split archives, and other read-only variants never advertise unavailable mutations
 - `Improved` Explorer Action v19 passes only bounded opaque entry IDs and a safe leaf name, then rebuilds through host-owned pending output with complete readback, atomic replacement, and in-place reindexing; the ordinary file-manager layout and visual style are unchanged
-
-#### v2.18.0
-
-_2026/08/29_
-
-- `Note` This release still requires the paired AutoJs6 6.8.0 build with Explorer Action v18 (version code 5276 or newer)
-- `Improved` Safe ordinary 7Z and every writable TAR-family format now share a format-neutral full-rewrite planner; each backend explicitly supplies capabilities and retained-entry validation, removing the former TAR naming and coupling without changing supported formats, output settings, or read-only boundaries
 
 ##### Full history
 

@@ -5,14 +5,20 @@
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Manage archive...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>
+    <string name="action_source_recovery_history">Source recovery history</string>
+    <string name="action_restore_sources">Restore sources</string>
+    <string name="action_retry_source_restore">Retry restore</string>
     <string name="app_name">Archive Manager</string>
     <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_done">Done</string>
     <string name="dialog_button_continue">Continue</string>
     <string name="dialog_button_skip_unsafe">Skip and continue</string>
     <string name="dialog_button_select_all">Select all</string>
     <string name="dialog_button_edit_name">Edit name</string>
     <string name="dialog_button_use_numbered_name">Use numbered name</string>
     <string name="dialog_title_archive_name_unavailable">Exact output name unavailable</string>
+    <string name="dialog_title_source_recovery_history">Source recovery history</string>
+    <string name="dialog_title_source_recovery_details">Source recovery details</string>
     <string name="dialog_message_archive_name_unavailable">The host could not reserve %1$s in %2$s. No archive data was written. Edit the name or retry with automatic numbering.</string>
     <string name="dialog_message_extraction_destination">The default output folder is %1$s. If that name exists, Archive Manager adds a number without changing existing content.</string>
     <string name="dialog_message_skip_unsafe_paths" tools:ignore="PluralsCandidate">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
@@ -31,6 +37,7 @@
     <string name="error_password_required">Enter the archive password</string>
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="error_split_volume_invalid">Enter a whole volume size from %1$d to %2$d MiB, or choose None</string>
+    <string name="error_source_restore_failed">Source items could not be restored. Reason: %1$s</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
     <string name="plugin_description">File manager plugin. Browse, extract, and create ZIP and TAR archives</string>
@@ -103,9 +110,31 @@
     <string name="text_move_sources_to_trash_after_compression">Move source items to Trash after compression</string>
     <string name="text_moving_sources_to_trash">Moving source items to Trash</string>
     <string name="text_sources_moved_to_trash">%1$d source items moved to Trash.</string>
+    <string name="text_restoring_sources">Restoring source items from Trash</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Created: %1$s\nState: %2$s\nTrash records: %3$d\nRestored: %4$d\nNeeds attention: %5$d\n\nSource items:\n%6$s</string>
+    <string name="text_source_recovery_state_available">Available to restore</string>
+    <string name="text_source_recovery_state_partial">Partly available</string>
+    <string name="text_source_recovery_state_restored">Restored</string>
+    <string name="text_source_recovery_state_stale">Name conflict or stale history</string>
+    <string name="text_source_recovery_state_recovery_required">Recovery needs attention</string>
+    <string name="text_source_recovery_state_failed">No source items moved</string>
+    <string name="text_source_restore_no_change">No additional source items were restored. Created archive files were kept.</string>
     <string name="warning_sources_trash_recovery_required">The archive was created, but source cleanup needs attention. Recovery copies are available in AutoJs6 Trash.</string>
     <string name="warning_sources_trash_failed">The archive was created, but the source items could not be moved to Trash.</string>
     <string name="warning_sources_trash_unknown">The archive was created, but AutoJs6 could not confirm whether every source item reached Trash. Check the current folder and Trash before retrying.</string>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ %1$d more item</item>
+        <item quantity="other">+ %1$d more items</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">Restored %1$d source item. Created archive files were kept.</item>
+        <item quantity="other">Restored %1$d source items. Created archive files were kept.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">%1$d source item was not restored because its original name is occupied or recovery still needs attention. It remains in AutoJs6 Trash when a recovery copy is available.</item>
+        <item quantity="other">%1$d source items were not restored because their original names are occupied or recovery still needs attention. They remain in AutoJs6 Trash when recovery copies are available.</item>
+    </plurals>
     <string name="text_encrypt_file_names">Encrypt file names</string>
     <string name="text_format_zip">ZIP</string>
     <string name="text_creation_conflict_policy">If the archive name is unavailable</string>
