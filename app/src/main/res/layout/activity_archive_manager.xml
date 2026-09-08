@@ -1,369 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    tools:context="io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerActivity">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
-        android:title="@string/app_name"
-        android:titleTextColor="?attr/colorOnSurface"
-        app:menu="@menu/menu_archive_manager"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:navigationContentDescription="@string/text_navigate_up"
-        app:navigationIconTint="?attr/colorOnSurface" />
-
-    <TextView
-        android:id="@+id/archiveName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:maxLines="1"
-        android:paddingStart="16dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="16dp"
-        android:textAppearance="?attr/textAppearanceHeadline6" />
-
-    <TextView
-        android:id="@+id/archiveSummary"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingTop="4dp"
-        android:paddingEnd="16dp"
-        android:textAppearance="?attr/textAppearanceBody2" />
-
-    <HorizontalScrollView
-        android:id="@+id/compactOptions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:scrollbars="none"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/compactBudgetButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:minHeight="48dp"
-                android:text="@string/text_compact_extraction_budget"
-                android:textAllCaps="false" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/compactConflictButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:minHeight="48dp"
-                android:text="@string/text_compact_conflict_policy"
-                android:textAllCaps="false" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/compactEncodingButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:minHeight="48dp"
-                android:text="@string/text_compact_filename_encoding"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/compactSearchButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:minHeight="48dp"
-                android:text="@string/text_compact_search"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:fitsSystemWindows="true" android:orientation="vertical" tools:context="io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerActivity" android:background="@color/archive_background">
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="@color/archive_background" android:titleTextColor="?attr/colorOnSurface" app:menu="@menu/menu_archive_manager" app:navigationIcon="@drawable/ic_arrow_back" app:navigationContentDescription="@string/text_navigate_up" app:navigationIconTint="?attr/colorOnSurface" app:title="@string/text_archive_workspace" />
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" style="@style/Widget.Archive.Card" android:id="@+id/archiveHeader" app:cardBackgroundColor="@color/archive_accent_surface" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" android:layout_marginTop="8dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/text_archive_overview" android:layout_marginBottom="12dp" style="@style/TextAppearance.Archive.Section" android:drawableStart="@drawable/ic_archive_box" android:drawablePadding="8dp" android:gravity="center_vertical" />
+            <TextView android:id="@+id/archiveName" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="middle" android:maxLines="2" android:textAppearance="?attr/textAppearanceHeadline6" android:textSize="20sp" android:fontFamily="sans-serif-medium" />
+            <TextView android:id="@+id/archiveSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="?attr/textAppearanceBody2" android:layout_marginTop="6dp" android:textColor="@color/archive_text_secondary" />
         </LinearLayout>
-
+    </com.google.android.material.card.MaterialCardView>
+    <HorizontalScrollView android:id="@+id/compactOptions" android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:scrollbars="none" android:visibility="visible" android:layout_marginBottom="4dp">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="start" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp">
+            <com.google.android.material.button.MaterialButton android:id="@+id/compactBudgetButton" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:minHeight="48dp" android:text="@string/text_compact_extraction_budget" android:textAllCaps="false" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" app:cornerRadius="12dp" app:strokeColor="@color/archive_outline" app:backgroundTint="@color/archive_surface" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/compactConflictButton" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:minHeight="48dp" android:text="@string/text_compact_conflict_policy" android:textAllCaps="false" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" app:cornerRadius="12dp" app:strokeColor="@color/archive_outline" app:backgroundTint="@color/archive_surface" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/compactEncodingButton" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:minHeight="48dp" android:text="@string/text_compact_filename_encoding" android:textAllCaps="false" android:visibility="gone" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" app:cornerRadius="12dp" app:strokeColor="@color/archive_outline" app:backgroundTint="@color/archive_surface" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/compactSearchButton" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:minHeight="48dp" android:text="@string/text_compact_search" android:textAllCaps="false" android:visibility="gone" android:layout_marginStart="4dp" android:layout_marginEnd="4dp" app:cornerRadius="12dp" app:strokeColor="@color/archive_outline" app:backgroundTint="@color/archive_surface" />
+        </LinearLayout>
     </HorizontalScrollView>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/extractionBudgetLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:hint="@string/text_extraction_budget">
-
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/extractionBudgetInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none"
-            android:maxLines="1" />
-
+    <com.google.android.material.textfield.TextInputLayout android:id="@+id/extractionBudgetLayout" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_marginTop="8dp" android:layout_marginEnd="12dp" android:hint="@string/text_extraction_budget" android:visibility="gone">
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView android:id="@+id/extractionBudgetInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/extractionConflictPolicyLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:hint="@string/text_extraction_conflict_policy">
-
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/extractionConflictPolicyInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none"
-            android:maxLines="1" />
-
+    <com.google.android.material.textfield.TextInputLayout android:id="@+id/extractionConflictPolicyLayout" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_marginTop="8dp" android:layout_marginEnd="12dp" android:hint="@string/text_extraction_conflict_policy" android:visibility="gone">
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView android:id="@+id/extractionConflictPolicyInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/filenameEncodingLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:hint="@string/text_filename_encoding"
-        android:visibility="gone">
-
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/filenameEncodingInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none"
-            android:maxLines="1" />
-
+    <com.google.android.material.textfield.TextInputLayout android:id="@+id/filenameEncodingLayout" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_marginTop="8dp" android:layout_marginEnd="12dp" android:hint="@string/text_filename_encoding" android:visibility="gone">
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView android:id="@+id/filenameEncodingInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="none" android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <LinearLayout
-        android:id="@+id/passwordControls"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/archivePasswordLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/text_archive_password"
-            app:endIconMode="password_toggle">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/archivePassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:imeOptions="actionDone"
-                android:inputType="textPassword"
-                android:maxLines="1" />
-
+    <LinearLayout android:id="@+id/passwordControls" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:layout_marginTop="8dp" android:layout_marginEnd="12dp" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone">
+        <com.google.android.material.textfield.TextInputLayout android:id="@+id/archivePasswordLayout" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:hint="@string/text_archive_password" app:endIconMode="password_toggle">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/archivePassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:imeOptions="actionDone" android:inputType="textPassword" android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/applyPasswordButton"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:text="@string/text_apply_password" />
-
+        <com.google.android.material.button.MaterialButton android:id="@+id/applyPasswordButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="@string/text_apply_password" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/currentPath"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="start"
-        android:maxLines="1"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:textAppearance="?attr/textAppearanceSubtitle2" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/searchLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="12dp"
-        android:hint="@string/text_search_hint"
-        app:endIconMode="clear_text">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/searchInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:maxLines="1" />
-
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp" android:paddingEnd="16dp">
+        <com.google.android.material.button.MaterialButton android:id="@+id/upButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="48dp" android:layout_height="wrap_content" android:text="" android:minWidth="48dp" android:minHeight="48dp" android:contentDescription="@string/text_parent_directory" app:icon="@drawable/ic_arrow_back" app:iconGravity="textStart" app:iconPadding="0dp" />
+        <TextView android:id="@+id/currentPath" android:layout_width="0dp" android:layout_height="wrap_content" android:ellipsize="start" android:maxLines="1" android:paddingStart="8dp" android:paddingTop="0dp" android:paddingEnd="16dp" android:textAppearance="?attr/textAppearanceSubtitle2" android:textColor="@color/archive_text_secondary" android:textSize="12sp" android:layout_weight="1" />
+    </LinearLayout>
+    <com.google.android.material.textfield.TextInputLayout android:id="@+id/searchLayout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginTop="4dp" android:layout_marginEnd="16dp" android:hint="@string/text_search_hint" app:endIconMode="clear_text" app:startIconDrawable="@drawable/ic_search" android:layout_marginBottom="8dp">
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/searchInput" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/message"
-        android:accessibilityLiveRegion="polite"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="16dp"
-        android:textAppearance="?attr/textAppearanceBody1"
-        android:visibility="gone" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/diagnosticCopyButton"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/text_copy_diagnostic"
-        android:visibility="gone" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/entryList"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp" />
-
-    <TextView
-        android:id="@+id/selectedCount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="16dp"
-        android:textAppearance="?attr/textAppearanceCaption" />
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:scrollbars="none">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="8dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/upButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_parent_directory" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/selectAllButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dialog_button_select_all" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addFilesButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_add_files"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/addFolderButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_add_folder"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/newFolderButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_new_folder"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/renameButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_rename"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/deleteButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_delete"
-                android:textAllCaps="false"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/cancelButton"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/dialog_button_cancel"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/extractButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_extract_to" />
-
+    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:visibility="gone" />
+    <TextView android:id="@+id/message" android:accessibilityLiveRegion="polite" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:padding="16dp" android:textAppearance="?attr/textAppearanceBody1" android:visibility="gone" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/diagnosticCopyButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:text="@string/text_copy_diagnostic" android:visibility="gone" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/entryList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingTop="8dp" android:paddingBottom="8dp" android:background="@color/archive_surface" android:paddingStart="8dp" android:paddingEnd="8dp" />
+    <TextView android:id="@+id/selectedCount" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="16dp" android:paddingTop="8dp" android:paddingEnd="16dp" android:textAppearance="?attr/textAppearanceCaption" android:textColor="@color/archive_text_secondary" android:background="@color/archive_surface" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:orientation="horizontal" android:paddingStart="8dp" android:paddingTop="4dp" android:paddingEnd="8dp" android:paddingBottom="8dp" android:background="@color/archive_surface">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/addFilesButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/action_add_files" android:textAllCaps="false" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/addFolderButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/action_add_folder" android:textAllCaps="false" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/newFolderButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/action_new_folder" android:textAllCaps="false" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/renameButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/action_rename" android:textAllCaps="false" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/deleteButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/action_delete" android:textAllCaps="false" android:visibility="gone" />
         </LinearLayout>
-
-    </HorizontalScrollView>
-
+        <com.google.android.material.button.MaterialButton android:id="@+id/selectAllButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_height="wrap_content" android:text="@string/dialog_button_select_all" android:layout_weight="1" android:minWidth="0dp" android:maxLines="2" android:textAllCaps="false" android:textSize="13sp" android:paddingStart="8dp" android:paddingEnd="8dp" android:minHeight="48dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/manageActionsButton" android:layout_width="0dp" android:layout_height="wrap_content" android:text="@string/text_archive_actions" android:textAllCaps="false" android:minHeight="48dp" android:visibility="gone" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_weight="1" android:minWidth="0dp" android:maxLines="2" android:textSize="13sp" android:paddingStart="8dp" android:paddingEnd="8dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/cancelButton" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_height="wrap_content" android:text="@string/dialog_button_cancel" android:visibility="gone" android:layout_weight="1" android:minWidth="0dp" android:maxLines="2" android:textAllCaps="false" android:textSize="13sp" android:paddingStart="8dp" android:paddingEnd="8dp" android:minHeight="48dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/extractButton" android:layout_width="0dp" android:layout_height="wrap_content" android:text="@string/action_extract_to" android:layout_weight="1" android:minWidth="0dp" android:maxLines="2" android:textAllCaps="false" android:textSize="13sp" android:paddingStart="8dp" android:paddingEnd="8dp" android:minHeight="48dp" />
+    </LinearLayout>
 </LinearLayout>

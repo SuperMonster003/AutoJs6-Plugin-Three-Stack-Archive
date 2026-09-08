@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">압축 파일 열기</string>
+    <string name="action_open_archive">압축 파일 보기</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">압축 파일로 열기...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">압축 파일 관리...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">압축 풀기...</string>
@@ -298,4 +298,12 @@
     <plurals name="warning_sources_not_restored">
         <item quantity="other">원래 이름이 사용 중이거나 복구 확인이 필요하여 원본 항목 %1$d개를 복원하지 못했습니다. 복구 사본이 있으면 AutoJs6 휴지통에 계속 보관됩니다.</item>
     </plurals>
+    <string name="text_archive_workspace">압축 파일 관리</string>
+    <string name="text_archive_overview">압축 파일 개요</string>
+    <string name="text_archive_selection">선택 항목</string>
+    <string name="text_section_destination">저장 위치</string>
+    <string name="text_section_compression">압축 설정</string>
+    <string name="text_section_security">암호 및 암호화</string>
+    <string name="text_section_behavior">압축 후 처리</string>
+    <string name="text_archive_actions">작업</string>
 </resources>

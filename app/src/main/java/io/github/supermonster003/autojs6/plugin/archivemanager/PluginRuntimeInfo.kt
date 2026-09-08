@@ -22,7 +22,7 @@ internal object ArchiveManagerPlugin {
     const val VARIANT = "default"
     const val REQUIRED_HOST_VERSION = 5276L
     const val OPEN_LABEL_RESOURCE_NAME = "action_open_archive"
-    const val OPEN_LABEL_FALLBACK = "Open archive"
+    const val OPEN_LABEL_FALLBACK = "View archive"
     const val OPEN_AS_ARCHIVE_LABEL_RESOURCE_NAME = "action_open_as_archive"
     const val OPEN_AS_ARCHIVE_LABEL_FALLBACK = "Open as archive..."
     const val MANAGE_LABEL_RESOURCE_NAME = "action_manage_archive"
@@ -41,19 +41,21 @@ internal object ArchiveManagerPlugin {
     const val OPEN_AS_ARCHIVE_ACTION_PRIORITY = 65
     const val COMPRESS_ACTION_PRIORITY = 60
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
-    val MANAGE_EXTENSIONS = ArchiveEngine.DEFAULT.mutationFormats
-        .flatMap { format ->
-            if (format == ArchiveFormat.ZIP) {
-                listOf(format.primaryExtension)
-            } else {
-                format.catalogExtensions
-            }
-        }
+    val ANDROID_PACKAGE_EXTENSIONS = setOf("apk", "apks", "xapk", "apkm", "apkz", "aab")
+    fun canModifyFileName(displayName: String): Boolean = ArchiveEngine.DEFAULT.mutationFormats.any { format ->
+        if (format == ArchiveFormat.ZIP) displayName.endsWith(".zip", ignoreCase = true)
+        else format.matchesFileName(displayName)
+    }
+
+    val MANAGE_EXTENSIONS = ArchiveEngine.DEFAULT.readableFormats
+        .flatMap(ArchiveFormat::catalogExtensions)
+        .filterNot { it in ANDROID_PACKAGE_EXTENSIONS }
         .distinct()
         .sorted()
         .toTypedArray()
-    val MANAGE_FILE_NAME_SUFFIXES = ArchiveEngine.DEFAULT.mutationFormats
+    val MANAGE_FILE_NAME_SUFFIXES = ArchiveEngine.DEFAULT.readableFormats
         .flatMap(ArchiveFormat::catalogFileNameSuffixes)
+        .plus(NumberedArchiveVolumePolicy.fileNameSuffixes)
         .distinct()
         .sorted()
         .toTypedArray()
@@ -114,6 +116,13 @@ internal fun archiveManagerActionCatalog(): Bundle {
             priority = ArchiveManagerPlugin.OPEN_ACTION_PRIORITY,
             placement = ExplorerActionValues.PLACEMENT_PRIMARY,
             presentation = ExplorerActionValues.PRESENTATION_HOST_EXPLORER,
+            // Package archives use the explicit probe menu so older hosts also retain their buttons.
+            extensions = ArchiveManagerPlugin.EXTENSIONS.filterNot {
+                it in ArchiveManagerPlugin.ANDROID_PACKAGE_EXTENSIONS
+            }.toTypedArray(),
+            mimeTypes = ArchiveManagerPlugin.MIME_TYPES.filterNot {
+                it == "application/vnd.android.package-archive"
+            }.toTypedArray(),
         ),
         archiveManagerAction(
             id = ArchiveManagerPlugin.ACTION_MANAGE_ID,

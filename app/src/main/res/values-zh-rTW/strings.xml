@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">開啟壓縮檔</string>
+    <string name="action_open_archive">查看檔案</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">作為壓縮檔案開啟...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">管理壓縮檔案...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解壓縮到...</string>
@@ -298,4 +298,12 @@
     <plurals name="warning_sources_not_restored">
         <item quantity="other">有 %1$d 個來源項目因原名稱已被佔用或仍需處理而未還原. 如果還原副本仍可用, 它們會繼續保留在 AutoJs6 垃圾桶中.</item>
     </plurals>
+    <string name="text_archive_workspace">檔案管理</string>
+    <string name="text_archive_overview">檔案概覽</string>
+    <string name="text_archive_selection">所選項目</string>
+    <string name="text_section_destination">輸出位置</string>
+    <string name="text_section_compression">壓縮參數</string>
+    <string name="text_section_security">密碼與加密</string>
+    <string name="text_section_behavior">壓縮後處理</string>
+    <string name="text_archive_actions">操作</string>
 </resources>

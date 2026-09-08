@@ -820,6 +820,7 @@ internal class ExplorerArchiveSession(
         state: SessionIndexState,
         operation: ArchiveOperation,
     ): Boolean {
+        if (!ArchiveManagerPlugin.canModifyFileName(displayName)) return false
         val path = node.path
         val capabilities = state.mutationAvailability.capabilities ?: return false
         if (
@@ -843,6 +844,7 @@ internal class ExplorerArchiveSession(
     }
 
     private fun SessionNode.canCreateChildren(state: SessionIndexState): Boolean {
+        if (!ArchiveManagerPlugin.canModifyFileName(displayName)) return false
         val path = node.path
         val capabilities = state.mutationAvailability.capabilities ?: return false
         if (!node.isDirectory || !capabilities.supports(ArchiveOperation.ADD)) return false

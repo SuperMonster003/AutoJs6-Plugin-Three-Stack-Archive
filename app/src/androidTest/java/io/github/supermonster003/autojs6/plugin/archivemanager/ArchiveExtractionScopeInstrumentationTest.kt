@@ -48,6 +48,45 @@ class ArchiveExtractionScopeInstrumentationTest {
     fun resetProviderAfterTest() = resetProvider()
 
     @Test
+    fun managementPageKeepsEntriesAndActionsReachableInBothThemes() {
+        val previousMode = androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode()
+        try {
+            listOf(
+                androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO to "manager-light",
+                androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES to "manager-dark",
+            ).forEach { (mode, screenshotName) ->
+                instrumentation.runOnMainSync { androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(mode) }
+                val archiveUri = createArchiveDocument()
+                ActivityScenario.launch<ArchiveManagerActivity>(archiveIntent(archiveUri)).use { scenario ->
+                    waitForActivity(scenario) { activity ->
+                        val list = activity.findViewById<RecyclerView>(R.id.entryList)
+                        list.childCount > 0 && activity.findViewById<android.view.View>(R.id.extractButton).isEnabled
+                    }
+                    scenario.onActivity { activity ->
+                        val list = activity.findViewById<RecyclerView>(R.id.entryList)
+                        assertTrue(list.height >= (96 * activity.resources.displayMetrics.density).toInt())
+                        assertTrue(activity.findViewById<android.view.View>(R.id.manageActionsButton).isShown)
+                        assertTrue(activity.findViewById<android.view.View>(R.id.compactBudgetButton).isShown)
+                    }
+                    ArchiveUiScreenshots.capture(screenshotName)
+                    scenario.onActivity { activity ->
+                        val summary = activity.findViewById<android.widget.TextView>(R.id.archiveSummary).text.toString()
+                        assertFalse("Loading progress replaced the scanned archive summary", summary.contains(activity.getString(R.string.text_unknown)))
+                    }
+                }
+            }
+        } finally {
+            instrumentation.runOnMainSync {
+                androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
+                    if (previousMode == androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+                        androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    } else previousMode,
+                )
+            }
+        }
+    }
+
+    @Test
     fun managementDialogOffersOnlyScopesAvailableAtTheCurrentLocation() {
         val archiveUri = createArchiveDocument()
 
@@ -61,9 +100,10 @@ class ArchiveExtractionScopeInstrumentationTest {
 
             scenario.onActivity { activity ->
                 assertFalse(activity.canUseHostExtractionDestination())
-                assertTrue(activity.findViewById<android.view.View>(R.id.addFilesButton).isShown)
-                assertTrue(activity.findViewById<android.view.View>(R.id.addFolderButton).isShown)
-                assertTrue(activity.findViewById<android.view.View>(R.id.newFolderButton).isShown)
+                assertTrue(activity.findViewById<android.view.View>(R.id.manageActionsButton).isShown)
+                assertTrue(activity.findViewById<android.view.View>(R.id.addFilesButton).isEnabled)
+                assertTrue(activity.findViewById<android.view.View>(R.id.addFolderButton).isEnabled)
+                assertTrue(activity.findViewById<android.view.View>(R.id.newFolderButton).isEnabled)
                 assertFalse(activity.findViewById<android.view.View>(R.id.renameButton).isEnabled)
                 assertFalse(activity.findViewById<android.view.View>(R.id.deleteButton).isEnabled)
                 requireNotNull(activity.showExtractionScopeDialog()).let { dialog ->

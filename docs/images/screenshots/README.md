@@ -1,5 +1,17 @@
 # Product screenshots
 
+## September 2026 workspace refresh
+
+The following screenshots are direct captures from the updated Activities on an Android 16 / API 36 emulator at 320 x 640 px (160 dpi), using Simplified Chinese and synthetic regression fixtures. The two management captures exercise light and dark themes; the creation capture uses dark mode. They are saved by the device regression suite and have not been edited.
+
+| File | What it demonstrates |
+| --- | --- |
+| `workspace-light.png` | Archive summary card, compact extraction options, vector file icons and a fixed extraction footer. |
+| `workspace-dark.png` | Matching dark surfaces, readable secondary text and contrast-adjusted controls. |
+| `workspace-create.png` | Grouped destination and compression form with a fixed creation action. |
+
+## Previous release captures
+
 These screenshots are direct Android screen captures of the signed, paired builds below:
 
 - AutoJs6 6.8.0, version code 5276, Explorer Action v21, host commit `d7bc884d6749369a9045fc545d3a3f3a7710a55f`

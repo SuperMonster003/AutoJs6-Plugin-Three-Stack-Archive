@@ -13,6 +13,21 @@ class ArchiveFormatCompatibilityMatrixTest {
     val temporaryFolder = TemporaryFolder()
 
     @Test
+    fun `android package aliases are structurally verified ZIP archives`() {
+        listOf("apk", "apks", "xapk", "apkm", "apkz", "aab").forEach { extension ->
+            val source = copyFixture("7zip-22-deflate-unicode.zip", "package.${extension.uppercase()}")
+            val detected = ArchiveEngine.DEFAULT.probe(source)
+            assertEquals(ArchiveFormat.ZIP, detected.format)
+            assertTrue(detected.structurallyVerified)
+            assertTrue(ArchiveFormat.ZIP.matchesFileName(source.name))
+            assertTrue(ArchiveManagerPlugin.EXTENSIONS.contains(extension))
+            assertTrue(!ArchiveManagerPlugin.MANAGE_EXTENSIONS.contains(extension))
+            assertTrue(!ArchiveManagerPlugin.canModifyFileName(source.name))
+            assertTrue(ArchiveScanner().scan(source).entries.isNotEmpty())
+        }
+    }
+
+    @Test
     fun `every readable format is detected with canonical missing and misleading extensions`() {
         val fixtures = detectionFixtures()
 

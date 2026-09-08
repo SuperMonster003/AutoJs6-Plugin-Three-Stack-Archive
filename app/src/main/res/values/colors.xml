@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="archive_background">#F7F8FC</color>
+    <color name="archive_surface">#FFFFFF</color>
+    <color name="archive_surface_variant">#EEF1F8</color>
+    <color name="archive_text">#26334D</color>
+    <color name="archive_text_secondary">#626D82</color>
+    <color name="archive_outline">#DCE2EF</color>
+    <color name="archive_primary">#345DC6</color>
+    <color name="archive_on_primary">#FFFFFF</color>
+    <color name="archive_accent_surface">#EAF0FF</color>
+    <color name="archive_error">#B3261E</color>
+    <color name="archive_error_surface">#FFF0EE</color>
+    <bool name="archive_light_system_bars">true</bool>
+</resources>

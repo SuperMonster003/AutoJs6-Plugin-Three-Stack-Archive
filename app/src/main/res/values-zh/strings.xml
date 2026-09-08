@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">打开压缩档案</string>
+    <string name="action_open_archive">查看档案</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">作为压缩档案打开...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">管理压缩档案...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">解压到...</string>
@@ -298,4 +298,12 @@
     <string name="text_previous_archive_version_restored">上一版本: 已恢复. 此一次性恢复操作已使用.</string>
     <string name="text_previous_archive_version_stale">上一版本: 不可用, 因为当前压缩档案在更新后又发生了变化.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">正在恢复压缩档案的上一版本...</string>
+    <string name="text_archive_workspace">档案管理</string>
+    <string name="text_archive_overview">档案概览</string>
+    <string name="text_archive_selection">所选项目</string>
+    <string name="text_section_destination">输出位置</string>
+    <string name="text_section_compression">压缩参数</string>
+    <string name="text_section_security">密码与加密</string>
+    <string name="text_section_behavior">压缩后处理</string>
+    <string name="text_archive_actions">操作</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">Открыть архив</string>
+    <string name="action_open_archive">Просмотр архива</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">Открыть как архив...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Управление архивом...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
@@ -307,4 +307,12 @@
         <item quantity="many">%1$d исходных элементов не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
         <item quantity="other">%1$d исходного элемента не восстановлено: исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
     </plurals>
+    <string name="text_archive_workspace">Управление архивами</string>
+    <string name="text_archive_overview">Обзор архива</string>
+    <string name="text_archive_selection">Выбранные объекты</string>
+    <string name="text_section_destination">Место сохранения</string>
+    <string name="text_section_compression">Сжатие</string>
+    <string name="text_section_security">Пароль и шифрование</string>
+    <string name="text_section_behavior">После сжатия</string>
+    <string name="text_archive_actions">Действия</string>
 </resources>

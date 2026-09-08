@@ -274,6 +274,18 @@ class ArchiveManagerActivity : AppCompatActivity() {
         newFolderButton.setOnClickListener { showNewFolderDialog() }
         renameButton.setOnClickListener { showRenameDialog() }
         deleteButton.setOnClickListener { startDeleteSelection() }
+        manageActionsButton.setOnClickListener {
+            androidx.appcompat.widget.PopupMenu(this@ArchiveManagerActivity, manageActionsButton).apply {
+                val actions = listOf(addFilesButton, addFolderButton, newFolderButton, renameButton, deleteButton)
+                actions.filter { it.isVisible }.forEach { button ->
+                    menu.add(0, button.id, 0, button.text).isEnabled = button.isEnabled
+                }
+                setOnMenuItemClickListener { item ->
+                    actions.firstOrNull { it.id == item.itemId }?.performClick() ?: false
+                }
+                show()
+            }
+        }
         extractButton.setOnClickListener { showExtractionScopeDialog() }
         cancelButton.setOnClickListener { operationJob?.cancel() }
         filenameEncodingInput.setOnItemClickListener { _, _, position, _ ->
@@ -365,6 +377,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                         reportedSize = request.reportedSize,
                     ) { copied ->
                         postUiUpdate {
+                            if (snapshot != null || !isBusy) return@postUiUpdate
                             updateArchiveSummary(
                                 getString(
                                     R.string.text_loading_progress,
@@ -701,6 +714,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
                 "/"
             }
             binding.upButton.isEnabled = query.isEmpty() && directory.isNotEmpty()
+            binding.upButton.isVisible = !usesCompactHeader && directory.isNotEmpty()
             binding.message.isVisible = result.rows.isEmpty() || lastFailureDiagnostic != null
             if (result.rows.isEmpty() && lastFailureDiagnostic == null) {
                 binding.message.text = getString(R.string.text_no_entries)
@@ -817,6 +831,9 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private fun managementStatus(): ArchiveManagementStatus? {
         val archive = snapshot ?: return null
         val openRequest = request ?: return null
+        if (!ArchiveManagerPlugin.canModifyFileName(openRequest.displayName)) {
+            return ArchiveManagementStatus(null, ArchiveManagementReadOnlyReason.FORMAT_NOT_SUPPORTED)
+        }
         return ArchiveEngine.DEFAULT.managementStatus(
             snapshot = archive,
             requestedAction = openRequest.requestedAction,
@@ -1527,6 +1544,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private fun updateManagementPresentation() = with(binding) {
         val visible = canManageArchive()
+        manageActionsButton.isVisible = visible && !isBusy
+        manageActionsButton.isEnabled = visible && !isBusy
         addFilesButton.isVisible = visible
         addFolderButton.isVisible = visible
         newFolderButton.isVisible = visible
@@ -1641,18 +1660,19 @@ class ArchiveManagerActivity : AppCompatActivity() {
     private fun updateHeaderPresentation() = with(binding) {
         archiveName.isVisible = !usesCompactHeader
         archiveSummary.isVisible = !usesCompactHeader
-        compactOptions.isVisible = usesCompactHeader
-        extractionBudgetLayout.isVisible = !usesCompactHeader
-        extractionConflictPolicyLayout.isVisible = !usesCompactHeader
+        archiveHeader.isVisible = !usesCompactHeader
+        compactOptions.isVisible = true
+        extractionBudgetLayout.isVisible = false
+        extractionConflictPolicyLayout.isVisible = false
         currentPath.isVisible = !usesUltraCompactLayout
         selectedCount.isVisible = !usesUltraCompactLayout
-        upButton.isVisible = !usesCompactHeader
+        upButton.isVisible = !usesCompactHeader && currentDirectory.isNotEmpty()
         updateFilenameEncodingPresentation()
         updateSearchPresentation()
         toolbar.title = if (usesCompactHeader) {
-            archiveName.text.takeIf { it.isNotBlank() } ?: getText(R.string.app_name)
+            archiveName.text.takeIf { it.isNotBlank() } ?: getText(R.string.text_archive_workspace)
         } else {
-            getText(R.string.app_name)
+            getText(R.string.text_archive_workspace)
         }
         updateToolbarSubtitle()
     }
@@ -1692,8 +1712,8 @@ class ArchiveManagerActivity : AppCompatActivity() {
 
     private fun updateFilenameEncodingPresentation() = with(binding) {
         val isAvailable = filenameCharsetChoices.isNotEmpty()
-        filenameEncodingLayout.isVisible = isAvailable && !usesCompactHeader
-        compactEncodingButton.isVisible = isAvailable && usesCompactHeader
+        filenameEncodingLayout.isVisible = false
+        compactEncodingButton.isVisible = isAvailable
         if (!isAvailable) return@with
         val selected = filenameCharsetChoices.firstOrNull {
             it.charsetName == selectedFilenameCharsetName
@@ -2424,6 +2444,7 @@ class ArchiveManagerActivity : AppCompatActivity() {
         binding.progress.isVisible = busy
         if (!busy) setProgressIndicatorIndeterminate(true)
         binding.cancelButton.isVisible = busy && cancellable
+        binding.selectAllButton.isVisible = !busy
         binding.cancelButton.isEnabled = busy && cancellable
         binding.searchInput.isEnabled = !busy
         binding.extractionBudgetLayout.isEnabled = !busy

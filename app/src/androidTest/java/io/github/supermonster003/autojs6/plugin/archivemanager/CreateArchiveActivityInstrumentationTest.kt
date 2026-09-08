@@ -56,6 +56,8 @@ class CreateArchiveActivityInstrumentationTest {
                     moveToTrash.isChecked = true
                 }
 
+                ArchiveUiScreenshots.capture("create-archive")
+
                 scenario.recreate()
                 scenario.onActivity { activity ->
                     val moveToTrash = activity.findViewById<SwitchMaterial>(

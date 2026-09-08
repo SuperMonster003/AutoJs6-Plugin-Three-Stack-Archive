@@ -219,12 +219,17 @@ class PluginContractInstrumentationTest {
         assertEquals(accessMode, action.getInt(ExplorerActionCatalogKeys.ACCESS_MODE))
         assertEquals(placement, action.getInt(ExplorerActionCatalogKeys.PLACEMENT))
         assertEquals(presentation, action.getInt(ExplorerActionCatalogKeys.PRESENTATION))
+        val isPrimary = placement == ExplorerActionValues.PLACEMENT_PRIMARY
         assertEquals(
-            ArchiveManagerPlugin.MIME_TYPES.toList(),
+            ArchiveManagerPlugin.MIME_TYPES.filterNot {
+                isPrimary && it == "application/vnd.android.package-archive"
+            },
             action.getStringArrayList(ExplorerActionCatalogKeys.MIME_TYPES),
         )
         assertEquals(
-            ArchiveManagerPlugin.EXTENSIONS.toList(),
+            ArchiveManagerPlugin.EXTENSIONS.filterNot {
+                isPrimary && it in ArchiveManagerPlugin.ANDROID_PACKAGE_EXTENSIONS
+            },
             action.getStringArrayList(ExplorerActionCatalogKeys.EXTENSIONS),
         )
         assertEquals(

@@ -20,11 +20,12 @@ enum class ArchiveFormat(
         displayName = "ZIP",
         primaryExtension = "zip",
         primaryMimeType = "application/zip",
-        extensions = setOf("zip", "jar", "aar", "war"),
+        extensions = setOf("zip", "jar", "aar", "war", "apk", "apks", "xapk", "apkm", "apkz", "aab"),
         mimeTypes = setOf(
             "application/zip",
             "application/x-zip-compressed",
             "application/java-archive",
+            "application/vnd.android.package-archive",
         ),
     ),
     SEVEN_Z(

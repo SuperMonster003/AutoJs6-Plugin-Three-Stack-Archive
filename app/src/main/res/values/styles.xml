@@ -1,12 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:navigationBarColor">?attr/colorSurface</item>
-        <item name="android:statusBarColor">?attr/colorSurface</item>
+    <style name="AppTheme" parent="AppTheme.Base" />
+
+    <style name="AppTheme.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/archive_primary</item>
+        <item name="colorPrimaryVariant">@color/archive_primary</item>
+        <item name="colorOnPrimary">@color/archive_on_primary</item>
+        <item name="colorSecondary">@color/archive_primary</item>
+        <item name="colorOnSecondary">@color/archive_on_primary</item>
+        <item name="colorSurface">@color/archive_surface</item>
+        <item name="colorOnSurface">@color/archive_text</item>
+        <item name="colorError">@color/archive_error</item>
+        <item name="colorOnBackground">@color/archive_text</item>
+        <item name="android:colorBackground">@color/archive_background</item>
+        <item name="android:windowBackground">@color/archive_background</item>
+        <item name="android:statusBarColor">@color/archive_background</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:windowLightStatusBar">@bool/archive_light_system_bars</item>
+        <item name="android:textColorPrimary">@color/archive_text</item>
+        <item name="android:textColorSecondary">@color/archive_text_secondary</item>
+        <item name="android:fontFamily">sans</item>
         <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:windowBackground">?attr/colorSurface</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="materialButtonStyle">@style/Widget.Archive.Button</item>
+        <item name="textInputStyle">@style/Widget.Archive.TextInput</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Archive.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Archive.Medium</item>
     </style>
 
+    <style name="ShapeAppearance.Archive.Small" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Archive.Medium" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerSize">20dp</item>
+    </style>
+
+    <style name="Widget.Archive.Button" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="Widget.Archive.TextInput" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/archive_surface</item>
+        <item name="boxCornerRadiusTopStart">12dp</item>
+        <item name="boxCornerRadiusTopEnd">12dp</item>
+        <item name="boxCornerRadiusBottomStart">12dp</item>
+        <item name="boxCornerRadiusBottomEnd">12dp</item>
+    </style>
+
+    <style name="Widget.Archive.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/archive_surface</item>
+        <item name="strokeColor">@color/archive_outline</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="TextAppearance.Archive.Section" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textColor">@color/archive_primary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
 </resources>

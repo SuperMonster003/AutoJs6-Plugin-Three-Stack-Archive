@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">Ouvrir l\'archive</string>
+    <string name="action_open_archive">Voir l’archive</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">Ouvrir comme archive...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Gérer l\'archive...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraire vers...</string>
@@ -301,4 +301,12 @@
         <item quantity="one">%1$d élément source n\'a pas été restauré car son nom d\'origine est occupé ou la récupération nécessite encore une intervention. Il reste dans la corbeille AutoJs6 si une copie est disponible.</item>
         <item quantity="other">%1$d éléments sources n\'ont pas été restaurés car leurs noms d\'origine sont occupés ou la récupération nécessite encore une intervention. Ils restent dans la corbeille AutoJs6 si des copies sont disponibles.</item>
     </plurals>
+    <string name="text_archive_workspace">Gestion des archives</string>
+    <string name="text_archive_overview">Aperçu de l’archive</string>
+    <string name="text_archive_selection">Sélection</string>
+    <string name="text_section_destination">Destination</string>
+    <string name="text_section_compression">Compression</string>
+    <string name="text_section_security">Mot de passe et chiffrement</string>
+    <string name="text_section_behavior">Après compression</string>
+    <string name="text_archive_actions">Actions</string>
 </resources>

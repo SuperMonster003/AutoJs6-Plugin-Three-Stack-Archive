@@ -57,7 +57,7 @@ internal class ArchiveEntryAdapter(
             selected.setOnCheckedChangeListener { _, checked ->
                 onSelectionChanged(row, checked)
             }
-            kind.text = if (row.isDirectory) FOLDER_SYMBOL else FILE_SYMBOL
+            kind.setImageResource(if (row.isDirectory) R.drawable.ic_entry_folder else R.drawable.ic_entry_file)
             name.text = row.displayName
             details.text = row.details
             root.contentDescription = listOf(row.displayName, row.details)
@@ -101,8 +101,6 @@ internal class ArchiveEntryAdapter(
     }
 
     private companion object {
-        const val FOLDER_SYMBOL = "\uD83D\uDCC1"
-        const val FILE_SYMBOL = "\uD83D\uDCC4"
         const val BLOCKED_ALPHA = 0.45F
     }
 }

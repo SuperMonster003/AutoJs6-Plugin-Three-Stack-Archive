@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">فتح الأرشيف</string>
+    <string name="action_open_archive">عرض الأرشيف</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">فتح كأرشيف...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">إدارة الأرشيف...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">استخراج إلى...</string>
@@ -313,4 +313,12 @@
         <item quantity="many">لم تتم استعادة %1$d عنصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
         <item quantity="other">لم تتم استعادة %1$d عنصر مصدر لأن الاسم الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
     </plurals>
+    <string name="text_archive_workspace">إدارة الأرشيف</string>
+    <string name="text_archive_overview">نظرة عامة</string>
+    <string name="text_archive_selection">العناصر المحددة</string>
+    <string name="text_section_destination">الوجهة</string>
+    <string name="text_section_compression">الضغط</string>
+    <string name="text_section_security">كلمة المرور والتشفير</string>
+    <string name="text_section_behavior">بعد الضغط</string>
+    <string name="text_archive_actions">الإجراءات</string>
 </resources>

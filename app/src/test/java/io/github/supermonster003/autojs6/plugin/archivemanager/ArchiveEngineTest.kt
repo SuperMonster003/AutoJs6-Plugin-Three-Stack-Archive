@@ -83,11 +83,11 @@ class ArchiveEngineTest {
             engine.mutationFormats,
         )
         assertEquals(
-            listOf("7z", "tar", "tbz2", "tgz", "txz", "tzst", "zip"),
+            listOf("7z", "aar", "jar", "rar", "tar", "tbz2", "tgz", "txz", "tzst", "war", "zip"),
             ArchiveManagerPlugin.MANAGE_EXTENSIONS.toList(),
         )
         assertEquals(
-            listOf("tar.bz2", "tar.gz", "tar.xz", "tar.zst"),
+            listOf("7z.001", "tar.bz2", "tar.gz", "tar.xz", "tar.zst", "zip.001"),
             ArchiveManagerPlugin.MANAGE_FILE_NAME_SUFFIXES.toList(),
         )
         val mutation = requireNotNull(engine.mutationCapabilities(ArchiveFormat.ZIP))

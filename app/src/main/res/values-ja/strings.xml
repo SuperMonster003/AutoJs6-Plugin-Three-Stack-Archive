@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">アーカイブを開く</string>
+    <string name="action_open_archive">アーカイブを表示</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">アーカイブとして開く...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">アーカイブを管理...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">展開先...</string>
@@ -298,4 +298,12 @@
     <plurals name="warning_sources_not_restored">
         <item quantity="other">元の名前が使用中か復旧の確認が必要なため、%1$d 件の元項目を復元できませんでした。復旧用コピーが利用できる場合は AutoJs6 のゴミ箱に保持されます。</item>
     </plurals>
+    <string name="text_archive_workspace">アーカイブ管理</string>
+    <string name="text_archive_overview">アーカイブの概要</string>
+    <string name="text_archive_selection">選択項目</string>
+    <string name="text_section_destination">保存先</string>
+    <string name="text_section_compression">圧縮設定</string>
+    <string name="text_section_security">パスワードと暗号化</string>
+    <string name="text_section_behavior">圧縮後の処理</string>
+    <string name="text_archive_actions">操作</string>
 </resources>

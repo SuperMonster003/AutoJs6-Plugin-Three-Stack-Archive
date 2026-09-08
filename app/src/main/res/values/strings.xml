@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">Open archive</string>
+    <string name="action_open_archive">View archive</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis,UnusedResources">Open as archive...</string>
     <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Manage archive...</string>
     <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
@@ -301,4 +301,12 @@
     <string name="text_previous_archive_version_restored">Previous version: restored. This one-time restore has been used.</string>
     <string name="text_previous_archive_version_stale">Previous version: unavailable because the current archive changed after it was updated.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restoring previous archive version...</string>
+    <string name="text_archive_workspace">Archive workspace</string>
+    <string name="text_archive_overview">Archive overview</string>
+    <string name="text_archive_selection">Selection</string>
+    <string name="text_section_destination">Destination</string>
+    <string name="text_section_compression">Compression</string>
+    <string name="text_section_security">Password &amp; encryption</string>
+    <string name="text_section_behavior">After compression</string>
+    <string name="text_archive_actions">Actions</string>
 </resources>
