@@ -5,6 +5,12 @@
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v2.22.1": {
+      "released_date": "2026/09/11",
+      "improvement": [
+        "Vérification à la compilation de l'alignement des pages de 16 KB des bibliothèques natives 64 bits, avec contrôle du contrat manifest et rapports JSON"
+      ]
+    },
     "v2.22.0": {
       "released_date": "2026/08/30",
       "hint": [
@@ -13,9 +19,9 @@
       "feature": [
         "Le centre de plugins peut maintenant identifier directement la version hôte requise, le service d'exécution et les architectures d'appareil incluses"
       ],
-    "fix": [
-      "Les descriptions et instructions publiques distinguent désormais correctement navigation, extraction, création, modification, chiffrement et volumes sans exagérer les formats modifiables",
-      "Les autorisations d'entrée et l'état actif d'un ajout à l'archive sont maintenant libérés avant le rappel final, afin qu'une nouvelle tentative immédiate ne soit plus refusée à tort comme une opération déjà en cours"
+      "fix": [
+        "Les descriptions et instructions publiques distinguent désormais correctement navigation, extraction, création, modification, chiffrement et volumes sans exagérer les formats modifiables",
+        "Les autorisations d'entrée et l'état actif d'un ajout à l'archive sont maintenant libérés avant le rappel final, afin qu'une nouvelle tentative immédiate ne soit plus refusée à tort comme une opération déjà en cours"
       ],
       "improvement": [
         "Une matrice des capacités et un guide d'installation facilitent la vérification de la compatibilité, des limites en lecture seule, de la récupération et du dépannage avant l'installation"
@@ -401,8 +407,12 @@
     },
     "v1.0.1": {
       "released_date": "2026/08/08",
-      "fix": ["Liaison de service vide lors de l'activation dans le centre de plugins"],
-      "improvement": ["Simplification du nom, de la description et des instructions"]
+      "fix": [
+        "Liaison de service vide lors de l'activation dans le centre de plugins"
+      ],
+      "improvement": [
+        "Simplification du nom, de la description et des instructions"
+      ]
     },
     "v1.0.0": {
       "released_date": "2026/08/02",

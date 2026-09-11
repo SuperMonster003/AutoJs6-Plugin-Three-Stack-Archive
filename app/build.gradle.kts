@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.jvm.tasks.Jar
 
 plugins {
+    id("io.github.supermonster003.autojs6-native-alignment")
     id("org.autojs.build.utils")
     id("org.autojs.build.versions")
     id("org.autojs.build.signs")

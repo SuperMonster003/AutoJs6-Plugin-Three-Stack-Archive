@@ -109,3 +109,6 @@
 - {{ text_link_autojs6_docs }}: {{ docs_autojs6_url }}
 - {{ text_link_third_party_notices }}: [THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md)
 - {{ text_link_android_saf }}: https://developer.android.com/guide/topics/providers/document-provider
+
+
+[16 KB page alignment and build verification](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/16kb.md)

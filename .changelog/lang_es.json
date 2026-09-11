@@ -5,6 +5,12 @@
   "changelog_label_improvement": "Mejorado",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v2.22.1": {
+      "released_date": "2026/09/11",
+      "improvement": [
+        "Verificación de compilación de la alineación de páginas de 16 KB en bibliotecas nativas de 64 bits, con controles del contrato manifest e informes JSON"
+      ]
+    },
     "v2.22.0": {
       "released_date": "2026/08/30",
       "hint": [
@@ -13,9 +19,9 @@
       "feature": [
         "El Centro de plugins ahora puede identificar directamente la versión del host requerida, el servicio de ejecución y las arquitecturas de dispositivo incluidas"
       ],
-    "fix": [
-      "Las descripciones e instrucciones públicas ahora distinguen correctamente exploración, extracción, creación, edición, cifrado y volúmenes sin exagerar los formatos editables",
-      "Los permisos de entrada y el estado activo al añadir contenido ahora se liberan antes de la devolución final, evitando que un reintento inmediato se rechace por error como otra operación en curso"
+      "fix": [
+        "Las descripciones e instrucciones públicas ahora distinguen correctamente exploración, extracción, creación, edición, cifrado y volúmenes sin exagerar los formatos editables",
+        "Los permisos de entrada y el estado activo al añadir contenido ahora se liberan antes de la devolución final, evitando que un reintento inmediato se rechace por error como otra operación en curso"
       ],
       "improvement": [
         "Una matriz de capacidades y una guía de instalación facilitan comprobar compatibilidad, límites de solo lectura, recuperación y solución de problemas antes de instalar"
@@ -401,8 +407,12 @@
     },
     "v1.0.1": {
       "released_date": "2026/08/08",
-      "fix": ["Enlace de servicio vacío al activar el complemento"],
-      "improvement": ["Nombre, descripción e instrucciones más simples"]
+      "fix": [
+        "Enlace de servicio vacío al activar el complemento"
+      ],
+      "improvement": [
+        "Nombre, descripción e instrucciones más simples"
+      ]
     },
     "v1.0.0": {
       "released_date": "2026/08/02",

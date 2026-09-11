@@ -1,5 +1,11 @@
 # Release notes
 
+## v2.22.1
+
+_2026/09/11_
+
+- `Improved` Build verification of 16 KB page alignment for 64-bit native libraries, including manifest contract checks and JSON reports
+
 ## v2.22.0
 
 _2026/08/30_

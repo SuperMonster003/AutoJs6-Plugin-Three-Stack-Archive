@@ -1,5 +1,11 @@
 # Notas de la versión
 
+## v2.22.1
+
+_2026/09/11_
+
+- `Mejorado` Verificación de compilación de la alineación de páginas de 16 KB en bibliotecas nativas de 64 bits, con controles del contrato manifest e informes JSON
+
 ## v2.22.0
 
 _2026/08/30_
