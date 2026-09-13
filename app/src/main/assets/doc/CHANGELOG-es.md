@@ -5,6 +5,7 @@
 _2026/09/13_
 
 - `Corregido` La versión y las ABI del centro de complementos coinciden con el APK instalado
+- `Corregido` Las fechas de versión mantienen un formato uniforme en inglés
 - `Mejorado` Validación de las versiones, firmas y variantes completas de los APK antes de crear los archivos de descarga
 
 ## v2.22.1

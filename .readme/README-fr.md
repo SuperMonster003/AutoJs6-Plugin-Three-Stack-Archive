@@ -128,6 +128,7 @@ La consultation, l'extraction, la création, la modification, la restauration de
 _2026/09/13_
 
 - `Correction` Les informations de version et d'ABI du centre des plugins correspondent à l'APK installé
+- `Correction` Les dates de version utilisent un format anglais uniforme
 - `Amélioration` Validation des versions, signatures et variantes complètes des APK avant la création des fichiers à télécharger
 
 #### v2.22.1

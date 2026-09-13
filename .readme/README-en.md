@@ -128,6 +128,7 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 _2026/09/13_
 
 - `Fixed` Plugin center version and ABI information matches the installed plugin APK
+- `Fixed` Version dates use a consistent English format
 - `Improved` Validate release APK versions, signing and the complete variant set before creating download artifacts
 
 #### v2.22.1
