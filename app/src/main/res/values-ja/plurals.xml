@@ -1,27 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="other">%1$d 件, 展開後 %2$s</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="other">%1$s を作成しました (%2$d ファイル)</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="other">%1$d 項目を選択</item>
+    <plurals name="text_archive_summary">
+        <item quantity="other">%1$d 件, 展開後 %2$s</item>
     </plurals>
     <plurals name="text_compressing_progress">
-        <item quantity="other">%1$s を圧縮中\n%2$d/%3$d ファイル、%4$s/%5$s 読み取り済み</item>
+        <item quantity="other">%1$s を圧縮中\n%2$d/%3$d ファイル,%4$s/%5$s 読み取り済み</item>
     </plurals>
     <plurals name="text_compressing_progress_unknown_sizes">
-        <item quantity="other">%1$s を圧縮中\n%2$d/%3$d ファイル、%4$s 読み取り済み、サイズ不明 %5$d 件</item>
+        <item quantity="other">%1$s を圧縮中\n%2$d/%3$d ファイル,%4$s 読み取り済み,サイズ不明 %5$d 件</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="other">%1$s をスキャン中\n%2$d ファイル、%3$d フォルダーを検出</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="other">%1$d 項目を選択</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">%1$d ファイルを %2$s に展開しました</item>
     </plurals>
     <plurals name="text_folder_details">
         <item quantity="other">%1$d ファイル, 展開後 %2$s</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="other">ほか %1$d 項目</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="other">%1$s をスキャン中\n%2$d ファイル,%3$d フォルダーを検出</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="other">元項目を %1$d 件復元しました.作成済みのアーカイブは保持されています.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="other">元の名前が使用中か復旧の確認が必要なため,%1$d 件の元項目を復元できませんでした.復旧用コピーが利用できる場合は AutoJs6 のゴミ箱に保持されます.</item>
     </plurals>
 </resources>

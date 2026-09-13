@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="one">%1$d entry, %2$s unpacked</item>
-        <item quantity="other">%1$d entries, %2$s unpacked</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="one">Created %1$s with %2$d file</item>
         <item quantity="other">Created %1$s with %2$d files</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="one">%1$d selected item</item>
-        <item quantity="other">%1$d selected items</item>
+    <plurals name="text_archive_summary">
+        <item quantity="one">%1$d entry, %2$s unpacked</item>
+        <item quantity="other">%1$d entries, %2$s unpacked</item>
     </plurals>
     <plurals name="text_compressing_progress">
         <item quantity="one">Compressing %1$s\n%2$d/%3$d file, %4$s/%5$s read</item>
@@ -20,9 +16,9 @@
         <item quantity="one">Compressing %1$s\nFiles: %2$d/%3$d, %4$s read; %5$d file has unknown size</item>
         <item quantity="other">Compressing %1$s\nFiles: %2$d/%3$d, %4$s read; %5$d files have unknown sizes</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="one">Scanning %1$s\n%2$d file found; folders: %3$d</item>
-        <item quantity="other">Scanning %1$s\n%2$d files found; folders: %3$d</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="one">%1$d selected item</item>
+        <item quantity="other">%1$d selected items</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Extracted %1$d file to %2$s</item>
@@ -31,5 +27,21 @@
     <plurals name="text_folder_details">
         <item quantity="one">%1$d file, %2$s unpacked</item>
         <item quantity="other">%1$d files, %2$s unpacked</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ %1$d more item</item>
+        <item quantity="other">+ %1$d more items</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Scanning %1$s\n%2$d file found; folders: %3$d</item>
+        <item quantity="other">Scanning %1$s\n%2$d files found; folders: %3$d</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">Restored %1$d source item. Created archive files were kept.</item>
+        <item quantity="other">Restored %1$d source items. Created archive files were kept.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">%1$d source item was not restored because its original name is occupied or recovery still needs attention. It remains in AutoJs6 Trash when a recovery copy is available.</item>
+        <item quantity="other">%1$d source items were not restored because their original names are occupied or recovery still needs attention. They remain in AutoJs6 Trash when recovery copies are available.</item>
     </plurals>
 </resources>

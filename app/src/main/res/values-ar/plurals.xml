@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="zero">%1$d عنصر, %2$s بعد فك الضغط</item>
-        <item quantity="one">%1$d عنصر, %2$s بعد فك الضغط</item>
-        <item quantity="two">%1$d عنصران, %2$s بعد فك الضغط</item>
-        <item quantity="few">%1$d عناصر, %2$s بعد فك الضغط</item>
-        <item quantity="many">%1$d عنصرا, %2$s بعد فك الضغط</item>
-        <item quantity="other">%1$d عنصر, %2$s بعد فك الضغط</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="zero">تم إنشاء %1$s ويحتوي على %2$d ملف</item>
         <item quantity="one">تم إنشاء %1$s ويحتوي على %2$d ملف</item>
@@ -16,13 +8,13 @@
         <item quantity="many">تم إنشاء %1$s ويحتوي على %2$d ملفا</item>
         <item quantity="other">تم إنشاء %1$s ويحتوي على %2$d ملف</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="zero">تم تحديد %1$d عنصر</item>
-        <item quantity="one">تم تحديد %1$d عنصر</item>
-        <item quantity="two">تم تحديد %1$d عنصرين</item>
-        <item quantity="few">تم تحديد %1$d عناصر</item>
-        <item quantity="many">تم تحديد %1$d عنصرا</item>
-        <item quantity="other">تم تحديد %1$d عنصر</item>
+    <plurals name="text_archive_summary">
+        <item quantity="zero">%1$d عنصر, %2$s بعد فك الضغط</item>
+        <item quantity="one">%1$d عنصر, %2$s بعد فك الضغط</item>
+        <item quantity="two">%1$d عنصران, %2$s بعد فك الضغط</item>
+        <item quantity="few">%1$d عناصر, %2$s بعد فك الضغط</item>
+        <item quantity="many">%1$d عنصرا, %2$s بعد فك الضغط</item>
+        <item quantity="other">%1$d عنصر, %2$s بعد فك الضغط</item>
     </plurals>
     <plurals name="text_compressing_progress">
         <item quantity="zero">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s/%5$s</item>
@@ -40,13 +32,13 @@
         <item quantity="many">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
         <item quantity="other">جار ضغط %1$s\nالملفات: %2$d/%3$d، المقروء: %4$s، أحجام غير معروفة: %5$d</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="zero">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
-        <item quantity="one">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
-        <item quantity="two">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
-        <item quantity="few">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
-        <item quantity="many">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
-        <item quantity="other">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="zero">تم تحديد %1$d عنصر</item>
+        <item quantity="one">تم تحديد %1$d عنصر</item>
+        <item quantity="two">تم تحديد %1$d عنصرين</item>
+        <item quantity="few">تم تحديد %1$d عناصر</item>
+        <item quantity="many">تم تحديد %1$d عنصرا</item>
+        <item quantity="other">تم تحديد %1$d عنصر</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="zero">تم استخراج %1$d ملف إلى %2$s</item>
@@ -63,5 +55,37 @@
         <item quantity="few">%1$d ملفات, %2$s بعد فك الضغط</item>
         <item quantity="many">%1$d ملفا, %2$s بعد فك الضغط</item>
         <item quantity="other">%1$d ملف, %2$s بعد فك الضغط</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="zero">لا عناصر إضافية</item>
+        <item quantity="one">+ عنصر إضافي واحد</item>
+        <item quantity="two">+ عنصران إضافيان</item>
+        <item quantity="few">+ %1$d عناصر إضافية</item>
+        <item quantity="many">+ %1$d عنصرًا إضافيًا</item>
+        <item quantity="other">+ %1$d عنصر إضافي</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="zero">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="one">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="two">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="few">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="many">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+        <item quantity="other">جار فحص %1$s\nالملفات المكتشفة: %2$d، المجلدات: %3$d</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="zero">لم تتم استعادة أي عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="one">تمت استعادة عنصر مصدر واحد. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="two">تمت استعادة عنصري مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="few">تمت استعادة %1$d عناصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="many">تمت استعادة %1$d عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+        <item quantity="other">تمت استعادة %1$d عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="zero">لم يتبق أي عنصر مصدر غير مستعاد.</item>
+        <item quantity="one">لم تتم استعادة عنصر مصدر واحد لأن اسمه الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
+        <item quantity="two">لم تتم استعادة عنصري مصدر لأن اسميهما الأصليين مستخدمان أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقيان في مهملات AutoJs6 إذا توفرت نسختا استرداد.</item>
+        <item quantity="few">لم تتم استعادة %1$d عناصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
+        <item quantity="many">لم تتم استعادة %1$d عنصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
+        <item quantity="other">لم تتم استعادة %1$d عنصر مصدر لأن الاسم الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
     </plurals>
 </resources>

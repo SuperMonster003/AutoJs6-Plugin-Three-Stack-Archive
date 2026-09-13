@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Archive Manager 2.22.0 requires all of the following:
+Archive Manager 2.22.2 requires all of the following:
 
 - Android 7.0 or newer (`minSdk 24`).
 - AutoJs6 6.8.0 with version code 5276 or newer.
@@ -21,14 +21,14 @@ The official Plugin Center metadata declares minimum host version code 5276. Dur
 5. Open the AutoJs6 file manager and check a supported archive's file menu. **Open archive**, **Extract to...**, and **Manage archive...** appear only when their matcher and protocol requirements are satisfied.
 6. Check an ordinary file or directory menu for **Compress...**. The same action is available for a same-parent multi-selection.
 
-The APK is universal: one file contains the four listed ABIs. Do not choose an APK only by the Android device's marketing name; verify the release filename, version, size, SHA-256 digest, and signer certificate from the release receipt.
+Release downloads include one APK per ABI and a universal APK containing all four listed ABIs. Do not choose an APK only by the Android device's marketing name; verify the release filename, version, size, SHA-256 digest, and signer certificate from the release receipt.
 
 ## Sideloading the local release
 
-Use an explicitly selected device when more than one Android device is connected:
+Build and validate the release with `./gradlew.bat :app:appendDigestToReleasedFiles`, then select the filename recorded in `releases/v2.22.2/release-manifest.json`. Use an explicitly selected device when more than one Android device is connected:
 
 ```powershell
-adb -s <serial> install -r .\releases\autojs6-plugin-archive-manager-v2.22.0.apk
+adb -s <serial> install -r .\releases\v2.22.2\autojs6-plugin-archive-manager-v2.22.2-universal-<CRC32>.apk
 ```
 
 Archive Manager requests the host's signature-level `org.autojs.permission.PLUGIN` permission. A locally rebuilt plugin signed with an unrelated certificate may install, but the compatible host will not grant the plugin contract. Use the AutoJs6 signing configuration for paired local builds.

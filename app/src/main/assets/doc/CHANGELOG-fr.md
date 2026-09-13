@@ -1,5 +1,12 @@
 # Notes de version
 
+## v2.22.2
+
+_2026/09/13_
+
+- `Correction` Les informations de version et d'ABI du centre des plugins correspondent à l'APK installé
+- `Amélioration` Validation des versions, signatures et variantes complètes des APK avant la création des fichiers à télécharger
+
 ## v2.22.1
 
 _2026/09/11_

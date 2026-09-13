@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="other">%1$d 個項目, 解壓縮後 %2$s</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="other">已建立 %1$s, 包含 %2$d 個檔案</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="other">已選取 %1$d 個項目</item>
+    <plurals name="text_archive_summary">
+        <item quantity="other">%1$d 個項目, 解壓縮後 %2$s</item>
     </plurals>
     <plurals name="text_compressing_progress">
         <item quantity="other">正在壓縮 %1$s\n檔案 %2$d/%3$d, 已讀取 %4$s/%5$s</item>
@@ -15,13 +12,25 @@
     <plurals name="text_compressing_progress_unknown_sizes">
         <item quantity="other">正在壓縮 %1$s\n檔案 %2$d/%3$d, 已讀取 %4$s, %5$d 個檔案大小不明</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="other">正在掃描 %1$s\n已找到 %2$d 個檔案和 %3$d 個資料夾</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="other">已選取 %1$d 個項目</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">已解壓縮 %1$d 個檔案至 %2$s</item>
     </plurals>
     <plurals name="text_folder_details">
         <item quantity="other">%1$d 個檔案, 解壓縮後 %2$s</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="other">另有 %1$d 個項目</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="other">正在掃描 %1$s\n已找到 %2$d 個檔案和 %3$d 個資料夾</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="other">已恢復 %1$d 個來源項目. 已建立的壓縮檔案仍會保留.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="other">有 %1$d 個來源項目因原名稱已被佔用或仍需處理而未恢復. 如果恢復副本仍可用, 它們會繼續保留在 AutoJs6 垃圾桶中.</item>
     </plurals>
 </resources>

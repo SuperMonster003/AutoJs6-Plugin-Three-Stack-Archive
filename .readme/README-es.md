@@ -123,6 +123,13 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v2.22.2
+
+_2026/09/13_
+
+- `Corregido` La versión y las ABI del centro de complementos coinciden con el APK instalado
+- `Mejorado` Validación de las versiones, firmas y variantes completas de los APK antes de crear los archivos de descarga
+
 #### v2.22.1
 
 _2026/09/11_
@@ -138,15 +145,6 @@ _2026/08/30_
 - `Corregido` Las descripciones e instrucciones públicas ahora distinguen correctamente exploración, extracción, creación, edición, cifrado y volúmenes sin exagerar los formatos editables
 - `Corregido` Los permisos de entrada y el estado activo al añadir contenido ahora se liberan antes de la devolución final, evitando que un reintento inmediato se rechace por error como otra operación en curso
 - `Mejorado` Una matriz de capacidades y una guía de instalación facilitan comprobar compatibilidad, límites de solo lectura, recuperación y solución de problemas antes de instalar
-
-#### v2.21.0
-
-_2026/08/30_
-
-- `Nota` Esta versión requiere la compilación emparejada de AutoJs6 6.8.0 con Explorer Action v21 (código de versión 5276 o posterior)
-- `Añadido` La creación de archivos ahora conserva una página de finalización y un historial de recuperación de orígenes; los orígenes enviados a la Papelera por decisión explícita se pueden restaurar tras recrear la Activity o la sesión del host
-- `Corregido` Restaurar los orígenes nunca sobrescribe un nombre existente ni elimina un archivo creado; los conflictos y las restauraciones parciales o interrumpidas conservan la evidencia de recuperación e informan los resultados por elemento
-- `Mejorado` El host conserva el historial duradero y acotado y solo expone metadatos opacos; la recuperación permanece en la página de compresión del plugin y el diseño normal del gestor de archivos no cambia
 
 ##### Historial completo
 

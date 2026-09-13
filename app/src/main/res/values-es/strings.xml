@@ -1,163 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">Añadir archivos...</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Añadir carpeta...</string>
+    <string name="action_archive_information">Información del archivo</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Gestionar archivo...</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Nueva carpeta...</string>
     <string name="action_open_archive">Ver archivo</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">Abrir como archivo comprimido...</string>
-    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Gestionar archivo...</string>
-    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extraer en...</string>
-    <string name="action_compress" tools:ignore="TypographyEllipsis">Comprimir...</string>
-    <string name="app_name">Archive Manager</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">Cambiar nombre...</string>
+    <string name="action_restore_previous_archive_version">Restaurar versión anterior</string>
+    <string name="action_restore_sources">Restaurar fuentes</string>
+    <string name="action_retry_source_restore">Reintentar restauración</string>
+    <string name="action_source_recovery_history">Historial de recuperación de fuentes</string>
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="dialog_button_continue">Continuar</string>
-    <string name="dialog_button_skip_unsafe">Omitir y continuar</string>
-    <string name="dialog_button_select_all">Seleccionar todo</string>
+    <string name="dialog_button_continue_anyway">Continuar de todos modos</string>
+    <string name="dialog_button_done">Listo</string>
     <string name="dialog_button_edit_name">Editar nombre</string>
+    <string name="dialog_button_save">Guardar</string>
+    <string name="dialog_button_select_all">Seleccionar todo</string>
+    <string name="dialog_button_skip_unsafe">Omitir y continuar</string>
     <string name="dialog_button_use_numbered_name">Usar nombre numerado</string>
-    <string name="dialog_title_archive_name_unavailable">El nombre de salida exacto no está disponible</string>
     <string name="dialog_message_archive_name_unavailable">El host no pudo reservar %1$s en %2$s. No se escribieron datos del archivo. Edite el nombre o reintente con numeración automática.</string>
+    <string name="dialog_message_extraction_destination">La carpeta de salida predeterminada es %1$s. Si ese nombre ya existe, Archive Manager añade un número sin modificar el contenido existente.</string>
+    <string name="dialog_message_output_conflict">Elemento del archivo: %1$s\nExistente: %2$s (%3$s)\nEntrante: %4$s (%5$s)</string>
+    <string name="dialog_message_restore_previous_archive_version">La versión anterior guardada por AutoJs6 (%1$s, guardada el %2$s) sustituirá el archivo actual. Solo se puede restaurar una vez y la operación se rechazará si el archivo actual ha cambiado en otro lugar.</string>
     <string name="dialog_message_skip_unsafe_paths">%1$d entradas del archivo usan rutas que no se pueden escribir de forma segura. Siguen disponibles para vista previa en la carpeta Rutas no seguras. ¿Continuar y omitirlas?</string>
+    <string name="dialog_title_archive_information">Información del archivo</string>
+    <string name="dialog_title_archive_mutation_preflight">Revisar cambios del archivo</string>
+    <string name="dialog_title_archive_name_unavailable">El nombre de salida exacto no está disponible</string>
+    <string name="dialog_title_custom_budget">Presupuesto de extracción personalizado</string>
+    <string name="dialog_title_extraction_destination">Destino de extracción</string>
+    <string name="dialog_title_extraction_scope">Ámbito de extracción</string>
+    <string name="dialog_title_new_archive_folder">Nueva carpeta en el archivo</string>
+    <string name="dialog_title_output_conflict">Conflicto de nombre de salida</string>
+    <string name="dialog_title_rename_archive_entry">Cambiar nombre del elemento</string>
+    <string name="dialog_title_resource_budget">Se superó el presupuesto de extracción</string>
+    <string name="dialog_title_restore_previous_archive_version">¿Restaurar la versión anterior?</string>
+    <string name="dialog_title_source_recovery_details">Detalles de recuperación de fuentes</string>
+    <string name="dialog_title_source_recovery_history">Historial de recuperación de fuentes</string>
     <string name="dialog_title_unsafe_paths">Rutas no seguras</string>
+    <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
     <string name="error_archive_invalid">El archivo no es válido o no es compatible</string>
-    <string name="error_archive_missing_volumes">Faltan volúmenes ZIP</string>
     <string name="error_archive_limit">El archivo supera un límite de seguridad</string>
+    <string name="error_archive_missing_volumes">Faltan volúmenes ZIP</string>
+    <string name="error_archive_mutation_failed">No se pudo actualizar el ZIP</string>
+    <string name="error_archive_refresh_failed">El ZIP se actualizó, pero no se pudo volver a cargar su contenido</string>
+    <string name="error_archive_restore_refresh_failed">Se restauró la versión anterior del archivo, pero no se pudo volver a cargar su contenido</string>
     <string name="error_cannot_create_output">No se puede crear el directorio de salida</string>
     <string name="error_cannot_open_archive">No se puede abrir el archivo</string>
     <string name="error_cleanup_failed">Error de limpieza; puede quedar una salida parcial</string>
     <string name="error_cleanup_residual_outputs">La limpieza falló. Estas ubicaciones de salida pueden permanecer:\n%1$s</string>
-    <string name="error_extraction_failed">Error de extracción</string>
-    <string name="error_no_selection">Selecciona al menos una entrada</string>
-    <string name="error_no_safe_entries">La selección no contiene entradas que se puedan extraer de forma segura</string>
-    <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
-    <string name="error_with_reason">%1$s\nMotivo: %2$s</string>
-    <string name="plugin_description">Explora y extrae archivos ZIP, 7Z, RAR y TAR; crea y gestiona de forma segura los formatos editables compatibles</string>
-    <string name="text_cancelled">Cancelado</string>
-    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
-    <string name="dialog_title_extraction_scope">Ámbito de extracción</string>
-    <string name="text_extraction_scope_entire_archive">Archivo completo</string>
-    <string name="text_extraction_scope_current_directory">Carpeta actual: %1$s</string>
-    <string name="text_extraction_scope_current_selection">Selección actual</string>
-    <string name="text_extracting">Extrayendo %1$d de %2$d</string>
-    <string name="text_extraction_current_item">Elemento actual: %1$s</string>
-    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
-    <string name="text_extraction_rate">%1$s/s</string>
-    <string name="text_extraction_rate_eta">%1$s/s, %2$s restantes</string>
-    <string name="text_encrypted_entry">Entrada cifrada (%1$s); introduce la contraseña del archivo para abrirla</string>
-    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Cargando archivo...</string>
-    <string name="text_loading_progress">%1$s de %2$s</string>
-    <string name="text_modified">Modificado: %1$s</string>
-    <string name="text_navigate_up">Subir un nivel</string>
-    <string name="text_no_entries">No hay entradas coincidentes</string>
-    <string name="text_parent_directory">Directorio superior</string>
-    <string name="text_search_hint">Buscar en el archivo</string>
-    <string name="text_select_entry">Seleccionar entrada</string>
-    <string name="text_selected_count">Seleccionadas: %1$d</string>
-    <string name="text_size_details">%1$s, comprimido %2$s, CRC %3$s</string>
-    <string name="text_unknown">Desconocido</string>
-    <string name="text_unsafe_path_read_only">Ruta original no segura; solo vista previa. Se excluye de la extracción.</string>
-    <string name="text_unsafe_paths_folder">Rutas no seguras</string>
-    <string name="text_unsupported_compression_method">No se puede extraer el método de compresión %1$s</string>
-    <string name="text_unsupported_entry_type">No se puede extraer el tipo de entrada %1$s</string>
-    <string name="error_archive_file_name_invalid">Introduce un nombre válido para el archivo comprimido</string>
-    <string name="error_compression_failed">Error de compresión</string>
     <string name="error_compression_cleanup_unconfirmed">La compresión falló y no se pudo confirmar la limpieza de la salida temporal. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %1$s\nMotivo original: %2$s</string>
-    <string name="error_split_compression_partial_failure">La publicación ZIP se detuvo después de confirmar %1$d de %2$d archivos de volumen. El volumen .zip final no se confirmó, por lo que el conjunto incompleto no se puede abrir. La sesión del host se cerró para impedir otra escritura.\nSalida fallida: %3$s\nMotivo: %4$s</string>
-    <string name="error_split_compression_cleanup_unconfirmed">La publicación ZIP se detuvo después de confirmar %1$d de %2$d archivos de volumen y no se pudo confirmar la limpieza de %3$d salidas pendientes. El volumen .zip final no se confirmó. La sesión del host se cerró para impedir otra escritura.\nPrimera salida que requiere atención: %4$s\nMotivo original: %5$s</string>
-    <string name="error_split_compression_cache_cleanup">Los volúmenes ZIP se prepararon, pero no se pudo confirmar la limpieza de su copia de caché privada. No se confirmó ningún volumen. La sesión del host se cerró para impedir otra escritura.</string>
-    <string name="error_separate_compression_partially_cancelled">Se canceló después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para los elementos restantes.</string>
-    <string name="error_separate_compression_completed_before_split_failure">Antes de que se detuviera el siguiente ZIP dividido, ya se habían completado y conservado %1$d de %2$d archivos independientes.</string>
-    <string name="error_separate_compression_partial_failure">La creación se detuvo después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para el elemento fallido y los restantes.\nSalida fallida: %3$s\nMotivo: %4$s</string>
-    <string name="error_separate_compression_cleanup_unconfirmed">Se crearon %1$d de %2$d archivos antes de que fallara una salida posterior y no se pudo confirmar la limpieza de su salida temporal. Los archivos completados se conservaron. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %3$s\nMotivo original: %4$s</string>
+    <string name="error_compression_failed">Error de compresión</string>
     <string name="error_compression_request_invalid">La solicitud de compresión o la sesión del anfitrión no es válida</string>
-    <string name="text_archive_creation_safety_note">Los elementos de origen solo se mueven a la papelera de AutoJs6 después de verificar y confirmar todas las salidas. El cifrado de nombres sigue sin estar disponible.</string>
-    <string name="text_archive_file_name">Nombre del archivo</string>
-    <string name="text_archive_format">Formato</string>
-    <string name="text_compress_separately">Comprimir cada elemento por separado</string>
-    <string name="text_separate_archive_preview_count">Se crearán %1$d archivos en esta carpeta:</string>
-    <string name="text_separate_archive_preview_more">- y %1$d más</string>
-    <string name="text_separate_archive_conflict_note">Los nombres existentes y repetidos se numeran automáticamente; no se sobrescribe ningún elemento.</string>
-    <string name="text_separate_archive_progress">Archivo %1$d de %2$d: %3$s\n%4$s</string>
-    <string name="text_separate_archives_created">Se crearon %1$d archivos: %2$d archivos comprimidos y %3$d carpetas añadidas.</string>
-    <string name="text_separate_split_archives_created">Se crearon %1$d archivos en %2$d archivos de volumen ZIP y se comprimieron %3$d archivos.</string>
-    <string name="text_compression_level">Nivel de compresión</string>
-    <string name="text_compression_level_fast">Rápido</string>
-    <string name="text_compression_level_maximum">Máximo</string>
-    <string name="text_compression_level_none">Sin compresión</string>
-    <string name="text_compression_level_normal">Normal</string>
-    <string name="text_create_archive">Crear archivo comprimido</string>
-    <string name="text_default_archive_name">Archivo</string>
-    <string name="text_move_sources_to_trash_after_compression">Mover los elementos de origen a la papelera después de comprimir</string>
-    <string name="text_moving_sources_to_trash">Moviendo los elementos de origen a la papelera</string>
-    <string name="text_sources_moved_to_trash">Se movieron %1$d elementos de origen a la papelera.</string>
-    <string name="warning_sources_trash_recovery_required">El archivo se creó, pero la limpieza de los elementos de origen requiere atención. Hay copias recuperables en la papelera de AutoJs6.</string>
-    <string name="warning_sources_trash_failed">El archivo se creó, pero no se pudieron mover los elementos de origen a la papelera.</string>
-    <string name="warning_sources_trash_unknown">El archivo se creó, pero AutoJs6 no pudo confirmar que todos los elementos de origen llegaran a la papelera. Revisa la carpeta actual y la papelera antes de volver a intentarlo.</string>
-    <string name="text_encrypt_file_names">Cifrar nombres de archivo</string>
-    <string name="text_format_zip">ZIP</string>
-    <string name="text_creation_conflict_policy">Si el nombre del archivo no está disponible</string>
-    <string name="text_creation_conflict_policy_auto_rename_details">Reserva un nombre numerado disponible. Los archivos existentes nunca se reemplazan. La sobrescritura transaccional requiere una API del host más reciente.</string>
-    <string name="text_creation_conflict_policy_ask_details">Prueba primero el nombre exacto. Si el host no puede reservarlo, pregunta antes de reintentar con un nombre numerado. Los archivos existentes nunca se reemplazan.</string>
-    <string name="text_none">Ninguno</string>
-    <string name="text_output_path">Ruta</string>
-    <string name="text_password">Contraseña</string>
-    <string name="text_confirm_password">Confirmar contraseña</string>
-    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
-    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Analizando los elementos de origen...</string>
-    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verificando el archivo...</string>
-    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Confirmando el archivo...</string>
-    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparando la extracción...</string>
-    <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
-    <string name="text_split_volume">Tamaño del volumen (MiB)</string>
-    <string name="text_split_volume_mib">%1$d MiB</string>
-    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">Si el resultado supera el tamaño elegido, ZIP crea .z01, .z02, ... y un archivo .zip final; un resultado menor permanece como un único .zip. Elige un valor predefinido o escribe un entero entre %1$d y %2$d.</string>
-    <string name="text_split_archive_created">Se creó %1$s en %2$d archivos de volumen ZIP y se comprimieron %3$d archivos.</string>
-    <string name="text_encryption_unavailable_for_format">La contraseña y el cifrado de nombres no están disponibles para %1$s.</string>
+    <string name="error_custom_budget_invalid">Introduce números enteros no negativos dentro del intervalo admitido</string>
+    <string name="error_custom_budget_total_less_single">El presupuesto de tamaño total debe ser cero (sin límite) o al menos igual al de una entrada</string>
     <string name="error_diagnostic_details">%1$s\nFormato: %2$s\nEtapa: %3$s\nCódigo: %4$s\nMotivo: %5$s</string>
+    <string name="error_extraction_failed">Error de extracción</string>
+    <string name="error_no_safe_entries">La selección no contiene entradas que se puedan extraer de forma segura</string>
+    <string name="error_no_selection">Selecciona al menos una entrada</string>
+    <string name="error_password_confirmation_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_password_incorrect">La contraseña del archivo es incorrecta</string>
+    <string name="error_password_required">Introduce la contraseña del archivo</string>
+    <string name="error_permission_missing">Falta el acceso de lectura al archivo</string>
+    <string name="error_previous_archive_version_changed">El archivo actual cambió después de actualizarse. No se restauró su versión anterior.</string>
+    <string name="error_previous_archive_version_restore_failed">No se pudo restaurar la versión anterior del archivo</string>
     <string name="error_reason_cache_space">No hay suficiente espacio de caché para abrir este archivo.</string>
     <string name="error_reason_cleanup">No se pudo eliminar por completo la salida parcial.</string>
     <string name="error_reason_compression_method">Una entrada utiliza un método de compresión que este motor no puede leer.</string>
     <string name="error_reason_entry_data">No se pudo leer o verificar una entrada del archivo.</string>
     <string name="error_reason_filename_encoding">La codificación de nombres seleccionada no está disponible o no permite indexar este archivo.</string>
     <string name="error_reason_index">Los metadatos del directorio del archivo están dañados o no son compatibles.</string>
-    <string name="error_reason_missing_volumes">Este ZIP está dividido. Coloque %1$s junto a %2$s en la misma carpeta y vuelva a abrir el último volumen.</string>
     <string name="error_reason_input">No se puede leer el archivo o cambió mientras se abría.</string>
     <string name="error_reason_integrity">El tamaño o la suma de comprobación no coincide con los metadatos del archivo.</string>
     <string name="error_reason_invalid_signature">El archivo no contiene una firma de archivo reconocida.</string>
     <string name="error_reason_limit">La operación supera el presupuesto de recursos configurado.</string>
+    <string name="error_reason_missing_volumes">Este ZIP está dividido. Coloque %1$s junto a %2$s en la misma carpeta y vuelva a abrir el último volumen.</string>
     <string name="error_reason_output">No se puede preparar o escribir de forma segura en la ubicación de salida.</string>
     <string name="error_reason_password">Se necesita una contraseña o la contraseña proporcionada es incorrecta.</string>
     <string name="error_reason_path">La ruta de una entrada entra en conflicto o no se puede procesar de forma segura.</string>
-    <string name="text_archive_diagnostic">Diagnóstico del archivo</string>
-    <string name="text_copy_diagnostic">Copiar diagnóstico</string>
-    <string name="text_diagnostic_copied">Diagnóstico copiado</string>
-    <string name="text_failure_stage_cleanup">Limpieza</string>
-    <string name="text_failure_stage_entry_data">Datos de entrada</string>
-    <string name="text_failure_stage_format_detection">Detección de formato</string>
-    <string name="text_failure_stage_index">Índice del directorio</string>
-    <string name="text_failure_stage_input">Entrada</string>
-    <string name="text_failure_stage_output">Salida</string>
-    <string name="text_failure_stage_password">Contraseña</string>
-    <string name="text_filename_encoding">Codificación de nombres</string>
-    <string name="text_filename_encoding_automatic">Automática</string>
-    <string name="text_filename_encoding_automatic_detected">Automática (alternativa heredada: %1$s)</string>
-    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexando el archivo...</string>
-    <string name="error_password_incorrect">La contraseña del archivo es incorrecta</string>
-    <string name="error_password_required">Introduce la contraseña del archivo</string>
-    <string name="error_password_confirmation_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_rename_single_selection">Selecciona exactamente un archivo o carpeta para cambiarle el nombre</string>
+    <string name="error_separate_compression_cleanup_unconfirmed">Se crearon %1$d de %2$d archivos antes de que fallara una salida posterior y no se pudo confirmar la limpieza de su salida temporal. Los archivos completados se conservaron. La sesión del host se cerró para impedir otra escritura. No se sobrescribió ningún archivo existente.\nSalida prevista: %3$s\nMotivo original: %4$s</string>
+    <string name="error_separate_compression_completed_before_split_failure">Antes de que se detuviera el siguiente ZIP dividido, ya se habían completado y conservado %1$d de %2$d archivos independientes.</string>
+    <string name="error_separate_compression_partial_failure">La creación se detuvo después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para el elemento fallido y los restantes.\nSalida fallida: %3$s\nMotivo: %4$s</string>
+    <string name="error_separate_compression_partially_cancelled">Se canceló después de crear %1$d de %2$d archivos. Los archivos completados se conservaron y esta sesión se cerró para evitar salidas duplicadas. Vuelve a abrir Comprimir para los elementos restantes.</string>
+    <string name="error_source_restore_failed">No se pudieron restaurar los elementos de origen. Motivo: %1$s</string>
+    <string name="error_split_compression_cache_cleanup">Los volúmenes ZIP se prepararon, pero no se pudo confirmar la limpieza de su copia de caché privada. No se confirmó ningún volumen. La sesión del host se cerró para impedir otra escritura.</string>
+    <string name="error_split_compression_cleanup_unconfirmed">La publicación ZIP se detuvo después de confirmar %1$d de %2$d archivos de volumen y no se pudo confirmar la limpieza de %3$d salidas pendientes. El volumen .zip final no se confirmó. La sesión del host se cerró para impedir otra escritura.\nPrimera salida que requiere atención: %4$s\nMotivo original: %5$s</string>
+    <string name="error_split_compression_partial_failure">La publicación ZIP se detuvo después de confirmar %1$d de %2$d archivos de volumen. El volumen .zip final no se confirmó, por lo que el conjunto incompleto no se puede abrir. La sesión del host se cerró para impedir otra escritura.\nSalida fallida: %3$s\nMotivo: %4$s</string>
     <string name="error_split_volume_invalid">Introduce un tamaño entero entre %1$d y %2$d MiB, o elige Ninguno</string>
+    <string name="error_with_reason">%1$s\nMotivo: %2$s</string>
+    <string name="error_zip_entry_name_invalid">Introduce un nombre de archivo o carpeta válido</string>
+    <string name="plugin_description">Explora y extrae archivos ZIP, 7Z, RAR y TAR; crea y gestiona de forma segura los formatos editables compatibles</string>
     <string name="text_apply_password">Aplicar</string>
+    <string name="text_apply_to_all_conflicts">Aplicar esta opción a todos los conflictos compatibles</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Aplicando contraseña...</string>
+    <string name="text_archive_actions">Acciones</string>
+    <string name="text_archive_changes_complete">Archivo actualizado</string>
+    <string name="text_archive_creation_safety_note">Los elementos de origen solo se mueven a la papelera de AutoJs6 después de verificar y confirmar todas las salidas. El cifrado de nombres sigue sin estar disponible.</string>
+    <string name="text_archive_diagnostic">Diagnóstico del archivo</string>
+    <string name="text_archive_entry_name">Nombre</string>
+    <string name="text_archive_file_name">Nombre del archivo</string>
+    <string name="text_archive_format">Formato</string>
+    <string name="text_archive_information_archive_size">Tamaño actual del archivo: %1$s</string>
+    <string name="text_archive_information_contents">Contenido: %1$d elementos (%2$d archivos, %3$d carpetas); %4$s sin comprimir</string>
+    <string name="text_archive_information_format">Formato: %1$s</string>
+    <string name="text_archive_information_safety">El archivo original no se sustituye hasta que el nuevo archivo completo se haya leído y verificado.</string>
+    <string name="text_archive_management_available">Disponible en esta sesión</string>
+    <string name="text_archive_management_operations">Cambios disponibles: %1$s.</string>
+    <string name="text_archive_management_read_only">Solo lectura. %1$s</string>
+    <string name="text_archive_management_status">Administración: %1$s</string>
+    <string name="text_archive_metadata_archive_comment_dropped">El comentario del archivo no se conservará.</string>
+    <string name="text_archive_metadata_compression_normalized">La configuración de compresión y los metadatos del contenedor pueden normalizarse.</string>
+    <string name="text_archive_metadata_effects">Metadatos afectados por la reconstrucción:</string>
+    <string name="text_archive_metadata_encryption_normalized">La configuración de cifrado de cada elemento puede normalizarse.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">Los comentarios de los elementos no se conservarán.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Los metadatos extendidos específicos del formato pueden normalizarse.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Los permisos y atributos Unix no se conservarán.</string>
+    <string name="text_archive_mutation_full_rewrite">Reconstrucción completa: cada archivo resultante se escribe en un archivo de sustitución verificado antes de sustituir el original de forma atómica.</string>
+    <string name="text_archive_mutation_operation_add">Añadir contenido</string>
+    <string name="text_archive_mutation_operation_delete">Eliminar contenido seleccionado</string>
+    <string name="text_archive_mutation_operation_rename">Cambiar nombre del contenido seleccionado</string>
+    <string name="text_archive_mutation_output_size_unknown">No se predice el tamaño de salida temporal porque la compresión puede cambiarlo. Asegúrate de que el dispositivo tenga espacio para un archivo de sustitución completo.</string>
+    <string name="text_archive_mutation_preflight_change">Cambio: %1$s</string>
+    <string name="text_archive_mutation_preflight_known_work">Contenido que se leerá: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Resultado: %1$d elementos (%2$d archivos, %3$d carpetas)</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Contenido que se leerá: al menos %1$s; %2$d archivos resultantes tienen un tamaño declarado desconocido.</string>
+    <string name="text_archive_overview">Resumen del archivo</string>
     <string name="text_archive_password">Contraseña del archivo</string>
-    <string name="text_encrypted_entry_unlocked">Entrada cifrada (%1$s); contraseña aplicada</string>
-    <string name="text_encryption_method_aes">AES</string>
-    <string name="text_encryption_method_other">Otro cifrado</string>
-    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
-    <string name="text_password_applied">Contraseña aplicada. Puedes cambiarla en cualquier momento.</string>
-    <string name="text_password_needed_for_encrypted_entries">Introduce una contraseña para abrir y extraer entradas cifradas.</string>
-    <string name="dialog_button_continue_anyway">Continuar de todos modos</string>
-    <string name="dialog_button_save">Guardar</string>
-    <string name="dialog_title_custom_budget">Presupuesto de extracción personalizado</string>
-    <string name="dialog_title_resource_budget">Se superó el presupuesto de extracción</string>
-    <string name="error_custom_budget_invalid">Introduce números enteros no negativos dentro del intervalo admitido</string>
-    <string name="error_custom_budget_total_less_single">El presupuesto de tamaño total debe ser cero (sin límite) o al menos igual al de una entrada</string>
+    <string name="text_archive_read_only_backend_variant">Esta variante de archivo es de solo lectura en el backend instalado.</string>
+    <string name="text_archive_read_only_current_session">Este archivo se abrió sin acceso para administrar su contenido. Vuelve a abrirlo mediante Administrar archivo para modificarlo.</string>
+    <string name="text_archive_read_only_format">El backend instalado permite explorar o extraer este formato, pero no modificar su contenido.</string>
+    <string name="text_archive_read_only_host_replacement">La sesión actual del host no puede sustituir este archivo de forma atómica.</string>
+    <string name="text_archive_read_only_multi_volume">Los archivos de varios volúmenes no se pueden reconstruir de forma segura.</string>
+    <string name="text_archive_read_only_password">Aplica la contraseña correcta del archivo antes de modificarlo.</string>
+    <string name="text_archive_read_only_unsafe_path">Al menos un elemento tiene una ruta original no segura, por lo que el archivo no se puede reconstruir.</string>
+    <string name="text_archive_read_only_unsupported_method">Al menos un elemento usa un método de compresión o cifrado que este backend no puede reescribir.</string>
+    <string name="text_archive_selection">Selección</string>
+    <string name="text_archive_workspace">Gestión de archivos</string>
     <string name="text_budget_compression_ratio">Relación de compresión máxima</string>
     <string name="text_budget_entry_count">Máximo de entradas seleccionadas</string>
     <string name="text_budget_path_depth">Profundidad máxima de ruta</string>
@@ -175,138 +159,141 @@
     <string name="text_budget_violation_path_length">Longitud de ruta: %1$s (presupuesto %2$s)</string>
     <string name="text_budget_violation_single_size">Entrada más grande: %1$s (presupuesto %2$s)</string>
     <string name="text_budget_violation_total_size">Salida estimada: %1$s (presupuesto %2$s)</string>
-    <string name="text_custom_budget_zero_note">Usa 0 para el máximo estructural fijo (cantidad de entradas, longitud y profundidad de ruta) o para no establecer umbral de aviso de recursos (tamaños y relación de compresión). La seguridad estructural de las rutas no se puede desactivar.</string>
-    <string name="text_extraction_budget">Presupuesto de extracción</string>
-    <string name="text_extraction_conflict_policy">Cuando haya conflictos de nombres de salida</string>
-    <string name="text_compact_extraction_budget">Presupuesto</string>
+    <string name="text_cancelled">Cancelado</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Limpiando la salida parcial...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Confirmando el archivo...</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Confirmando cambios del archivo...</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalizando los archivos extraídos...</string>
     <string name="text_compact_conflict_policy">Conflictos</string>
+    <string name="text_compact_extraction_budget">Presupuesto</string>
     <string name="text_compact_filename_encoding">Codificación</string>
     <string name="text_compact_search">Buscar</string>
-    <string name="text_conflict_policy_ask">Preguntar cada vez</string>
-    <string name="text_conflict_policy_skip">Omitir</string>
-    <string name="text_conflict_policy_overwrite">Sobrescribir</string>
-    <string name="text_conflict_policy_auto_rename">Cambiar nombre automáticamente</string>
-    <string name="text_conflict_policy_ask_details">Pregunta cómo gestionar cada conflicto de nombre dentro de la nueva carpeta de salida. Si ya existe una carpeta de salida, siempre se numera y no se modifica.</string>
-    <string name="text_conflict_policy_skip_details">Omite las entradas posteriores con nombres equivalentes. Si ya existe una carpeta de salida, siempre se numera y no se modifica.</string>
-    <string name="text_conflict_policy_overwrite_details">Reemplaza archivos anteriores y combina carpetas cuando sus tipos coinciden. Los tipos incompatibles se renombran automáticamente. Las carpetas de salida existentes no se modifican.</string>
-    <string name="text_conflict_policy_auto_rename_details">Añade un número a cada entrada posterior con un nombre equivalente. Las carpetas de salida existentes también se numeran y no se modifican.</string>
-    <string name="dialog_title_output_conflict">Conflicto de nombre de salida</string>
-    <string name="dialog_message_output_conflict">Elemento del archivo: %1$s\nExistente: %2$s (%3$s)\nEntrante: %4$s (%5$s)</string>
-    <string name="text_item_type_file">archivo</string>
-    <string name="text_item_type_directory">carpeta</string>
-    <string name="text_apply_to_all_conflicts">Aplicar esta opción a todos los conflictos compatibles</string>
+    <string name="text_compress_separately">Comprimir cada elemento por separado</string>
+    <string name="text_compression_level">Nivel de compresión</string>
+    <string name="text_compression_level_fast">Rápido</string>
+    <string name="text_compression_level_maximum">Máximo</string>
+    <string name="text_compression_level_none">Sin compresión</string>
+    <string name="text_compression_level_normal">Normal</string>
+    <string name="text_confirm_password">Confirmar contraseña</string>
     <string name="text_conflict_overwrite_unavailable">No se puede sobrescribir porque los tipos son distintos o el elemento existente no fue creado por esta extracción.</string>
+    <string name="text_conflict_policy_ask">Preguntar cada vez</string>
+    <string name="text_conflict_policy_ask_details">Pregunta cómo gestionar cada conflicto de nombre dentro de la nueva carpeta de salida. Si ya existe una carpeta de salida, siempre se numera y no se modifica.</string>
+    <string name="text_conflict_policy_auto_rename">Cambiar nombre automáticamente</string>
+    <string name="text_conflict_policy_auto_rename_details">Añade un número a cada entrada posterior con un nombre equivalente. Las carpetas de salida existentes también se numeran y no se modifican.</string>
+    <string name="text_conflict_policy_overwrite">Sobrescribir</string>
+    <string name="text_conflict_policy_overwrite_details">Reemplaza archivos anteriores y combina carpetas cuando sus tipos coinciden. Los tipos incompatibles se renombran automáticamente. Las carpetas de salida existentes no se modifican.</string>
+    <string name="text_conflict_policy_skip">Omitir</string>
+    <string name="text_conflict_policy_skip_details">Omite las entradas posteriores con nombres equivalentes. Si ya existe una carpeta de salida, siempre se numera y no se modifica.</string>
+    <string name="text_copy_diagnostic">Copiar diagnóstico</string>
+    <string name="text_create_archive">Crear archivo comprimido</string>
+    <string name="text_creation_conflict_policy">Si el nombre del archivo no está disponible</string>
+    <string name="text_creation_conflict_policy_ask_details">Prueba primero el nombre exacto. Si el host no puede reservarlo, pregunta antes de reintentar con un nombre numerado. Los archivos existentes nunca se reemplazan.</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Reserva un nombre numerado disponible. Los archivos existentes nunca se reemplazan. La sobrescritura transaccional requiere una API del host más reciente.</string>
+    <string name="text_custom_budget_zero_note">Usa 0 para el máximo estructural fijo (cantidad de entradas, longitud y profundidad de ruta) o para no establecer umbral de aviso de recursos (tamaños y relación de compresión). La seguridad estructural de las rutas no se puede desactivar.</string>
+    <string name="text_default_archive_name">Archivo</string>
+    <string name="text_diagnostic_copied">Diagnóstico copiado</string>
+    <string name="text_encrypt_file_names">Cifrar nombres de archivo</string>
+    <string name="text_encrypted_entry">Entrada cifrada (%1$s); introduce la contraseña del archivo para abrirla</string>
+    <string name="text_encrypted_entry_unlocked">Entrada cifrada (%1$s); contraseña aplicada</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">Otro cifrado</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
+    <string name="text_encryption_unavailable_for_format">La contraseña y el cifrado de nombres no están disponibles para %1$s.</string>
+    <string name="text_extracting">Extrayendo %1$d de %2$d</string>
+    <string name="text_extraction_budget">Presupuesto de extracción</string>
+    <string name="text_extraction_conflict_policy">Cuando haya conflictos de nombres de salida</string>
     <string name="text_extraction_conflict_summary">Conflictos resueltos: %1$d omitidos, %2$d sobrescritos o combinados y %3$d renombrados automáticamente.</string>
-    <string name="text_resource_budget_summary">Salida estimada: %1$s\nEntradas seleccionadas: %2$d\nEspacio disponible en el destino: compruébalo antes de continuar.</string>
-    <string name="text_resource_budget_warning">Continuar permite los valores declarados solo para esta extracción. Las comprobaciones de rutas, identidad del origen, tamaño, suma de comprobación y limpieza siguen activas.</string>
-    <string name="text_password_encryption_note">Una contraseña no vacía usa cifrado AES-256. Los nombres de archivo siguen visibles.</string>
-    <string name="action_add_files" tools:ignore="TypographyEllipsis">Añadir archivos...</string>
-    <string name="action_delete">Eliminar</string>
-    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Nueva carpeta...</string>
-    <string name="action_rename" tools:ignore="TypographyEllipsis">Cambiar nombre...</string>
-    <string name="dialog_title_new_archive_folder">Nueva carpeta en el archivo</string>
-    <string name="dialog_title_rename_archive_entry">Cambiar nombre del elemento</string>
-    <string name="error_archive_mutation_failed">No se pudo actualizar el ZIP</string>
-    <string name="error_archive_refresh_failed">El ZIP se actualizó, pero no se pudo volver a cargar su contenido</string>
-    <string name="error_rename_single_selection">Selecciona exactamente un archivo o carpeta para cambiarle el nombre</string>
-    <string name="error_zip_entry_name_invalid">Introduce un nombre de archivo o carpeta válido</string>
-    <string name="text_archive_changes_complete">Archivo actualizado</string>
-    <string name="text_archive_entry_name">Nombre</string>
-    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Confirmando cambios del archivo...</string>
-    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Preparando cambios del archivo...</string>
-    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verificando cambios del archivo...</string>
-    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Actualizando %1$d de %2$d: %3$s</string>
-    <string name="dialog_message_extraction_destination">La carpeta de salida predeterminada es %1$s. Si ese nombre ya existe, Archive Manager añade un número sin modificar el contenido existente.</string>
-    <string name="dialog_title_extraction_destination">Destino de extracción</string>
+    <string name="text_extraction_current_item">Elemento actual: %1$s</string>
     <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Elegir otra carpeta...</string>
     <string name="text_extraction_destination_current_folder">Carpeta actual (Recomendada)\n%1$s</string>
     <string name="text_extraction_output_path">Salida: %1$s</string>
-    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalizando los archivos extraídos...</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/s</string>
+    <string name="text_extraction_rate_eta">%1$s/s, %2$s restantes</string>
+    <string name="text_extraction_scope_current_directory">Carpeta actual: %1$s</string>
+    <string name="text_extraction_scope_current_selection">Selección actual</string>
+    <string name="text_extraction_scope_entire_archive">Archivo completo</string>
+    <string name="text_failure_stage_cleanup">Limpieza</string>
+    <string name="text_failure_stage_entry_data">Datos de entrada</string>
+    <string name="text_failure_stage_format_detection">Detección de formato</string>
+    <string name="text_failure_stage_index">Índice del directorio</string>
+    <string name="text_failure_stage_input">Entrada</string>
+    <string name="text_failure_stage_output">Salida</string>
+    <string name="text_failure_stage_password">Contraseña</string>
+    <string name="text_filename_encoding">Codificación de nombres</string>
+    <string name="text_filename_encoding_automatic">Automática</string>
+    <string name="text_filename_encoding_automatic_detected">Automática (alternativa heredada: %1$s)</string>
+    <string name="text_format_zip">ZIP</string>
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Se han revertido %1$d transacciones de salida incompletas de una operación interrumpida.</string>
-    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Añadir carpeta...</string>
-    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Analizando carpeta...</string>
-    <string name="action_archive_information">Información del archivo</string>
-    <string name="dialog_title_archive_information">Información del archivo</string>
-    <string name="dialog_title_archive_mutation_preflight">Revisar cambios del archivo</string>
-    <string name="text_archive_information_format">Formato: %1$s</string>
-    <string name="text_archive_information_archive_size">Tamaño actual del archivo: %1$s</string>
-    <string name="text_archive_information_contents">Contenido: %1$d elementos (%2$d archivos, %3$d carpetas); %4$s sin comprimir</string>
-    <string name="text_archive_management_status">Administración: %1$s</string>
-    <string name="text_archive_management_available">Disponible en esta sesión</string>
-    <string name="text_archive_management_read_only">Solo lectura. %1$s</string>
-    <string name="text_archive_read_only_current_session">Este archivo se abrió sin acceso para administrar su contenido. Vuelve a abrirlo mediante Administrar archivo para modificarlo.</string>
-    <string name="text_archive_read_only_host_replacement">La sesión actual del host no puede sustituir este archivo de forma atómica.</string>
-    <string name="text_archive_read_only_format">El backend instalado permite explorar o extraer este formato, pero no modificar su contenido.</string>
-    <string name="text_archive_read_only_multi_volume">Los archivos de varios volúmenes no se pueden reconstruir de forma segura.</string>
-    <string name="text_archive_read_only_unsafe_path">Al menos un elemento tiene una ruta original no segura, por lo que el archivo no se puede reconstruir.</string>
-    <string name="text_archive_read_only_password">Aplica la contraseña correcta del archivo antes de modificarlo.</string>
-    <string name="text_archive_read_only_unsupported_method">Al menos un elemento usa un método de compresión o cifrado que este backend no puede reescribir.</string>
-    <string name="text_archive_read_only_backend_variant">Esta variante de archivo es de solo lectura en el backend instalado.</string>
-    <string name="text_archive_management_operations">Cambios disponibles: %1$s.</string>
-    <string name="text_archive_mutation_full_rewrite">Reconstrucción completa: cada archivo resultante se escribe en un archivo de sustitución verificado antes de sustituir el original de forma atómica.</string>
-    <string name="text_archive_metadata_effects">Metadatos afectados por la reconstrucción:</string>
-    <string name="text_archive_metadata_archive_comment_dropped">El comentario del archivo no se conservará.</string>
-    <string name="text_archive_metadata_entry_comments_dropped">Los comentarios de los elementos no se conservarán.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">Los metadatos extendidos específicos del formato pueden normalizarse.</string>
-    <string name="text_archive_metadata_unix_attributes_dropped">Los permisos y atributos Unix no se conservarán.</string>
-    <string name="text_archive_metadata_compression_normalized">La configuración de compresión y los metadatos del contenedor pueden normalizarse.</string>
-    <string name="text_archive_metadata_encryption_normalized">La configuración de cifrado de cada elemento puede normalizarse.</string>
-    <string name="text_archive_information_safety">El archivo original no se sustituye hasta que el nuevo archivo completo se haya leído y verificado.</string>
-    <string name="text_archive_mutation_operation_add">Añadir contenido</string>
-    <string name="text_archive_mutation_operation_delete">Eliminar contenido seleccionado</string>
-    <string name="text_archive_mutation_operation_rename">Cambiar nombre del contenido seleccionado</string>
-    <string name="text_archive_mutation_preflight_change">Cambio: %1$s</string>
-    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Resultado: %1$d elementos (%2$d archivos, %3$d carpetas)</string>
-    <string name="text_archive_mutation_preflight_known_work">Contenido que se leerá: %1$s</string>
-    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Contenido que se leerá: al menos %1$s; %2$d archivos resultantes tienen un tamaño declarado desconocido.</string>
-    <string name="text_archive_mutation_output_size_unknown">No se predice el tamaño de salida temporal porque la compresión puede cambiarlo. Asegúrate de que el dispositivo tenga espacio para un archivo de sustitución completo.</string>
-    <string name="action_restore_previous_archive_version">Restaurar versión anterior</string>
-    <string name="dialog_title_restore_previous_archive_version">¿Restaurar la versión anterior?</string>
-    <string name="dialog_message_restore_previous_archive_version">La versión anterior guardada por AutoJs6 (%1$s, guardada el %2$s) sustituirá el archivo actual. Solo se puede restaurar una vez y la operación se rechazará si el archivo actual ha cambiado en otro lugar.</string>
-    <string name="error_archive_restore_refresh_failed">Se restauró la versión anterior del archivo, pero no se pudo volver a cargar su contenido</string>
-    <string name="error_previous_archive_version_changed">El archivo actual cambió después de actualizarse. No se restauró su versión anterior.</string>
-    <string name="error_previous_archive_version_restore_failed">No se pudo restaurar la versión anterior del archivo</string>
+    <string name="text_item_type_directory">carpeta</string>
+    <string name="text_item_type_file">archivo</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Cargando archivo...</string>
+    <string name="text_loading_progress">%1$s de %2$s</string>
+    <string name="text_modified">Modificado: %1$s</string>
+    <string name="text_move_sources_to_trash_after_compression">Mover los elementos de origen a la papelera después de comprimir</string>
+    <string name="text_moving_sources_to_trash">Moviendo los elementos de origen a la papelera</string>
+    <string name="text_navigate_up">Subir un nivel</string>
+    <string name="text_no_entries">No hay entradas coincidentes</string>
+    <string name="text_none">Ninguno</string>
+    <string name="text_output_path">Ruta</string>
+    <string name="text_parent_directory">Directorio superior</string>
+    <string name="text_password">Contraseña</string>
+    <string name="text_password_applied">Contraseña aplicada. Puedes cambiarla en cualquier momento.</string>
+    <string name="text_password_encryption_note">Una contraseña no vacía usa cifrado AES-256. Los nombres de archivo siguen visibles.</string>
+    <string name="text_password_needed_for_encrypted_entries">Introduce una contraseña para abrir y extraer entradas cifradas.</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Preparando cambios del archivo...</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparando la compresión...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparando la extracción...</string>
     <string name="text_previous_archive_version_available">Versión anterior: disponible para restaurar (%1$s, guardada el %2$s).</string>
     <string name="text_previous_archive_version_recovery_required">Versión anterior: el host debe completar las comprobaciones de recuperación. El archivo no se sustituirá automáticamente.</string>
     <string name="text_previous_archive_version_restore_complete">Se restauró la versión anterior del archivo</string>
     <string name="text_previous_archive_version_restored">Versión anterior: restaurada. Esta restauración de un solo uso ya se utilizó.</string>
     <string name="text_previous_archive_version_stale">Versión anterior: no disponible porque el archivo actual cambió después de actualizarse.</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexando el archivo...</string>
+    <string name="text_resource_budget_summary">Salida estimada: %1$s\nEntradas seleccionadas: %2$d\nEspacio disponible en el destino: compruébalo antes de continuar.</string>
+    <string name="text_resource_budget_warning">Continuar permite los valores declarados solo para esta extracción. Las comprobaciones de rutas, identidad del origen, tamaño, suma de comprobación y limpieza siguen activas.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restaurando la versión anterior del archivo...</string>
-    <string name="action_source_recovery_history">Historial de recuperación de fuentes</string>
-    <string name="action_restore_sources">Restaurar fuentes</string>
-    <string name="action_retry_source_restore">Reintentar restauración</string>
-    <string name="dialog_button_done">Listo</string>
-    <string name="dialog_title_source_recovery_history">Historial de recuperación de fuentes</string>
-    <string name="dialog_title_source_recovery_details">Detalles de recuperación de fuentes</string>
-    <string name="error_source_restore_failed">No se pudieron restaurar los elementos de origen. Motivo: %1$s</string>
     <string name="text_restoring_sources">Restaurando elementos de origen desde la papelera</string>
-    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Analizando los elementos de origen...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Analizando carpeta...</string>
+    <string name="text_search_hint">Buscar en el archivo</string>
+    <string name="text_section_behavior">Después de comprimir</string>
+    <string name="text_section_compression">Compresión</string>
+    <string name="text_section_destination">Destino</string>
+    <string name="text_section_security">Contraseña y cifrado</string>
+    <string name="text_select_entry">Seleccionar entrada</string>
+    <string name="text_selected_count">Seleccionadas: %1$d</string>
+    <string name="text_separate_archive_conflict_note">Los nombres existentes y repetidos se numeran automáticamente; no se sobrescribe ningún elemento.</string>
+    <string name="text_separate_archive_preview_count">Se crearán %1$d archivos en esta carpeta:</string>
+    <string name="text_separate_archive_preview_more">- y %1$d más</string>
+    <string name="text_separate_archive_progress">Archivo %1$d de %2$d: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created">Se crearon %1$d archivos: %2$d archivos comprimidos y %3$d carpetas añadidas.</string>
+    <string name="text_separate_split_archives_created">Se crearon %1$d archivos en %2$d archivos de volumen ZIP y se comprimieron %3$d archivos.</string>
+    <string name="text_size_details">%1$s, comprimido %2$s, CRC %3$s</string>
     <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Creado: %1$s\nEstado: %2$s\nRegistros en la papelera: %3$d\nRestaurados: %4$d\nRequieren atención: %5$d\n\nElementos de origen:\n%6$s</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
     <string name="text_source_recovery_state_available">Disponible para restaurar</string>
+    <string name="text_source_recovery_state_failed">No se movió ningún elemento de origen</string>
     <string name="text_source_recovery_state_partial">Disponible parcialmente</string>
+    <string name="text_source_recovery_state_recovery_required">La recuperación requiere atención</string>
     <string name="text_source_recovery_state_restored">Restaurado</string>
     <string name="text_source_recovery_state_stale">Conflicto de nombre o historial obsoleto</string>
-    <string name="text_source_recovery_state_recovery_required">La recuperación requiere atención</string>
-    <string name="text_source_recovery_state_failed">No se movió ningún elemento de origen</string>
     <string name="text_source_restore_no_change">No se restauraron más elementos de origen. Los archivos comprimidos creados se conservaron.</string>
-    <plurals name="text_more_source_items">
-        <item quantity="one">+ %1$d elemento más</item>
-        <item quantity="other">+ %1$d elementos más</item>
-    </plurals>
-    <plurals name="text_sources_restored_from_trash">
-        <item quantity="one">Se restauró %1$d elemento de origen. Los archivos comprimidos creados se conservaron.</item>
-        <item quantity="other">Se restauraron %1$d elementos de origen. Los archivos comprimidos creados se conservaron.</item>
-    </plurals>
-    <plurals name="warning_sources_not_restored">
-        <item quantity="one">No se restauró %1$d elemento de origen porque su nombre original está ocupado o la recuperación aún requiere atención. Permanece en la papelera de AutoJs6 si hay una copia disponible.</item>
-        <item quantity="other">No se restauraron %1$d elementos de origen porque sus nombres originales están ocupados o la recuperación aún requiere atención. Permanecen en la papelera de AutoJs6 si hay copias disponibles.</item>
-    </plurals>
-    <string name="text_archive_workspace">Gestión de archivos</string>
-    <string name="text_archive_overview">Resumen del archivo</string>
-    <string name="text_archive_selection">Selección</string>
-    <string name="text_section_destination">Destino</string>
-    <string name="text_section_compression">Compresión</string>
-    <string name="text_section_security">Contraseña y cifrado</string>
-    <string name="text_section_behavior">Después de comprimir</string>
-    <string name="text_archive_actions">Acciones</string>
+    <string name="text_sources_moved_to_trash">Se movieron %1$d elementos de origen a la papelera.</string>
+    <string name="text_split_archive_created">Se creó %1$s en %2$d archivos de volumen ZIP y se comprimieron %3$d archivos.</string>
+    <string name="text_split_unavailable_for_format">La salida en volúmenes no está disponible para %1$s.</string>
+    <string name="text_split_volume">Tamaño del volumen (MiB)</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">Si el resultado supera el tamaño elegido, ZIP crea .z01, .z02, ... y un archivo .zip final; un resultado menor permanece como un único .zip. Elige un valor predefinido o escribe un entero entre %1$d y %2$d.</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_unknown">Desconocido</string>
+    <string name="text_unsafe_path_read_only">Ruta original no segura; solo vista previa. Se excluye de la extracción.</string>
+    <string name="text_unsafe_paths_folder">Rutas no seguras</string>
+    <string name="text_unsupported_compression_method">No se puede extraer el método de compresión %1$s</string>
+    <string name="text_unsupported_entry_type">No se puede extraer el tipo de entrada %1$s</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verificando el archivo...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verificando cambios del archivo...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Actualizando %1$d de %2$d: %3$s</string>
+    <string name="warning_sources_trash_failed">El archivo se creó, pero no se pudieron mover los elementos de origen a la papelera.</string>
+    <string name="warning_sources_trash_recovery_required">El archivo se creó, pero la limpieza de los elementos de origen requiere atención. Hay copias recuperables en la papelera de AutoJs6.</string>
+    <string name="warning_sources_trash_unknown">El archivo se creó, pero AutoJs6 no pudo confirmar que todos los elementos de origen llegaran a la papelera. Revisa la carpeta actual y la papelera antes de volver a intentarlo.</string>
 </resources>

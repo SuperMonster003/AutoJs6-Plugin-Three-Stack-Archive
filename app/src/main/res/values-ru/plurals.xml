@@ -1,22 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="one">%1$d запись, распаковано: %2$s</item>
-        <item quantity="few">%1$d записи, распаковано: %2$s</item>
-        <item quantity="many">%1$d записей, распаковано: %2$s</item>
-        <item quantity="other">%1$d записи, распаковано: %2$s</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="one">Создан %1$s, %2$d файл</item>
         <item quantity="few">Создан %1$s, %2$d файла</item>
         <item quantity="many">Создан %1$s, %2$d файлов</item>
         <item quantity="other">Создан %1$s, %2$d файла</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="one">Выбран %1$d элемент</item>
-        <item quantity="few">Выбрано %1$d элемента</item>
-        <item quantity="many">Выбрано %1$d элементов</item>
-        <item quantity="other">Выбрано %1$d элемента</item>
+    <plurals name="text_archive_summary">
+        <item quantity="one">%1$d запись, распаковано: %2$s</item>
+        <item quantity="few">%1$d записи, распаковано: %2$s</item>
+        <item quantity="many">%1$d записей, распаковано: %2$s</item>
+        <item quantity="other">%1$d записи, распаковано: %2$s</item>
     </plurals>
     <plurals name="text_compressing_progress">
         <item quantity="one">Сжатие %1$s\nФайл: %2$d/%3$d, прочитано: %4$s/%5$s</item>
@@ -30,11 +24,11 @@
         <item quantity="many">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s; файлов с неизвестным размером: %5$d</item>
         <item quantity="other">Сжатие %1$s\nФайлов: %2$d/%3$d, прочитано: %4$s; файлов с неизвестным размером: %5$d</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="one">Сканирование %1$s\nНайден %2$d файл; папок: %3$d</item>
-        <item quantity="few">Сканирование %1$s\nНайдено %2$d файла; папок: %3$d</item>
-        <item quantity="many">Сканирование %1$s\nНайдено %2$d файлов; папок: %3$d</item>
-        <item quantity="other">Сканирование %1$s\nНайдено %2$d файла; папок: %3$d</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="one">Выбран %1$d элемент</item>
+        <item quantity="few">Выбрано %1$d элемента</item>
+        <item quantity="many">Выбрано %1$d элементов</item>
+        <item quantity="other">Выбрано %1$d элемента</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">Извлечен %1$d файл, каталог: %2$s</item>
@@ -47,5 +41,29 @@
         <item quantity="few">%1$d файла, распаковано: %2$s</item>
         <item quantity="many">%1$d файлов, распаковано: %2$s</item>
         <item quantity="other">%1$d файла, распаковано: %2$s</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ ещё %1$d элемент</item>
+        <item quantity="few">+ ещё %1$d элемента</item>
+        <item quantity="many">+ ещё %1$d элементов</item>
+        <item quantity="other">+ ещё %1$d элемента</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Сканирование %1$s\nНайден %2$d файл; папок: %3$d</item>
+        <item quantity="few">Сканирование %1$s\nНайдено %2$d файла; папок: %3$d</item>
+        <item quantity="many">Сканирование %1$s\nНайдено %2$d файлов; папок: %3$d</item>
+        <item quantity="other">Сканирование %1$s\nНайдено %2$d файла; папок: %3$d</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">Восстановлен %1$d исходный элемент. Созданные архивы сохранены.</item>
+        <item quantity="few">Восстановлено %1$d исходных элемента. Созданные архивы сохранены.</item>
+        <item quantity="many">Восстановлено %1$d исходных элементов. Созданные архивы сохранены.</item>
+        <item quantity="other">Восстановлено %1$d исходного элемента. Созданные архивы сохранены.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">%1$d исходный элемент не восстановлен: его исходное имя занято или восстановление требует внимания. Копия остается в корзине AutoJs6, если она доступна.</item>
+        <item quantity="few">%1$d исходных элемента не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
+        <item quantity="many">%1$d исходных элементов не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
+        <item quantity="other">%1$d исходного элемента не восстановлено: исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
     </plurals>
 </resources>
