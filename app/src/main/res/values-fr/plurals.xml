@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="one">%1$d entrée, %2$s décompressé</item>
-        <item quantity="many">%1$d entrées, %2$s décompressés</item>
-        <item quantity="other">%1$d entrées, %2$s décompressés</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="one">%1$s créé avec %2$d fichier</item>
         <item quantity="many">%1$s créé avec %2$d fichiers</item>
         <item quantity="other">%1$s créé avec %2$d fichiers</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="one">%1$d élément sélectionné</item>
-        <item quantity="many">%1$d éléments sélectionnés</item>
-        <item quantity="other">%1$d éléments sélectionnés</item>
+    <plurals name="text_archive_summary">
+        <item quantity="one">%1$d entrée, %2$s décompressé</item>
+        <item quantity="many">%1$d entrées, %2$s décompressés</item>
+        <item quantity="other">%1$d entrées, %2$s décompressés</item>
     </plurals>
     <plurals name="text_compressing_progress">
         <item quantity="one">Compression de %1$s\n%2$d/%3$d fichier, %4$s/%5$s lus</item>
@@ -25,10 +20,10 @@
         <item quantity="many">Compression de %1$s\nFichiers : %2$d/%3$d, %4$s lus ; tailles inconnues : %5$d</item>
         <item quantity="other">Compression de %1$s\nFichiers : %2$d/%3$d, %4$s lus ; tailles inconnues : %5$d</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="one">Analyse de %1$s\n%2$d fichier trouvé ; dossiers : %3$d</item>
-        <item quantity="many">Analyse de %1$s\n%2$d fichiers trouvés ; dossiers : %3$d</item>
-        <item quantity="other">Analyse de %1$s\n%2$d fichiers trouvés ; dossiers : %3$d</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="one">%1$d élément sélectionné</item>
+        <item quantity="many">%1$d éléments sélectionnés</item>
+        <item quantity="other">%1$d éléments sélectionnés</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="one">%1$d fichier extrait vers %2$s</item>
@@ -39,5 +34,22 @@
         <item quantity="one">%1$d fichier, %2$s décompressé</item>
         <item quantity="many">%1$d fichiers, %2$s décompressés</item>
         <item quantity="other">%1$d fichiers, %2$s décompressés</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="one">+ %1$d élément supplémentaire</item>
+        <item quantity="other">+ %1$d éléments supplémentaires</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="one">Analyse de %1$s\n%2$d fichier trouvé ; dossiers : %3$d</item>
+        <item quantity="many">Analyse de %1$s\n%2$d fichiers trouvés ; dossiers : %3$d</item>
+        <item quantity="other">Analyse de %1$s\n%2$d fichiers trouvés ; dossiers : %3$d</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="one">%1$d élément source restauré. Les archives créées ont été conservées.</item>
+        <item quantity="other">%1$d éléments sources restaurés. Les archives créées ont été conservées.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="one">%1$d élément source n\'a pas été restauré car son nom d\'origine est occupé ou la récupération nécessite encore une intervention. Il reste dans la corbeille AutoJs6 si une copie est disponible.</item>
+        <item quantity="other">%1$d éléments sources n\'ont pas été restaurés car leurs noms d\'origine sont occupés ou la récupération nécessite encore une intervention. Ils restent dans la corbeille AutoJs6 si des copies sont disponibles.</item>
     </plurals>
 </resources>

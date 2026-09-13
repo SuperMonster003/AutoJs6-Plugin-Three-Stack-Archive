@@ -1,70 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="action_open_archive">View archive</string>
-    <string name="action_open_as_archive" tools:ignore="TypographyEllipsis,UnusedResources">Open as archive...</string>
-    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Manage archive...</string>
-    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">Add files...</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Add folder...</string>
+    <string name="action_archive_information">Archive information</string>
     <string name="action_compress" tools:ignore="TypographyEllipsis">Compress...</string>
-    <string name="action_source_recovery_history">Source recovery history</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Extract to...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Manage archive...</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">New folder...</string>
+    <string name="action_open_archive">View archive</string>
+    <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">Open as archive...</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">Rename...</string>
+    <string name="action_restore_previous_archive_version">Restore previous version</string>
     <string name="action_restore_sources">Restore sources</string>
     <string name="action_retry_source_restore">Retry restore</string>
-    <string name="app_name">Archive Manager</string>
+    <string name="action_source_recovery_history">Source recovery history</string>
     <string name="dialog_button_cancel">Cancel</string>
-    <string name="dialog_button_done">Done</string>
     <string name="dialog_button_continue">Continue</string>
     <string name="dialog_button_continue_anyway">Continue anyway</string>
-    <string name="dialog_button_save">Save</string>
-    <string name="dialog_button_skip_unsafe">Skip and continue</string>
-    <string name="dialog_button_select_all">Select all</string>
+    <string name="dialog_button_done">Done</string>
     <string name="dialog_button_edit_name">Edit name</string>
+    <string name="dialog_button_save">Save</string>
+    <string name="dialog_button_select_all">Select all</string>
+    <string name="dialog_button_skip_unsafe">Skip and continue</string>
     <string name="dialog_button_use_numbered_name">Use numbered name</string>
-    <string name="dialog_title_archive_name_unavailable">Exact output name unavailable</string>
-    <string name="dialog_title_source_recovery_history">Source recovery history</string>
-    <string name="dialog_title_source_recovery_details">Source recovery details</string>
     <string name="dialog_message_archive_name_unavailable">The host could not reserve %1$s in %2$s. No archive data was written. Edit the name or retry with automatic numbering.</string>
     <string name="dialog_message_extraction_destination">The default output folder is %1$s. If that name exists, Archive Manager adds a number without changing existing content.</string>
+    <string name="dialog_message_output_conflict">Archive item: %1$s\nExisting: %2$s (%3$s)\nIncoming: %4$s (%5$s)</string>
+    <string name="dialog_message_restore_previous_archive_version">The previous version saved by AutoJs6 (%1$s, saved %2$s) will replace the current archive. This restore is available only once and will be refused if the current archive has changed elsewhere.</string>
     <string name="dialog_message_skip_unsafe_paths" tools:ignore="PluralsCandidate">%1$d archive entries use paths that cannot be written safely. They remain available for preview in the Unsafe paths folder. Continue and skip them?</string>
+    <string name="dialog_title_archive_information">Archive information</string>
+    <string name="dialog_title_archive_mutation_preflight">Review archive changes</string>
+    <string name="dialog_title_archive_name_unavailable">Exact output name unavailable</string>
     <string name="dialog_title_custom_budget">Custom extraction budget</string>
+    <string name="dialog_title_extraction_destination">Extraction destination</string>
+    <string name="dialog_title_extraction_scope">Extraction range</string>
+    <string name="dialog_title_new_archive_folder">New archive folder</string>
+    <string name="dialog_title_output_conflict">Output name conflict</string>
+    <string name="dialog_title_rename_archive_entry">Rename archive entry</string>
     <string name="dialog_title_resource_budget">Extraction budget exceeded</string>
+    <string name="dialog_title_restore_previous_archive_version">Restore previous version?</string>
+    <string name="dialog_title_source_recovery_details">Source recovery details</string>
+    <string name="dialog_title_source_recovery_history">Source recovery history</string>
     <string name="dialog_title_unsafe_paths">Unsafe paths</string>
-    <string name="error_archive_invalid">The archive is invalid or unsupported</string>
-    <string name="error_archive_missing_volumes">ZIP volumes are missing</string>
-    <string name="error_archive_limit">The archive exceeds a safety limit</string>
     <string name="error_archive_file_name_invalid">Enter a valid archive file name</string>
+    <string name="error_archive_invalid">The archive is invalid or unsupported</string>
+    <string name="error_archive_limit">The archive exceeds a safety limit</string>
+    <string name="error_archive_missing_volumes">ZIP volumes are missing</string>
+    <string name="error_archive_mutation_failed">The ZIP could not be updated</string>
+    <string name="error_archive_refresh_failed">The ZIP was updated, but its new contents could not be reloaded</string>
+    <string name="error_archive_restore_refresh_failed">The previous archive version was restored, but its contents could not be reloaded</string>
     <string name="error_cannot_create_output">Cannot create the output directory</string>
     <string name="error_cannot_open_archive">Cannot open the archive</string>
     <string name="error_cleanup_failed">Cleanup failed; partial output may remain</string>
     <string name="error_cleanup_residual_outputs">Cleanup failed. The following output locations may remain:\n%1$s</string>
-    <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_cleanup_unconfirmed">Compression failed, and cleanup of its temporary output could not be confirmed. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %1$s\nOriginal reason: %2$s</string>
-    <string name="error_split_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d ZIP volume files before publishing stopped. The final .zip volume was not committed, so the incomplete set cannot be opened. This host session is now closed to prevent another write.\nFailed output: %3$s\nReason: %4$s</string>
-    <string name="error_split_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">ZIP publishing stopped after %1$d of %2$d volume files were committed, and cleanup could not be confirmed for %3$d pending outputs. The final .zip volume was not committed. This host session is now closed to prevent another write.\nFirst output needing attention: %4$s\nOriginal reason: %5$s</string>
-    <string name="error_split_compression_cache_cleanup">The ZIP volumes were staged, but cleanup of their private cache copy could not be confirmed. No volume was committed. The host session has been closed to prevent another write.</string>
-    <string name="error_separate_compression_partially_cancelled" tools:ignore="PluralsCandidate">Cancelled after creating %1$d of %2$d archives. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the remaining items.</string>
-    <string name="error_separate_compression_completed_before_split_failure" tools:ignore="PluralsCandidate">Before the next split ZIP stopped, %1$d of %2$d separate archives had already been completed and were kept.</string>
-    <string name="error_separate_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before creation stopped. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the failed and remaining items.\nFailed output: %3$s\nReason: %4$s</string>
-    <string name="error_separate_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before a later output failed, and cleanup of its temporary output could not be confirmed. Completed archives were kept. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %3$s\nOriginal reason: %4$s</string>
+    <string name="error_compression_failed">Compression failed</string>
     <string name="error_compression_request_invalid">The compression request or host session is invalid</string>
     <string name="error_custom_budget_invalid">Enter non-negative whole numbers within the supported range</string>
     <string name="error_custom_budget_total_less_single">The total-size budget must be zero (unlimited) or at least the single-entry budget</string>
+    <string name="error_diagnostic_details">%1$s\nFormat: %2$s\nStage: %3$s\nCode: %4$s\nReason: %5$s</string>
     <string name="error_extraction_failed">Extraction failed</string>
-    <string name="error_no_selection">Select at least one entry</string>
     <string name="error_no_safe_entries">The selection contains no entries that can be extracted safely</string>
+    <string name="error_no_selection">Select at least one entry</string>
+    <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="error_password_incorrect">The archive password is incorrect</string>
     <string name="error_password_required">Enter the archive password</string>
-    <string name="error_password_confirmation_mismatch">Passwords do not match</string>
-    <string name="error_split_volume_invalid">Enter a whole volume size from %1$d to %2$d MiB, or choose None</string>
-    <string name="error_source_restore_failed">Source items could not be restored. Reason: %1$s</string>
     <string name="error_permission_missing">Read access to the archive is missing</string>
+    <string name="error_previous_archive_version_changed">The current archive changed after it was updated. Its previous version was not restored.</string>
+    <string name="error_previous_archive_version_restore_failed">The previous archive version could not be restored</string>
+    <string name="error_reason_cache_space">There is not enough cache space to open this archive.</string>
+    <string name="error_reason_cleanup">Partial output could not be removed completely.</string>
+    <string name="error_reason_compression_method">An entry uses a compression method that this backend cannot read.</string>
+    <string name="error_reason_entry_data">An archive entry could not be read or verified.</string>
+    <string name="error_reason_filename_encoding">The selected filename encoding is unavailable or cannot index this archive.</string>
+    <string name="error_reason_index">The archive directory metadata is malformed or unsupported.</string>
+    <string name="error_reason_input">The archive input cannot be read or changed while opening.</string>
+    <string name="error_reason_integrity">The entry size or checksum does not match the archive metadata.</string>
+    <string name="error_reason_invalid_signature">The file does not contain a recognized archive signature.</string>
+    <string name="error_reason_limit">The operation exceeds the configured resource budget.</string>
+    <string name="error_reason_missing_volumes">This is a split ZIP. Put %1$s beside %2$s in the same folder, then reopen the final volume.</string>
+    <string name="error_reason_output">The output location cannot be prepared or written safely.</string>
+    <string name="error_reason_password">A password is required or the provided password is incorrect.</string>
+    <string name="error_reason_path">An entry path is conflicting or cannot be handled safely.</string>
+    <string name="error_rename_single_selection">Select exactly one file or folder to rename</string>
+    <string name="error_separate_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before a later output failed, and cleanup of its temporary output could not be confirmed. Completed archives were kept. The host session has been closed to prevent another write. No existing archive was overwritten.\nIntended output: %3$s\nOriginal reason: %4$s</string>
+    <string name="error_separate_compression_completed_before_split_failure" tools:ignore="PluralsCandidate">Before the next split ZIP stopped, %1$d of %2$d separate archives had already been completed and were kept.</string>
+    <string name="error_separate_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d archives before creation stopped. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the failed and remaining items.\nFailed output: %3$s\nReason: %4$s</string>
+    <string name="error_separate_compression_partially_cancelled" tools:ignore="PluralsCandidate">Cancelled after creating %1$d of %2$d archives. Completed archives were kept, and this session is now closed to prevent duplicate outputs. Reopen Compress for the remaining items.</string>
+    <string name="error_source_restore_failed">Source items could not be restored. Reason: %1$s</string>
+    <string name="error_split_compression_cache_cleanup">The ZIP volumes were staged, but cleanup of their private cache copy could not be confirmed. No volume was committed. The host session has been closed to prevent another write.</string>
+    <string name="error_split_compression_cleanup_unconfirmed" tools:ignore="PluralsCandidate">ZIP publishing stopped after %1$d of %2$d volume files were committed, and cleanup could not be confirmed for %3$d pending outputs. The final .zip volume was not committed. This host session is now closed to prevent another write.\nFirst output needing attention: %4$s\nOriginal reason: %5$s</string>
+    <string name="error_split_compression_partial_failure" tools:ignore="PluralsCandidate">Created %1$d of %2$d ZIP volume files before publishing stopped. The final .zip volume was not committed, so the incomplete set cannot be opened. This host session is now closed to prevent another write.\nFailed output: %3$s\nReason: %4$s</string>
+    <string name="error_split_volume_invalid">Enter a whole volume size from %1$d to %2$d MiB, or choose None</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
+    <string name="error_zip_entry_name_invalid">Enter a valid file or folder name</string>
     <string name="plugin_description">Browse and extract ZIP, 7Z, RAR, and TAR archives; create and safely manage supported writable formats</string>
-    <string name="text_cancelled">Cancelled</string>
-    <string name="text_archive_creation_safety_note">Source items are moved to AutoJs6 Trash only after every archive output is verified and committed. Filename encryption remains unavailable.</string>
     <string name="text_apply_password">Apply</string>
+    <string name="text_apply_to_all_conflicts">Apply this choice to all compatible conflicts</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>
+    <string name="text_archive_actions">Actions</string>
+    <string name="text_archive_changes_complete">Archive updated</string>
+    <string name="text_archive_creation_safety_note">Source items are moved to AutoJs6 Trash only after every archive output is verified and committed. Filename encryption remains unavailable.</string>
+    <string name="text_archive_diagnostic">Archive diagnostic</string>
+    <string name="text_archive_entry_name">Name</string>
     <string name="text_archive_file_name">File name</string>
     <string name="text_archive_format">Format</string>
+    <string name="text_archive_information_archive_size">Current archive size: %1$s</string>
+    <string name="text_archive_information_contents" tools:ignore="PluralsCandidate">Contents: %1$d entries (%2$d files, %3$d folders); %4$s uncompressed</string>
+    <string name="text_archive_information_format">Format: %1$s</string>
+    <string name="text_archive_information_safety">The original archive is not replaced until the complete new archive has been read back and verified.</string>
+    <string name="text_archive_management_available">Available in this session</string>
+    <string name="text_archive_management_operations">Available changes: %1$s.</string>
+    <string name="text_archive_management_read_only">Read-only. %1$s</string>
+    <string name="text_archive_management_status">Management: %1$s</string>
+    <string name="text_archive_metadata_archive_comment_dropped">The archive comment will not be preserved.</string>
+    <string name="text_archive_metadata_compression_normalized">Compression settings and container metadata may be normalized.</string>
+    <string name="text_archive_metadata_effects">Metadata affected by a rewrite:</string>
+    <string name="text_archive_metadata_encryption_normalized">Per-entry encryption settings may be normalized.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">Entry comments will not be preserved.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Format-specific extended metadata may be normalized.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Unix permissions and attributes will not be preserved.</string>
+    <string name="text_archive_mutation_full_rewrite">Full rewrite: every result file is written into a replacement archive, and the complete result is verified before the original is atomically replaced.</string>
+    <string name="text_archive_mutation_operation_add">Add content</string>
+    <string name="text_archive_mutation_operation_delete">Delete selected content</string>
+    <string name="text_archive_mutation_operation_rename">Rename selected content</string>
+    <string name="text_archive_mutation_output_size_unknown">Temporary output size is not predicted because compression may change it. Ensure the device has room for a complete replacement archive.</string>
+    <string name="text_archive_mutation_preflight_change">Change: %1$s</string>
+    <string name="text_archive_mutation_preflight_known_work">Content to read: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Result: %1$d entries (%2$d files, %3$d folders)</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Content to read: at least %1$s; %2$d result files have an unknown reported size.</string>
+    <string name="text_archive_overview">Archive overview</string>
     <string name="text_archive_password">Archive password</string>
+    <string name="text_archive_read_only_backend_variant">This archive variant is read-only in the installed backend.</string>
+    <string name="text_archive_read_only_current_session">This archive was opened without content-management access. Reopen it using Manage archive to make changes.</string>
+    <string name="text_archive_read_only_format">The installed backend supports browsing or extraction for this format, but not content changes.</string>
+    <string name="text_archive_read_only_host_replacement">The current host session cannot atomically replace this archive.</string>
+    <string name="text_archive_read_only_multi_volume">Multi-volume archives cannot be rewritten safely.</string>
+    <string name="text_archive_read_only_password">Apply the correct archive password before making changes.</string>
+    <string name="text_archive_read_only_unsafe_path">At least one entry has an unsafe original path, so the archive cannot be rewritten.</string>
+    <string name="text_archive_read_only_unsupported_method">At least one entry uses a compression or encryption method that this backend cannot rewrite.</string>
+    <string name="text_archive_selection">Selection</string>
+    <string name="text_archive_workspace">Archive workspace</string>
     <string name="text_budget_compression_ratio">Maximum compression ratio</string>
     <string name="text_budget_entry_count">Maximum selected entries</string>
     <string name="text_budget_path_depth">Maximum path depth</string>
@@ -82,146 +159,60 @@
     <string name="text_budget_violation_path_length">Path length: %1$s (budget %2$s)</string>
     <string name="text_budget_violation_single_size">Largest entry: %1$s (budget %2$s)</string>
     <string name="text_budget_violation_total_size">Estimated output: %1$s (budget %2$s)</string>
+    <string name="text_cancelled">Cancelled</string>
     <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Cleaning up partial output...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Committing archive...</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Committing archive changes...</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalizing extracted files...</string>
+    <string name="text_compact_conflict_policy">Conflicts</string>
+    <string name="text_compact_extraction_budget">Budget</string>
+    <string name="text_compact_filename_encoding">Encoding</string>
+    <string name="text_compact_search">Search</string>
     <string name="text_compress_separately">Compress each item separately</string>
-    <string name="text_separate_archive_preview_count" tools:ignore="PluralsCandidate">%1$d archives will be created in this folder:</string>
-    <string name="text_separate_archive_preview_more">- and %1$d more</string>
-    <string name="text_separate_archive_conflict_note">Existing and repeated names are numbered automatically; nothing is overwritten.</string>
-    <string name="text_separate_archive_progress" tools:ignore="PluralsCandidate">Archive %1$d of %2$d: %3$s\n%4$s</string>
-    <string name="text_separate_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives: %2$d files compressed and %3$d folders added.</string>
-    <string name="text_separate_split_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives in %2$d ZIP volume files, with %3$d files compressed.</string>
     <string name="text_compression_level">Compression level</string>
     <string name="text_compression_level_fast">Fast</string>
     <string name="text_compression_level_maximum">Maximum</string>
     <string name="text_compression_level_none">No compression</string>
     <string name="text_compression_level_normal">Normal</string>
+    <string name="text_confirm_password">Confirm password</string>
+    <string name="text_conflict_overwrite_unavailable">Overwrite is unavailable because the item types differ or the existing item was not created by this extraction.</string>
+    <string name="text_conflict_policy_ask">Ask each time</string>
+    <string name="text_conflict_policy_ask_details">Ask how to handle each name conflict inside the new output folder. An existing output folder is always numbered and left unchanged.</string>
+    <string name="text_conflict_policy_auto_rename">Auto rename</string>
+    <string name="text_conflict_policy_auto_rename_details">Add a number to every later entry with an equivalent name. Existing output folders are numbered too and remain unchanged.</string>
+    <string name="text_conflict_policy_overwrite">Overwrite</string>
+    <string name="text_conflict_policy_overwrite_details">Replace earlier files and merge folders when their types match. Incompatible types are auto-renamed. Existing output folders remain unchanged.</string>
+    <string name="text_conflict_policy_skip">Skip</string>
+    <string name="text_conflict_policy_skip_details">Skip later entries with equivalent names. An existing output folder is always numbered and left unchanged.</string>
+    <string name="text_copy_diagnostic">Copy diagnostic</string>
     <string name="text_create_archive">Create archive</string>
+    <string name="text_creation_conflict_policy">If the archive name is unavailable</string>
+    <string name="text_creation_conflict_policy_ask_details">Try the exact name first. If the host cannot reserve it, ask before retrying with a numbered name. Existing archives are never replaced.</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Reserve an available numbered name. Existing archives are never replaced. Transactional overwrite requires a newer host API.</string>
     <string name="text_custom_budget_zero_note">Use 0 for the hard structural maximum (entry count, path length, and depth) or for no resource warning threshold (sizes and compression ratio). Structural path safety cannot be disabled.</string>
     <string name="text_default_archive_name">Archive</string>
-    <string name="text_move_sources_to_trash_after_compression">Move source items to Trash after compression</string>
-    <string name="text_moving_sources_to_trash">Moving source items to Trash</string>
-    <string name="text_sources_moved_to_trash">%1$d source items moved to Trash.</string>
-    <string name="text_restoring_sources">Restoring source items from Trash</string>
-    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
-    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Created: %1$s\nState: %2$s\nTrash records: %3$d\nRestored: %4$d\nNeeds attention: %5$d\n\nSource items:\n%6$s</string>
-    <string name="text_source_recovery_state_available">Available to restore</string>
-    <string name="text_source_recovery_state_partial">Partly available</string>
-    <string name="text_source_recovery_state_restored">Restored</string>
-    <string name="text_source_recovery_state_stale">Name conflict or stale history</string>
-    <string name="text_source_recovery_state_recovery_required">Recovery needs attention</string>
-    <string name="text_source_recovery_state_failed">No source items moved</string>
-    <string name="text_source_restore_no_change">No additional source items were restored. Created archive files were kept.</string>
-    <string name="warning_sources_trash_recovery_required">The archive was created, but source cleanup needs attention. Recovery copies are available in AutoJs6 Trash.</string>
-    <string name="warning_sources_trash_failed">The archive was created, but the source items could not be moved to Trash.</string>
-    <string name="warning_sources_trash_unknown">The archive was created, but AutoJs6 could not confirm whether every source item reached Trash. Check the current folder and Trash before retrying.</string>
-    <plurals name="text_more_source_items">
-        <item quantity="one">+ %1$d more item</item>
-        <item quantity="other">+ %1$d more items</item>
-    </plurals>
-    <plurals name="text_sources_restored_from_trash">
-        <item quantity="one">Restored %1$d source item. Created archive files were kept.</item>
-        <item quantity="other">Restored %1$d source items. Created archive files were kept.</item>
-    </plurals>
-    <plurals name="warning_sources_not_restored">
-        <item quantity="one">%1$d source item was not restored because its original name is occupied or recovery still needs attention. It remains in AutoJs6 Trash when a recovery copy is available.</item>
-        <item quantity="other">%1$d source items were not restored because their original names are occupied or recovery still needs attention. They remain in AutoJs6 Trash when recovery copies are available.</item>
-    </plurals>
+    <string name="text_diagnostic_copied">Diagnostic copied</string>
     <string name="text_encrypt_file_names">Encrypt file names</string>
-    <string name="dialog_title_extraction_scope">Extraction range</string>
-    <string name="dialog_title_extraction_destination">Extraction destination</string>
-    <string name="text_extraction_scope_entire_archive">Entire archive</string>
-    <string name="text_extraction_scope_current_directory">Current folder: %1$s</string>
-    <string name="text_extraction_scope_current_selection">Current selection</string>
-    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Choose another folder...</string>
-    <string name="text_extraction_destination_current_folder">Current folder (Recommended)\n%1$s</string>
-    <string name="text_extraction_output_path">Output: %1$s</string>
-    <string name="text_extraction_budget">Extraction budget</string>
-    <string name="text_extraction_conflict_policy">When output names conflict</string>
-    <string name="text_compact_extraction_budget">Budget</string>
-    <string name="text_compact_conflict_policy">Conflicts</string>
-    <string name="text_compact_filename_encoding">Encoding</string>
-    <string name="text_compact_search">Search</string>
-    <string name="text_conflict_policy_ask">Ask each time</string>
-    <string name="text_conflict_policy_skip">Skip</string>
-    <string name="text_conflict_policy_overwrite">Overwrite</string>
-    <string name="text_conflict_policy_auto_rename">Auto rename</string>
-    <string name="text_conflict_policy_ask_details">Ask how to handle each name conflict inside the new output folder. An existing output folder is always numbered and left unchanged.</string>
-    <string name="text_conflict_policy_skip_details">Skip later entries with equivalent names. An existing output folder is always numbered and left unchanged.</string>
-    <string name="text_conflict_policy_overwrite_details">Replace earlier files and merge folders when their types match. Incompatible types are auto-renamed. Existing output folders remain unchanged.</string>
-    <string name="text_conflict_policy_auto_rename_details">Add a number to every later entry with an equivalent name. Existing output folders are numbered too and remain unchanged.</string>
-    <string name="dialog_title_output_conflict">Output name conflict</string>
-    <string name="dialog_message_output_conflict">Archive item: %1$s\nExisting: %2$s (%3$s)\nIncoming: %4$s (%5$s)</string>
-    <string name="text_item_type_file">file</string>
-    <string name="text_item_type_directory">folder</string>
-    <string name="text_apply_to_all_conflicts">Apply this choice to all compatible conflicts</string>
-    <string name="text_conflict_overwrite_unavailable">Overwrite is unavailable because the item types differ or the existing item was not created by this extraction.</string>
-    <string name="text_extraction_conflict_summary">Conflicts handled: %1$d skipped, %2$d overwritten or merged, %3$d auto-renamed.</string>
-    <string name="text_extraction_current_item">Current item: %1$s</string>
-    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
-    <string name="text_extraction_rate">%1$s/s</string>
-    <string name="text_extraction_rate_eta">%1$s/s, %2$s remaining</string>
-    <string name="text_extracting">Extracting %1$d of %2$d</string>
-    <string name="text_format_zip">ZIP</string>
     <string name="text_encrypted_entry">Encrypted entry (%1$s); enter the archive password to open</string>
     <string name="text_encrypted_entry_unlocked">Encrypted entry (%1$s); password applied</string>
     <string name="text_encryption_method_aes">AES</string>
     <string name="text_encryption_method_other">Other encryption</string>
     <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
-    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Loading archive...</string>
-    <string name="text_loading_progress">%1$s of %2$s</string>
-    <string name="text_modified">Modified: %1$s</string>
-    <string name="text_navigate_up">Navigate up</string>
-    <string name="text_no_entries">No matching entries</string>
-    <string name="text_creation_conflict_policy">If the archive name is unavailable</string>
-    <string name="text_creation_conflict_policy_auto_rename_details">Reserve an available numbered name. Existing archives are never replaced. Transactional overwrite requires a newer host API.</string>
-    <string name="text_creation_conflict_policy_ask_details">Try the exact name first. If the host cannot reserve it, ask before retrying with a numbered name. Existing archives are never replaced.</string>
-    <string name="text_none">None</string>
-    <string name="text_output_path">Path</string>
-    <string name="text_password">Password</string>
-    <string name="text_confirm_password">Confirm password</string>
-    <string name="text_password_applied">Password applied. You can update it at any time.</string>
-    <string name="text_password_needed_for_encrypted_entries">Enter a password to open and extract encrypted entries.</string>
-    <string name="text_parent_directory">Parent directory</string>
-    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparing compression...</string>
-    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Scanning source items...</string>
-    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verifying archive...</string>
-    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Committing archive...</string>
-    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Finalizing extracted files...</string>
-    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Rolled back %1$d incomplete output transactions from an interrupted operation.</string>
-    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparing extraction...</string>
-    <string name="text_search_hint">Search archive</string>
-    <string name="text_select_entry">Select entry</string>
-    <string name="text_selected_count">Selected: %1$d</string>
-    <string name="text_size_details">%1$s, compressed %2$s, CRC %3$s</string>
-    <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
-    <string name="text_split_volume">Split volume (MiB)</string>
-    <string name="text_split_volume_mib">%1$d MiB</string>
-    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">When output exceeds the selected size, ZIP creates .z01, .z02, ... and a final .zip file; smaller output remains one .zip file. Choose a preset or enter a whole number from %1$d to %2$d.</string>
-    <string name="text_split_archive_created" tools:ignore="PluralsCandidate">Created %1$s in %2$d ZIP volume files, with %3$d files compressed.</string>
-    <string name="text_unknown">Unknown</string>
-    <string name="text_unsafe_path_read_only">Unsafe original path; preview only. It is excluded from extraction.</string>
-    <string name="text_unsafe_paths_folder">Unsafe paths</string>
-    <string name="text_unsupported_compression_method">Compression method %1$s cannot be extracted</string>
-    <string name="text_unsupported_entry_type">Entry type %1$s cannot be extracted</string>
     <string name="text_encryption_unavailable_for_format">Password and filename encryption are not available for %1$s.</string>
-    <string name="error_diagnostic_details">%1$s\nFormat: %2$s\nStage: %3$s\nCode: %4$s\nReason: %5$s</string>
-    <string name="error_reason_cache_space">There is not enough cache space to open this archive.</string>
-    <string name="error_reason_cleanup">Partial output could not be removed completely.</string>
-    <string name="error_reason_compression_method">An entry uses a compression method that this backend cannot read.</string>
-    <string name="error_reason_entry_data">An archive entry could not be read or verified.</string>
-    <string name="error_reason_filename_encoding">The selected filename encoding is unavailable or cannot index this archive.</string>
-    <string name="error_reason_index">The archive directory metadata is malformed or unsupported.</string>
-    <string name="error_reason_missing_volumes">This is a split ZIP. Put %1$s beside %2$s in the same folder, then reopen the final volume.</string>
-    <string name="error_reason_input">The archive input cannot be read or changed while opening.</string>
-    <string name="error_reason_integrity">The entry size or checksum does not match the archive metadata.</string>
-    <string name="error_reason_invalid_signature">The file does not contain a recognized archive signature.</string>
-    <string name="error_reason_limit">The operation exceeds the configured resource budget.</string>
-    <string name="error_reason_output">The output location cannot be prepared or written safely.</string>
-    <string name="error_reason_password">A password is required or the provided password is incorrect.</string>
-    <string name="error_reason_path">An entry path is conflicting or cannot be handled safely.</string>
-    <string name="text_archive_diagnostic">Archive diagnostic</string>
-    <string name="text_copy_diagnostic">Copy diagnostic</string>
-    <string name="text_diagnostic_copied">Diagnostic copied</string>
+    <string name="text_extracting">Extracting %1$d of %2$d</string>
+    <string name="text_extraction_budget">Extraction budget</string>
+    <string name="text_extraction_conflict_policy">When output names conflict</string>
+    <string name="text_extraction_conflict_summary">Conflicts handled: %1$d skipped, %2$d overwritten or merged, %3$d auto-renamed.</string>
+    <string name="text_extraction_current_item">Current item: %1$s</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Choose another folder...</string>
+    <string name="text_extraction_destination_current_folder">Current folder (Recommended)\n%1$s</string>
+    <string name="text_extraction_output_path">Output: %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/s</string>
+    <string name="text_extraction_rate_eta">%1$s/s, %2$s remaining</string>
+    <string name="text_extraction_scope_current_directory">Current folder: %1$s</string>
+    <string name="text_extraction_scope_current_selection">Current selection</string>
+    <string name="text_extraction_scope_entire_archive">Entire archive</string>
     <string name="text_failure_stage_cleanup">Cleanup</string>
     <string name="text_failure_stage_entry_data">Entry data</string>
     <string name="text_failure_stage_format_detection">Format detection</string>
@@ -232,81 +223,77 @@
     <string name="text_filename_encoding">Filename encoding</string>
     <string name="text_filename_encoding_automatic">Automatic</string>
     <string name="text_filename_encoding_automatic_detected">Automatic (legacy fallback: %1$s)</string>
-    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexing archive...</string>
-    <string name="text_resource_budget_summary">Estimated output: %1$s\nSelected entries: %2$d\nAvailable destination space: verify before continuing.</string>
-    <string name="text_resource_budget_warning">Continuing permits the declared values for this extraction only. Path safety, source identity, size, checksum, and cleanup checks stay enabled.</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Rolled back %1$d incomplete output transactions from an interrupted operation.</string>
+    <string name="text_item_type_directory">folder</string>
+    <string name="text_item_type_file">file</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Loading archive...</string>
+    <string name="text_loading_progress">%1$s of %2$s</string>
+    <string name="text_modified">Modified: %1$s</string>
+    <string name="text_move_sources_to_trash_after_compression">Move source items to Trash after compression</string>
+    <string name="text_moving_sources_to_trash">Moving source items to Trash</string>
+    <string name="text_navigate_up">Navigate up</string>
+    <string name="text_no_entries">No matching entries</string>
+    <string name="text_none">None</string>
+    <string name="text_output_path">Path</string>
+    <string name="text_parent_directory">Parent directory</string>
+    <string name="text_password">Password</string>
+    <string name="text_password_applied">Password applied. You can update it at any time.</string>
     <string name="text_password_encryption_note">A non-empty password uses AES-256 encryption. File names remain visible.</string>
-    <string name="action_add_files" tools:ignore="TypographyEllipsis">Add files...</string>
-    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Add folder...</string>
-    <string name="action_delete">Delete</string>
-    <string name="action_new_folder" tools:ignore="TypographyEllipsis">New folder...</string>
-    <string name="action_rename" tools:ignore="TypographyEllipsis">Rename...</string>
-    <string name="dialog_title_new_archive_folder">New archive folder</string>
-    <string name="dialog_title_rename_archive_entry">Rename archive entry</string>
-    <string name="error_archive_mutation_failed">The ZIP could not be updated</string>
-    <string name="error_archive_refresh_failed">The ZIP was updated, but its new contents could not be reloaded</string>
-    <string name="error_rename_single_selection">Select exactly one file or folder to rename</string>
-    <string name="error_zip_entry_name_invalid">Enter a valid file or folder name</string>
-    <string name="text_archive_changes_complete">Archive updated</string>
-    <string name="text_archive_entry_name">Name</string>
-    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Committing archive changes...</string>
+    <string name="text_password_needed_for_encrypted_entries">Enter a password to open and extract encrypted entries.</string>
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Preparing archive changes...</string>
-    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Scanning folder...</string>
-    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verifying archive changes...</string>
-    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Updating %1$d of %2$d: %3$s</string>
-    <string name="action_archive_information">Archive information</string>
-    <string name="dialog_title_archive_information">Archive information</string>
-    <string name="dialog_title_archive_mutation_preflight">Review archive changes</string>
-    <string name="text_archive_information_format">Format: %1$s</string>
-    <string name="text_archive_information_archive_size">Current archive size: %1$s</string>
-    <string name="text_archive_information_contents" tools:ignore="PluralsCandidate">Contents: %1$d entries (%2$d files, %3$d folders); %4$s uncompressed</string>
-    <string name="text_archive_management_status">Management: %1$s</string>
-    <string name="text_archive_management_available">Available in this session</string>
-    <string name="text_archive_management_read_only">Read-only. %1$s</string>
-    <string name="text_archive_read_only_current_session">This archive was opened without content-management access. Reopen it using Manage archive to make changes.</string>
-    <string name="text_archive_read_only_host_replacement">The current host session cannot atomically replace this archive.</string>
-    <string name="text_archive_read_only_format">The installed backend supports browsing or extraction for this format, but not content changes.</string>
-    <string name="text_archive_read_only_multi_volume">Multi-volume archives cannot be rewritten safely.</string>
-    <string name="text_archive_read_only_unsafe_path">At least one entry has an unsafe original path, so the archive cannot be rewritten.</string>
-    <string name="text_archive_read_only_password">Apply the correct archive password before making changes.</string>
-    <string name="text_archive_read_only_unsupported_method">At least one entry uses a compression or encryption method that this backend cannot rewrite.</string>
-    <string name="text_archive_read_only_backend_variant">This archive variant is read-only in the installed backend.</string>
-    <string name="text_archive_management_operations">Available changes: %1$s.</string>
-    <string name="text_archive_mutation_full_rewrite">Full rewrite: every result file is written into a replacement archive, and the complete result is verified before the original is atomically replaced.</string>
-    <string name="text_archive_metadata_effects">Metadata affected by a rewrite:</string>
-    <string name="text_archive_metadata_archive_comment_dropped">The archive comment will not be preserved.</string>
-    <string name="text_archive_metadata_entry_comments_dropped">Entry comments will not be preserved.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">Format-specific extended metadata may be normalized.</string>
-    <string name="text_archive_metadata_unix_attributes_dropped">Unix permissions and attributes will not be preserved.</string>
-    <string name="text_archive_metadata_compression_normalized">Compression settings and container metadata may be normalized.</string>
-    <string name="text_archive_metadata_encryption_normalized">Per-entry encryption settings may be normalized.</string>
-    <string name="text_archive_information_safety">The original archive is not replaced until the complete new archive has been read back and verified.</string>
-    <string name="text_archive_mutation_operation_add">Add content</string>
-    <string name="text_archive_mutation_operation_delete">Delete selected content</string>
-    <string name="text_archive_mutation_operation_rename">Rename selected content</string>
-    <string name="text_archive_mutation_preflight_change">Change: %1$s</string>
-    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Result: %1$d entries (%2$d files, %3$d folders)</string>
-    <string name="text_archive_mutation_preflight_known_work">Content to read: %1$s</string>
-    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Content to read: at least %1$s; %2$d result files have an unknown reported size.</string>
-    <string name="text_archive_mutation_output_size_unknown">Temporary output size is not predicted because compression may change it. Ensure the device has room for a complete replacement archive.</string>
-    <string name="action_restore_previous_archive_version">Restore previous version</string>
-    <string name="dialog_title_restore_previous_archive_version">Restore previous version?</string>
-    <string name="dialog_message_restore_previous_archive_version">The previous version saved by AutoJs6 (%1$s, saved %2$s) will replace the current archive. This restore is available only once and will be refused if the current archive has changed elsewhere.</string>
-    <string name="error_archive_restore_refresh_failed">The previous archive version was restored, but its contents could not be reloaded</string>
-    <string name="error_previous_archive_version_changed">The current archive changed after it was updated. Its previous version was not restored.</string>
-    <string name="error_previous_archive_version_restore_failed">The previous archive version could not be restored</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Preparing compression...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Preparing extraction...</string>
     <string name="text_previous_archive_version_available">Previous version: available to restore (%1$s, saved %2$s).</string>
     <string name="text_previous_archive_version_recovery_required">Previous version: the host must complete recovery checks. The archive will not be replaced automatically.</string>
     <string name="text_previous_archive_version_restore_complete">Previous archive version restored</string>
     <string name="text_previous_archive_version_restored">Previous version: restored. This one-time restore has been used.</string>
     <string name="text_previous_archive_version_stale">Previous version: unavailable because the current archive changed after it was updated.</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Reindexing archive...</string>
+    <string name="text_resource_budget_summary">Estimated output: %1$s\nSelected entries: %2$d\nAvailable destination space: verify before continuing.</string>
+    <string name="text_resource_budget_warning">Continuing permits the declared values for this extraction only. Path safety, source identity, size, checksum, and cleanup checks stay enabled.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Restoring previous archive version...</string>
-    <string name="text_archive_workspace">Archive workspace</string>
-    <string name="text_archive_overview">Archive overview</string>
-    <string name="text_archive_selection">Selection</string>
-    <string name="text_section_destination">Destination</string>
-    <string name="text_section_compression">Compression</string>
-    <string name="text_section_security">Password &amp; encryption</string>
+    <string name="text_restoring_sources">Restoring source items from Trash</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Scanning source items...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Scanning folder...</string>
+    <string name="text_search_hint">Search archive</string>
     <string name="text_section_behavior">After compression</string>
-    <string name="text_archive_actions">Actions</string>
+    <string name="text_section_compression">Compression</string>
+    <string name="text_section_destination">Destination</string>
+    <string name="text_section_security">Password &amp; encryption</string>
+    <string name="text_select_entry">Select entry</string>
+    <string name="text_selected_count">Selected: %1$d</string>
+    <string name="text_separate_archive_conflict_note">Existing and repeated names are numbered automatically; nothing is overwritten.</string>
+    <string name="text_separate_archive_preview_count" tools:ignore="PluralsCandidate">%1$d archives will be created in this folder:</string>
+    <string name="text_separate_archive_preview_more">- and %1$d more</string>
+    <string name="text_separate_archive_progress" tools:ignore="PluralsCandidate">Archive %1$d of %2$d: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives: %2$d files compressed and %3$d folders added.</string>
+    <string name="text_separate_split_archives_created" tools:ignore="PluralsCandidate">Created %1$d archives in %2$d ZIP volume files, with %3$d files compressed.</string>
+    <string name="text_size_details">%1$s, compressed %2$s, CRC %3$s</string>
+    <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Created: %1$s\nState: %2$s\nTrash records: %3$d\nRestored: %4$d\nNeeds attention: %5$d\n\nSource items:\n%6$s</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_source_recovery_state_available">Available to restore</string>
+    <string name="text_source_recovery_state_failed">No source items moved</string>
+    <string name="text_source_recovery_state_partial">Partly available</string>
+    <string name="text_source_recovery_state_recovery_required">Recovery needs attention</string>
+    <string name="text_source_recovery_state_restored">Restored</string>
+    <string name="text_source_recovery_state_stale">Name conflict or stale history</string>
+    <string name="text_source_restore_no_change">No additional source items were restored. Created archive files were kept.</string>
+    <string name="text_sources_moved_to_trash">%1$d source items moved to Trash.</string>
+    <string name="text_split_archive_created" tools:ignore="PluralsCandidate">Created %1$s in %2$d ZIP volume files, with %3$d files compressed.</string>
+    <string name="text_split_unavailable_for_format">Split-volume output is not available for %1$s.</string>
+    <string name="text_split_volume">Split volume (MiB)</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">When output exceeds the selected size, ZIP creates .z01, .z02, ... and a final .zip file; smaller output remains one .zip file. Choose a preset or enter a whole number from %1$d to %2$d.</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_unknown">Unknown</string>
+    <string name="text_unsafe_path_read_only">Unsafe original path; preview only. It is excluded from extraction.</string>
+    <string name="text_unsafe_paths_folder">Unsafe paths</string>
+    <string name="text_unsupported_compression_method">Compression method %1$s cannot be extracted</string>
+    <string name="text_unsupported_entry_type">Entry type %1$s cannot be extracted</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verifying archive...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verifying archive changes...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Updating %1$d of %2$d: %3$s</string>
+    <string name="warning_sources_trash_failed">The archive was created, but the source items could not be moved to Trash.</string>
+    <string name="warning_sources_trash_recovery_required">The archive was created, but source cleanup needs attention. Recovery copies are available in AutoJs6 Trash.</string>
+    <string name="warning_sources_trash_unknown">The archive was created, but AutoJs6 could not confirm whether every source item reached Trash. Check the current folder and Trash before retrying.</string>
 </resources>

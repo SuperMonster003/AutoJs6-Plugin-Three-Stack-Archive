@@ -1,5 +1,12 @@
 # Notas de la versión
 
+## v2.22.2
+
+_2026/09/13_
+
+- `Corregido` La versión y las ABI del centro de complementos coinciden con el APK instalado
+- `Mejorado` Validación de las versiones, firmas y variantes completas de los APK antes de crear los archivos de descarga
+
 ## v2.22.1
 
 _2026/09/11_

@@ -1,163 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">Добавить файлы...</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Добавить папку...</string>
+    <string name="action_archive_information">Сведения об архиве</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Управление архивом...</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Новая папка...</string>
     <string name="action_open_archive">Просмотр архива</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">Открыть как архив...</string>
-    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">Управление архивом...</string>
-    <string name="action_extract_to" tools:ignore="TypographyEllipsis">Извлечь в...</string>
-    <string name="action_compress" tools:ignore="TypographyEllipsis">Сжать...</string>
-    <string name="app_name">Archive Manager</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">Переименовать...</string>
+    <string name="action_restore_previous_archive_version">Восстановить предыдущую версию</string>
+    <string name="action_restore_sources">Восстановить исходные элементы</string>
+    <string name="action_retry_source_restore">Повторить восстановление</string>
+    <string name="action_source_recovery_history">История восстановления исходных элементов</string>
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_button_continue">Продолжить</string>
-    <string name="dialog_button_skip_unsafe">Пропустить и продолжить</string>
-    <string name="dialog_button_select_all">Выбрать все</string>
+    <string name="dialog_button_continue_anyway">Все равно продолжить</string>
+    <string name="dialog_button_done">Готово</string>
     <string name="dialog_button_edit_name">Изменить имя</string>
+    <string name="dialog_button_save">Сохранить</string>
+    <string name="dialog_button_select_all">Выбрать все</string>
+    <string name="dialog_button_skip_unsafe">Пропустить и продолжить</string>
     <string name="dialog_button_use_numbered_name">Использовать имя с номером</string>
-    <string name="dialog_title_archive_name_unavailable">Точное имя результата недоступно</string>
     <string name="dialog_message_archive_name_unavailable">Хост не смог зарезервировать %1$s в %2$s. Данные архива не записывались. Измените имя или повторите попытку с автоматической нумерацией.</string>
+    <string name="dialog_message_extraction_destination">Папка вывода по умолчанию: %1$s. Если это имя уже существует, Archive Manager добавит номер, не изменяя существующее содержимое.</string>
+    <string name="dialog_message_output_conflict">Элемент архива: %1$s\nСуществующий: %2$s (%3$s)\nНовый: %4$s (%5$s)</string>
+    <string name="dialog_message_restore_previous_archive_version">Предыдущая версия, сохраненная AutoJs6 (%1$s, сохранена %2$s), заменит текущий архив. Восстановление доступно только один раз и будет отклонено, если текущий архив был изменен в другом месте.</string>
     <string name="dialog_message_skip_unsafe_paths">Записи архива (%1$d) используют пути, которые нельзя безопасно записать. Их по-прежнему можно просмотреть в папке «Небезопасные пути». Продолжить и пропустить их?</string>
+    <string name="dialog_title_archive_information">Сведения об архиве</string>
+    <string name="dialog_title_archive_mutation_preflight">Проверка изменений архива</string>
+    <string name="dialog_title_archive_name_unavailable">Точное имя результата недоступно</string>
+    <string name="dialog_title_custom_budget">Пользовательский бюджет извлечения</string>
+    <string name="dialog_title_extraction_destination">Папка извлечения</string>
+    <string name="dialog_title_extraction_scope">Область извлечения</string>
+    <string name="dialog_title_new_archive_folder">Новая папка в архиве</string>
+    <string name="dialog_title_output_conflict">Конфликт имени вывода</string>
+    <string name="dialog_title_rename_archive_entry">Переименовать элемент архива</string>
+    <string name="dialog_title_resource_budget">Бюджет извлечения превышен</string>
+    <string name="dialog_title_restore_previous_archive_version">Восстановить предыдущую версию?</string>
+    <string name="dialog_title_source_recovery_details">Сведения о восстановлении исходных элементов</string>
+    <string name="dialog_title_source_recovery_history">История восстановления исходных элементов</string>
     <string name="dialog_title_unsafe_paths">Небезопасные пути</string>
+    <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>
     <string name="error_archive_invalid">Архив поврежден или не поддерживается</string>
-    <string name="error_archive_missing_volumes">Отсутствуют тома ZIP</string>
     <string name="error_archive_limit">Архив превышает безопасный предел</string>
+    <string name="error_archive_missing_volumes">Отсутствуют тома ZIP</string>
+    <string name="error_archive_mutation_failed">Не удалось обновить ZIP</string>
+    <string name="error_archive_refresh_failed">ZIP обновлён, но его новое содержимое не удалось загрузить</string>
+    <string name="error_archive_restore_refresh_failed">Предыдущая версия архива восстановлена, но ее содержимое не удалось загрузить заново</string>
     <string name="error_cannot_create_output">Не удалось создать выходной каталог</string>
     <string name="error_cannot_open_archive">Не удалось открыть архив</string>
     <string name="error_cleanup_failed">Не удалось очистить данные; часть выходных файлов могла сохраниться</string>
     <string name="error_cleanup_residual_outputs">Не удалось очистить данные. Могли сохраниться следующие выходные данные:\n%1$s</string>
-    <string name="error_extraction_failed">Не удалось извлечь файлы</string>
-    <string name="error_no_selection">Выберите хотя бы одну запись</string>
-    <string name="error_no_safe_entries">В выбранном нет записей, которые можно безопасно извлечь</string>
-    <string name="error_permission_missing">Нет доступа на чтение архива</string>
-    <string name="error_with_reason">%1$s\nПричина: %2$s</string>
-    <string name="plugin_description">Просмотр и извлечение ZIP, 7Z, RAR и TAR; создание и безопасное управление поддерживаемыми форматами с записью</string>
-    <string name="text_cancelled">Отменено</string>
-    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
-    <string name="dialog_title_extraction_scope">Область извлечения</string>
-    <string name="text_extraction_scope_entire_archive">Весь архив</string>
-    <string name="text_extraction_scope_current_directory">Текущая папка: %1$s</string>
-    <string name="text_extraction_scope_current_selection">Текущее выделение</string>
-    <string name="text_extracting">Извлечение %1$d из %2$d</string>
-    <string name="text_extraction_current_item">Текущий элемент: %1$s</string>
-    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
-    <string name="text_extraction_rate">%1$s/с</string>
-    <string name="text_extraction_rate_eta">%1$s/с, осталось %2$s</string>
-    <string name="text_encrypted_entry">Зашифрованная запись (%1$s); введите пароль архива, чтобы открыть её</string>
-    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Загрузка архива...</string>
-    <string name="text_loading_progress">%1$s из %2$s</string>
-    <string name="text_modified">Изменено: %1$s</string>
-    <string name="text_navigate_up">Перейти на уровень выше</string>
-    <string name="text_no_entries">Нет совпадающих записей</string>
-    <string name="text_parent_directory">Родительский каталог</string>
-    <string name="text_search_hint">Поиск в архиве</string>
-    <string name="text_select_entry">Выбрать запись</string>
-    <string name="text_selected_count">Выбрано: %1$d</string>
-    <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
-    <string name="text_unknown">Неизвестно</string>
-    <string name="text_unsafe_path_read_only">Исходный путь небезопасен; доступен только просмотр. Запись исключена из извлечения.</string>
-    <string name="text_unsafe_paths_folder">Небезопасные пути</string>
-    <string name="text_unsupported_compression_method">Метод сжатия %1$s не поддерживает извлечение</string>
-    <string name="text_unsupported_entry_type">Тип записи %1$s не поддерживает извлечение</string>
-    <string name="error_archive_file_name_invalid">Введите допустимое имя файла архива</string>
-    <string name="error_compression_failed">Не удалось создать архив</string>
     <string name="error_compression_cleanup_unconfirmed">Не удалось создать архив и подтвердить очистку временного вывода. Сеанс хоста закрыт, чтобы предотвратить повторную запись. Существующий архив не перезаписан.\nПланируемый вывод: %1$s\nИсходная причина: %2$s</string>
-    <string name="error_split_compression_partial_failure">Публикация ZIP остановилась после фиксации %1$d из %2$d файлов томов. Последний том .zip не зафиксирован, поэтому неполный комплект нельзя открыть. Сеанс хоста закрыт, чтобы предотвратить повторную запись.\nСбойный вывод: %3$s\nПричина: %4$s</string>
-    <string name="error_split_compression_cleanup_unconfirmed">Публикация ZIP остановилась после фиксации %1$d из %2$d файлов томов, а очистку %3$d ожидающих выводов подтвердить не удалось. Последний том .zip не зафиксирован. Сеанс хоста закрыт, чтобы предотвратить повторную запись.\nПервый вывод, требующий проверки: %4$s\nИсходная причина: %5$s</string>
-    <string name="error_split_compression_cache_cleanup">Тома ZIP подготовлены, но очистку их копии в закрытом кэше подтвердить не удалось. Ни один том не зафиксирован. Сеанс хоста закрыт, чтобы предотвратить повторную запись.</string>
-    <string name="error_separate_compression_partially_cancelled">Операция отменена после создания %1$d из %2$d архивов. Готовые архивы сохранены, а этот сеанс закрыт во избежание дублирования вывода. Повторно откройте действие «Сжать» для оставшихся элементов.</string>
-    <string name="error_separate_compression_completed_before_split_failure">До остановки следующего многотомного ZIP уже было завершено и сохранено %1$d из %2$d отдельных архивов.</string>
-    <string name="error_separate_compression_partial_failure">Создание остановлено после %1$d из %2$d архивов. Готовые архивы сохранены, а этот сеанс закрыт во избежание дублирования вывода. Повторно откройте действие «Сжать» для сбойного и оставшихся элементов.\nСбойный вывод: %3$s\nПричина: %4$s</string>
-    <string name="error_separate_compression_cleanup_unconfirmed">Было создано %1$d из %2$d архивов, после чего следующий вывод завершился сбоем, а очистку его временного файла подтвердить не удалось. Готовые архивы сохранены. Сеанс хоста закрыт, чтобы предотвратить повторную запись. Существующие архивы не перезаписаны.\nПланируемый вывод: %3$s\nИсходная причина: %4$s</string>
+    <string name="error_compression_failed">Не удалось создать архив</string>
     <string name="error_compression_request_invalid">Недопустимый запрос на сжатие или сеанс хоста</string>
-    <string name="text_archive_creation_safety_note">Исходные элементы перемещаются в корзину AutoJs6 только после проверки и фиксации всех выходных архивов. Шифрование имён пока недоступно.</string>
-    <string name="text_archive_file_name">Имя файла</string>
-    <string name="text_archive_format">Формат</string>
-    <string name="text_compress_separately">Сжимать каждый элемент отдельно</string>
-    <string name="text_separate_archive_preview_count">В этой папке будет создано архивов: %1$d</string>
-    <string name="text_separate_archive_preview_more">- и ещё %1$d</string>
-    <string name="text_separate_archive_conflict_note">Существующие и повторяющиеся имена автоматически нумеруются; ничего не перезаписывается.</string>
-    <string name="text_separate_archive_progress">Архив %1$d из %2$d: %3$s\n%4$s</string>
-    <string name="text_separate_archives_created">Создано архивов: %1$d; сжато файлов: %2$d; добавлено папок: %3$d.</string>
-    <string name="text_separate_split_archives_created">Создано архивов: %1$d; файлов томов ZIP: %2$d; сжато файлов: %3$d.</string>
-    <string name="text_compression_level">Уровень сжатия</string>
-    <string name="text_compression_level_fast">Быстро</string>
-    <string name="text_compression_level_maximum">Максимально</string>
-    <string name="text_compression_level_none">Без сжатия</string>
-    <string name="text_compression_level_normal">Обычный</string>
-    <string name="text_create_archive">Создать архив</string>
-    <string name="text_default_archive_name">Архив</string>
-    <string name="text_move_sources_to_trash_after_compression">Переместить исходные элементы в корзину после сжатия</string>
-    <string name="text_moving_sources_to_trash">Перемещение исходных элементов в корзину</string>
-    <string name="text_sources_moved_to_trash">Исходных элементов перемещено в корзину: %1$d.</string>
-    <string name="warning_sources_trash_recovery_required">Архив создан, но очистка исходных элементов требует внимания. Восстанавливаемые копии доступны в корзине AutoJs6.</string>
-    <string name="warning_sources_trash_failed">Архив создан, но исходные элементы не удалось переместить в корзину.</string>
-    <string name="warning_sources_trash_unknown">Архив создан, но AutoJs6 не удалось подтвердить перемещение всех исходных элементов в корзину. Перед повторной попыткой проверьте текущую папку и корзину.</string>
-    <string name="text_encrypt_file_names">Шифровать имена файлов</string>
-    <string name="text_format_zip">ZIP</string>
-    <string name="text_creation_conflict_policy">Если имя архива недоступно</string>
-    <string name="text_creation_conflict_policy_auto_rename_details">Резервировать доступное имя с номером. Существующие архивы никогда не заменяются. Для транзакционной перезаписи требуется более новая версия API хоста.</string>
-    <string name="text_creation_conflict_policy_ask_details">Сначала пробовать точное имя. Если хост не может его зарезервировать, спрашивать перед повторной попыткой с номером. Существующие архивы никогда не заменяются.</string>
-    <string name="text_none">Нет</string>
-    <string name="text_output_path">Путь</string>
-    <string name="text_password">Пароль</string>
-    <string name="text_confirm_password">Подтвердите пароль</string>
-    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
-    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Сканирование исходных элементов...</string>
-    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Проверка архива...</string>
-    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Фиксация архива...</string>
-    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Подготовка к извлечению...</string>
-    <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
-    <string name="text_split_volume">Размер тома (MiB)</string>
-    <string name="text_split_volume_mib">%1$d MiB</string>
-    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">Если результат превышает выбранный размер, ZIP создаёт .z01, .z02, ... и завершающий файл .zip; меньший результат остаётся одним файлом .zip. Выберите готовое значение или введите целое число от %1$d до %2$d.</string>
-    <string name="text_split_archive_created">Архив %1$s создан в %2$d файлах томов ZIP; сжато файлов: %3$d.</string>
-    <string name="text_encryption_unavailable_for_format">Пароль и шифрование имён файлов недоступны для %1$s.</string>
+    <string name="error_custom_budget_invalid">Введите неотрицательные целые числа в поддерживаемом диапазоне</string>
+    <string name="error_custom_budget_total_less_single">Бюджет общего размера должен быть равен нулю (без ограничений) или быть не меньше бюджета одной записи</string>
     <string name="error_diagnostic_details">%1$s\nФормат: %2$s\nЭтап: %3$s\nКод: %4$s\nПричина: %5$s</string>
+    <string name="error_extraction_failed">Не удалось извлечь файлы</string>
+    <string name="error_no_safe_entries">В выбранном нет записей, которые можно безопасно извлечь</string>
+    <string name="error_no_selection">Выберите хотя бы одну запись</string>
+    <string name="error_password_confirmation_mismatch">Пароли не совпадают</string>
+    <string name="error_password_incorrect">Неверный пароль архива</string>
+    <string name="error_password_required">Введите пароль архива</string>
+    <string name="error_permission_missing">Нет доступа на чтение архива</string>
+    <string name="error_previous_archive_version_changed">Текущий архив изменился после обновления. Его предыдущая версия не была восстановлена.</string>
+    <string name="error_previous_archive_version_restore_failed">Не удалось восстановить предыдущую версию архива</string>
     <string name="error_reason_cache_space">Недостаточно места в кэше для открытия этого архива.</string>
     <string name="error_reason_cleanup">Не удалось полностью удалить частичный результат.</string>
     <string name="error_reason_compression_method">Запись использует метод сжатия, который этот модуль не может прочитать.</string>
     <string name="error_reason_entry_data">Не удалось прочитать или проверить запись архива.</string>
     <string name="error_reason_filename_encoding">Выбранная кодировка имен недоступна или не позволяет проиндексировать этот архив.</string>
     <string name="error_reason_index">Метаданные каталога архива повреждены или не поддерживаются.</string>
-    <string name="error_reason_missing_volumes">Это многотомный ZIP. Поместите %1$s и %2$s в одну папку, затем снова откройте последний том.</string>
     <string name="error_reason_input">Архив невозможно прочитать или он изменился во время открытия.</string>
     <string name="error_reason_integrity">Размер или контрольная сумма записи не совпадает с метаданными архива.</string>
     <string name="error_reason_invalid_signature">Файл не содержит распознаваемой сигнатуры архива.</string>
     <string name="error_reason_limit">Операция превышает настроенный бюджет ресурсов.</string>
+    <string name="error_reason_missing_volumes">Это многотомный ZIP. Поместите %1$s и %2$s в одну папку, затем снова откройте последний том.</string>
     <string name="error_reason_output">Невозможно безопасно подготовить или записать данные в место вывода.</string>
     <string name="error_reason_password">Требуется пароль или указанный пароль неверен.</string>
     <string name="error_reason_path">Путь записи конфликтует с другим путем или небезопасен.</string>
-    <string name="text_archive_diagnostic">Диагностика архива</string>
-    <string name="text_copy_diagnostic">Копировать диагностику</string>
-    <string name="text_diagnostic_copied">Диагностика скопирована</string>
-    <string name="text_failure_stage_cleanup">Очистка</string>
-    <string name="text_failure_stage_entry_data">Данные записи</string>
-    <string name="text_failure_stage_format_detection">Определение формата</string>
-    <string name="text_failure_stage_index">Индекс каталога</string>
-    <string name="text_failure_stage_input">Ввод</string>
-    <string name="text_failure_stage_output">Вывод</string>
-    <string name="text_failure_stage_password">Пароль</string>
-    <string name="text_filename_encoding">Кодировка имен файлов</string>
-    <string name="text_filename_encoding_automatic">Автоматически</string>
-    <string name="text_filename_encoding_automatic_detected">Автоматически (резерв для старых имён: %1$s)</string>
-    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Повторное индексирование архива...</string>
-    <string name="error_password_incorrect">Неверный пароль архива</string>
-    <string name="error_password_required">Введите пароль архива</string>
-    <string name="error_password_confirmation_mismatch">Пароли не совпадают</string>
+    <string name="error_rename_single_selection">Выберите ровно один файл или папку для переименования</string>
+    <string name="error_separate_compression_cleanup_unconfirmed">Было создано %1$d из %2$d архивов, после чего следующий вывод завершился сбоем, а очистку его временного файла подтвердить не удалось. Готовые архивы сохранены. Сеанс хоста закрыт, чтобы предотвратить повторную запись. Существующие архивы не перезаписаны.\nПланируемый вывод: %3$s\nИсходная причина: %4$s</string>
+    <string name="error_separate_compression_completed_before_split_failure">До остановки следующего многотомного ZIP уже было завершено и сохранено %1$d из %2$d отдельных архивов.</string>
+    <string name="error_separate_compression_partial_failure">Создание остановлено после %1$d из %2$d архивов. Готовые архивы сохранены, а этот сеанс закрыт во избежание дублирования вывода. Повторно откройте действие «Сжать» для сбойного и оставшихся элементов.\nСбойный вывод: %3$s\nПричина: %4$s</string>
+    <string name="error_separate_compression_partially_cancelled">Операция отменена после создания %1$d из %2$d архивов. Готовые архивы сохранены, а этот сеанс закрыт во избежание дублирования вывода. Повторно откройте действие «Сжать» для оставшихся элементов.</string>
+    <string name="error_source_restore_failed">Не удалось восстановить исходные элементы. Причина: %1$s</string>
+    <string name="error_split_compression_cache_cleanup">Тома ZIP подготовлены, но очистку их копии в закрытом кэше подтвердить не удалось. Ни один том не зафиксирован. Сеанс хоста закрыт, чтобы предотвратить повторную запись.</string>
+    <string name="error_split_compression_cleanup_unconfirmed">Публикация ZIP остановилась после фиксации %1$d из %2$d файлов томов, а очистку %3$d ожидающих выводов подтвердить не удалось. Последний том .zip не зафиксирован. Сеанс хоста закрыт, чтобы предотвратить повторную запись.\nПервый вывод, требующий проверки: %4$s\nИсходная причина: %5$s</string>
+    <string name="error_split_compression_partial_failure">Публикация ZIP остановилась после фиксации %1$d из %2$d файлов томов. Последний том .zip не зафиксирован, поэтому неполный комплект нельзя открыть. Сеанс хоста закрыт, чтобы предотвратить повторную запись.\nСбойный вывод: %3$s\nПричина: %4$s</string>
     <string name="error_split_volume_invalid">Введите целый размер от %1$d до %2$d MiB или выберите «Нет»</string>
+    <string name="error_with_reason">%1$s\nПричина: %2$s</string>
+    <string name="error_zip_entry_name_invalid">Введите допустимое имя файла или папки</string>
+    <string name="plugin_description">Просмотр и извлечение ZIP, 7Z, RAR и TAR; создание и безопасное управление поддерживаемыми форматами с записью</string>
     <string name="text_apply_password">Применить</string>
+    <string name="text_apply_to_all_conflicts">Применить этот выбор ко всем совместимым конфликтам</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Применение пароля...</string>
+    <string name="text_archive_actions">Действия</string>
+    <string name="text_archive_changes_complete">Архив обновлён</string>
+    <string name="text_archive_creation_safety_note">Исходные элементы перемещаются в корзину AutoJs6 только после проверки и фиксации всех выходных архивов. Шифрование имён пока недоступно.</string>
+    <string name="text_archive_diagnostic">Диагностика архива</string>
+    <string name="text_archive_entry_name">Имя</string>
+    <string name="text_archive_file_name">Имя файла</string>
+    <string name="text_archive_format">Формат</string>
+    <string name="text_archive_information_archive_size">Текущий размер архива: %1$s</string>
+    <string name="text_archive_information_contents">Содержимое: %1$d элементов (%2$d файлов, %3$d папок); %4$s после распаковки</string>
+    <string name="text_archive_information_format">Формат: %1$s</string>
+    <string name="text_archive_information_safety">Исходный архив заменяется только после полного чтения и проверки нового архива.</string>
+    <string name="text_archive_management_available">Доступно в этом сеансе</string>
+    <string name="text_archive_management_operations">Доступные изменения: %1$s.</string>
+    <string name="text_archive_management_read_only">Только чтение. %1$s</string>
+    <string name="text_archive_management_status">Управление: %1$s</string>
+    <string name="text_archive_metadata_archive_comment_dropped">Комментарий архива не будет сохранён.</string>
+    <string name="text_archive_metadata_compression_normalized">Параметры сжатия и метаданные контейнера могут быть нормализованы.</string>
+    <string name="text_archive_metadata_effects">Метаданные, затрагиваемые при пересоздании:</string>
+    <string name="text_archive_metadata_encryption_normalized">Параметры шифрования отдельных элементов могут быть нормализованы.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">Комментарии элементов не будут сохранены.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">Расширенные метаданные формата могут быть нормализованы.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Разрешения и атрибуты Unix не будут сохранены.</string>
+    <string name="text_archive_mutation_full_rewrite">Полное пересоздание: каждый итоговый файл записывается в проверенный архив-замену, после чего исходный архив заменяется атомарно.</string>
+    <string name="text_archive_mutation_operation_add">Добавить содержимое</string>
+    <string name="text_archive_mutation_operation_delete">Удалить выбранное содержимое</string>
+    <string name="text_archive_mutation_operation_rename">Переименовать выбранное содержимое</string>
+    <string name="text_archive_mutation_output_size_unknown">Размер временного результата не прогнозируется, поскольку сжатие может его изменить. Убедитесь, что на устройстве достаточно места для полного архива-замены.</string>
+    <string name="text_archive_mutation_preflight_change">Изменение: %1$s</string>
+    <string name="text_archive_mutation_preflight_known_work">Объём чтения: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Результат: %1$d элементов (%2$d файлов, %3$d папок)</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Объём чтения: не менее %1$s; заявленный размер %2$d итоговых файлов неизвестен.</string>
+    <string name="text_archive_overview">Обзор архива</string>
     <string name="text_archive_password">Пароль архива</string>
-    <string name="text_encrypted_entry_unlocked">Зашифрованная запись (%1$s); пароль применён</string>
-    <string name="text_encryption_method_aes">AES</string>
-    <string name="text_encryption_method_other">Другое шифрование</string>
-    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
-    <string name="text_password_applied">Пароль применён. Его можно изменить в любое время.</string>
-    <string name="text_password_needed_for_encrypted_entries">Введите пароль, чтобы открывать и извлекать зашифрованные записи.</string>
-    <string name="dialog_button_continue_anyway">Все равно продолжить</string>
-    <string name="dialog_button_save">Сохранить</string>
-    <string name="dialog_title_custom_budget">Пользовательский бюджет извлечения</string>
-    <string name="dialog_title_resource_budget">Бюджет извлечения превышен</string>
-    <string name="error_custom_budget_invalid">Введите неотрицательные целые числа в поддерживаемом диапазоне</string>
-    <string name="error_custom_budget_total_less_single">Бюджет общего размера должен быть равен нулю (без ограничений) или быть не меньше бюджета одной записи</string>
+    <string name="text_archive_read_only_backend_variant">Этот вариант архива доступен установленному бэкенду только для чтения.</string>
+    <string name="text_archive_read_only_current_session">Архив открыт без доступа к управлению содержимым. Чтобы внести изменения, откройте его снова через пункт «Управление архивом».</string>
+    <string name="text_archive_read_only_format">Установленный бэкенд поддерживает просмотр или извлечение этого формата, но не изменение содержимого.</string>
+    <string name="text_archive_read_only_host_replacement">Текущий сеанс хоста не может атомарно заменить этот архив.</string>
+    <string name="text_archive_read_only_multi_volume">Многотомные архивы нельзя безопасно пересоздать.</string>
+    <string name="text_archive_read_only_password">Перед изменением примените правильный пароль архива.</string>
+    <string name="text_archive_read_only_unsafe_path">Хотя бы один элемент имеет небезопасный исходный путь, поэтому архив нельзя пересоздать.</string>
+    <string name="text_archive_read_only_unsupported_method">Хотя бы один элемент использует метод сжатия или шифрования, который этот бэкенд не может перезаписать.</string>
+    <string name="text_archive_selection">Выбранные объекты</string>
+    <string name="text_archive_workspace">Управление архивами</string>
     <string name="text_budget_compression_ratio">Максимальная степень сжатия</string>
     <string name="text_budget_entry_count">Максимум выбранных записей</string>
     <string name="text_budget_path_depth">Максимальная глубина пути</string>
@@ -175,144 +159,141 @@
     <string name="text_budget_violation_path_length">Длина пути: %1$s (бюджет %2$s)</string>
     <string name="text_budget_violation_single_size">Самая большая запись: %1$s (бюджет %2$s)</string>
     <string name="text_budget_violation_total_size">Расчетный объем: %1$s (бюджет %2$s)</string>
-    <string name="text_custom_budget_zero_note">Укажите 0, чтобы использовать жесткий структурный максимум (число записей, длина и глубина пути) или не задавать порог предупреждения о ресурсах (размеры и степень сжатия). Структурную безопасность путей отключить нельзя.</string>
-    <string name="text_extraction_budget">Бюджет извлечения</string>
-    <string name="text_extraction_conflict_policy">При конфликте имён вывода</string>
-    <string name="text_compact_extraction_budget">Лимит</string>
+    <string name="text_cancelled">Отменено</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">Очистка частично созданных файлов...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">Фиксация архива...</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Применение изменений архива...</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Завершение извлечения файлов...</string>
     <string name="text_compact_conflict_policy">Конфликты</string>
+    <string name="text_compact_extraction_budget">Лимит</string>
     <string name="text_compact_filename_encoding">Кодировка</string>
     <string name="text_compact_search">Поиск</string>
-    <string name="text_conflict_policy_ask">Спрашивать каждый раз</string>
-    <string name="text_conflict_policy_skip">Пропустить</string>
-    <string name="text_conflict_policy_overwrite">Перезаписать</string>
-    <string name="text_conflict_policy_auto_rename">Автоматически переименовать</string>
-    <string name="text_conflict_policy_ask_details">Спрашивать, как обрабатывать каждый конфликт имён в новой папке вывода. Существующая папка вывода всегда получает номер и остаётся без изменений.</string>
-    <string name="text_conflict_policy_skip_details">Пропускать последующие элементы с эквивалентными именами. Существующая папка вывода всегда получает номер и остаётся без изменений.</string>
-    <string name="text_conflict_policy_overwrite_details">Заменять предыдущие файлы и объединять папки, если их типы совпадают. Несовместимые типы автоматически переименовываются. Существующие папки вывода не изменяются.</string>
-    <string name="text_conflict_policy_auto_rename_details">Добавлять номер к каждому последующему элементу с эквивалентным именем. Существующие папки вывода также получают номер и остаются без изменений.</string>
-    <string name="dialog_title_output_conflict">Конфликт имени вывода</string>
-    <string name="dialog_message_output_conflict">Элемент архива: %1$s\nСуществующий: %2$s (%3$s)\nНовый: %4$s (%5$s)</string>
-    <string name="text_item_type_file">файл</string>
-    <string name="text_item_type_directory">папка</string>
-    <string name="text_apply_to_all_conflicts">Применить этот выбор ко всем совместимым конфликтам</string>
+    <string name="text_compress_separately">Сжимать каждый элемент отдельно</string>
+    <string name="text_compression_level">Уровень сжатия</string>
+    <string name="text_compression_level_fast">Быстро</string>
+    <string name="text_compression_level_maximum">Максимально</string>
+    <string name="text_compression_level_none">Без сжатия</string>
+    <string name="text_compression_level_normal">Обычный</string>
+    <string name="text_confirm_password">Подтвердите пароль</string>
     <string name="text_conflict_overwrite_unavailable">Перезапись недоступна: типы элементов различаются либо существующий элемент создан не этим извлечением.</string>
+    <string name="text_conflict_policy_ask">Спрашивать каждый раз</string>
+    <string name="text_conflict_policy_ask_details">Спрашивать, как обрабатывать каждый конфликт имён в новой папке вывода. Существующая папка вывода всегда получает номер и остаётся без изменений.</string>
+    <string name="text_conflict_policy_auto_rename">Автоматически переименовать</string>
+    <string name="text_conflict_policy_auto_rename_details">Добавлять номер к каждому последующему элементу с эквивалентным именем. Существующие папки вывода также получают номер и остаются без изменений.</string>
+    <string name="text_conflict_policy_overwrite">Перезаписать</string>
+    <string name="text_conflict_policy_overwrite_details">Заменять предыдущие файлы и объединять папки, если их типы совпадают. Несовместимые типы автоматически переименовываются. Существующие папки вывода не изменяются.</string>
+    <string name="text_conflict_policy_skip">Пропустить</string>
+    <string name="text_conflict_policy_skip_details">Пропускать последующие элементы с эквивалентными именами. Существующая папка вывода всегда получает номер и остаётся без изменений.</string>
+    <string name="text_copy_diagnostic">Копировать диагностику</string>
+    <string name="text_create_archive">Создать архив</string>
+    <string name="text_creation_conflict_policy">Если имя архива недоступно</string>
+    <string name="text_creation_conflict_policy_ask_details">Сначала пробовать точное имя. Если хост не может его зарезервировать, спрашивать перед повторной попыткой с номером. Существующие архивы никогда не заменяются.</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">Резервировать доступное имя с номером. Существующие архивы никогда не заменяются. Для транзакционной перезаписи требуется более новая версия API хоста.</string>
+    <string name="text_custom_budget_zero_note">Укажите 0, чтобы использовать жесткий структурный максимум (число записей, длина и глубина пути) или не задавать порог предупреждения о ресурсах (размеры и степень сжатия). Структурную безопасность путей отключить нельзя.</string>
+    <string name="text_default_archive_name">Архив</string>
+    <string name="text_diagnostic_copied">Диагностика скопирована</string>
+    <string name="text_encrypt_file_names">Шифровать имена файлов</string>
+    <string name="text_encrypted_entry">Зашифрованная запись (%1$s); введите пароль архива, чтобы открыть её</string>
+    <string name="text_encrypted_entry_unlocked">Зашифрованная запись (%1$s); пароль применён</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">Другое шифрование</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
+    <string name="text_encryption_unavailable_for_format">Пароль и шифрование имён файлов недоступны для %1$s.</string>
+    <string name="text_extracting">Извлечение %1$d из %2$d</string>
+    <string name="text_extraction_budget">Бюджет извлечения</string>
+    <string name="text_extraction_conflict_policy">При конфликте имён вывода</string>
     <string name="text_extraction_conflict_summary">Обработано конфликтов: пропущено %1$d, перезаписано или объединено %2$d, автоматически переименовано %3$d.</string>
-    <string name="text_resource_budget_summary">Расчетный объем: %1$s\nВыбрано записей: %2$d\nСвободное место назначения: проверьте перед продолжением.</string>
-    <string name="text_resource_budget_warning">Продолжение разрешает заявленные значения только для этого извлечения. Проверки безопасности путей, идентичности источника, размера, контрольной суммы и очистки остаются включенными.</string>
-    <string name="text_password_encryption_note">Непустой пароль использует шифрование AES-256. Имена файлов остаются видимыми.</string>
-    <string name="action_add_files" tools:ignore="TypographyEllipsis">Добавить файлы...</string>
-    <string name="action_delete">Удалить</string>
-    <string name="action_new_folder" tools:ignore="TypographyEllipsis">Новая папка...</string>
-    <string name="action_rename" tools:ignore="TypographyEllipsis">Переименовать...</string>
-    <string name="dialog_title_new_archive_folder">Новая папка в архиве</string>
-    <string name="dialog_title_rename_archive_entry">Переименовать элемент архива</string>
-    <string name="error_archive_mutation_failed">Не удалось обновить ZIP</string>
-    <string name="error_archive_refresh_failed">ZIP обновлён, но его новое содержимое не удалось загрузить</string>
-    <string name="error_rename_single_selection">Выберите ровно один файл или папку для переименования</string>
-    <string name="error_zip_entry_name_invalid">Введите допустимое имя файла или папки</string>
-    <string name="text_archive_changes_complete">Архив обновлён</string>
-    <string name="text_archive_entry_name">Имя</string>
-    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">Применение изменений архива...</string>
-    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Подготовка изменений архива...</string>
-    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Проверка изменений архива...</string>
-    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Обновление %1$d из %2$d: %3$s</string>
-    <string name="dialog_message_extraction_destination">Папка вывода по умолчанию: %1$s. Если это имя уже существует, Archive Manager добавит номер, не изменяя существующее содержимое.</string>
-    <string name="dialog_title_extraction_destination">Папка извлечения</string>
+    <string name="text_extraction_current_item">Текущий элемент: %1$s</string>
     <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">Выбрать другую папку...</string>
     <string name="text_extraction_destination_current_folder">Текущая папка (Рекомендуется)\n%1$s</string>
     <string name="text_extraction_output_path">Результат: %1$s</string>
-    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">Завершение извлечения файлов...</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/с</string>
+    <string name="text_extraction_rate_eta">%1$s/с, осталось %2$s</string>
+    <string name="text_extraction_scope_current_directory">Текущая папка: %1$s</string>
+    <string name="text_extraction_scope_current_selection">Текущее выделение</string>
+    <string name="text_extraction_scope_entire_archive">Весь архив</string>
+    <string name="text_failure_stage_cleanup">Очистка</string>
+    <string name="text_failure_stage_entry_data">Данные записи</string>
+    <string name="text_failure_stage_format_detection">Определение формата</string>
+    <string name="text_failure_stage_index">Индекс каталога</string>
+    <string name="text_failure_stage_input">Ввод</string>
+    <string name="text_failure_stage_output">Вывод</string>
+    <string name="text_failure_stage_password">Пароль</string>
+    <string name="text_filename_encoding">Кодировка имен файлов</string>
+    <string name="text_filename_encoding_automatic">Автоматически</string>
+    <string name="text_filename_encoding_automatic_detected">Автоматически (резерв для старых имён: %1$s)</string>
+    <string name="text_format_zip">ZIP</string>
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">Откат незавершённых выходных транзакций после прерванной операции: %1$d.</string>
-    <string name="action_add_folder" tools:ignore="TypographyEllipsis">Добавить папку...</string>
-    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Сканирование папки...</string>
-    <string name="action_archive_information">Сведения об архиве</string>
-    <string name="dialog_title_archive_information">Сведения об архиве</string>
-    <string name="dialog_title_archive_mutation_preflight">Проверка изменений архива</string>
-    <string name="text_archive_information_format">Формат: %1$s</string>
-    <string name="text_archive_information_archive_size">Текущий размер архива: %1$s</string>
-    <string name="text_archive_information_contents">Содержимое: %1$d элементов (%2$d файлов, %3$d папок); %4$s после распаковки</string>
-    <string name="text_archive_management_status">Управление: %1$s</string>
-    <string name="text_archive_management_available">Доступно в этом сеансе</string>
-    <string name="text_archive_management_read_only">Только чтение. %1$s</string>
-    <string name="text_archive_read_only_current_session">Архив открыт без доступа к управлению содержимым. Чтобы внести изменения, откройте его снова через пункт «Управление архивом».</string>
-    <string name="text_archive_read_only_host_replacement">Текущий сеанс хоста не может атомарно заменить этот архив.</string>
-    <string name="text_archive_read_only_format">Установленный бэкенд поддерживает просмотр или извлечение этого формата, но не изменение содержимого.</string>
-    <string name="text_archive_read_only_multi_volume">Многотомные архивы нельзя безопасно пересоздать.</string>
-    <string name="text_archive_read_only_unsafe_path">Хотя бы один элемент имеет небезопасный исходный путь, поэтому архив нельзя пересоздать.</string>
-    <string name="text_archive_read_only_password">Перед изменением примените правильный пароль архива.</string>
-    <string name="text_archive_read_only_unsupported_method">Хотя бы один элемент использует метод сжатия или шифрования, который этот бэкенд не может перезаписать.</string>
-    <string name="text_archive_read_only_backend_variant">Этот вариант архива доступен установленному бэкенду только для чтения.</string>
-    <string name="text_archive_management_operations">Доступные изменения: %1$s.</string>
-    <string name="text_archive_mutation_full_rewrite">Полное пересоздание: каждый итоговый файл записывается в проверенный архив-замену, после чего исходный архив заменяется атомарно.</string>
-    <string name="text_archive_metadata_effects">Метаданные, затрагиваемые при пересоздании:</string>
-    <string name="text_archive_metadata_archive_comment_dropped">Комментарий архива не будет сохранён.</string>
-    <string name="text_archive_metadata_entry_comments_dropped">Комментарии элементов не будут сохранены.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">Расширенные метаданные формата могут быть нормализованы.</string>
-    <string name="text_archive_metadata_unix_attributes_dropped">Разрешения и атрибуты Unix не будут сохранены.</string>
-    <string name="text_archive_metadata_compression_normalized">Параметры сжатия и метаданные контейнера могут быть нормализованы.</string>
-    <string name="text_archive_metadata_encryption_normalized">Параметры шифрования отдельных элементов могут быть нормализованы.</string>
-    <string name="text_archive_information_safety">Исходный архив заменяется только после полного чтения и проверки нового архива.</string>
-    <string name="text_archive_mutation_operation_add">Добавить содержимое</string>
-    <string name="text_archive_mutation_operation_delete">Удалить выбранное содержимое</string>
-    <string name="text_archive_mutation_operation_rename">Переименовать выбранное содержимое</string>
-    <string name="text_archive_mutation_preflight_change">Изменение: %1$s</string>
-    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">Результат: %1$d элементов (%2$d файлов, %3$d папок)</string>
-    <string name="text_archive_mutation_preflight_known_work">Объём чтения: %1$s</string>
-    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">Объём чтения: не менее %1$s; заявленный размер %2$d итоговых файлов неизвестен.</string>
-    <string name="text_archive_mutation_output_size_unknown">Размер временного результата не прогнозируется, поскольку сжатие может его изменить. Убедитесь, что на устройстве достаточно места для полного архива-замены.</string>
-    <string name="action_restore_previous_archive_version">Восстановить предыдущую версию</string>
-    <string name="dialog_title_restore_previous_archive_version">Восстановить предыдущую версию?</string>
-    <string name="dialog_message_restore_previous_archive_version">Предыдущая версия, сохраненная AutoJs6 (%1$s, сохранена %2$s), заменит текущий архив. Восстановление доступно только один раз и будет отклонено, если текущий архив был изменен в другом месте.</string>
-    <string name="error_archive_restore_refresh_failed">Предыдущая версия архива восстановлена, но ее содержимое не удалось загрузить заново</string>
-    <string name="error_previous_archive_version_changed">Текущий архив изменился после обновления. Его предыдущая версия не была восстановлена.</string>
-    <string name="error_previous_archive_version_restore_failed">Не удалось восстановить предыдущую версию архива</string>
+    <string name="text_item_type_directory">папка</string>
+    <string name="text_item_type_file">файл</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">Загрузка архива...</string>
+    <string name="text_loading_progress">%1$s из %2$s</string>
+    <string name="text_modified">Изменено: %1$s</string>
+    <string name="text_move_sources_to_trash_after_compression">Переместить исходные элементы в корзину после сжатия</string>
+    <string name="text_moving_sources_to_trash">Перемещение исходных элементов в корзину</string>
+    <string name="text_navigate_up">Перейти на уровень выше</string>
+    <string name="text_no_entries">Нет совпадающих записей</string>
+    <string name="text_none">Нет</string>
+    <string name="text_output_path">Путь</string>
+    <string name="text_parent_directory">Родительский каталог</string>
+    <string name="text_password">Пароль</string>
+    <string name="text_password_applied">Пароль применён. Его можно изменить в любое время.</string>
+    <string name="text_password_encryption_note">Непустой пароль использует шифрование AES-256. Имена файлов остаются видимыми.</string>
+    <string name="text_password_needed_for_encrypted_entries">Введите пароль, чтобы открывать и извлекать зашифрованные записи.</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">Подготовка изменений архива...</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">Подготовка к сжатию...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">Подготовка к извлечению...</string>
     <string name="text_previous_archive_version_available">Предыдущая версия: доступна для восстановления (%1$s, сохранена %2$s).</string>
     <string name="text_previous_archive_version_recovery_required">Предыдущая версия: хост должен завершить проверки восстановления. Архив не будет заменен автоматически.</string>
     <string name="text_previous_archive_version_restore_complete">Предыдущая версия архива восстановлена</string>
     <string name="text_previous_archive_version_restored">Предыдущая версия: восстановлена. Однократное восстановление уже использовано.</string>
     <string name="text_previous_archive_version_stale">Предыдущая версия: недоступна, поскольку текущий архив изменился после обновления.</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">Повторное индексирование архива...</string>
+    <string name="text_resource_budget_summary">Расчетный объем: %1$s\nВыбрано записей: %2$d\nСвободное место назначения: проверьте перед продолжением.</string>
+    <string name="text_resource_budget_warning">Продолжение разрешает заявленные значения только для этого извлечения. Проверки безопасности путей, идентичности источника, размера, контрольной суммы и очистки остаются включенными.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">Восстановление предыдущей версии архива...</string>
-    <string name="action_source_recovery_history">История восстановления исходных элементов</string>
-    <string name="action_restore_sources">Восстановить исходные элементы</string>
-    <string name="action_retry_source_restore">Повторить восстановление</string>
-    <string name="dialog_button_done">Готово</string>
-    <string name="dialog_title_source_recovery_history">История восстановления исходных элементов</string>
-    <string name="dialog_title_source_recovery_details">Сведения о восстановлении исходных элементов</string>
-    <string name="error_source_restore_failed">Не удалось восстановить исходные элементы. Причина: %1$s</string>
     <string name="text_restoring_sources">Восстановление исходных элементов из корзины</string>
-    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">Сканирование исходных элементов...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">Сканирование папки...</string>
+    <string name="text_search_hint">Поиск в архиве</string>
+    <string name="text_section_behavior">После сжатия</string>
+    <string name="text_section_compression">Сжатие</string>
+    <string name="text_section_destination">Место сохранения</string>
+    <string name="text_section_security">Пароль и шифрование</string>
+    <string name="text_select_entry">Выбрать запись</string>
+    <string name="text_selected_count">Выбрано: %1$d</string>
+    <string name="text_separate_archive_conflict_note">Существующие и повторяющиеся имена автоматически нумеруются; ничего не перезаписывается.</string>
+    <string name="text_separate_archive_preview_count">В этой папке будет создано архивов: %1$d</string>
+    <string name="text_separate_archive_preview_more">- и ещё %1$d</string>
+    <string name="text_separate_archive_progress">Архив %1$d из %2$d: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created">Создано архивов: %1$d; сжато файлов: %2$d; добавлено папок: %3$d.</string>
+    <string name="text_separate_split_archives_created">Создано архивов: %1$d; файлов томов ZIP: %2$d; сжато файлов: %3$d.</string>
+    <string name="text_size_details">%1$s, сжато: %2$s, CRC: %3$s</string>
     <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">Создано: %1$s\nСостояние: %2$s\nЗаписи корзины: %3$d\nВосстановлено: %4$d\nТребует внимания: %5$d\n\nИсходные элементы:\n%6$s</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
     <string name="text_source_recovery_state_available">Доступно для восстановления</string>
+    <string name="text_source_recovery_state_failed">Исходные элементы не перемещены</string>
     <string name="text_source_recovery_state_partial">Доступно частично</string>
+    <string name="text_source_recovery_state_recovery_required">Восстановление требует внимания</string>
     <string name="text_source_recovery_state_restored">Восстановлено</string>
     <string name="text_source_recovery_state_stale">Конфликт имени или устаревшая история</string>
-    <string name="text_source_recovery_state_recovery_required">Восстановление требует внимания</string>
-    <string name="text_source_recovery_state_failed">Исходные элементы не перемещены</string>
     <string name="text_source_restore_no_change">Дополнительные исходные элементы не восстановлены. Созданные архивы сохранены.</string>
-    <plurals name="text_more_source_items">
-        <item quantity="one">+ ещё %1$d элемент</item>
-        <item quantity="few">+ ещё %1$d элемента</item>
-        <item quantity="many">+ ещё %1$d элементов</item>
-        <item quantity="other">+ ещё %1$d элемента</item>
-    </plurals>
-    <plurals name="text_sources_restored_from_trash">
-        <item quantity="one">Восстановлен %1$d исходный элемент. Созданные архивы сохранены.</item>
-        <item quantity="few">Восстановлено %1$d исходных элемента. Созданные архивы сохранены.</item>
-        <item quantity="many">Восстановлено %1$d исходных элементов. Созданные архивы сохранены.</item>
-        <item quantity="other">Восстановлено %1$d исходного элемента. Созданные архивы сохранены.</item>
-    </plurals>
-    <plurals name="warning_sources_not_restored">
-        <item quantity="one">%1$d исходный элемент не восстановлен: его исходное имя занято или восстановление требует внимания. Копия остается в корзине AutoJs6, если она доступна.</item>
-        <item quantity="few">%1$d исходных элемента не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
-        <item quantity="many">%1$d исходных элементов не восстановлены: их исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
-        <item quantity="other">%1$d исходного элемента не восстановлено: исходные имена заняты или восстановление требует внимания. Копии остаются в корзине AutoJs6, если они доступны.</item>
-    </plurals>
-    <string name="text_archive_workspace">Управление архивами</string>
-    <string name="text_archive_overview">Обзор архива</string>
-    <string name="text_archive_selection">Выбранные объекты</string>
-    <string name="text_section_destination">Место сохранения</string>
-    <string name="text_section_compression">Сжатие</string>
-    <string name="text_section_security">Пароль и шифрование</string>
-    <string name="text_section_behavior">После сжатия</string>
-    <string name="text_archive_actions">Действия</string>
+    <string name="text_sources_moved_to_trash">Исходных элементов перемещено в корзину: %1$d.</string>
+    <string name="text_split_archive_created">Архив %1$s создан в %2$d файлах томов ZIP; сжато файлов: %3$d.</string>
+    <string name="text_split_unavailable_for_format">Многотомный вывод недоступен для %1$s.</string>
+    <string name="text_split_volume">Размер тома (MiB)</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">Если результат превышает выбранный размер, ZIP создаёт .z01, .z02, ... и завершающий файл .zip; меньший результат остаётся одним файлом .zip. Выберите готовое значение или введите целое число от %1$d до %2$d.</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_unknown">Неизвестно</string>
+    <string name="text_unsafe_path_read_only">Исходный путь небезопасен; доступен только просмотр. Запись исключена из извлечения.</string>
+    <string name="text_unsafe_paths_folder">Небезопасные пути</string>
+    <string name="text_unsupported_compression_method">Метод сжатия %1$s не поддерживает извлечение</string>
+    <string name="text_unsupported_entry_type">Тип записи %1$s не поддерживает извлечение</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Проверка архива...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Проверка изменений архива...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Обновление %1$d из %2$d: %3$s</string>
+    <string name="warning_sources_trash_failed">Архив создан, но исходные элементы не удалось переместить в корзину.</string>
+    <string name="warning_sources_trash_recovery_required">Архив создан, но очистка исходных элементов требует внимания. Восстанавливаемые копии доступны в корзине AutoJs6.</string>
+    <string name="warning_sources_trash_unknown">Архив создан, но AutoJs6 не удалось подтвердить перемещение всех исходных элементов в корзину. Перед повторной попыткой проверьте текущую папку и корзину.</string>
 </resources>

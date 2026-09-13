@@ -123,6 +123,13 @@ La consultation, l'extraction, la création, la modification, la restauration de
 
 ### Notes de version
 
+#### v2.22.2
+
+_2026/09/13_
+
+- `Correction` Les informations de version et d'ABI du centre des plugins correspondent à l'APK installé
+- `Amélioration` Validation des versions, signatures et variantes complètes des APK avant la création des fichiers à télécharger
+
 #### v2.22.1
 
 _2026/09/11_
@@ -138,15 +145,6 @@ _2026/08/30_
 - `Correction` Les descriptions et instructions publiques distinguent désormais correctement navigation, extraction, création, modification, chiffrement et volumes sans exagérer les formats modifiables
 - `Correction` Les autorisations d'entrée et l'état actif d'un ajout à l'archive sont maintenant libérés avant le rappel final, afin qu'une nouvelle tentative immédiate ne soit plus refusée à tort comme une opération déjà en cours
 - `Amélioration` Une matrice des capacités et un guide d'installation facilitent la vérification de la compatibilité, des limites en lecture seule, de la récupération et du dépannage avant l'installation
-
-#### v2.21.0
-
-_2026/08/30_
-
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v21 (code de version 5276 ou supérieur)
-- `Ajout` La création d'archive conserve désormais une page de fin et un historique de récupération des sources; les sources envoyées à la Corbeille après accord explicite peuvent être restaurées après recréation de l'Activity ou de la session hôte
-- `Correction` La restauration des sources n'écrase jamais un nom existant et ne supprime jamais une archive créée; les conflits et restaurations partielles ou interrompues conservent les preuves de récupération et signalent le résultat de chaque élément
-- `Amélioration` L'hôte conserve l'historique durable et borné et n'expose que des métadonnées opaques; la récupération reste dans la page de compression du plugin et la disposition ordinaire du gestionnaire de fichiers ne change pas
 
 ##### Historique complet
 

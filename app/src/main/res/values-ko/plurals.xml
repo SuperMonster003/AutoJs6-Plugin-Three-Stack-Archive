@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="text_archive_summary">
-        <item quantity="other">항목 %1$d개, 압축 해제 크기 %2$s</item>
-    </plurals>
     <plurals name="text_archive_created">
         <item quantity="other">%1$s을(를) 만들었습니다 (파일 %2$d개)</item>
     </plurals>
-    <plurals name="text_compression_selection_summary">
-        <item quantity="other">항목 %1$d개 선택됨</item>
+    <plurals name="text_archive_summary">
+        <item quantity="other">항목 %1$d개, 압축 해제 크기 %2$s</item>
     </plurals>
     <plurals name="text_compressing_progress">
         <item quantity="other">%1$s 압축 중\n파일 %2$d/%3$d개, %4$s/%5$s 읽음</item>
@@ -15,13 +12,25 @@
     <plurals name="text_compressing_progress_unknown_sizes">
         <item quantity="other">%1$s 압축 중\n파일 %2$d/%3$d개, %4$s 읽음, 크기 알 수 없음 %5$d개</item>
     </plurals>
-    <plurals name="text_scanning_compression_progress">
-        <item quantity="other">%1$s 검사 중\n파일 %2$d개와 폴더 %3$d개 발견</item>
+    <plurals name="text_compression_selection_summary">
+        <item quantity="other">항목 %1$d개 선택됨</item>
     </plurals>
     <plurals name="text_extraction_complete">
         <item quantity="other">파일 %1$d개를 %2$s에 압축 해제했습니다</item>
     </plurals>
     <plurals name="text_folder_details">
         <item quantity="other">파일 %1$d개, 압축 해제 크기 %2$s</item>
+    </plurals>
+    <plurals name="text_more_source_items">
+        <item quantity="other">항목 %1$d개 더 있음</item>
+    </plurals>
+    <plurals name="text_scanning_compression_progress">
+        <item quantity="other">%1$s 검사 중\n파일 %2$d개와 폴더 %3$d개 발견</item>
+    </plurals>
+    <plurals name="text_sources_restored_from_trash">
+        <item quantity="other">원본 항목 %1$d개를 복원했습니다. 생성된 압축 파일은 유지되었습니다.</item>
+    </plurals>
+    <plurals name="warning_sources_not_restored">
+        <item quantity="other">원래 이름이 사용 중이거나 복구 확인이 필요하여 원본 항목 %1$d개를 복원하지 못했습니다. 복구 사본이 있으면 AutoJs6 휴지통에 계속 보관됩니다.</item>
     </plurals>
 </resources>

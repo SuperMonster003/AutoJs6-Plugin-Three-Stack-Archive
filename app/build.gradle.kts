@@ -345,6 +345,7 @@ android {
     compileSdk = versions.sdkVersionCompile
 
     defaultConfig {
+        ndk.abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
         applicationId = codeNamespace
         minSdk = versions.sdkVersionMin
         targetSdk = versions.sdkVersionTarget
@@ -401,6 +402,15 @@ android {
             isShrinkResources = true
             proguardFiles(*proguardFiles)
             niceSigningConfig?.let { signingConfig = it }
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            isUniversalApk = true
         }
     }
 
@@ -501,29 +511,11 @@ tasks {
         options.encoding = "UTF-8"
     }
 
-    register<Copy>("appendDigestToReleasedFiles") {
-        description = "Appends CRC32 digest to released APK files"
-        dependsOn("assembleRelease")
 
-        val ext = utils.FILE_EXTENSION_APK
-        val src = layout.buildDirectory.dir("outputs/apk/$buildTypeRelease")
-        val dst = file("$rootDir/${buildTypeRelease}s")
-
-        from(src)
-        into(dst)
-        include("*.$ext")
-        includeEmptyDirs = false
-        duplicatesStrategy = DuplicatesStrategy.FAIL
-
-        eachFile {
-            val digest = utils.digestCRC32(file)
-            relativePath = RelativePath(true, "${name.removeSuffix(".$ext")}-$digest.$ext")
-        }
-
-        doLast { println("Destination: $dst") }
-    }
 }
 
 extra {
     versions.handleIfNeeded(project, "", listOf(buildTypeDebug, buildTypeRelease))
 }
+
+apply(from = rootProject.file("gradle/release-archive.gradle"))

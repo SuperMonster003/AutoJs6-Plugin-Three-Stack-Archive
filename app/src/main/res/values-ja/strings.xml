@@ -1,133 +1,218 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">ファイルを追加...</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">フォルダーを追加...</string>
+    <string name="action_archive_information">アーカイブ情報</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">圧縮...</string>
+    <string name="action_delete">削除</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">展開先...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">アーカイブを管理...</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">新しいフォルダー...</string>
     <string name="action_open_archive">アーカイブを表示</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">アーカイブとして開く...</string>
-    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">アーカイブを管理...</string>
-    <string name="action_extract_to" tools:ignore="TypographyEllipsis">展開先...</string>
-    <string name="action_compress" tools:ignore="TypographyEllipsis">圧縮...</string>
-    <string name="app_name">Archive Manager</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">名前を変更...</string>
+    <string name="action_restore_previous_archive_version">以前のバージョンを復元</string>
+    <string name="action_restore_sources">元項目を復元</string>
+    <string name="action_retry_source_restore">復元を再試行</string>
+    <string name="action_source_recovery_history">元項目の復元履歴</string>
     <string name="dialog_button_cancel">キャンセル</string>
     <string name="dialog_button_continue">続行</string>
-    <string name="dialog_button_skip_unsafe">スキップして続行</string>
-    <string name="dialog_button_select_all">すべて選択</string>
+    <string name="dialog_button_continue_anyway">このまま続行</string>
+    <string name="dialog_button_done">完了</string>
     <string name="dialog_button_edit_name">名前を編集</string>
+    <string name="dialog_button_save">保存</string>
+    <string name="dialog_button_select_all">すべて選択</string>
+    <string name="dialog_button_skip_unsafe">スキップして続行</string>
     <string name="dialog_button_use_numbered_name">番号付きの名前を使用</string>
+    <string name="dialog_message_archive_name_unavailable">ホストは %2$s に %1$s を予約できませんでした.アーカイブデータはまだ書き込まれていません.名前を編集するか,自動採番で再試行してください.</string>
+    <string name="dialog_message_extraction_destination">デフォルトの出力フォルダーは %1$s です.同名のフォルダーが存在する場合,Archive Manager は既存の内容を変更せずに番号を追加します.</string>
+    <string name="dialog_message_output_conflict">書庫内項目: %1$s\n既存: %2$s (%3$s)\n入力: %4$s (%5$s)</string>
+    <string name="dialog_message_restore_previous_archive_version">AutoJs6 が保存した以前のバージョン (%1$s,保存日時 %2$s) で現在のアーカイブを置き換えます.この復元は 1 回だけ利用でき,現在のアーカイブが別の場所で変更されている場合は拒否されます.</string>
+    <string name="dialog_message_skip_unsafe_paths">%1$d 件のエントリに安全に書き出せないパスがあります.これらは「安全でないパス」フォルダーで引き続きプレビューできます.スキップして続行しますか?</string>
+    <string name="dialog_title_archive_information">アーカイブ情報</string>
+    <string name="dialog_title_archive_mutation_preflight">アーカイブの変更を確認</string>
     <string name="dialog_title_archive_name_unavailable">正確な出力名を使用できません</string>
-    <string name="dialog_message_archive_name_unavailable">ホストは %2$s に %1$s を予約できませんでした。アーカイブデータはまだ書き込まれていません。名前を編集するか、自動採番で再試行してください。</string>
-    <string name="dialog_message_skip_unsafe_paths">%1$d 件のエントリに安全に書き出せないパスがあります。これらは「安全でないパス」フォルダーで引き続きプレビューできます。スキップして続行しますか?</string>
+    <string name="dialog_title_custom_budget">カスタム展開予算</string>
+    <string name="dialog_title_extraction_destination">展開先</string>
+    <string name="dialog_title_extraction_scope">展開範囲</string>
+    <string name="dialog_title_new_archive_folder">アーカイブ内にフォルダーを作成</string>
+    <string name="dialog_title_output_conflict">出力名の競合</string>
+    <string name="dialog_title_rename_archive_entry">アーカイブ項目の名前を変更</string>
+    <string name="dialog_title_resource_budget">展開予算を超えています</string>
+    <string name="dialog_title_restore_previous_archive_version">以前のバージョンを復元しますか?</string>
+    <string name="dialog_title_source_recovery_details">元項目の復元詳細</string>
+    <string name="dialog_title_source_recovery_history">元項目の復元履歴</string>
     <string name="dialog_title_unsafe_paths">安全でないパス</string>
+    <string name="error_archive_file_name_invalid">有効なアーカイブファイル名を入力してください</string>
     <string name="error_archive_invalid">アーカイブが無効か未対応です</string>
-    <string name="error_archive_missing_volumes">ZIP の分割ファイルがありません</string>
     <string name="error_archive_limit">アーカイブが安全制限を超えています</string>
+    <string name="error_archive_missing_volumes">ZIP の分割ファイルがありません</string>
+    <string name="error_archive_mutation_failed">ZIP を更新できませんでした</string>
+    <string name="error_archive_refresh_failed">ZIP は更新されましたが, 新しい内容を再読み込みできませんでした</string>
+    <string name="error_archive_restore_refresh_failed">以前のアーカイブ バージョンは復元されましたが,内容を再読み込みできませんでした</string>
     <string name="error_cannot_create_output">出力ディレクトリを作成できません</string>
     <string name="error_cannot_open_archive">アーカイブを開けません</string>
     <string name="error_cleanup_failed">クリーンアップに失敗しました; 一部の出力が残っている可能性があります</string>
-    <string name="error_cleanup_residual_outputs">クリーンアップに失敗しました。次の出力場所が残っている可能性があります:\n%1$s</string>
-    <string name="error_extraction_failed">展開に失敗しました</string>
-    <string name="error_no_selection">1 件以上のエントリを選択してください</string>
-    <string name="error_no_safe_entries">選択範囲に安全に展開できるエントリがありません</string>
-    <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
-    <string name="error_with_reason">%1$s\n理由: %2$s</string>
-    <string name="plugin_description">ZIP、7Z、RAR、TAR を閲覧・展開し、対応する書き込み可能形式を作成・安全に管理</string>
-    <string name="text_cancelled">キャンセルしました</string>
-    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
-    <string name="dialog_title_extraction_scope">展開範囲</string>
-    <string name="text_extraction_scope_entire_archive">アーカイブ全体</string>
-    <string name="text_extraction_scope_current_directory">現在のフォルダー: %1$s</string>
-    <string name="text_extraction_scope_current_selection">現在の選択項目</string>
-    <string name="text_extracting">%2$d 件中 %1$d 件目を展開中</string>
-    <string name="text_extraction_current_item">現在の項目: %1$s</string>
-    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
-    <string name="text_extraction_rate">%1$s/秒</string>
-    <string name="text_extraction_rate_eta">%1$s/秒, 残り %2$s</string>
-    <string name="text_encrypted_entry">暗号化エントリ (%1$s)。開くにはアーカイブのパスワードを入力してください</string>
-    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">アーカイブを読み込み中...</string>
-    <string name="text_loading_progress">%2$s 中 %1$s</string>
-    <string name="text_modified">更新日時: %1$s</string>
-    <string name="text_navigate_up">上の階層へ移動</string>
-    <string name="text_no_entries">一致するエントリはありません</string>
-    <string name="text_parent_directory">親ディレクトリ</string>
-    <string name="text_search_hint">アーカイブを検索</string>
-    <string name="text_select_entry">エントリを選択</string>
-    <string name="text_selected_count">選択済み: %1$d</string>
-    <string name="text_size_details">%1$s, 圧縮時 %2$s, CRC %3$s</string>
-    <string name="text_unknown">不明</string>
-    <string name="text_unsafe_path_read_only">元のパスは安全ではありません。プレビュー専用で、展開から除外されます。</string>
-    <string name="text_unsafe_paths_folder">安全でないパス</string>
-    <string name="text_unsupported_compression_method">圧縮方式 %1$s は展開できません</string>
-    <string name="text_unsupported_entry_type">エントリ形式 %1$s は展開できません</string>
-    <string name="error_archive_file_name_invalid">有効なアーカイブファイル名を入力してください</string>
+    <string name="error_cleanup_residual_outputs">クリーンアップに失敗しました.次の出力場所が残っている可能性があります:\n%1$s</string>
+    <string name="error_compression_cleanup_unconfirmed">圧縮に失敗し,一時出力のクリーンアップを確認できませんでした.追加の書き込みを防ぐため,ホストセッションを閉じました.既存のアーカイブは上書きされていません.\n予定されていた出力: %1$s\n元の理由: %2$s</string>
     <string name="error_compression_failed">圧縮に失敗しました</string>
-    <string name="error_compression_cleanup_unconfirmed">圧縮に失敗し、一時出力のクリーンアップを確認できませんでした。追加の書き込みを防ぐため、ホストセッションを閉じました。既存のアーカイブは上書きされていません。\n予定されていた出力: %1$s\n元の理由: %2$s</string>
-    <string name="error_split_compression_partial_failure">%2$d 個中 %1$d 個の ZIP 分割ファイルをコミットした後、公開が停止しました。最終 .zip ボリュームはコミットされていないため、不完全なセットは開けません。追加の書き込みを防ぐため、ホストセッションを閉じました。\n失敗した出力: %3$s\n理由: %4$s</string>
-    <string name="error_split_compression_cleanup_unconfirmed">%2$d 個中 %1$d 個の ZIP 分割ファイルをコミットした後、公開が停止し、%3$d 個の保留中出力をクリーンアップできたことを確認できませんでした。最終 .zip ボリュームはコミットされていません。追加の書き込みを防ぐため、ホストセッションを閉じました。\n確認が必要な最初の出力: %4$s\n元の理由: %5$s</string>
-    <string name="error_split_compression_cache_cleanup">ZIP 分割ファイルを一時保存しましたが、プライベートキャッシュのコピーを削除できたことを確認できませんでした。ボリュームはコミットされていません。追加の書き込みを防ぐため、ホストセッションを閉じました。</string>
-    <string name="error_separate_compression_partially_cancelled">%2$d 件中 %1$d 件のアーカイブを作成した時点でキャンセルしました。作成済みのアーカイブは保持されます。重複出力を防ぐため、このセッションは閉じられました。残りの項目に対して「圧縮」を開き直してください。</string>
-    <string name="error_separate_compression_completed_before_split_failure">次の ZIP 分割アーカイブが停止する前に、%2$d 件中 %1$d 件の個別アーカイブが完了し、保持されました。</string>
-    <string name="error_separate_compression_partial_failure">%2$d 件中 %1$d 件のアーカイブを作成した後に処理が停止しました。作成済みのアーカイブは保持されます。重複出力を防ぐため、このセッションは閉じられました。失敗した項目と残りの項目に対して「圧縮」を開き直してください。\n失敗した出力: %3$s\n理由: %4$s</string>
-    <string name="error_separate_compression_cleanup_unconfirmed">%2$d 件中 %1$d 件のアーカイブを作成した後、後続の出力が失敗し、その一時出力のクリーンアップを確認できませんでした。作成済みのアーカイブは保持されます。追加の書き込みを防ぐため、ホストセッションを閉じました。既存のアーカイブは上書きされていません。\n予定されていた出力: %3$s\n元の理由: %4$s</string>
     <string name="error_compression_request_invalid">圧縮要求またはホストセッションが無効です</string>
-    <string name="text_archive_creation_safety_note">すべての書庫出力を検証して確定した後にのみ、元の項目を AutoJs6 のゴミ箱へ移動します. ファイル名の暗号化は現在利用できません.</string>
-    <string name="text_archive_file_name">ファイル名</string>
-    <string name="text_archive_format">形式</string>
-    <string name="text_compress_separately">各項目を個別に圧縮</string>
-    <string name="text_separate_archive_preview_count">このフォルダーに %1$d 件のアーカイブを作成します:</string>
-    <string name="text_separate_archive_preview_more">- ほか %1$d 件</string>
-    <string name="text_separate_archive_conflict_note">既存の名前とこの処理内の重複名には自動的に番号が付き、上書きは行われません。</string>
-    <string name="text_separate_archive_progress">アーカイブ %1$d/%2$d: %3$s\n%4$s</string>
-    <string name="text_separate_archives_created">%1$d 件のアーカイブを作成しました: %2$d 個のファイルを圧縮し、%3$d 個のフォルダーを追加しました。</string>
-    <string name="text_separate_split_archives_created">%1$d 件のアーカイブを %2$d 個の ZIP 分割ファイルとして作成し、%3$d 個のファイルを圧縮しました。</string>
-    <string name="text_compression_level">圧縮レベル</string>
-    <string name="text_compression_level_fast">高速</string>
-    <string name="text_compression_level_maximum">最大</string>
-    <string name="text_compression_level_none">圧縮なし</string>
-    <string name="text_compression_level_normal">標準</string>
-    <string name="text_create_archive">アーカイブを作成</string>
-    <string name="text_default_archive_name">アーカイブ</string>
-    <string name="text_move_sources_to_trash_after_compression">圧縮後に元の項目をゴミ箱へ移動</string>
-    <string name="text_moving_sources_to_trash">元の項目をゴミ箱へ移動しています</string>
-    <string name="text_sources_moved_to_trash">元の項目 %1$d 件をゴミ箱へ移動しました。</string>
-    <string name="warning_sources_trash_recovery_required">アーカイブは作成されましたが、元項目の整理には確認が必要です。復旧可能なコピーは AutoJs6 のゴミ箱にあります。</string>
-    <string name="warning_sources_trash_failed">アーカイブは作成されましたが、元の項目をゴミ箱へ移動できませんでした。</string>
-    <string name="warning_sources_trash_unknown">アーカイブは作成されましたが、すべての元項目がゴミ箱へ移動したか AutoJs6 で確認できませんでした。再試行する前に現在のフォルダーとゴミ箱を確認してください。</string>
-    <string name="text_encrypt_file_names">ファイル名を暗号化</string>
-    <string name="text_format_zip">ZIP</string>
-    <string name="text_creation_conflict_policy">アーカイブ名を使用できない場合</string>
-    <string name="text_creation_conflict_policy_auto_rename_details">使用可能な番号付きの名前を予約します。既存のアーカイブは置き換えません。トランザクションによる上書きには新しいホスト API が必要です。</string>
-    <string name="text_creation_conflict_policy_ask_details">最初に正確な名前を試します。ホストが予約できない場合は、番号付きの名前で再試行する前に確認します。既存のアーカイブは置き換えません。</string>
-    <string name="text_none">なし</string>
-    <string name="text_output_path">パス</string>
-    <string name="text_password">パスワード</string>
-    <string name="text_confirm_password">パスワードの確認</string>
-    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">圧縮を準備中...</string>
-    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">圧縮元をスキャン中...</string>
-    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">アーカイブを検証中...</string>
-    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">アーカイブを確定中...</string>
-    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">展開を準備中...</string>
-    <string name="text_split_unavailable_for_format">%1$s では分割出力を利用できません.</string>
-    <string name="text_split_volume">分割サイズ (MiB)</string>
-    <string name="text_split_volume_mib">%1$d MiB</string>
-    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">出力が選択サイズを超える場合、ZIP は .z01、.z02、... と最終 .zip ファイルを作成します。小さい出力は 1 個の .zip のままです。プリセットを選ぶか、%1$d から %2$d の整数を入力してください。</string>
-    <string name="text_split_archive_created">%1$s を %2$d 個の ZIP 分割ファイルとして作成し、%3$d 個のファイルを圧縮しました。</string>
-    <string name="text_encryption_unavailable_for_format">%1$s ではパスワードとファイル名暗号化を利用できません.</string>
+    <string name="error_custom_budget_invalid">対応範囲内の 0 以上の整数を入力してください</string>
+    <string name="error_custom_budget_total_less_single">合計サイズ予算は 0 (無制限) または単一エントリ予算以上にしてください</string>
     <string name="error_diagnostic_details">%1$s\n形式: %2$s\n段階: %3$s\nコード: %4$s\n理由: %5$s</string>
+    <string name="error_extraction_failed">展開に失敗しました</string>
+    <string name="error_no_safe_entries">選択範囲に安全に展開できるエントリがありません</string>
+    <string name="error_no_selection">1 件以上のエントリを選択してください</string>
+    <string name="error_password_confirmation_mismatch">パスワードが一致しません</string>
+    <string name="error_password_incorrect">アーカイブのパスワードが正しくありません</string>
+    <string name="error_password_required">アーカイブのパスワードを入力してください</string>
+    <string name="error_permission_missing">アーカイブの読み取り権限がありません</string>
+    <string name="error_previous_archive_version_changed">更新後に現在のアーカイブが変更されました.以前のバージョンは復元されていません.</string>
+    <string name="error_previous_archive_version_restore_failed">以前のアーカイブ バージョンを復元できませんでした</string>
     <string name="error_reason_cache_space">このアーカイブを開くためのキャッシュ容量が不足しています.</string>
     <string name="error_reason_cleanup">部分的な出力を完全に削除できませんでした.</string>
     <string name="error_reason_compression_method">このバックエンドで読み取れない圧縮方式が使用されています.</string>
     <string name="error_reason_entry_data">アーカイブ項目を読み取りまたは検証できませんでした.</string>
     <string name="error_reason_filename_encoding">選択したファイル名エンコーディングは利用できないか, このアーカイブを索引できません.</string>
     <string name="error_reason_index">アーカイブのディレクトリメタデータが破損しているか未対応です.</string>
-    <string name="error_reason_missing_volumes">これは分割 ZIP です. %1$s と %2$s を同じフォルダーに置き, 最後のボリュームをもう一度開いてください.</string>
     <string name="error_reason_input">アーカイブを読み取れないか, 開いている間に変更されました.</string>
     <string name="error_reason_integrity">項目のサイズまたはチェックサムがアーカイブのメタデータと一致しません.</string>
     <string name="error_reason_invalid_signature">認識可能なアーカイブ署名がファイルにありません.</string>
     <string name="error_reason_limit">操作が設定済みのリソース予算を超えています.</string>
+    <string name="error_reason_missing_volumes">これは分割 ZIP です. %1$s と %2$s を同じフォルダーに置き, 最後のボリュームをもう一度開いてください.</string>
     <string name="error_reason_output">出力先を安全に準備または書き込みできません.</string>
     <string name="error_reason_password">パスワードが必要か, 入力したパスワードが正しくありません.</string>
     <string name="error_reason_path">項目パスが競合しているか, 安全に処理できません.</string>
+    <string name="error_rename_single_selection">名前を変更するファイルまたはフォルダーを 1 つ選択してください</string>
+    <string name="error_separate_compression_cleanup_unconfirmed">%2$d 件中 %1$d 件のアーカイブを作成した後,後続の出力が失敗し,その一時出力のクリーンアップを確認できませんでした.作成済みのアーカイブは保持されます.追加の書き込みを防ぐため,ホストセッションを閉じました.既存のアーカイブは上書きされていません.\n予定されていた出力: %3$s\n元の理由: %4$s</string>
+    <string name="error_separate_compression_completed_before_split_failure">次の ZIP 分割アーカイブが停止する前に,%2$d 件中 %1$d 件の個別アーカイブが完了し,保持されました.</string>
+    <string name="error_separate_compression_partial_failure">%2$d 件中 %1$d 件のアーカイブを作成した後に処理が停止しました.作成済みのアーカイブは保持されます.重複出力を防ぐため,このセッションは閉じられました.失敗した項目と残りの項目に対して「圧縮」を開き直してください.\n失敗した出力: %3$s\n理由: %4$s</string>
+    <string name="error_separate_compression_partially_cancelled">%2$d 件中 %1$d 件のアーカイブを作成した時点でキャンセルしました.作成済みのアーカイブは保持されます.重複出力を防ぐため,このセッションは閉じられました.残りの項目に対して「圧縮」を開き直してください.</string>
+    <string name="error_source_restore_failed">元項目を復元できませんでした.理由: %1$s</string>
+    <string name="error_split_compression_cache_cleanup">ZIP 分割ファイルを一時保存しましたが,プライベートキャッシュのコピーを削除できたことを確認できませんでした.ボリュームはコミットされていません.追加の書き込みを防ぐため,ホストセッションを閉じました.</string>
+    <string name="error_split_compression_cleanup_unconfirmed">%2$d 個中 %1$d 個の ZIP 分割ファイルをコミットした後,公開が停止し,%3$d 個の保留中出力をクリーンアップできたことを確認できませんでした.最終 .zip ボリュームはコミットされていません.追加の書き込みを防ぐため,ホストセッションを閉じました.\n確認が必要な最初の出力: %4$s\n元の理由: %5$s</string>
+    <string name="error_split_compression_partial_failure">%2$d 個中 %1$d 個の ZIP 分割ファイルをコミットした後,公開が停止しました.最終 .zip ボリュームはコミットされていないため,不完全なセットは開けません.追加の書き込みを防ぐため,ホストセッションを閉じました.\n失敗した出力: %3$s\n理由: %4$s</string>
+    <string name="error_split_volume_invalid">%1$d から %2$d MiB の整数を入力するか,「なし」を選択してください</string>
+    <string name="error_with_reason">%1$s\n理由: %2$s</string>
+    <string name="error_zip_entry_name_invalid">有効なファイル名またはフォルダー名を入力してください</string>
+    <string name="plugin_description">ZIP,7Z,RAR,TAR を閲覧・展開し,対応する書き込み可能形式を作成・安全に管理</string>
+    <string name="text_apply_password">適用</string>
+    <string name="text_apply_to_all_conflicts">この選択を互換性のあるすべての競合に適用</string>
+    <string name="text_applying_password" tools:ignore="TypographyEllipsis">パスワードを適用しています...</string>
+    <string name="text_archive_actions">操作</string>
+    <string name="text_archive_changes_complete">アーカイブを更新しました</string>
+    <string name="text_archive_creation_safety_note">すべての書庫出力を検証して確定した後にのみ,元の項目を AutoJs6 のゴミ箱へ移動します. ファイル名の暗号化は現在利用できません.</string>
     <string name="text_archive_diagnostic">アーカイブ診断情報</string>
+    <string name="text_archive_entry_name">名前</string>
+    <string name="text_archive_file_name">ファイル名</string>
+    <string name="text_archive_format">形式</string>
+    <string name="text_archive_information_archive_size">現在のアーカイブサイズ: %1$s</string>
+    <string name="text_archive_information_contents">内容: %1$d 項目 (%2$d ファイル, %3$d フォルダー); 展開後 %4$s</string>
+    <string name="text_archive_information_format">形式: %1$s</string>
+    <string name="text_archive_information_safety">新しいアーカイブ全体の読み戻しと検証が完了するまで, 元のアーカイブは置き換えられません.</string>
+    <string name="text_archive_management_available">このセッションで利用可能</string>
+    <string name="text_archive_management_operations">利用可能な変更: %1$s.</string>
+    <string name="text_archive_management_read_only">読み取り専用. %1$s</string>
+    <string name="text_archive_management_status">管理: %1$s</string>
+    <string name="text_archive_metadata_archive_comment_dropped">アーカイブコメントは保持されません.</string>
+    <string name="text_archive_metadata_compression_normalized">圧縮設定とコンテナメタデータは正規化される場合があります.</string>
+    <string name="text_archive_metadata_effects">再構築で影響を受けるメタデータ:</string>
+    <string name="text_archive_metadata_encryption_normalized">項目ごとの暗号化設定は正規化される場合があります.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">項目コメントは保持されません.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">形式固有の拡張メタデータは正規化される場合があります.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">Unix の権限と属性は保持されません.</string>
+    <string name="text_archive_mutation_full_rewrite">完全な再構築: 結果の各ファイルを検証済みの代替アーカイブに書き込み, その後で元のアーカイブをアトミックに置き換えます.</string>
+    <string name="text_archive_mutation_operation_add">内容を追加</string>
+    <string name="text_archive_mutation_operation_delete">選択した内容を削除</string>
+    <string name="text_archive_mutation_operation_rename">選択した内容の名前を変更</string>
+    <string name="text_archive_mutation_output_size_unknown">圧縮によってサイズが変わるため, 一時出力サイズは予測しません. 完全な代替アーカイブを保存できる空き容量を確保してください.</string>
+    <string name="text_archive_mutation_preflight_change">変更: %1$s</string>
+    <string name="text_archive_mutation_preflight_known_work">読み取る内容: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">結果: %1$d 項目 (%2$d ファイル, %3$d フォルダー)</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">読み取る内容: 少なくとも %1$s; 結果の %2$d ファイルは報告サイズが不明です.</string>
+    <string name="text_archive_overview">アーカイブの概要</string>
+    <string name="text_archive_password">アーカイブのパスワード</string>
+    <string name="text_archive_read_only_backend_variant">インストール済みのバックエンドでは, このアーカイブ形式は読み取り専用です.</string>
+    <string name="text_archive_read_only_current_session">このアーカイブは内容管理アクセスなしで開かれました. 変更するには「アーカイブを管理」から開き直してください.</string>
+    <string name="text_archive_read_only_format">インストール済みのバックエンドはこの形式の閲覧または展開に対応していますが, 内容の変更には対応していません.</string>
+    <string name="text_archive_read_only_host_replacement">現在のホストセッションではこのアーカイブをアトミックに置き換えられません.</string>
+    <string name="text_archive_read_only_multi_volume">分割アーカイブを安全に再構築することはできません.</string>
+    <string name="text_archive_read_only_password">変更する前に正しいアーカイブパスワードを適用してください.</string>
+    <string name="text_archive_read_only_unsafe_path">安全でない元のパスを持つ項目があるため, このアーカイブは再構築できません.</string>
+    <string name="text_archive_read_only_unsupported_method">現在のバックエンドで再書き込みできない圧縮方式または暗号化方式を使用する項目があります.</string>
+    <string name="text_archive_selection">選択項目</string>
+    <string name="text_archive_workspace">アーカイブ管理</string>
+    <string name="text_budget_compression_ratio">最大圧縮率</string>
+    <string name="text_budget_entry_count">選択エントリ数の上限</string>
+    <string name="text_budget_path_depth">パスの最大階層</string>
+    <string name="text_budget_path_length">パスの最大長</string>
+    <string name="text_budget_profile_compatible">互換 (推奨)</string>
+    <string name="text_budget_profile_custom">カスタム</string>
+    <string name="text_budget_profile_custom_details">カスタム値が有効です.編集するにはもう一度「カスタム」を選択してください.</string>
+    <string name="text_budget_profile_details">%1$s エントリ,パス %2$s 文字 / %3$s 階層,各 %4$s GiB,合計 %5$s GiB,%6$s:1.</string>
+    <string name="text_budget_profile_strict">厳格</string>
+    <string name="text_budget_single_size_mib">単一エントリの最大サイズ (MiB)</string>
+    <string name="text_budget_total_size_mib">合計最大サイズ (MiB)</string>
+    <string name="text_budget_violation_compression_ratio">圧縮率: %1$s:1 (予算 %2$s:1)</string>
+    <string name="text_budget_violation_entry_count">選択エントリ: %1$s (予算 %2$s)</string>
+    <string name="text_budget_violation_path_depth">パス階層: %1$s (予算 %2$s)</string>
+    <string name="text_budget_violation_path_length">パス長: %1$s (予算 %2$s)</string>
+    <string name="text_budget_violation_single_size">最大エントリ: %1$s (予算 %2$s)</string>
+    <string name="text_budget_violation_total_size">推定出力: %1$s (予算 %2$s)</string>
+    <string name="text_cancelled">キャンセルしました</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">一部の出力をクリーンアップ中...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">アーカイブを確定中...</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を確定しています...</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">展開したファイルを確定しています...</string>
+    <string name="text_compact_conflict_policy">競合</string>
+    <string name="text_compact_extraction_budget">予算</string>
+    <string name="text_compact_filename_encoding">文字コード</string>
+    <string name="text_compact_search">検索</string>
+    <string name="text_compress_separately">各項目を個別に圧縮</string>
+    <string name="text_compression_level">圧縮レベル</string>
+    <string name="text_compression_level_fast">高速</string>
+    <string name="text_compression_level_maximum">最大</string>
+    <string name="text_compression_level_none">圧縮なし</string>
+    <string name="text_compression_level_normal">標準</string>
+    <string name="text_confirm_password">パスワードの確認</string>
+    <string name="text_conflict_overwrite_unavailable">項目の種類が異なるか,既存項目が今回の展開で作成されたものではないため,安全に上書きできません.</string>
+    <string name="text_conflict_policy_ask">毎回確認</string>
+    <string name="text_conflict_policy_ask_details">新しい出力フォルダー内で名前が競合するたびに処理方法を確認します.同名の出力フォルダーが既にある場合は常に番号を付け,既存フォルダーは変更しません.</string>
+    <string name="text_conflict_policy_auto_rename">自動で名前を変更</string>
+    <string name="text_conflict_policy_auto_rename_details">同等の名前を持つ後続エントリごとに番号を付けます.既存の出力フォルダーにも番号を付け,元のフォルダーは変更しません.</string>
+    <string name="text_conflict_policy_overwrite">上書き</string>
+    <string name="text_conflict_policy_overwrite_details">種類が同じ場合は先のファイルを置き換え,フォルダーを統合します.種類が異なる場合は自動で名前を変更します.既存の出力フォルダーは変更しません.</string>
+    <string name="text_conflict_policy_skip">スキップ</string>
+    <string name="text_conflict_policy_skip_details">同等の名前を持つ後続エントリをスキップします.同名の出力フォルダーが既にある場合は常に番号を付け,既存フォルダーは変更しません.</string>
     <string name="text_copy_diagnostic">診断情報をコピー</string>
+    <string name="text_create_archive">アーカイブを作成</string>
+    <string name="text_creation_conflict_policy">アーカイブ名を使用できない場合</string>
+    <string name="text_creation_conflict_policy_ask_details">最初に正確な名前を試します.ホストが予約できない場合は,番号付きの名前で再試行する前に確認します.既存のアーカイブは置き換えません.</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">使用可能な番号付きの名前を予約します.既存のアーカイブは置き換えません.トランザクションによる上書きには新しいホスト API が必要です.</string>
+    <string name="text_custom_budget_zero_note">エントリ数,パス長,階層に 0 を指定すると固定の構造上限を使用します.サイズと圧縮率に 0 を指定するとリソース警告のしきい値を設定しません.パスの構造的な安全性は無効にできません.</string>
+    <string name="text_default_archive_name">アーカイブ</string>
     <string name="text_diagnostic_copied">診断情報をコピーしました</string>
+    <string name="text_encrypt_file_names">ファイル名を暗号化</string>
+    <string name="text_encrypted_entry">暗号化エントリ (%1$s).開くにはアーカイブのパスワードを入力してください</string>
+    <string name="text_encrypted_entry_unlocked">暗号化エントリ (%1$s).パスワードを適用しました</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">その他の暗号化</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
+    <string name="text_encryption_unavailable_for_format">%1$s ではパスワードとファイル名暗号化を利用できません.</string>
+    <string name="text_extracting">%2$d 件中 %1$d 件目を展開中</string>
+    <string name="text_extraction_budget">展開予算</string>
+    <string name="text_extraction_conflict_policy">出力名が競合した場合</string>
+    <string name="text_extraction_conflict_summary">競合の処理: スキップ %1$d 件,上書きまたは統合 %2$d 件,自動名前変更 %3$d 件.</string>
+    <string name="text_extraction_current_item">現在の項目: %1$s</string>
+    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">別のフォルダーを選択...</string>
+    <string name="text_extraction_destination_current_folder">現在のフォルダー (推奨)\n%1$s</string>
+    <string name="text_extraction_output_path">出力: %1$s</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/秒</string>
+    <string name="text_extraction_rate_eta">%1$s/秒, 残り %2$s</string>
+    <string name="text_extraction_scope_current_directory">現在のフォルダー: %1$s</string>
+    <string name="text_extraction_scope_current_selection">現在の選択項目</string>
+    <string name="text_extraction_scope_entire_archive">アーカイブ全体</string>
     <string name="text_failure_stage_cleanup">クリーンアップ</string>
     <string name="text_failure_stage_entry_data">項目データ</string>
     <string name="text_failure_stage_format_detection">形式検出</string>
@@ -138,172 +223,77 @@
     <string name="text_filename_encoding">ファイル名エンコーディング</string>
     <string name="text_filename_encoding_automatic">自動検出</string>
     <string name="text_filename_encoding_automatic_detected">自動検出 (旧式名の代替: %1$s)</string>
-    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">アーカイブを再索引しています...</string>
-    <string name="error_password_incorrect">アーカイブのパスワードが正しくありません</string>
-    <string name="error_password_required">アーカイブのパスワードを入力してください</string>
-    <string name="error_password_confirmation_mismatch">パスワードが一致しません</string>
-    <string name="error_split_volume_invalid">%1$d から %2$d MiB の整数を入力するか、「なし」を選択してください</string>
-    <string name="text_apply_password">適用</string>
-    <string name="text_applying_password" tools:ignore="TypographyEllipsis">パスワードを適用しています...</string>
-    <string name="text_archive_password">アーカイブのパスワード</string>
-    <string name="text_encrypted_entry_unlocked">暗号化エントリ (%1$s)。パスワードを適用しました</string>
-    <string name="text_encryption_method_aes">AES</string>
-    <string name="text_encryption_method_other">その他の暗号化</string>
-    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
-    <string name="text_password_applied">パスワードを適用しました。いつでも更新できます.</string>
-    <string name="text_password_needed_for_encrypted_entries">暗号化エントリを開いて展開するにはパスワードを入力してください.</string>
-    <string name="dialog_button_continue_anyway">このまま続行</string>
-    <string name="dialog_button_save">保存</string>
-    <string name="dialog_title_custom_budget">カスタム展開予算</string>
-    <string name="dialog_title_resource_budget">展開予算を超えています</string>
-    <string name="error_custom_budget_invalid">対応範囲内の 0 以上の整数を入力してください</string>
-    <string name="error_custom_budget_total_less_single">合計サイズ予算は 0 (無制限) または単一エントリ予算以上にしてください</string>
-    <string name="text_budget_compression_ratio">最大圧縮率</string>
-    <string name="text_budget_entry_count">選択エントリ数の上限</string>
-    <string name="text_budget_path_depth">パスの最大階層</string>
-    <string name="text_budget_path_length">パスの最大長</string>
-    <string name="text_budget_profile_compatible">互換 (推奨)</string>
-    <string name="text_budget_profile_custom">カスタム</string>
-    <string name="text_budget_profile_custom_details">カスタム値が有効です。編集するにはもう一度「カスタム」を選択してください。</string>
-    <string name="text_budget_profile_details">%1$s エントリ、パス %2$s 文字 / %3$s 階層、各 %4$s GiB、合計 %5$s GiB、%6$s:1。</string>
-    <string name="text_budget_profile_strict">厳格</string>
-    <string name="text_budget_single_size_mib">単一エントリの最大サイズ (MiB)</string>
-    <string name="text_budget_total_size_mib">合計最大サイズ (MiB)</string>
-    <string name="text_budget_violation_compression_ratio">圧縮率: %1$s:1 (予算 %2$s:1)</string>
-    <string name="text_budget_violation_entry_count">選択エントリ: %1$s (予算 %2$s)</string>
-    <string name="text_budget_violation_path_depth">パス階層: %1$s (予算 %2$s)</string>
-    <string name="text_budget_violation_path_length">パス長: %1$s (予算 %2$s)</string>
-    <string name="text_budget_violation_single_size">最大エントリ: %1$s (予算 %2$s)</string>
-    <string name="text_budget_violation_total_size">推定出力: %1$s (予算 %2$s)</string>
-    <string name="text_custom_budget_zero_note">エントリ数、パス長、階層に 0 を指定すると固定の構造上限を使用します。サイズと圧縮率に 0 を指定するとリソース警告のしきい値を設定しません。パスの構造的な安全性は無効にできません。</string>
-    <string name="text_extraction_budget">展開予算</string>
-    <string name="text_extraction_conflict_policy">出力名が競合した場合</string>
-    <string name="text_compact_extraction_budget">予算</string>
-    <string name="text_compact_conflict_policy">競合</string>
-    <string name="text_compact_filename_encoding">文字コード</string>
-    <string name="text_compact_search">検索</string>
-    <string name="text_conflict_policy_ask">毎回確認</string>
-    <string name="text_conflict_policy_skip">スキップ</string>
-    <string name="text_conflict_policy_overwrite">上書き</string>
-    <string name="text_conflict_policy_auto_rename">自動で名前を変更</string>
-    <string name="text_conflict_policy_ask_details">新しい出力フォルダー内で名前が競合するたびに処理方法を確認します。同名の出力フォルダーが既にある場合は常に番号を付け、既存フォルダーは変更しません。</string>
-    <string name="text_conflict_policy_skip_details">同等の名前を持つ後続エントリをスキップします。同名の出力フォルダーが既にある場合は常に番号を付け、既存フォルダーは変更しません。</string>
-    <string name="text_conflict_policy_overwrite_details">種類が同じ場合は先のファイルを置き換え、フォルダーを統合します。種類が異なる場合は自動で名前を変更します。既存の出力フォルダーは変更しません。</string>
-    <string name="text_conflict_policy_auto_rename_details">同等の名前を持つ後続エントリごとに番号を付けます。既存の出力フォルダーにも番号を付け、元のフォルダーは変更しません。</string>
-    <string name="dialog_title_output_conflict">出力名の競合</string>
-    <string name="dialog_message_output_conflict">書庫内項目: %1$s\n既存: %2$s (%3$s)\n入力: %4$s (%5$s)</string>
-    <string name="text_item_type_file">ファイル</string>
+    <string name="text_format_zip">ZIP</string>
+    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">中断された操作の未完了の出力トランザクション %1$d 件をロールバックしました.</string>
     <string name="text_item_type_directory">フォルダー</string>
-    <string name="text_apply_to_all_conflicts">この選択を互換性のあるすべての競合に適用</string>
-    <string name="text_conflict_overwrite_unavailable">項目の種類が異なるか、既存項目が今回の展開で作成されたものではないため、安全に上書きできません。</string>
-    <string name="text_extraction_conflict_summary">競合の処理: スキップ %1$d 件、上書きまたは統合 %2$d 件、自動名前変更 %3$d 件。</string>
-    <string name="text_resource_budget_summary">推定出力: %1$s\n選択エントリ: %2$d\n展開先の空き容量: 続行前に確認してください。</string>
-    <string name="text_resource_budget_warning">続行すると、この展開に限り宣言値が許可されます。パスの安全性、ソースの同一性、サイズ、チェックサム、クリーンアップの検証は引き続き有効です。</string>
-    <string name="text_password_encryption_note">空でないパスワードには AES-256 を使用します。ファイル名は表示されたままです.</string>
-    <string name="action_add_files" tools:ignore="TypographyEllipsis">ファイルを追加...</string>
-    <string name="action_delete">削除</string>
-    <string name="action_new_folder" tools:ignore="TypographyEllipsis">新しいフォルダー...</string>
-    <string name="action_rename" tools:ignore="TypographyEllipsis">名前を変更...</string>
-    <string name="dialog_title_new_archive_folder">アーカイブ内にフォルダーを作成</string>
-    <string name="dialog_title_rename_archive_entry">アーカイブ項目の名前を変更</string>
-    <string name="error_archive_mutation_failed">ZIP を更新できませんでした</string>
-    <string name="error_archive_refresh_failed">ZIP は更新されましたが, 新しい内容を再読み込みできませんでした</string>
-    <string name="error_rename_single_selection">名前を変更するファイルまたはフォルダーを 1 つ選択してください</string>
-    <string name="error_zip_entry_name_invalid">有効なファイル名またはフォルダー名を入力してください</string>
-    <string name="text_archive_changes_complete">アーカイブを更新しました</string>
-    <string name="text_archive_entry_name">名前</string>
-    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を確定しています...</string>
+    <string name="text_item_type_file">ファイル</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">アーカイブを読み込み中...</string>
+    <string name="text_loading_progress">%2$s 中 %1$s</string>
+    <string name="text_modified">更新日時: %1$s</string>
+    <string name="text_move_sources_to_trash_after_compression">圧縮後に元の項目をゴミ箱へ移動</string>
+    <string name="text_moving_sources_to_trash">元の項目をゴミ箱へ移動しています</string>
+    <string name="text_navigate_up">上の階層へ移動</string>
+    <string name="text_no_entries">一致するエントリはありません</string>
+    <string name="text_none">なし</string>
+    <string name="text_output_path">パス</string>
+    <string name="text_parent_directory">親ディレクトリ</string>
+    <string name="text_password">パスワード</string>
+    <string name="text_password_applied">パスワードを適用しました.いつでも更新できます.</string>
+    <string name="text_password_encryption_note">空でないパスワードには AES-256 を使用します.ファイル名は表示されたままです.</string>
+    <string name="text_password_needed_for_encrypted_entries">暗号化エントリを開いて展開するにはパスワードを入力してください.</string>
     <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を準備しています...</string>
-    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を検証しています...</string>
-    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">%2$d 件中 %1$d 件を更新中: %3$s</string>
-    <string name="dialog_message_extraction_destination">デフォルトの出力フォルダーは %1$s です。同名のフォルダーが存在する場合、Archive Manager は既存の内容を変更せずに番号を追加します。</string>
-    <string name="dialog_title_extraction_destination">展開先</string>
-    <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">別のフォルダーを選択...</string>
-    <string name="text_extraction_destination_current_folder">現在のフォルダー (推奨)\n%1$s</string>
-    <string name="text_extraction_output_path">出力: %1$s</string>
-    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">展開したファイルを確定しています...</string>
-    <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">中断された操作の未完了の出力トランザクション %1$d 件をロールバックしました。</string>
-    <string name="action_add_folder" tools:ignore="TypographyEllipsis">フォルダーを追加...</string>
-    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">フォルダーをスキャンしています...</string>
-    <string name="action_archive_information">アーカイブ情報</string>
-    <string name="dialog_title_archive_information">アーカイブ情報</string>
-    <string name="dialog_title_archive_mutation_preflight">アーカイブの変更を確認</string>
-    <string name="text_archive_information_format">形式: %1$s</string>
-    <string name="text_archive_information_archive_size">現在のアーカイブサイズ: %1$s</string>
-    <string name="text_archive_information_contents">内容: %1$d 項目 (%2$d ファイル, %3$d フォルダー); 展開後 %4$s</string>
-    <string name="text_archive_management_status">管理: %1$s</string>
-    <string name="text_archive_management_available">このセッションで利用可能</string>
-    <string name="text_archive_management_read_only">読み取り専用. %1$s</string>
-    <string name="text_archive_read_only_current_session">このアーカイブは内容管理アクセスなしで開かれました. 変更するには「アーカイブを管理」から開き直してください.</string>
-    <string name="text_archive_read_only_host_replacement">現在のホストセッションではこのアーカイブをアトミックに置き換えられません.</string>
-    <string name="text_archive_read_only_format">インストール済みのバックエンドはこの形式の閲覧または展開に対応していますが, 内容の変更には対応していません.</string>
-    <string name="text_archive_read_only_multi_volume">分割アーカイブを安全に再構築することはできません.</string>
-    <string name="text_archive_read_only_unsafe_path">安全でない元のパスを持つ項目があるため, このアーカイブは再構築できません.</string>
-    <string name="text_archive_read_only_password">変更する前に正しいアーカイブパスワードを適用してください.</string>
-    <string name="text_archive_read_only_unsupported_method">現在のバックエンドで再書き込みできない圧縮方式または暗号化方式を使用する項目があります.</string>
-    <string name="text_archive_read_only_backend_variant">インストール済みのバックエンドでは, このアーカイブ形式は読み取り専用です.</string>
-    <string name="text_archive_management_operations">利用可能な変更: %1$s.</string>
-    <string name="text_archive_mutation_full_rewrite">完全な再構築: 結果の各ファイルを検証済みの代替アーカイブに書き込み, その後で元のアーカイブをアトミックに置き換えます.</string>
-    <string name="text_archive_metadata_effects">再構築で影響を受けるメタデータ:</string>
-    <string name="text_archive_metadata_archive_comment_dropped">アーカイブコメントは保持されません.</string>
-    <string name="text_archive_metadata_entry_comments_dropped">項目コメントは保持されません.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">形式固有の拡張メタデータは正規化される場合があります.</string>
-    <string name="text_archive_metadata_unix_attributes_dropped">Unix の権限と属性は保持されません.</string>
-    <string name="text_archive_metadata_compression_normalized">圧縮設定とコンテナメタデータは正規化される場合があります.</string>
-    <string name="text_archive_metadata_encryption_normalized">項目ごとの暗号化設定は正規化される場合があります.</string>
-    <string name="text_archive_information_safety">新しいアーカイブ全体の読み戻しと検証が完了するまで, 元のアーカイブは置き換えられません.</string>
-    <string name="text_archive_mutation_operation_add">内容を追加</string>
-    <string name="text_archive_mutation_operation_delete">選択した内容を削除</string>
-    <string name="text_archive_mutation_operation_rename">選択した内容の名前を変更</string>
-    <string name="text_archive_mutation_preflight_change">変更: %1$s</string>
-    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">結果: %1$d 項目 (%2$d ファイル, %3$d フォルダー)</string>
-    <string name="text_archive_mutation_preflight_known_work">読み取る内容: %1$s</string>
-    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">読み取る内容: 少なくとも %1$s; 結果の %2$d ファイルは報告サイズが不明です.</string>
-    <string name="text_archive_mutation_output_size_unknown">圧縮によってサイズが変わるため, 一時出力サイズは予測しません. 完全な代替アーカイブを保存できる空き容量を確保してください.</string>
-    <string name="action_restore_previous_archive_version">以前のバージョンを復元</string>
-    <string name="dialog_title_restore_previous_archive_version">以前のバージョンを復元しますか?</string>
-    <string name="dialog_message_restore_previous_archive_version">AutoJs6 が保存した以前のバージョン (%1$s、保存日時 %2$s) で現在のアーカイブを置き換えます。この復元は 1 回だけ利用でき、現在のアーカイブが別の場所で変更されている場合は拒否されます。</string>
-    <string name="error_archive_restore_refresh_failed">以前のアーカイブ バージョンは復元されましたが、内容を再読み込みできませんでした</string>
-    <string name="error_previous_archive_version_changed">更新後に現在のアーカイブが変更されました。以前のバージョンは復元されていません。</string>
-    <string name="error_previous_archive_version_restore_failed">以前のアーカイブ バージョンを復元できませんでした</string>
-    <string name="text_previous_archive_version_available">以前のバージョン: 復元可能 (%1$s、保存日時 %2$s)。</string>
-    <string name="text_previous_archive_version_recovery_required">以前のバージョン: ホストによる復旧確認が必要です。アーカイブが自動的に置き換えられることはありません。</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">圧縮を準備中...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">展開を準備中...</string>
+    <string name="text_previous_archive_version_available">以前のバージョン: 復元可能 (%1$s,保存日時 %2$s).</string>
+    <string name="text_previous_archive_version_recovery_required">以前のバージョン: ホストによる復旧確認が必要です.アーカイブが自動的に置き換えられることはありません.</string>
     <string name="text_previous_archive_version_restore_complete">以前のアーカイブ バージョンを復元しました</string>
-    <string name="text_previous_archive_version_restored">以前のバージョン: 復元済みです。この 1 回限りの復元は使用されました。</string>
-    <string name="text_previous_archive_version_stale">以前のバージョン: 更新後に現在のアーカイブが変更されたため利用できません。</string>
+    <string name="text_previous_archive_version_restored">以前のバージョン: 復元済みです.この 1 回限りの復元は使用されました.</string>
+    <string name="text_previous_archive_version_stale">以前のバージョン: 更新後に現在のアーカイブが変更されたため利用できません.</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">アーカイブを再索引しています...</string>
+    <string name="text_resource_budget_summary">推定出力: %1$s\n選択エントリ: %2$d\n展開先の空き容量: 続行前に確認してください.</string>
+    <string name="text_resource_budget_warning">続行すると,この展開に限り宣言値が許可されます.パスの安全性,ソースの同一性,サイズ,チェックサム,クリーンアップの検証は引き続き有効です.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">以前のアーカイブ バージョンを復元しています...</string>
-    <string name="action_source_recovery_history">元項目の復元履歴</string>
-    <string name="action_restore_sources">元項目を復元</string>
-    <string name="action_retry_source_restore">復元を再試行</string>
-    <string name="dialog_button_done">完了</string>
-    <string name="dialog_title_source_recovery_history">元項目の復元履歴</string>
-    <string name="dialog_title_source_recovery_details">元項目の復元詳細</string>
-    <string name="error_source_restore_failed">元項目を復元できませんでした。理由: %1$s</string>
     <string name="text_restoring_sources">ゴミ箱から元項目を復元しています</string>
-    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">圧縮元をスキャン中...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">フォルダーをスキャンしています...</string>
+    <string name="text_search_hint">アーカイブを検索</string>
+    <string name="text_section_behavior">圧縮後の処理</string>
+    <string name="text_section_compression">圧縮設定</string>
+    <string name="text_section_destination">保存先</string>
+    <string name="text_section_security">パスワードと暗号化</string>
+    <string name="text_select_entry">エントリを選択</string>
+    <string name="text_selected_count">選択済み: %1$d</string>
+    <string name="text_separate_archive_conflict_note">既存の名前とこの処理内の重複名には自動的に番号が付き,上書きは行われません.</string>
+    <string name="text_separate_archive_preview_count">このフォルダーに %1$d 件のアーカイブを作成します:</string>
+    <string name="text_separate_archive_preview_more">- ほか %1$d 件</string>
+    <string name="text_separate_archive_progress">アーカイブ %1$d/%2$d: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created">%1$d 件のアーカイブを作成しました: %2$d 個のファイルを圧縮し,%3$d 個のフォルダーを追加しました.</string>
+    <string name="text_separate_split_archives_created">%1$d 件のアーカイブを %2$d 個の ZIP 分割ファイルとして作成し,%3$d 個のファイルを圧縮しました.</string>
+    <string name="text_size_details">%1$s, 圧縮時 %2$s, CRC %3$s</string>
     <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">作成日時: %1$s\n状態: %2$s\nゴミ箱の記録: %3$d\n復元済み: %4$d\n確認が必要: %5$d\n\n元項目:\n%6$s</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
     <string name="text_source_recovery_state_available">復元可能</string>
+    <string name="text_source_recovery_state_failed">移動された元項目はありません</string>
     <string name="text_source_recovery_state_partial">一部を復元可能</string>
+    <string name="text_source_recovery_state_recovery_required">復旧の確認が必要</string>
     <string name="text_source_recovery_state_restored">復元済み</string>
     <string name="text_source_recovery_state_stale">名前の競合または無効な履歴</string>
-    <string name="text_source_recovery_state_recovery_required">復旧の確認が必要</string>
-    <string name="text_source_recovery_state_failed">移動された元項目はありません</string>
-    <string name="text_source_restore_no_change">追加の元項目は復元されませんでした。作成済みのアーカイブは保持されています。</string>
-    <plurals name="text_more_source_items">
-        <item quantity="other">ほか %1$d 項目</item>
-    </plurals>
-    <plurals name="text_sources_restored_from_trash">
-        <item quantity="other">元項目を %1$d 件復元しました。作成済みのアーカイブは保持されています。</item>
-    </plurals>
-    <plurals name="warning_sources_not_restored">
-        <item quantity="other">元の名前が使用中か復旧の確認が必要なため、%1$d 件の元項目を復元できませんでした。復旧用コピーが利用できる場合は AutoJs6 のゴミ箱に保持されます。</item>
-    </plurals>
-    <string name="text_archive_workspace">アーカイブ管理</string>
-    <string name="text_archive_overview">アーカイブの概要</string>
-    <string name="text_archive_selection">選択項目</string>
-    <string name="text_section_destination">保存先</string>
-    <string name="text_section_compression">圧縮設定</string>
-    <string name="text_section_security">パスワードと暗号化</string>
-    <string name="text_section_behavior">圧縮後の処理</string>
-    <string name="text_archive_actions">操作</string>
+    <string name="text_source_restore_no_change">追加の元項目は復元されませんでした.作成済みのアーカイブは保持されています.</string>
+    <string name="text_sources_moved_to_trash">元の項目 %1$d 件をゴミ箱へ移動しました.</string>
+    <string name="text_split_archive_created">%1$s を %2$d 個の ZIP 分割ファイルとして作成し,%3$d 個のファイルを圧縮しました.</string>
+    <string name="text_split_unavailable_for_format">%1$s では分割出力を利用できません.</string>
+    <string name="text_split_volume">分割サイズ (MiB)</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">出力が選択サイズを超える場合,ZIP は .z01,.z02,... と最終 .zip ファイルを作成します.小さい出力は 1 個の .zip のままです.プリセットを選ぶか,%1$d から %2$d の整数を入力してください.</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_unknown">不明</string>
+    <string name="text_unsafe_path_read_only">元のパスは安全ではありません.プレビュー専用で,展開から除外されます.</string>
+    <string name="text_unsafe_paths_folder">安全でないパス</string>
+    <string name="text_unsupported_compression_method">圧縮方式 %1$s は展開できません</string>
+    <string name="text_unsupported_entry_type">エントリ形式 %1$s は展開できません</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">アーカイブを検証中...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を検証しています...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">%2$d 件中 %1$d 件を更新中: %3$s</string>
+    <string name="warning_sources_trash_failed">アーカイブは作成されましたが,元の項目をゴミ箱へ移動できませんでした.</string>
+    <string name="warning_sources_trash_recovery_required">アーカイブは作成されましたが,元項目の整理には確認が必要です.復旧可能なコピーは AutoJs6 のゴミ箱にあります.</string>
+    <string name="warning_sources_trash_unknown">アーカイブは作成されましたが,すべての元項目がゴミ箱へ移動したか AutoJs6 で確認できませんでした.再試行する前に現在のフォルダーとゴミ箱を確認してください.</string>
 </resources>

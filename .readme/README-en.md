@@ -123,6 +123,13 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v2.22.2
+
+_2026/09/13_
+
+- `Fixed` Plugin center version and ABI information matches the installed plugin APK
+- `Improved` Validate release APK versions, signing and the complete variant set before creating download artifacts
+
 #### v2.22.1
 
 _2026/09/11_
@@ -138,15 +145,6 @@ _2026/08/30_
 - `Fixed` Public descriptions and instructions now distinguish browsing, extraction, creation, editing, encryption, and volume support without overstating writable formats
 - `Fixed` Archive input grants and active-operation state now close before the terminal callback, so an immediate retry is no longer rejected as another operation already running
 - `Improved` A format capability matrix and installation guide now make compatibility, read-only boundaries, recovery behavior, and troubleshooting easier to check before installation
-
-#### v2.21.0
-
-_2026/08/30_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer)
-- `Added` Archive creation now keeps a completion page and Source recovery history; sources moved to Trash by explicit opt-in can be restored after Activity or host-session recreation
-- `Fixed` Source restore never overwrites an existing name or deletes a created archive; conflicts and partial or interrupted restores retain recovery evidence and report per-item outcomes
-- `Improved` The host owns the bounded durable history and exposes only opaque metadata; recovery UI stays inside the plugin compression page and the ordinary file-manager layout remains unchanged
 
 ##### Full history
 

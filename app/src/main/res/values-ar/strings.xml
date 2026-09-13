@@ -1,163 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="action_add_files" tools:ignore="TypographyEllipsis">إضافة ملفات...</string>
+    <string name="action_add_folder" tools:ignore="TypographyEllipsis">إضافة مجلد...</string>
+    <string name="action_archive_information">معلومات الأرشيف</string>
+    <string name="action_compress" tools:ignore="TypographyEllipsis">ضغط...</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_extract_to" tools:ignore="TypographyEllipsis">استخراج إلى...</string>
+    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">إدارة الأرشيف...</string>
+    <string name="action_new_folder" tools:ignore="TypographyEllipsis">مجلد جديد...</string>
     <string name="action_open_archive">عرض الأرشيف</string>
     <string name="action_open_as_archive" tools:ignore="TypographyEllipsis">فتح كأرشيف...</string>
-    <string name="action_manage_archive" tools:ignore="TypographyEllipsis">إدارة الأرشيف...</string>
-    <string name="action_extract_to" tools:ignore="TypographyEllipsis">استخراج إلى...</string>
-    <string name="action_compress" tools:ignore="TypographyEllipsis">ضغط...</string>
-    <string name="app_name">Archive Manager</string>
+    <string name="action_rename" tools:ignore="TypographyEllipsis">إعادة تسمية...</string>
+    <string name="action_restore_previous_archive_version">استعادة الإصدار السابق</string>
+    <string name="action_restore_sources">استعادة العناصر المصدر</string>
+    <string name="action_retry_source_restore">إعادة محاولة الاستعادة</string>
+    <string name="action_source_recovery_history">سجل استعادة العناصر المصدر</string>
     <string name="dialog_button_cancel">إلغاء</string>
     <string name="dialog_button_continue">متابعة</string>
-    <string name="dialog_button_skip_unsafe">تخطي والمتابعة</string>
-    <string name="dialog_button_select_all">تحديد الكل</string>
+    <string name="dialog_button_continue_anyway">المتابعة على أي حال</string>
+    <string name="dialog_button_done">تم</string>
     <string name="dialog_button_edit_name">تعديل الاسم</string>
+    <string name="dialog_button_save">حفظ</string>
+    <string name="dialog_button_select_all">تحديد الكل</string>
+    <string name="dialog_button_skip_unsafe">تخطي والمتابعة</string>
     <string name="dialog_button_use_numbered_name">استخدام اسم مرقم</string>
-    <string name="dialog_title_archive_name_unavailable">اسم الإخراج المطابق غير متاح</string>
     <string name="dialog_message_archive_name_unavailable">تعذر على المضيف حجز %1$s في %2$s. لم تتم كتابة أي بيانات للأرشيف. عدل الاسم أو أعد المحاولة باستخدام الترقيم التلقائي.</string>
+    <string name="dialog_message_extraction_destination">مجلد الإخراج الافتراضي هو %1$s. إذا كان هذا الاسم موجودا، يضيف Archive Manager رقما دون تغيير المحتوى الموجود.</string>
+    <string name="dialog_message_output_conflict">عنصر الأرشيف: %1$s\nالموجود: %2$s (%3$s)\nالوارد: %4$s (%5$s)</string>
+    <string name="dialog_message_restore_previous_archive_version">سيحل الإصدار السابق الذي حفظه AutoJs6 (%1$s، حُفظ في %2$s) محل الأرشيف الحالي. تتوفر هذه الاستعادة مرة واحدة فقط، وسيتم رفضها إذا تغير الأرشيف الحالي في مكان آخر.</string>
     <string name="dialog_message_skip_unsafe_paths">تستخدم %1$d من عناصر الأرشيف مسارات لا يمكن كتابتها بأمان. تظل متاحة للمعاينة في مجلد المسارات غير الآمنة. هل تريد المتابعة وتخطيها؟</string>
+    <string name="dialog_title_archive_information">معلومات الأرشيف</string>
+    <string name="dialog_title_archive_mutation_preflight">مراجعة تغييرات الأرشيف</string>
+    <string name="dialog_title_archive_name_unavailable">اسم الإخراج المطابق غير متاح</string>
+    <string name="dialog_title_custom_budget">ميزانية استخراج مخصصة</string>
+    <string name="dialog_title_extraction_destination">وجهة الاستخراج</string>
+    <string name="dialog_title_extraction_scope">نطاق الاستخراج</string>
+    <string name="dialog_title_new_archive_folder">مجلد جديد داخل الأرشيف</string>
+    <string name="dialog_title_output_conflict">تعارض اسم الإخراج</string>
+    <string name="dialog_title_rename_archive_entry">إعادة تسمية عنصر الأرشيف</string>
+    <string name="dialog_title_resource_budget">تم تجاوز ميزانية الاستخراج</string>
+    <string name="dialog_title_restore_previous_archive_version">هل تريد استعادة الإصدار السابق؟</string>
+    <string name="dialog_title_source_recovery_details">تفاصيل استعادة العناصر المصدر</string>
+    <string name="dialog_title_source_recovery_history">سجل استعادة العناصر المصدر</string>
     <string name="dialog_title_unsafe_paths">مسارات غير آمنة</string>
+    <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
     <string name="error_archive_invalid">الأرشيف غير صالح أو غير مدعوم</string>
-    <string name="error_archive_missing_volumes">وحدات ZIP مفقودة</string>
     <string name="error_archive_limit">يتجاوز الأرشيف حد أمان</string>
+    <string name="error_archive_missing_volumes">وحدات ZIP مفقودة</string>
+    <string name="error_archive_mutation_failed">تعذر تحديث ZIP</string>
+    <string name="error_archive_refresh_failed">تم تحديث ZIP، ولكن تعذرت إعادة تحميل محتوياته الجديدة</string>
+    <string name="error_archive_restore_refresh_failed">تمت استعادة الإصدار السابق من الأرشيف، ولكن تعذرت إعادة تحميل محتوياته</string>
     <string name="error_cannot_create_output">يتعذر إنشاء دليل الإخراج</string>
     <string name="error_cannot_open_archive">يتعذر فتح الأرشيف</string>
     <string name="error_cleanup_failed">فشل التنظيف; قد تبقى مخرجات جزئية</string>
     <string name="error_cleanup_residual_outputs">فشل التنظيف. قد تبقى مواقع الإخراج التالية:\n%1$s</string>
-    <string name="error_extraction_failed">فشل الاستخراج</string>
-    <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
-    <string name="error_no_safe_entries">لا يحتوي التحديد على عناصر يمكن استخراجها بأمان</string>
-    <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
-    <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
-    <string name="plugin_description">تصفح واستخراج أرشيفات ZIP و7Z وRAR وTAR، وإنشاء التنسيقات المدعومة القابلة للكتابة وإدارتها بأمان</string>
-    <string name="text_cancelled">تم الإلغاء</string>
-    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
-    <string name="dialog_title_extraction_scope">نطاق الاستخراج</string>
-    <string name="text_extraction_scope_entire_archive">الأرشيف بالكامل</string>
-    <string name="text_extraction_scope_current_directory">المجلد الحالي: %1$s</string>
-    <string name="text_extraction_scope_current_selection">التحديد الحالي</string>
-    <string name="text_extracting">جار استخراج %1$d من %2$d</string>
-    <string name="text_extraction_current_item">العنصر الحالي: %1$s</string>
-    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
-    <string name="text_extraction_rate">%1$s/ث</string>
-    <string name="text_extraction_rate_eta">%1$s/ث، متبق %2$s</string>
-    <string name="text_encrypted_entry">عنصر مشفر (%1$s)؛ أدخل كلمة مرور الأرشيف لفتحه</string>
-    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">جار تحميل الأرشيف...</string>
-    <string name="text_loading_progress">%1$s من %2$s</string>
-    <string name="text_modified">التعديل: %1$s</string>
-    <string name="text_navigate_up">الانتقال إلى الأعلى</string>
-    <string name="text_no_entries">لا توجد عناصر مطابقة</string>
-    <string name="text_parent_directory">الدليل الأصل</string>
-    <string name="text_search_hint">البحث في الأرشيف</string>
-    <string name="text_select_entry">تحديد العنصر</string>
-    <string name="text_selected_count">المحدد: %1$d</string>
-    <string name="text_size_details">%1$s, مضغوط %2$s, CRC %3$s</string>
-    <string name="text_unknown">غير معروف</string>
-    <string name="text_unsafe_path_read_only">المسار الأصلي غير آمن؛ المعاينة فقط. يتم استبعاده من الاستخراج.</string>
-    <string name="text_unsafe_paths_folder">مسارات غير آمنة</string>
-    <string name="text_unsupported_compression_method">يتعذر استخراج طريقة الضغط %1$s</string>
-    <string name="text_unsupported_entry_type">يتعذر استخراج نوع الإدخال %1$s</string>
-    <string name="error_archive_file_name_invalid">أدخل اسم ملف أرشيف صالحا</string>
-    <string name="error_compression_failed">فشل الضغط</string>
     <string name="error_compression_cleanup_unconfirmed">فشل الضغط وتعذر تأكيد تنظيف الإخراج المؤقت. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %1$s\nالسبب الأصلي: %2$s</string>
-    <string name="error_split_compression_partial_failure">توقف نشر ZIP بعد اعتماد %1$d من أصل %2$d من ملفات الأجزاء. لم يُعتمد جزء .zip الأخير، ولذلك لا يمكن فتح المجموعة غير المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
-    <string name="error_split_compression_cleanup_unconfirmed">توقف نشر ZIP بعد اعتماد %1$d من أصل %2$d من ملفات الأجزاء، وتعذر تأكيد تنظيف %3$d من المخرجات المعلقة. لم يُعتمد جزء .zip الأخير. أُغلقت جلسة المضيف لمنع كتابة أخرى.\nأول إخراج يحتاج إلى مراجعة: %4$s\nالسبب الأصلي: %5$s</string>
-    <string name="error_split_compression_cache_cleanup">جُهزت أجزاء ZIP، لكن تعذر تأكيد تنظيف نسختها في ذاكرة التخزين المؤقت الخاصة. لم يُعتمد أي جزء. أُغلقت جلسة المضيف لمنع كتابة أخرى.</string>
-    <string name="error_separate_compression_partially_cancelled">أُلغي الإجراء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعناصر المتبقية.</string>
-    <string name="error_separate_compression_completed_before_split_failure">قبل توقف ملف ZIP المجزأ التالي، كان قد اكتمل وحُفظ %1$d من أصل %2$d من الأرشيفات المنفصلة.</string>
-    <string name="error_separate_compression_partial_failure">توقف الإنشاء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعنصر الذي فشل والعناصر المتبقية.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
-    <string name="error_separate_compression_cleanup_unconfirmed">تم إنشاء %1$d من أصل %2$d أرشيفات قبل فشل إخراج لاحق، وتعذر تأكيد تنظيف إخراجه المؤقت. تم الاحتفاظ بالأرشيفات المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %3$s\nالسبب الأصلي: %4$s</string>
+    <string name="error_compression_failed">فشل الضغط</string>
     <string name="error_compression_request_invalid">طلب الضغط أو جلسة المضيف غير صالحين</string>
-    <string name="text_archive_creation_safety_note">لا تُنقل العناصر المصدر إلى مهملات AutoJs6 إلا بعد التحقق من جميع مخرجات الأرشيف وتثبيتها. يظل تشفير أسماء الملفات غير متاح.</string>
-    <string name="text_archive_file_name">اسم الملف</string>
-    <string name="text_archive_format">التنسيق</string>
-    <string name="text_compress_separately">ضغط كل عنصر في أرشيف منفصل</string>
-    <string name="text_separate_archive_preview_count">سيتم إنشاء %1$d أرشيفات في هذا المجلد:</string>
-    <string name="text_separate_archive_preview_more">- و%1$d أخرى</string>
-    <string name="text_separate_archive_conflict_note">تُرقّم الأسماء الموجودة والمتكررة تلقائيًا، ولا تتم الكتابة فوق أي عنصر.</string>
-    <string name="text_separate_archive_progress">الأرشيف %1$d من %2$d: %3$s\n%4$s</string>
-    <string name="text_separate_archives_created">تم إنشاء %1$d أرشيفات: ضُغط %2$d ملفات وأُضيف %3$d مجلدات.</string>
-    <string name="text_separate_split_archives_created">تم إنشاء %1$d أرشيفات في %2$d من ملفات أجزاء ZIP، وضُغط %3$d ملفات.</string>
-    <string name="text_compression_level">مستوى الضغط</string>
-    <string name="text_compression_level_fast">سريع</string>
-    <string name="text_compression_level_maximum">أقصى</string>
-    <string name="text_compression_level_none">بلا ضغط</string>
-    <string name="text_compression_level_normal">عادي</string>
-    <string name="text_create_archive">إنشاء أرشيف</string>
-    <string name="text_default_archive_name">أرشيف</string>
-    <string name="text_move_sources_to_trash_after_compression">نقل العناصر المصدر إلى المهملات بعد الضغط</string>
-    <string name="text_moving_sources_to_trash">جار نقل العناصر المصدر إلى المهملات</string>
-    <string name="text_sources_moved_to_trash">تم نقل %1$d من عناصر المصدر إلى المهملات.</string>
-    <string name="warning_sources_trash_recovery_required">تم إنشاء الأرشيف، لكن تنظيف المصادر يحتاج إلى مراجعة. تتوفر نسخ قابلة للاسترداد في مهملات AutoJs6.</string>
-    <string name="warning_sources_trash_failed">تم إنشاء الأرشيف، لكن تعذر نقل العناصر المصدر إلى المهملات.</string>
-    <string name="warning_sources_trash_unknown">تم إنشاء الأرشيف، لكن AutoJs6 لم يتمكن من تأكيد وصول كل العناصر المصدر إلى المهملات. تحقق من المجلد الحالي والمهملات قبل إعادة المحاولة.</string>
-    <string name="text_encrypt_file_names">تشفير أسماء الملفات</string>
-    <string name="text_format_zip">ZIP</string>
-    <string name="text_creation_conflict_policy">إذا كان اسم الأرشيف غير متاح</string>
-    <string name="text_creation_conflict_policy_auto_rename_details">احجز اسما مرقما متاحا. لا يتم استبدال الأرشيفات الموجودة أبدا. تتطلب الكتابة فوق الملف ضمن معاملة واجهة API أحدث للمضيف.</string>
-    <string name="text_creation_conflict_policy_ask_details">جرب الاسم المطابق أولا. إذا تعذر على المضيف حجزه، فاسأل قبل إعادة المحاولة باسم مرقم. لا يتم استبدال الأرشيفات الموجودة أبدا.</string>
-    <string name="text_none">بلا</string>
-    <string name="text_output_path">المسار</string>
-    <string name="text_password">كلمة المرور</string>
-    <string name="text_confirm_password">تأكيد كلمة المرور</string>
-    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">جار التحضير للضغط...</string>
-    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">جار فحص عناصر المصدر...</string>
-    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">جار التحقق من الأرشيف...</string>
-    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">جار اعتماد الأرشيف...</string>
-    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">جار تحضير الاستخراج...</string>
-    <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
-    <string name="text_split_volume">حجم الجزء (MiB)</string>
-    <string name="text_split_volume_mib">%1$d MiB</string>
-    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">عندما يتجاوز الناتج الحجم المحدد، ينشئ ZIP ملفات .z01 و.z02 و... وملف .zip أخيرًا؛ أما الناتج الأصغر فيبقى ملف .zip واحدًا. اختر قيمة مسبقة أو أدخل عددًا صحيحًا من %1$d إلى %2$d.</string>
-    <string name="text_split_archive_created">تم إنشاء %1$s في %2$d من ملفات أجزاء ZIP، وضُغط %3$d ملفات.</string>
-    <string name="text_encryption_unavailable_for_format">كلمة المرور وتشفير أسماء الملفات غير متاحين لتنسيق %1$s.</string>
+    <string name="error_custom_budget_invalid">أدخل أعدادًا صحيحة غير سالبة ضمن النطاق المدعوم</string>
+    <string name="error_custom_budget_total_less_single">يجب أن تكون ميزانية الحجم الإجمالي صفرًا (بلا حد) أو مساوية على الأقل لميزانية العنصر الواحد</string>
     <string name="error_diagnostic_details">%1$s\nالتنسيق: %2$s\nالمرحلة: %3$s\nالرمز: %4$s\nالسبب: %5$s</string>
+    <string name="error_extraction_failed">فشل الاستخراج</string>
+    <string name="error_no_safe_entries">لا يحتوي التحديد على عناصر يمكن استخراجها بأمان</string>
+    <string name="error_no_selection">حدد عنصرا واحدا على الأقل</string>
+    <string name="error_password_confirmation_mismatch">كلمتا المرور غير متطابقتين</string>
+    <string name="error_password_incorrect">كلمة مرور الأرشيف غير صحيحة</string>
+    <string name="error_password_required">أدخل كلمة مرور الأرشيف</string>
+    <string name="error_permission_missing">إذن قراءة الأرشيف مفقود</string>
+    <string name="error_previous_archive_version_changed">تغير الأرشيف الحالي بعد تحديثه. لم تتم استعادة إصداره السابق.</string>
+    <string name="error_previous_archive_version_restore_failed">تعذرت استعادة الإصدار السابق من الأرشيف</string>
     <string name="error_reason_cache_space">لا توجد مساحة تخزين مؤقت كافية لفتح هذا الأرشيف.</string>
     <string name="error_reason_cleanup">تعذرت إزالة المخرجات الجزئية بالكامل.</string>
     <string name="error_reason_compression_method">يستخدم أحد العناصر طريقة ضغط لا يمكن لهذه الواجهة الخلفية قراءتها.</string>
     <string name="error_reason_entry_data">تعذرت قراءة عنصر في الأرشيف أو التحقق منه.</string>
     <string name="error_reason_filename_encoding">ترميز أسماء الملفات المحدد غير متوفر أو لا يمكنه فهرسة هذا الأرشيف.</string>
     <string name="error_reason_index">بيانات دليل الأرشيف تالفة أو غير مدعومة.</string>
-    <string name="error_reason_missing_volumes">هذا ملف ZIP متعدد الأجزاء. ضع %1$s بجانب %2$s في المجلد نفسه، ثم افتح الجزء الأخير مجددًا.</string>
     <string name="error_reason_input">يتعذر قراءة الأرشيف أو تغير أثناء فتحه.</string>
     <string name="error_reason_integrity">حجم العنصر أو قيمة التحقق لا تطابق بيانات الأرشيف.</string>
     <string name="error_reason_invalid_signature">لا يحتوي الملف على توقيع أرشيف معروف.</string>
     <string name="error_reason_limit">تتجاوز العملية ميزانية الموارد المضبوطة.</string>
+    <string name="error_reason_missing_volumes">هذا ملف ZIP متعدد الأجزاء. ضع %1$s بجانب %2$s في المجلد نفسه، ثم افتح الجزء الأخير مجددًا.</string>
     <string name="error_reason_output">يتعذر إعداد موقع الإخراج أو الكتابة إليه بأمان.</string>
     <string name="error_reason_password">كلمة المرور مطلوبة أو كلمة المرور المقدمة غير صحيحة.</string>
     <string name="error_reason_path">مسار أحد العناصر متعارض أو لا يمكن معالجته بأمان.</string>
-    <string name="text_archive_diagnostic">تشخيص الأرشيف</string>
-    <string name="text_copy_diagnostic">نسخ التشخيص</string>
-    <string name="text_diagnostic_copied">تم نسخ التشخيص</string>
-    <string name="text_failure_stage_cleanup">التنظيف</string>
-    <string name="text_failure_stage_entry_data">بيانات العنصر</string>
-    <string name="text_failure_stage_format_detection">اكتشاف التنسيق</string>
-    <string name="text_failure_stage_index">فهرس الدليل</string>
-    <string name="text_failure_stage_input">الإدخال</string>
-    <string name="text_failure_stage_output">الإخراج</string>
-    <string name="text_failure_stage_password">كلمة المرور</string>
-    <string name="text_filename_encoding">ترميز أسماء الملفات</string>
-    <string name="text_filename_encoding_automatic">تلقائي</string>
-    <string name="text_filename_encoding_automatic_detected">تلقائي (احتياطي للأسماء القديمة: %1$s)</string>
-    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">جار إعادة فهرسة الأرشيف...</string>
-    <string name="error_password_incorrect">كلمة مرور الأرشيف غير صحيحة</string>
-    <string name="error_password_required">أدخل كلمة مرور الأرشيف</string>
-    <string name="error_password_confirmation_mismatch">كلمتا المرور غير متطابقتين</string>
+    <string name="error_rename_single_selection">حدد ملفا أو مجلدا واحدا فقط لإعادة تسميته</string>
+    <string name="error_separate_compression_cleanup_unconfirmed">تم إنشاء %1$d من أصل %2$d أرشيفات قبل فشل إخراج لاحق، وتعذر تأكيد تنظيف إخراجه المؤقت. تم الاحتفاظ بالأرشيفات المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى. لم تتم الكتابة فوق أي أرشيف موجود.\nالإخراج المقصود: %3$s\nالسبب الأصلي: %4$s</string>
+    <string name="error_separate_compression_completed_before_split_failure">قبل توقف ملف ZIP المجزأ التالي، كان قد اكتمل وحُفظ %1$d من أصل %2$d من الأرشيفات المنفصلة.</string>
+    <string name="error_separate_compression_partial_failure">توقف الإنشاء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعنصر الذي فشل والعناصر المتبقية.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
+    <string name="error_separate_compression_partially_cancelled">أُلغي الإجراء بعد إنشاء %1$d من أصل %2$d أرشيفات. تم الاحتفاظ بالأرشيفات المكتملة وأُغلقت هذه الجلسة لمنع تكرار المخرجات. أعد فتح «ضغط» للعناصر المتبقية.</string>
+    <string name="error_source_restore_failed">تعذرت استعادة العناصر المصدر. السبب: %1$s</string>
+    <string name="error_split_compression_cache_cleanup">جُهزت أجزاء ZIP، لكن تعذر تأكيد تنظيف نسختها في ذاكرة التخزين المؤقت الخاصة. لم يُعتمد أي جزء. أُغلقت جلسة المضيف لمنع كتابة أخرى.</string>
+    <string name="error_split_compression_cleanup_unconfirmed">توقف نشر ZIP بعد اعتماد %1$d من أصل %2$d من ملفات الأجزاء، وتعذر تأكيد تنظيف %3$d من المخرجات المعلقة. لم يُعتمد جزء .zip الأخير. أُغلقت جلسة المضيف لمنع كتابة أخرى.\nأول إخراج يحتاج إلى مراجعة: %4$s\nالسبب الأصلي: %5$s</string>
+    <string name="error_split_compression_partial_failure">توقف نشر ZIP بعد اعتماد %1$d من أصل %2$d من ملفات الأجزاء. لم يُعتمد جزء .zip الأخير، ولذلك لا يمكن فتح المجموعة غير المكتملة. أُغلقت جلسة المضيف لمنع كتابة أخرى.\nالإخراج الذي فشل: %3$s\nالسبب: %4$s</string>
     <string name="error_split_volume_invalid">أدخل حجمًا صحيحًا من %1$d إلى %2$d MiB، أو اختر بلا</string>
+    <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
+    <string name="error_zip_entry_name_invalid">أدخل اسم ملف أو مجلد صالحا</string>
+    <string name="plugin_description">تصفح واستخراج أرشيفات ZIP و7Z وRAR وTAR، وإنشاء التنسيقات المدعومة القابلة للكتابة وإدارتها بأمان</string>
     <string name="text_apply_password">تطبيق</string>
+    <string name="text_apply_to_all_conflicts">تطبيق هذا الاختيار على كل التعارضات المتوافقة</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">جار تطبيق كلمة المرور...</string>
+    <string name="text_archive_actions">الإجراءات</string>
+    <string name="text_archive_changes_complete">تم تحديث الأرشيف</string>
+    <string name="text_archive_creation_safety_note">لا تُنقل العناصر المصدر إلى مهملات AutoJs6 إلا بعد التحقق من جميع مخرجات الأرشيف وتثبيتها. يظل تشفير أسماء الملفات غير متاح.</string>
+    <string name="text_archive_diagnostic">تشخيص الأرشيف</string>
+    <string name="text_archive_entry_name">الاسم</string>
+    <string name="text_archive_file_name">اسم الملف</string>
+    <string name="text_archive_format">التنسيق</string>
+    <string name="text_archive_information_archive_size">حجم الأرشيف الحالي: %1$s</string>
+    <string name="text_archive_information_contents">المحتويات: %1$d من العناصر (%2$d من الملفات، %3$d من المجلدات)؛ %4$s بعد فك الضغط</string>
+    <string name="text_archive_information_format">التنسيق: %1$s</string>
+    <string name="text_archive_information_safety">لا يُستبدل الأرشيف الأصلي إلا بعد قراءة الأرشيف الجديد بالكامل والتحقق منه.</string>
+    <string name="text_archive_management_available">متاحة في هذه الجلسة</string>
+    <string name="text_archive_management_operations">التغييرات المتاحة: %1$s.</string>
+    <string name="text_archive_management_read_only">للقراءة فقط. %1$s</string>
+    <string name="text_archive_management_status">الإدارة: %1$s</string>
+    <string name="text_archive_metadata_archive_comment_dropped">لن يتم الاحتفاظ بتعليق الأرشيف.</string>
+    <string name="text_archive_metadata_compression_normalized">قد تتم تسوية إعدادات الضغط وبيانات الحاوية الوصفية.</string>
+    <string name="text_archive_metadata_effects">بيانات التعريف التي تتأثر بإعادة الإنشاء:</string>
+    <string name="text_archive_metadata_encryption_normalized">قد تتم تسوية إعدادات التشفير لكل عنصر.</string>
+    <string name="text_archive_metadata_entry_comments_dropped">لن يتم الاحتفاظ بتعليقات العناصر.</string>
+    <string name="text_archive_metadata_extra_fields_normalized">قد تتم تسوية بيانات التعريف الموسعة الخاصة بالتنسيق.</string>
+    <string name="text_archive_metadata_unix_attributes_dropped">لن يتم الاحتفاظ بأذونات Unix وسماته.</string>
+    <string name="text_archive_mutation_full_rewrite">إعادة إنشاء كاملة: يُكتب كل ملف ناتج في أرشيف بديل تم التحقق منه، ثم يُستبدل الأرشيف الأصلي بصورة ذرية.</string>
+    <string name="text_archive_mutation_operation_add">إضافة محتوى</string>
+    <string name="text_archive_mutation_operation_delete">حذف المحتوى المحدد</string>
+    <string name="text_archive_mutation_operation_rename">إعادة تسمية المحتوى المحدد</string>
+    <string name="text_archive_mutation_output_size_unknown">لا يتم تقدير حجم الإخراج المؤقت لأن الضغط قد يغيره. تأكد من توفر مساحة على الجهاز لأرشيف بديل كامل.</string>
+    <string name="text_archive_mutation_preflight_change">التغيير: %1$s</string>
+    <string name="text_archive_mutation_preflight_known_work">المحتوى المطلوب قراءته: %1$s</string>
+    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">النتيجة: %1$d من العناصر (%2$d من الملفات، %3$d من المجلدات)</string>
+    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">المحتوى المطلوب قراءته: %1$s على الأقل؛ الحجم المبلغ عنه غير معروف لعدد %2$d من الملفات الناتجة.</string>
+    <string name="text_archive_overview">نظرة عامة</string>
     <string name="text_archive_password">كلمة مرور الأرشيف</string>
-    <string name="text_encrypted_entry_unlocked">عنصر مشفر (%1$s)؛ تم تطبيق كلمة المرور</string>
-    <string name="text_encryption_method_aes">AES</string>
-    <string name="text_encryption_method_other">تشفير آخر</string>
-    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
-    <string name="text_password_applied">تم تطبيق كلمة المرور. يمكنك تحديثها في أي وقت.</string>
-    <string name="text_password_needed_for_encrypted_entries">أدخل كلمة مرور لفتح العناصر المشفرة واستخراجها.</string>
-    <string name="dialog_button_continue_anyway">المتابعة على أي حال</string>
-    <string name="dialog_button_save">حفظ</string>
-    <string name="dialog_title_custom_budget">ميزانية استخراج مخصصة</string>
-    <string name="dialog_title_resource_budget">تم تجاوز ميزانية الاستخراج</string>
-    <string name="error_custom_budget_invalid">أدخل أعدادًا صحيحة غير سالبة ضمن النطاق المدعوم</string>
-    <string name="error_custom_budget_total_less_single">يجب أن تكون ميزانية الحجم الإجمالي صفرًا (بلا حد) أو مساوية على الأقل لميزانية العنصر الواحد</string>
+    <string name="text_archive_read_only_backend_variant">هذا النوع من الأرشيفات متاح للقراءة فقط في الواجهة الخلفية المثبتة.</string>
+    <string name="text_archive_read_only_current_session">فُتح هذا الأرشيف من دون صلاحية إدارة المحتوى. أعد فتحه باستخدام إدارة الأرشيف لإجراء تغييرات.</string>
+    <string name="text_archive_read_only_format">تدعم الواجهة الخلفية المثبتة تصفح هذا التنسيق أو استخراجه، لكنها لا تدعم تغيير محتواه.</string>
+    <string name="text_archive_read_only_host_replacement">لا تستطيع جلسة المضيف الحالية استبدال هذا الأرشيف بصورة ذرية.</string>
+    <string name="text_archive_read_only_multi_volume">لا يمكن إعادة إنشاء الأرشيفات متعددة الأجزاء بأمان.</string>
+    <string name="text_archive_read_only_password">طبّق كلمة مرور الأرشيف الصحيحة قبل إجراء تغييرات.</string>
+    <string name="text_archive_read_only_unsafe_path">يحتوي عنصر واحد على الأقل على مسار أصلي غير آمن، لذلك لا يمكن إعادة إنشاء الأرشيف.</string>
+    <string name="text_archive_read_only_unsupported_method">يستخدم عنصر واحد على الأقل طريقة ضغط أو تشفير لا تستطيع هذه الواجهة الخلفية إعادة كتابتها.</string>
+    <string name="text_archive_selection">العناصر المحددة</string>
+    <string name="text_archive_workspace">إدارة الأرشيف</string>
     <string name="text_budget_compression_ratio">أقصى نسبة ضغط</string>
     <string name="text_budget_entry_count">أقصى عدد للعناصر المحددة</string>
     <string name="text_budget_path_depth">أقصى عمق للمسار</string>
@@ -175,150 +159,141 @@
     <string name="text_budget_violation_path_length">طول المسار: %1$s (الميزانية %2$s)</string>
     <string name="text_budget_violation_single_size">أكبر عنصر: %1$s (الميزانية %2$s)</string>
     <string name="text_budget_violation_total_size">الإخراج المقدر: %1$s (الميزانية %2$s)</string>
-    <string name="text_custom_budget_zero_note">استخدم 0 للحد الأقصى البنيوي الثابت (عدد العناصر وطول المسار وعمقه) أو لعدم تعيين عتبة تحذير للموارد (الأحجام ونسبة الضغط). لا يمكن تعطيل الأمان البنيوي للمسارات.</string>
-    <string name="text_extraction_budget">ميزانية الاستخراج</string>
-    <string name="text_extraction_conflict_policy">عند تعارض أسماء الإخراج</string>
-    <string name="text_compact_extraction_budget">الميزانية</string>
+    <string name="text_cancelled">تم الإلغاء</string>
+    <string name="text_cleaning_up" tools:ignore="TypographyEllipsis">جار تنظيف المخرجات الجزئية...</string>
+    <string name="text_committing_archive" tools:ignore="TypographyEllipsis">جار اعتماد الأرشيف...</string>
+    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">جار اعتماد تغييرات الأرشيف...</string>
+    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">جار إنهاء الملفات المستخرجة...</string>
     <string name="text_compact_conflict_policy">التعارضات</string>
+    <string name="text_compact_extraction_budget">الميزانية</string>
     <string name="text_compact_filename_encoding">الترميز</string>
     <string name="text_compact_search">البحث</string>
-    <string name="text_conflict_policy_ask">السؤال في كل مرة</string>
-    <string name="text_conflict_policy_skip">تخطي</string>
-    <string name="text_conflict_policy_overwrite">استبدال</string>
-    <string name="text_conflict_policy_auto_rename">إعادة التسمية تلقائيًا</string>
-    <string name="text_conflict_policy_ask_details">اسأل عن طريقة معالجة كل تعارض أسماء داخل مجلد الإخراج الجديد. إذا وُجد مجلد إخراج بالاسم نفسه، فستتم إضافة رقم إليه دائمًا وسيبقى المجلد الموجود دون تغيير.</string>
-    <string name="text_conflict_policy_skip_details">تخطَّ الإدخالات اللاحقة ذات الأسماء المتكافئة. إذا وُجد مجلد إخراج بالاسم نفسه، فستتم إضافة رقم إليه دائمًا وسيبقى المجلد الموجود دون تغيير.</string>
-    <string name="text_conflict_policy_overwrite_details">استبدل الملفات السابقة وادمج المجلدات عندما تتطابق أنواعها. ستتم إعادة تسمية الأنواع غير المتوافقة تلقائيًا. لن تتغير مجلدات الإخراج الموجودة.</string>
-    <string name="text_conflict_policy_auto_rename_details">أضف رقمًا إلى كل إدخال لاحق له اسم مكافئ. ستتم إضافة أرقام إلى مجلدات الإخراج الموجودة أيضًا وستبقى دون تغيير.</string>
-    <string name="dialog_title_output_conflict">تعارض اسم الإخراج</string>
-    <string name="dialog_message_output_conflict">عنصر الأرشيف: %1$s\nالموجود: %2$s (%3$s)\nالوارد: %4$s (%5$s)</string>
-    <string name="text_item_type_file">ملف</string>
-    <string name="text_item_type_directory">مجلد</string>
-    <string name="text_apply_to_all_conflicts">تطبيق هذا الاختيار على كل التعارضات المتوافقة</string>
+    <string name="text_compress_separately">ضغط كل عنصر في أرشيف منفصل</string>
+    <string name="text_compression_level">مستوى الضغط</string>
+    <string name="text_compression_level_fast">سريع</string>
+    <string name="text_compression_level_maximum">أقصى</string>
+    <string name="text_compression_level_none">بلا ضغط</string>
+    <string name="text_compression_level_normal">عادي</string>
+    <string name="text_confirm_password">تأكيد كلمة المرور</string>
     <string name="text_conflict_overwrite_unavailable">يتعذر الاستبدال لأن نوعي العنصرين مختلفان أو لأن العنصر الموجود لم يُنشأ بواسطة عملية الاستخراج هذه.</string>
+    <string name="text_conflict_policy_ask">السؤال في كل مرة</string>
+    <string name="text_conflict_policy_ask_details">اسأل عن طريقة معالجة كل تعارض أسماء داخل مجلد الإخراج الجديد. إذا وُجد مجلد إخراج بالاسم نفسه، فستتم إضافة رقم إليه دائمًا وسيبقى المجلد الموجود دون تغيير.</string>
+    <string name="text_conflict_policy_auto_rename">إعادة التسمية تلقائيًا</string>
+    <string name="text_conflict_policy_auto_rename_details">أضف رقمًا إلى كل إدخال لاحق له اسم مكافئ. ستتم إضافة أرقام إلى مجلدات الإخراج الموجودة أيضًا وستبقى دون تغيير.</string>
+    <string name="text_conflict_policy_overwrite">استبدال</string>
+    <string name="text_conflict_policy_overwrite_details">استبدل الملفات السابقة وادمج المجلدات عندما تتطابق أنواعها. ستتم إعادة تسمية الأنواع غير المتوافقة تلقائيًا. لن تتغير مجلدات الإخراج الموجودة.</string>
+    <string name="text_conflict_policy_skip">تخطي</string>
+    <string name="text_conflict_policy_skip_details">تخطَّ الإدخالات اللاحقة ذات الأسماء المتكافئة. إذا وُجد مجلد إخراج بالاسم نفسه، فستتم إضافة رقم إليه دائمًا وسيبقى المجلد الموجود دون تغيير.</string>
+    <string name="text_copy_diagnostic">نسخ التشخيص</string>
+    <string name="text_create_archive">إنشاء أرشيف</string>
+    <string name="text_creation_conflict_policy">إذا كان اسم الأرشيف غير متاح</string>
+    <string name="text_creation_conflict_policy_ask_details">جرب الاسم المطابق أولا. إذا تعذر على المضيف حجزه، فاسأل قبل إعادة المحاولة باسم مرقم. لا يتم استبدال الأرشيفات الموجودة أبدا.</string>
+    <string name="text_creation_conflict_policy_auto_rename_details">احجز اسما مرقما متاحا. لا يتم استبدال الأرشيفات الموجودة أبدا. تتطلب الكتابة فوق الملف ضمن معاملة واجهة API أحدث للمضيف.</string>
+    <string name="text_custom_budget_zero_note">استخدم 0 للحد الأقصى البنيوي الثابت (عدد العناصر وطول المسار وعمقه) أو لعدم تعيين عتبة تحذير للموارد (الأحجام ونسبة الضغط). لا يمكن تعطيل الأمان البنيوي للمسارات.</string>
+    <string name="text_default_archive_name">أرشيف</string>
+    <string name="text_diagnostic_copied">تم نسخ التشخيص</string>
+    <string name="text_encrypt_file_names">تشفير أسماء الملفات</string>
+    <string name="text_encrypted_entry">عنصر مشفر (%1$s)؛ أدخل كلمة مرور الأرشيف لفتحه</string>
+    <string name="text_encrypted_entry_unlocked">عنصر مشفر (%1$s)؛ تم تطبيق كلمة المرور</string>
+    <string name="text_encryption_method_aes">AES</string>
+    <string name="text_encryption_method_other">تشفير آخر</string>
+    <string name="text_encryption_method_zip_crypto">ZipCrypto</string>
+    <string name="text_encryption_unavailable_for_format">كلمة المرور وتشفير أسماء الملفات غير متاحين لتنسيق %1$s.</string>
+    <string name="text_extracting">جار استخراج %1$d من %2$d</string>
+    <string name="text_extraction_budget">ميزانية الاستخراج</string>
+    <string name="text_extraction_conflict_policy">عند تعارض أسماء الإخراج</string>
     <string name="text_extraction_conflict_summary">تمت معالجة التعارضات: تخطي %1$d، واستبدال أو دمج %2$d، وإعادة تسمية %3$d تلقائيًا.</string>
-    <string name="text_resource_budget_summary">الإخراج المقدر: %1$s\nالعناصر المحددة: %2$d\nالمساحة المتاحة في الوجهة: تحقق منها قبل المتابعة.</string>
-    <string name="text_resource_budget_warning">تسمح المتابعة بالقيم المعلنة لهذا الاستخراج فقط. تظل فحوص أمان المسار وهوية المصدر والحجم والمجموع الاختباري والتنظيف مفعلة.</string>
-    <string name="text_password_encryption_note">تستخدم كلمة المرور غير الفارغة تشفير AES-256. تظل أسماء الملفات ظاهرة.</string>
-    <string name="action_add_files" tools:ignore="TypographyEllipsis">إضافة ملفات...</string>
-    <string name="action_delete">حذف</string>
-    <string name="action_new_folder" tools:ignore="TypographyEllipsis">مجلد جديد...</string>
-    <string name="action_rename" tools:ignore="TypographyEllipsis">إعادة تسمية...</string>
-    <string name="dialog_title_new_archive_folder">مجلد جديد داخل الأرشيف</string>
-    <string name="dialog_title_rename_archive_entry">إعادة تسمية عنصر الأرشيف</string>
-    <string name="error_archive_mutation_failed">تعذر تحديث ZIP</string>
-    <string name="error_archive_refresh_failed">تم تحديث ZIP، ولكن تعذرت إعادة تحميل محتوياته الجديدة</string>
-    <string name="error_rename_single_selection">حدد ملفا أو مجلدا واحدا فقط لإعادة تسميته</string>
-    <string name="error_zip_entry_name_invalid">أدخل اسم ملف أو مجلد صالحا</string>
-    <string name="text_archive_changes_complete">تم تحديث الأرشيف</string>
-    <string name="text_archive_entry_name">الاسم</string>
-    <string name="text_committing_archive_changes" tools:ignore="TypographyEllipsis">جار اعتماد تغييرات الأرشيف...</string>
-    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">جار تحضير تغييرات الأرشيف...</string>
-    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">جار التحقق من تغييرات الأرشيف...</string>
-    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">جار تحديث %1$d من %2$d: %3$s</string>
-    <string name="dialog_message_extraction_destination">مجلد الإخراج الافتراضي هو %1$s. إذا كان هذا الاسم موجودا، يضيف Archive Manager رقما دون تغيير المحتوى الموجود.</string>
-    <string name="dialog_title_extraction_destination">وجهة الاستخراج</string>
+    <string name="text_extraction_current_item">العنصر الحالي: %1$s</string>
     <string name="text_extraction_destination_choose_folder" tools:ignore="TypographyEllipsis">اختر مجلدا آخر...</string>
     <string name="text_extraction_destination_current_folder">المجلد الحالي (موصى به)\n%1$s</string>
     <string name="text_extraction_output_path">الناتج: %1$s</string>
-    <string name="text_committing_extraction" tools:ignore="TypographyEllipsis">جار إنهاء الملفات المستخرجة...</string>
+    <string name="text_extraction_progress_bytes">%1$s / %2$s</string>
+    <string name="text_extraction_rate">%1$s/ث</string>
+    <string name="text_extraction_rate_eta">%1$s/ث، متبق %2$s</string>
+    <string name="text_extraction_scope_current_directory">المجلد الحالي: %1$s</string>
+    <string name="text_extraction_scope_current_selection">التحديد الحالي</string>
+    <string name="text_extraction_scope_entire_archive">الأرشيف بالكامل</string>
+    <string name="text_failure_stage_cleanup">التنظيف</string>
+    <string name="text_failure_stage_entry_data">بيانات العنصر</string>
+    <string name="text_failure_stage_format_detection">اكتشاف التنسيق</string>
+    <string name="text_failure_stage_index">فهرس الدليل</string>
+    <string name="text_failure_stage_input">الإدخال</string>
+    <string name="text_failure_stage_output">الإخراج</string>
+    <string name="text_failure_stage_password">كلمة المرور</string>
+    <string name="text_filename_encoding">ترميز أسماء الملفات</string>
+    <string name="text_filename_encoding_automatic">تلقائي</string>
+    <string name="text_filename_encoding_automatic_detected">تلقائي (احتياطي للأسماء القديمة: %1$s)</string>
+    <string name="text_format_zip">ZIP</string>
     <string name="text_interrupted_outputs_recovered" tools:ignore="PluralsCandidate">تم التراجع عن %1$d من معاملات الإخراج غير المكتملة بعد مقاطعة العملية.</string>
-    <string name="action_add_folder" tools:ignore="TypographyEllipsis">إضافة مجلد...</string>
-    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">جار فحص المجلد...</string>
-    <string name="action_archive_information">معلومات الأرشيف</string>
-    <string name="dialog_title_archive_information">معلومات الأرشيف</string>
-    <string name="dialog_title_archive_mutation_preflight">مراجعة تغييرات الأرشيف</string>
-    <string name="text_archive_information_format">التنسيق: %1$s</string>
-    <string name="text_archive_information_archive_size">حجم الأرشيف الحالي: %1$s</string>
-    <string name="text_archive_information_contents">المحتويات: %1$d من العناصر (%2$d من الملفات، %3$d من المجلدات)؛ %4$s بعد فك الضغط</string>
-    <string name="text_archive_management_status">الإدارة: %1$s</string>
-    <string name="text_archive_management_available">متاحة في هذه الجلسة</string>
-    <string name="text_archive_management_read_only">للقراءة فقط. %1$s</string>
-    <string name="text_archive_read_only_current_session">فُتح هذا الأرشيف من دون صلاحية إدارة المحتوى. أعد فتحه باستخدام إدارة الأرشيف لإجراء تغييرات.</string>
-    <string name="text_archive_read_only_host_replacement">لا تستطيع جلسة المضيف الحالية استبدال هذا الأرشيف بصورة ذرية.</string>
-    <string name="text_archive_read_only_format">تدعم الواجهة الخلفية المثبتة تصفح هذا التنسيق أو استخراجه، لكنها لا تدعم تغيير محتواه.</string>
-    <string name="text_archive_read_only_multi_volume">لا يمكن إعادة إنشاء الأرشيفات متعددة الأجزاء بأمان.</string>
-    <string name="text_archive_read_only_unsafe_path">يحتوي عنصر واحد على الأقل على مسار أصلي غير آمن، لذلك لا يمكن إعادة إنشاء الأرشيف.</string>
-    <string name="text_archive_read_only_password">طبّق كلمة مرور الأرشيف الصحيحة قبل إجراء تغييرات.</string>
-    <string name="text_archive_read_only_unsupported_method">يستخدم عنصر واحد على الأقل طريقة ضغط أو تشفير لا تستطيع هذه الواجهة الخلفية إعادة كتابتها.</string>
-    <string name="text_archive_read_only_backend_variant">هذا النوع من الأرشيفات متاح للقراءة فقط في الواجهة الخلفية المثبتة.</string>
-    <string name="text_archive_management_operations">التغييرات المتاحة: %1$s.</string>
-    <string name="text_archive_mutation_full_rewrite">إعادة إنشاء كاملة: يُكتب كل ملف ناتج في أرشيف بديل تم التحقق منه، ثم يُستبدل الأرشيف الأصلي بصورة ذرية.</string>
-    <string name="text_archive_metadata_effects">بيانات التعريف التي تتأثر بإعادة الإنشاء:</string>
-    <string name="text_archive_metadata_archive_comment_dropped">لن يتم الاحتفاظ بتعليق الأرشيف.</string>
-    <string name="text_archive_metadata_entry_comments_dropped">لن يتم الاحتفاظ بتعليقات العناصر.</string>
-    <string name="text_archive_metadata_extra_fields_normalized">قد تتم تسوية بيانات التعريف الموسعة الخاصة بالتنسيق.</string>
-    <string name="text_archive_metadata_unix_attributes_dropped">لن يتم الاحتفاظ بأذونات Unix وسماته.</string>
-    <string name="text_archive_metadata_compression_normalized">قد تتم تسوية إعدادات الضغط وبيانات الحاوية الوصفية.</string>
-    <string name="text_archive_metadata_encryption_normalized">قد تتم تسوية إعدادات التشفير لكل عنصر.</string>
-    <string name="text_archive_information_safety">لا يُستبدل الأرشيف الأصلي إلا بعد قراءة الأرشيف الجديد بالكامل والتحقق منه.</string>
-    <string name="text_archive_mutation_operation_add">إضافة محتوى</string>
-    <string name="text_archive_mutation_operation_delete">حذف المحتوى المحدد</string>
-    <string name="text_archive_mutation_operation_rename">إعادة تسمية المحتوى المحدد</string>
-    <string name="text_archive_mutation_preflight_change">التغيير: %1$s</string>
-    <string name="text_archive_mutation_preflight_result" tools:ignore="PluralsCandidate">النتيجة: %1$d من العناصر (%2$d من الملفات، %3$d من المجلدات)</string>
-    <string name="text_archive_mutation_preflight_known_work">المحتوى المطلوب قراءته: %1$s</string>
-    <string name="text_archive_mutation_preflight_unknown_work" tools:ignore="PluralsCandidate">المحتوى المطلوب قراءته: %1$s على الأقل؛ الحجم المبلغ عنه غير معروف لعدد %2$d من الملفات الناتجة.</string>
-    <string name="text_archive_mutation_output_size_unknown">لا يتم تقدير حجم الإخراج المؤقت لأن الضغط قد يغيره. تأكد من توفر مساحة على الجهاز لأرشيف بديل كامل.</string>
-    <string name="action_restore_previous_archive_version">استعادة الإصدار السابق</string>
-    <string name="dialog_title_restore_previous_archive_version">هل تريد استعادة الإصدار السابق؟</string>
-    <string name="dialog_message_restore_previous_archive_version">سيحل الإصدار السابق الذي حفظه AutoJs6 (%1$s، حُفظ في %2$s) محل الأرشيف الحالي. تتوفر هذه الاستعادة مرة واحدة فقط، وسيتم رفضها إذا تغير الأرشيف الحالي في مكان آخر.</string>
-    <string name="error_archive_restore_refresh_failed">تمت استعادة الإصدار السابق من الأرشيف، ولكن تعذرت إعادة تحميل محتوياته</string>
-    <string name="error_previous_archive_version_changed">تغير الأرشيف الحالي بعد تحديثه. لم تتم استعادة إصداره السابق.</string>
-    <string name="error_previous_archive_version_restore_failed">تعذرت استعادة الإصدار السابق من الأرشيف</string>
+    <string name="text_item_type_directory">مجلد</string>
+    <string name="text_item_type_file">ملف</string>
+    <string name="text_loading_archive" tools:ignore="TypographyEllipsis">جار تحميل الأرشيف...</string>
+    <string name="text_loading_progress">%1$s من %2$s</string>
+    <string name="text_modified">التعديل: %1$s</string>
+    <string name="text_move_sources_to_trash_after_compression">نقل العناصر المصدر إلى المهملات بعد الضغط</string>
+    <string name="text_moving_sources_to_trash">جار نقل العناصر المصدر إلى المهملات</string>
+    <string name="text_navigate_up">الانتقال إلى الأعلى</string>
+    <string name="text_no_entries">لا توجد عناصر مطابقة</string>
+    <string name="text_none">بلا</string>
+    <string name="text_output_path">المسار</string>
+    <string name="text_parent_directory">الدليل الأصل</string>
+    <string name="text_password">كلمة المرور</string>
+    <string name="text_password_applied">تم تطبيق كلمة المرور. يمكنك تحديثها في أي وقت.</string>
+    <string name="text_password_encryption_note">تستخدم كلمة المرور غير الفارغة تشفير AES-256. تظل أسماء الملفات ظاهرة.</string>
+    <string name="text_password_needed_for_encrypted_entries">أدخل كلمة مرور لفتح العناصر المشفرة واستخراجها.</string>
+    <string name="text_preparing_archive_changes" tools:ignore="TypographyEllipsis">جار تحضير تغييرات الأرشيف...</string>
+    <string name="text_preparing_compression" tools:ignore="TypographyEllipsis">جار التحضير للضغط...</string>
+    <string name="text_preparing_extraction" tools:ignore="TypographyEllipsis">جار تحضير الاستخراج...</string>
     <string name="text_previous_archive_version_available">الإصدار السابق: متاح للاستعادة (%1$s، حُفظ في %2$s).</string>
     <string name="text_previous_archive_version_recovery_required">الإصدار السابق: يجب أن يكمل المضيف فحوص الاسترداد. لن يتم استبدال الأرشيف تلقائيًا.</string>
     <string name="text_previous_archive_version_restore_complete">تمت استعادة الإصدار السابق من الأرشيف</string>
     <string name="text_previous_archive_version_restored">الإصدار السابق: تمت استعادته. تم استخدام هذه الاستعادة لمرة واحدة.</string>
     <string name="text_previous_archive_version_stale">الإصدار السابق: غير متاح لأن الأرشيف الحالي تغير بعد تحديثه.</string>
+    <string name="text_reindexing_archive" tools:ignore="TypographyEllipsis">جار إعادة فهرسة الأرشيف...</string>
+    <string name="text_resource_budget_summary">الإخراج المقدر: %1$s\nالعناصر المحددة: %2$d\nالمساحة المتاحة في الوجهة: تحقق منها قبل المتابعة.</string>
+    <string name="text_resource_budget_warning">تسمح المتابعة بالقيم المعلنة لهذا الاستخراج فقط. تظل فحوص أمان المسار وهوية المصدر والحجم والمجموع الاختباري والتنظيف مفعلة.</string>
     <string name="text_restoring_previous_archive_version" tools:ignore="TypographyEllipsis">جارٍ استعادة الإصدار السابق من الأرشيف...</string>
-    <string name="action_source_recovery_history">سجل استعادة العناصر المصدر</string>
-    <string name="action_restore_sources">استعادة العناصر المصدر</string>
-    <string name="action_retry_source_restore">إعادة محاولة الاستعادة</string>
-    <string name="dialog_button_done">تم</string>
-    <string name="dialog_title_source_recovery_history">سجل استعادة العناصر المصدر</string>
-    <string name="dialog_title_source_recovery_details">تفاصيل استعادة العناصر المصدر</string>
-    <string name="error_source_restore_failed">تعذرت استعادة العناصر المصدر. السبب: %1$s</string>
     <string name="text_restoring_sources">جارٍ استعادة العناصر المصدر من المهملات</string>
-    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
+    <string name="text_scanning_compression_sources" tools:ignore="TypographyEllipsis">جار فحص عناصر المصدر...</string>
+    <string name="text_scanning_folder" tools:ignore="TypographyEllipsis">جار فحص المجلد...</string>
+    <string name="text_search_hint">البحث في الأرشيف</string>
+    <string name="text_section_behavior">بعد الضغط</string>
+    <string name="text_section_compression">الضغط</string>
+    <string name="text_section_destination">الوجهة</string>
+    <string name="text_section_security">كلمة المرور والتشفير</string>
+    <string name="text_select_entry">تحديد العنصر</string>
+    <string name="text_selected_count">المحدد: %1$d</string>
+    <string name="text_separate_archive_conflict_note">تُرقّم الأسماء الموجودة والمتكررة تلقائيًا، ولا تتم الكتابة فوق أي عنصر.</string>
+    <string name="text_separate_archive_preview_count">سيتم إنشاء %1$d أرشيفات في هذا المجلد:</string>
+    <string name="text_separate_archive_preview_more">- و%1$d أخرى</string>
+    <string name="text_separate_archive_progress">الأرشيف %1$d من %2$d: %3$s\n%4$s</string>
+    <string name="text_separate_archives_created">تم إنشاء %1$d أرشيفات: ضُغط %2$d ملفات وأُضيف %3$d مجلدات.</string>
+    <string name="text_separate_split_archives_created">تم إنشاء %1$d أرشيفات في %2$d من ملفات أجزاء ZIP، وضُغط %3$d ملفات.</string>
+    <string name="text_size_details">%1$s, مضغوط %2$s, CRC %3$s</string>
     <string name="text_source_recovery_details" tools:ignore="PluralsCandidate">تاريخ الإنشاء: %1$s\nالحالة: %2$s\nسجلات المهملات: %3$d\nتمت استعادته: %4$d\nيحتاج إلى انتباه: %5$d\n\nالعناصر المصدر:\n%6$s</string>
+    <string name="text_source_recovery_history_item">%1$s\n%2$s - %3$s</string>
     <string name="text_source_recovery_state_available">متاح للاستعادة</string>
+    <string name="text_source_recovery_state_failed">لم تُنقل أي عناصر مصدر</string>
     <string name="text_source_recovery_state_partial">متاح جزئيًا</string>
+    <string name="text_source_recovery_state_recovery_required">تحتاج الاستعادة إلى انتباه</string>
     <string name="text_source_recovery_state_restored">تمت الاستعادة</string>
     <string name="text_source_recovery_state_stale">تعارض في الاسم أو سجل قديم</string>
-    <string name="text_source_recovery_state_recovery_required">تحتاج الاستعادة إلى انتباه</string>
-    <string name="text_source_recovery_state_failed">لم تُنقل أي عناصر مصدر</string>
     <string name="text_source_restore_no_change">لم تتم استعادة عناصر مصدر إضافية. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</string>
-    <plurals name="text_more_source_items">
-        <item quantity="zero">لا عناصر إضافية</item>
-        <item quantity="one">+ عنصر إضافي واحد</item>
-        <item quantity="two">+ عنصران إضافيان</item>
-        <item quantity="few">+ %1$d عناصر إضافية</item>
-        <item quantity="many">+ %1$d عنصرًا إضافيًا</item>
-        <item quantity="other">+ %1$d عنصر إضافي</item>
-    </plurals>
-    <plurals name="text_sources_restored_from_trash">
-        <item quantity="zero">لم تتم استعادة أي عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
-        <item quantity="one">تمت استعادة عنصر مصدر واحد. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
-        <item quantity="two">تمت استعادة عنصري مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
-        <item quantity="few">تمت استعادة %1$d عناصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
-        <item quantity="many">تمت استعادة %1$d عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
-        <item quantity="other">تمت استعادة %1$d عنصر مصدر. تم الاحتفاظ بملفات الأرشيف التي أُنشئت.</item>
-    </plurals>
-    <plurals name="warning_sources_not_restored">
-        <item quantity="zero">لم يتبق أي عنصر مصدر غير مستعاد.</item>
-        <item quantity="one">لم تتم استعادة عنصر مصدر واحد لأن اسمه الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
-        <item quantity="two">لم تتم استعادة عنصري مصدر لأن اسميهما الأصليين مستخدمان أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقيان في مهملات AutoJs6 إذا توفرت نسختا استرداد.</item>
-        <item quantity="few">لم تتم استعادة %1$d عناصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
-        <item quantity="many">لم تتم استعادة %1$d عنصر مصدر لأن أسماءها الأصلية مستخدمة أو لأن الاستعادة ما زالت تحتاج إلى انتباه. تبقى في مهملات AutoJs6 إذا توفرت نسخ استرداد.</item>
-        <item quantity="other">لم تتم استعادة %1$d عنصر مصدر لأن الاسم الأصلي مستخدم أو لأن الاستعادة ما زالت تحتاج إلى انتباه. يبقى في مهملات AutoJs6 إذا توفرت نسخة استرداد.</item>
-    </plurals>
-    <string name="text_archive_workspace">إدارة الأرشيف</string>
-    <string name="text_archive_overview">نظرة عامة</string>
-    <string name="text_archive_selection">العناصر المحددة</string>
-    <string name="text_section_destination">الوجهة</string>
-    <string name="text_section_compression">الضغط</string>
-    <string name="text_section_security">كلمة المرور والتشفير</string>
-    <string name="text_section_behavior">بعد الضغط</string>
-    <string name="text_archive_actions">الإجراءات</string>
+    <string name="text_sources_moved_to_trash">تم نقل %1$d من عناصر المصدر إلى المهملات.</string>
+    <string name="text_split_archive_created">تم إنشاء %1$s في %2$d من ملفات أجزاء ZIP، وضُغط %3$d ملفات.</string>
+    <string name="text_split_unavailable_for_format">إخراج المجلدات المجزأة غير متوفر لتنسيق %1$s.</string>
+    <string name="text_split_volume">حجم الجزء (MiB)</string>
+    <string name="text_split_volume_helper" tools:ignore="TypographyEllipsis">عندما يتجاوز الناتج الحجم المحدد، ينشئ ZIP ملفات .z01 و.z02 و... وملف .zip أخيرًا؛ أما الناتج الأصغر فيبقى ملف .zip واحدًا. اختر قيمة مسبقة أو أدخل عددًا صحيحًا من %1$d إلى %2$d.</string>
+    <string name="text_split_volume_mib">%1$d MiB</string>
+    <string name="text_unknown">غير معروف</string>
+    <string name="text_unsafe_path_read_only">المسار الأصلي غير آمن؛ المعاينة فقط. يتم استبعاده من الاستخراج.</string>
+    <string name="text_unsafe_paths_folder">مسارات غير آمنة</string>
+    <string name="text_unsupported_compression_method">يتعذر استخراج طريقة الضغط %1$s</string>
+    <string name="text_unsupported_entry_type">يتعذر استخراج نوع الإدخال %1$s</string>
+    <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">جار التحقق من الأرشيف...</string>
+    <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">جار التحقق من تغييرات الأرشيف...</string>
+    <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">جار تحديث %1$d من %2$d: %3$s</string>
+    <string name="warning_sources_trash_failed">تم إنشاء الأرشيف، لكن تعذر نقل العناصر المصدر إلى المهملات.</string>
+    <string name="warning_sources_trash_recovery_required">تم إنشاء الأرشيف، لكن تنظيف المصادر يحتاج إلى مراجعة. تتوفر نسخ قابلة للاسترداد في مهملات AutoJs6.</string>
+    <string name="warning_sources_trash_unknown">تم إنشاء الأرشيف، لكن AutoJs6 لم يتمكن من تأكيد وصول كل العناصر المصدر إلى المهملات. تحقق من المجلد الحالي والمهملات قبل إعادة المحاولة.</string>
 </resources>

@@ -99,7 +99,7 @@ internal fun Context.archiveManagerPluginInfo(): PluginInfo {
         id = ArchiveManagerPlugin.ID
         engine = ExplorerActionPluginIds.ENGINE
         variant = ArchiveManagerPlugin.VARIANT
-        supportedAbis = ArchiveManagerPlugin.SUPPORTED_ABIS.clone()
+        supportedAbis = org.autojs.plugin.runtime.InstalledPackageIdentity.supportedAbis(this@archiveManagerPluginInfo)
         capabilities = Bundle().apply {
             putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, ArchiveManagerPlugin.REQUIRED_HOST_VERSION)
             putInt(ExplorerActionCapabilityKeys.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
