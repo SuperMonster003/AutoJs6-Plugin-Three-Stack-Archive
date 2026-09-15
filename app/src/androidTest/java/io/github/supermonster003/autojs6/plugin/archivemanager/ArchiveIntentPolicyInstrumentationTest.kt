@@ -16,6 +16,7 @@ import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionTargetKeys
 import org.autojs.plugin.explorer.api.ExplorerActionValues
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -141,49 +142,34 @@ class ArchiveIntentPolicyInstrumentationTest {
     }
 
     @Test
-    fun manageArchiveRejectsFormatsWithoutAMutationProvider() {
-        val hostSession = UnusedTestExplorerActionHostSession()
-        val resolved = ArchiveIntentPolicy.resolve(
-            Intent(validIntent())
-                .setType("application/vnd.rar")
-                .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_MANAGE_ID)
-                .putExtra(ExplorerActionIntentExtras.DISPLAY_NAME, "bundle.rar")
-                .putParcelableArrayListExtra(
-                    ExplorerActionIntentExtras.TARGETS,
-                    arrayListOf(
-                        targetBundle(
-                            displayName = "bundle.rar",
-                            mimeType = "application/vnd.rar",
-                        ),
-                    ),
-                )
-                .putExtra(
-                    ExplorerActionIntentExtras.HOST_SESSION,
-                    Bundle().apply {
-                        putBinder(ExplorerActionHostSessionKeys.BINDER, hostSession.asBinder())
-                    },
-                ),
-        )
+    fun manageArchiveAcceptsReadOnlyRarForInspectionAndExtraction() {
+        val resolved = ArchiveIntentPolicy.resolve(managedIntent("bundle.rar", "application/vnd.rar"))
 
-        assertNull(resolved)
+        assertNotNull(resolved)
+        assertEquals(ArchiveRequestedAction.MANAGE, resolved?.requestedAction)
+        assertFalse(ArchiveManagerPlugin.canModifyFileName("bundle.rar"))
     }
 
     @Test
-    fun manageArchiveRejectsZipContainerAliases() {
-        listOf("library.jar", "library.aar", "application.war").forEach { displayName ->
-            val intent = validIntent(displayName, "application/zip")
-                .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_MANAGE_ID)
-                .putExtra(
-                    ExplorerActionIntentExtras.HOST_SESSION,
-                    Bundle().apply {
-                        putBinder(
-                            ExplorerActionHostSessionKeys.BINDER,
-                            UnusedTestExplorerActionHostSession().asBinder(),
-                        )
-                    },
-                )
+    fun manageArchiveAcceptsZipContainerAliasesWithoutEnablingModification() {
+        listOf("library.jar", "library.aar", "application.war", "LIBRARY.JAR").forEach { displayName ->
+            val resolved = ArchiveIntentPolicy.resolve(managedIntent(displayName))
 
-            assertNull(ArchiveIntentPolicy.resolve(intent))
+            assertNotNull(displayName, resolved)
+            assertEquals(ArchiveRequestedAction.MANAGE, resolved?.requestedAction)
+            assertNotNull(resolved?.hostSession)
+            assertFalse(displayName, ArchiveManagerPlugin.canModifyFileName(displayName))
+        }
+    }
+
+    @Test
+    fun manageArchiveRejectsAndroidPackagesEvenWithZipMimeType() {
+        listOf("apk", "apks", "xapk", "apkm", "apkz", "aab", "APK").forEach { extension ->
+            val intent = managedIntent("application.$extension")
+            assertNull(extension, ArchiveIntentPolicy.resolve(intent))
+            // The same valid envelope is still accepted by the read-only archive entry point.
+            intent.putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_OPEN_ID)
+            assertNotNull(extension, ArchiveIntentPolicy.resolve(intent))
         }
     }
 
@@ -392,6 +378,19 @@ class ArchiveIntentPolicyInstrumentationTest {
             ),
         )
     }
+
+    private fun managedIntent(displayName: String, mimeType: String = "application/zip"): Intent =
+        validIntent(displayName, mimeType)
+            .putExtra(ExplorerActionIntentExtras.ACTION_ID, ArchiveManagerPlugin.ACTION_MANAGE_ID)
+            .putExtra(
+                ExplorerActionIntentExtras.HOST_SESSION,
+                Bundle().apply {
+                    putBinder(
+                        ExplorerActionHostSessionKeys.BINDER,
+                        UnusedTestExplorerActionHostSession().asBinder(),
+                    )
+                },
+            )
 
     private fun validIntent(
         displayName: String = "bundle.zip",
