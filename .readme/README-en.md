@@ -123,6 +123,12 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v2.22.3
+
+_2026/09/15_
+
+- `Improved` Raise targetSdk to 37 (Android 17) after compileSdk; the plugin's behavior does not depend on the new target
+
 #### v2.22.2
 
 _2026/09/13_
@@ -136,16 +142,6 @@ _2026/09/13_
 _2026/09/11_
 
 - `Improved` Build verification of 16 KB page alignment for 64-bit native libraries, including manifest contract checks and JSON reports
-
-#### v2.22.0
-
-_2026/08/30_
-
-- `Note` This release requires the paired AutoJs6 6.8.0 build with Explorer Action v21 (version code 5276 or newer)
-- `Added` Plugin Center can now identify the required host version, runtime service, and packaged device architectures directly from the plugin
-- `Fixed` Public descriptions and instructions now distinguish browsing, extraction, creation, editing, encryption, and volume support without overstating writable formats
-- `Fixed` Archive input grants and active-operation state now close before the terminal callback, so an immediate retry is no longer rejected as another operation already running
-- `Improved` A format capability matrix and installation guide now make compatibility, read-only boundaries, recovery behavior, and troubleshooting easier to check before installation
 
 ##### Full history
 

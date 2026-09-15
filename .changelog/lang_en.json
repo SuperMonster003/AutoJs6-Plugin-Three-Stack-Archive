@@ -5,6 +5,12 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v2.22.3": {
+      "released_date": "2026/09/15",
+      "improvement": [
+        "Raise targetSdk to 37 (Android 17) after compileSdk; the plugin's behavior does not depend on the new target"
+      ]
+    },
     "v2.22.2": {
       "released_date": "2026/09/13",
       "improvement": [
