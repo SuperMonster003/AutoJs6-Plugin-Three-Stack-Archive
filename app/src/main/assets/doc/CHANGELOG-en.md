@@ -2,8 +2,9 @@
 
 ## v2.22.3
 
-_2026/09/15_
+_2026/09/19_
 
+- `Fixed` SDK XML v4 parsing warnings with AGP 9.1 and APK native alignment checks incorrectly triggered by JVM unit-test assembly tasks, using shared build plugins 1.8.3
 - `Improved` Raise targetSdk to 37 (Android 17) after compileSdk; the plugin's behavior does not depend on the new target
 
 ## v2.22.2
