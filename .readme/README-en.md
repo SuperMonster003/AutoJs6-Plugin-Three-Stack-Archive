@@ -131,6 +131,12 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.0.1
+
+_2026/10/04_
+
+- `Improved` Plugin Center icons use the sizes, positions, light and dark artwork, and circular backgrounds adjusted in Icon Studio, retaining reproducible sources and parameters
+
 #### v3.0.0
 
 _2026/10/04_
@@ -145,14 +151,6 @@ _2026/09/19_
 
 - `Fixed` SDK XML v4 parsing warnings with AGP 9.1 and APK native alignment checks incorrectly triggered by JVM unit-test assembly tasks, using shared build plugins 1.8.3
 - `Improved` Raise targetSdk to 37 (Android 17) after compileSdk; the plugin's behavior does not depend on the new target
-
-#### v2.22.2
-
-_2026/09/13_
-
-- `Fixed` Plugin center version and ABI information matches the installed plugin APK
-- `Fixed` Version dates use a consistent English format
-- `Improved` Validate release APK versions, signing and the complete variant set before creating download artifacts
 
 ##### Full history
 

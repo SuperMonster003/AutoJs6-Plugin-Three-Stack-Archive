@@ -3,3 +3,13 @@ compatibility/fixture-sources/7zip-22/numbered-volume-payload.md -text whitespac
 *.xml text eol=lf
 *.py text eol=lf
 *.png binary
+
+# Icon Studio reproducible assets
+.icons/assets/** binary
+.icons/recipe.json text eol=lf
+.python/icon_studio_runtime.py text eol=lf
+.python/generate_icon_studio.py text eol=lf
+app/src/main/res/raw/keep_plugin_center_icon.xml text eol=lf
+app/src/main/res/raw/keep_icon_studio.xml text eol=lf
+app/src/main/res/raw/keep_icon_studio_background.xml text eol=lf
+app/src/main/res/values*/icon_studio_backgrounds.xml text eol=lf

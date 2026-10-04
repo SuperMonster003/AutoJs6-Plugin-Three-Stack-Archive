@@ -1,5 +1,11 @@
 # Release notes
 
+## v3.0.1
+
+_2026/10/04_
+
+- `Improved` Plugin Center icons use the sizes, positions, light and dark artwork, and circular backgrounds adjusted in Icon Studio, retaining reproducible sources and parameters
+
 ## v3.0.0
 
 _2026/10/04_
