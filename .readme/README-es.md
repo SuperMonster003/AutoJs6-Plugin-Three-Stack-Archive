@@ -131,6 +131,12 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v3.0.1
+
+_2026/10/04_
+
+- `Mejorado` Los iconos del centro de plugins usan los tamaños, posiciones, imágenes claras y oscuras y fondos circulares ajustados en Icon Studio, conservando fuentes y parámetros reproducibles
+
 #### v3.0.0
 
 _2026/10/04_
@@ -145,14 +151,6 @@ _2026/09/19_
 
 - `Corregido` Advertencias de lectura de SDK XML v4 con AGP 9.1 y comprobaciones de alineación nativa de APK activadas por error al ensamblar pruebas unitarias JVM, mediante los plugins de compilación compartidos 1.8.3
 - `Mejorado` Tras compileSdk, targetSdk sube a 37 (Android 17); el comportamiento del plugin no depende del nuevo objetivo
-
-#### v2.22.2
-
-_2026/09/13_
-
-- `Corregido` La versión y las ABI del centro de complementos coinciden con el APK instalado
-- `Corregido` Las fechas de versión mantienen un formato uniforme en inglés
-- `Mejorado` Validación de las versiones, firmas y variantes completas de los APK antes de crear los archivos de descarga
 
 ##### Historial completo
 
