@@ -1,4 +1,4 @@
-package io.github.supermonster003.autojs6.plugin.archivemanager
+package io.github.supermonster003.autojs6.plugin.three.stack.archive
 
 import android.app.Activity
 import android.net.Uri
@@ -71,7 +71,7 @@ class UriGrantProbeActivity : Activity() {
 
     companion object {
         const val EXTRA_CALLBACK =
-            "io.github.supermonster003.autojs6.plugin.archivemanager.debug.CALLBACK"
+            "io.github.supermonster003.autojs6.plugin.three.stack.archive.debug.CALLBACK"
         const val MESSAGE_READ_COMPLETE = 1
         const val MESSAGE_ACTIVITY_DESTROYED = 2
         const val KEY_DIGESTS = "digests"

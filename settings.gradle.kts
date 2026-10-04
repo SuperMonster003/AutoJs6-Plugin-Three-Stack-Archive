@@ -1,6 +1,6 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "autojs6-plugin-archive-manager"
+rootProject.name = "autojs6-plugin-three-stack-archive"
 
 pluginManagement {
     repositories {

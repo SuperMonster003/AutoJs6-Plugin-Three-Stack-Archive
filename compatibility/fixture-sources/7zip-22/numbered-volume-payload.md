@@ -1,6 +1,6 @@
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
   </p>
 
   <h1>Archive Manager</h1>
@@ -8,9 +8,9 @@
   <p>深度集成 AutoJs6 文件管理器的通用压缩档案管理插件, 支持安全浏览、解压、创建与受控修改</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive?color=534BAE&label=License"/></a>
   </p>
 </div>
 
@@ -19,15 +19,15 @@
 README 提供以下语言版本:
 
 - 简体中文 [zh-Hans] # 当前
-- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-HK.md)
-- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-es.md)
-- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ja.md)
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ar.md)
+- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-zh-Hant-HK.md)
+- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-es.md)
+- [日本語 [ja]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ja.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ar.md)
 
 ### 项目简介
 
@@ -77,7 +77,7 @@ Archive Manager 不申请存储或网络权限. 宿主只提供短生命周期�
 
 剩余工作继续以可勾选项目追踪: 编号 `.zip.001` 与分卷 7Z 调研、普通 ZIP 之外的可写重建、撤销或源文件删除事务、无障碍复核, 以及其余设备与生产工具矩阵.
 
-- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
+- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/ROADMAP.md)
 
 ### 版本记录
 
@@ -115,7 +115,7 @@ _2026/08/26_
 
 ##### 完整记录
 
-* [CHANGELOG-zh-Hans.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/assets/doc/CHANGELOG-zh-Hans.md)
+* [CHANGELOG-zh-Hans.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/app/src/main/assets/doc/CHANGELOG-zh-Hans.md)
 
 ### 构建
 
@@ -134,7 +134,7 @@ Release 构建:
 ### 相关链接
 
 - AutoJs6 文档: https://docs.autojs6.com
-- 第三方软件声明: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
+- 第三方软件声明: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider
 
 

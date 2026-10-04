@@ -1,5 +1,7 @@
 # Third-party notices
 
+3-Stack Archive continues the Archive Manager implementation; names in dated measurements describe the historical releases. The maintainer supplied the new artwork; its original files and Icon Studio recipe, when present, are retained.
+
 This project includes third-party software in its Android application. The project license in [`LICENSE`](LICENSE) does not replace the licenses below.
 
 ## Apache Commons Compress 1.28.0

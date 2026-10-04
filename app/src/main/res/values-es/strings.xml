@@ -95,7 +95,60 @@
     <string name="error_split_volume_invalid">Introduce un tamaño entero entre %1$d y %2$d MiB, o elige Ninguno</string>
     <string name="error_with_reason">%1$s\nMotivo: %2$s</string>
     <string name="error_zip_entry_name_invalid">Introduce un nombre de archivo o carpeta válido</string>
-    <string name="plugin_description">Explora y extrae archivos ZIP, 7Z, RAR y TAR; crea y gestiona de forma segura los formatos editables compatibles</string>
+    <string name="launcher_icon_applied_note">El lanzador puede tardar unos segundos en actualizarse. Puede ser necesario volver a agregar algunos accesos directos.</string>
+    <string name="launcher_icon_auto">Icono adaptable (automático)</string>
+    <string name="launcher_icon_auto_note">Intenta seguir el tema del sistema. Algunos lanzadores guardan los iconos en caché o usan una sola paleta.</string>
+    <string name="launcher_icon_dark">Icono adaptable (oscuro)</string>
+    <string name="launcher_icon_failed">No se pudo cambiar el icono del lanzador. Inténtalo de nuevo.</string>
+    <string name="launcher_icon_light">Icono adaptable (claro)</string>
+    <string name="launcher_icon_title">Icono del lanzador</string>
+    <string name="launcher_icon_transparent">Icono con fondo transparente</string>
+    <string name="launcher_icon_transparent_note">Algunos lanzadores agregan un fondo o una máscara. Puede que no se conserve la transparencia.</string>
+    <string name="plugin_description">Exploración, extracción, creación y gestión de archivos comprimidos</string>
+    <string name="standalone_about_app_summary">Detalles de versión, licencia de código abierto y enlaces del proyecto</string>
+    <string name="standalone_about_title">Acerca de la aplicación y el desarrollador</string>
+    <string name="standalone_dark_mode_dark">Oscuro</string>
+    <string name="standalone_dark_mode_light">Claro</string>
+    <string name="standalone_follow_autojs6">Seguir AutoJs6</string>
+    <string name="standalone_follow_autojs6_fallback_subtitle">AutoJs6 no está disponible. Se usará %1$s.</string>
+    <string name="standalone_follow_autojs6_summary">Seguir AutoJs6 - %1$s</string>
+    <string name="standalone_follow_system">Seguir el sistema</string>
+    <string name="standalone_home_actions">Comenzar</string>
+    <string name="standalone_home_discard">Descartar</string>
+    <string name="standalone_home_host_missing">AutoJs6 no está instalado</string>
+    <string name="standalone_home_host_summary">Abrir el gestor de archivos y elegir una acción</string>
+    <string name="standalone_home_open_archive">Abrir un archivo comprimido</string>
+    <string name="standalone_home_open_failed">No se pudo abrir o guardar el archivo seleccionado</string>
+    <string name="standalone_home_open_host">Usar con AutoJs6</string>
+    <string name="standalone_home_save_output">Guardar la imagen procesada</string>
+    <string name="standalone_home_saved">Archivo guardado</string>
+    <string name="standalone_home_scope">Explore y extraiga archivos aquí; inicie su creación y modificación desde el gestor de archivos de AutoJs6</string>
+    <string name="standalone_home_settings_summary">Apariencia, idioma e información de la aplicación</string>
+    <string name="standalone_home_sources">Fuentes y agradecimientos</string>
+    <string name="standalone_home_sources_summary">Proyecto, dependencias y licencias</string>
+    <string name="standalone_home_unsaved">Guarde o descarte el resultado actual antes de procesar otra imagen</string>
+    <string name="standalone_home_working" tools:ignore="TypographyEllipsis">Preparando el archivo...</string>
+    <string name="standalone_language_ar">العربية</string>
+    <string name="standalone_language_en">English</string>
+    <string name="standalone_language_es">Español</string>
+    <string name="standalone_language_fr">Français</string>
+    <string name="standalone_language_ja">日本語</string>
+    <string name="standalone_language_ko">한국어</string>
+    <string name="standalone_language_ru">Русский</string>
+    <string name="standalone_language_zh_hans">简体中文</string>
+    <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
+    <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
+    <string name="standalone_navigation_back">Atrás</string>
+    <string name="standalone_release_history_load_failed">No se pudo cargar el historial de versiones</string>
+    <string name="standalone_release_history_title">Historial de versiones</string>
+    <string name="standalone_settings_dark_mode">Modo oscuro</string>
+    <string name="standalone_settings_language">Idioma</string>
+    <string name="standalone_settings_saved">Ajustes de la aplicación guardados</string>
+    <string name="standalone_settings_section_appearance">Apariencia</string>
+    <string name="standalone_settings_section_information">Información</string>
+    <string name="standalone_settings_theme_color">Color del tema</string>
+    <string name="standalone_settings_title">Ajustes</string>
+    <string name="standalone_update_release_history_summary">Consultar el historial de versiones incluido en la aplicación</string>
     <string name="text_apply_password">Aplicar</string>
     <string name="text_apply_to_all_conflicts">Aplicar esta opción a todos los conflictos compatibles</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Aplicando contraseña...</string>
@@ -293,6 +346,11 @@
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verificando el archivo...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verificando cambios del archivo...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Actualizando %1$d de %2$d: %3$s</string>
+    <string name="theme_picker_custom">Color personalizado</string>
+    <string name="theme_picker_input">HEX / RGB</string>
+    <string name="theme_picker_invalid">Introduce #RRGGBB, RRGGBB o rgb(r, g, b). Los valores RGB deben ser de 0 a 255.</string>
+    <string name="theme_picker_presets">Colores predefinidos</string>
+    <string name="theme_picker_preview">Vista previa</string>
     <string name="warning_sources_trash_failed">El archivo se creó, pero no se pudieron mover los elementos de origen a la papelera.</string>
     <string name="warning_sources_trash_recovery_required">El archivo se creó, pero la limpieza de los elementos de origen requiere atención. Hay copias recuperables en la papelera de AutoJs6.</string>
     <string name="warning_sources_trash_unknown">El archivo se creó, pero AutoJs6 no pudo confirmar que todos los elementos de origen llegaran a la papelera. Revisa la carpeta actual y la papelera antes de volver a intentarlo.</string>

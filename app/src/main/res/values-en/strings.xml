@@ -95,7 +95,60 @@
     <string name="error_split_volume_invalid">Enter a whole volume size from %1$d to %2$d MiB, or choose None</string>
     <string name="error_with_reason">%1$s\nReason: %2$s</string>
     <string name="error_zip_entry_name_invalid">Enter a valid file or folder name</string>
-    <string name="plugin_description">Browse and extract ZIP, 7Z, RAR, and TAR archives; create and safely manage supported writable formats</string>
+    <string name="launcher_icon_applied_note">The launcher may take a few seconds to refresh. Some home-screen shortcuts may need to be added again.</string>
+    <string name="launcher_icon_auto">Adaptive icon (automatic)</string>
+    <string name="launcher_icon_auto_note">Tries to follow the system theme. Some launchers cache icons or use only one color scheme.</string>
+    <string name="launcher_icon_dark">Adaptive icon (dark)</string>
+    <string name="launcher_icon_failed">Unable to change the launcher icon. Please try again.</string>
+    <string name="launcher_icon_light">Adaptive icon (light)</string>
+    <string name="launcher_icon_title">Launcher icon</string>
+    <string name="launcher_icon_transparent">Transparent background icon</string>
+    <string name="launcher_icon_transparent_note">Some launchers add their own background or mask, so transparency may not be preserved.</string>
+    <string name="plugin_description">Archive browsing, extraction, creation and management</string>
+    <string name="standalone_about_app_summary">Version details, open source license, and project links</string>
+    <string name="standalone_about_title">About app and developer</string>
+    <string name="standalone_dark_mode_dark">Dark</string>
+    <string name="standalone_dark_mode_light">Light</string>
+    <string name="standalone_follow_autojs6">Follow AutoJs6</string>
+    <string name="standalone_follow_autojs6_fallback_subtitle">AutoJs6 is unavailable; %1$s will be used.</string>
+    <string name="standalone_follow_autojs6_summary">Follow AutoJs6 - %1$s</string>
+    <string name="standalone_follow_system">Follow system</string>
+    <string name="standalone_home_actions">Get started</string>
+    <string name="standalone_home_discard">Discard</string>
+    <string name="standalone_home_host_missing">AutoJs6 is not installed</string>
+    <string name="standalone_home_host_summary">Open the file manager and choose a file action</string>
+    <string name="standalone_home_open_archive">Open an archive</string>
+    <string name="standalone_home_open_failed">The selected file could not be opened or saved</string>
+    <string name="standalone_home_open_host">Use with AutoJs6</string>
+    <string name="standalone_home_save_output">Save the processed image</string>
+    <string name="standalone_home_saved">File saved</string>
+    <string name="standalone_home_scope">Browse and extract archives here; start archive creation and modification from the AutoJs6 file manager</string>
+    <string name="standalone_home_settings_summary">Appearance, language and application information</string>
+    <string name="standalone_home_sources">Sources and acknowledgments</string>
+    <string name="standalone_home_sources_summary">Project, dependency sources and license notices</string>
+    <string name="standalone_home_unsaved">Save or discard the current processed image before starting another</string>
+    <string name="standalone_home_working" tools:ignore="TypographyEllipsis">Preparing the file...</string>
+    <string name="standalone_language_ar">العربية</string>
+    <string name="standalone_language_en">English</string>
+    <string name="standalone_language_es">Español</string>
+    <string name="standalone_language_fr">Français</string>
+    <string name="standalone_language_ja">日本語</string>
+    <string name="standalone_language_ko">한국어</string>
+    <string name="standalone_language_ru">Русский</string>
+    <string name="standalone_language_zh_hans">简体中文</string>
+    <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
+    <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
+    <string name="standalone_navigation_back">Back</string>
+    <string name="standalone_release_history_load_failed">Unable to load the version history</string>
+    <string name="standalone_release_history_title">Version history</string>
+    <string name="standalone_settings_dark_mode">Dark mode</string>
+    <string name="standalone_settings_language">Language</string>
+    <string name="standalone_settings_saved">Application settings saved</string>
+    <string name="standalone_settings_section_appearance">Appearance</string>
+    <string name="standalone_settings_section_information">Information</string>
+    <string name="standalone_settings_theme_color">Theme color</string>
+    <string name="standalone_settings_title">Settings</string>
+    <string name="standalone_update_release_history_summary">Read the version history included with this app</string>
     <string name="text_apply_password">Apply</string>
     <string name="text_apply_to_all_conflicts">Apply this choice to all compatible conflicts</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>
@@ -293,6 +346,11 @@
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">Verifying archive...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">Verifying archive changes...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">Updating %1$d of %2$d: %3$s</string>
+    <string name="theme_picker_custom">Custom color</string>
+    <string name="theme_picker_input">HEX / RGB</string>
+    <string name="theme_picker_invalid">Enter #RRGGBB, RRGGBB or rgb(r, g, b). RGB values must be 0..255.</string>
+    <string name="theme_picker_presets">Preset colors</string>
+    <string name="theme_picker_preview">Preview</string>
     <string name="warning_sources_trash_failed">The archive was created, but the source items could not be moved to Trash.</string>
     <string name="warning_sources_trash_recovery_required">The archive was created, but source cleanup needs attention. Recovery copies are available in AutoJs6 Trash.</string>
     <string name="warning_sources_trash_unknown">The archive was created, but AutoJs6 could not confirm whether every source item reached Trash. Check the current folder and Trash before retrying.</string>

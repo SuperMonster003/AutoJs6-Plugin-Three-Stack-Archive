@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="appearance_accent">#9CCAFF</color>
+    <color name="appearance_brand_primary">#9CCAFF</color>
+    <color name="appearance_divider">#34363A</color>
+    <color name="appearance_error">#EF9A9A</color>
+    <color name="appearance_outline">#777A82</color>
+    <color name="appearance_surface">#1E1E1E</color>
+    <color name="appearance_surface_variant">#1E1E1E</color>
+    <color name="appearance_system_bar">#121212</color>
+    <color name="appearance_text_primary">#E6E1E5</color>
+    <color name="appearance_text_secondary">#B9BAC0</color>
+    <color name="appearance_window_background">#121212</color>
+    <color name="archive_accent_surface">#263958</color>
     <color name="archive_background">#111722</color>
+    <color name="archive_error">#FFB4AB</color>
+    <color name="archive_error_surface">#492D30</color>
+    <bool name="archive_light_system_bars">false</bool>
+    <color name="archive_on_primary">#142F6B</color>
+    <color name="archive_outline">#394459</color>
+    <color name="archive_primary">#AAC2FF</color>
     <color name="archive_surface">#1B2331</color>
     <color name="archive_surface_variant">#252F40</color>
     <color name="archive_text">#E5EAF5</color>
     <color name="archive_text_secondary">#B0BCD0</color>
-    <color name="archive_outline">#394459</color>
-    <color name="archive_primary">#AAC2FF</color>
-    <color name="archive_on_primary">#142F6B</color>
-    <color name="archive_accent_surface">#263958</color>
-    <color name="archive_error">#FFB4AB</color>
-    <color name="archive_error_surface">#492D30</color>
-    <bool name="archive_light_system_bars">false</bool>
 </resources>

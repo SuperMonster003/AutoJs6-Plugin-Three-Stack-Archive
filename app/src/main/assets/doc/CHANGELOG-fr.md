@@ -1,5 +1,13 @@
 # Notes de version
 
+## v3.0.0
+
+_2026/10/04_
+
+- `Note` L'identifiant passe de io.github.supermonster003.autojs6.plugin.archivemanager à io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installe une application distincte; les anciennes applications et leurs données peuvent être conservées, sans migration automatique des paramètres
+- `Ajout` Un écran autonome ouvre les archives pour les consulter et extraire; la création et la modification sur place restent accessibles depuis AutoJs6
+- `Ajout` Les paramètres communs proposent la langue, le mode sombre, la couleur et quatre icônes de lanceur
+
 ## v2.22.3
 
 _2026/09/19_

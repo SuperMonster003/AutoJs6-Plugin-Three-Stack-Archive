@@ -4,7 +4,7 @@
 
     <application>
         <activity
-            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.UriGrantProbeActivity"
+            android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.UriGrantProbeActivity"
             android:excludeFromRecents="true"
             android:exported="true"
             android:finishOnTaskLaunch="true"
@@ -12,8 +12,8 @@
             android:theme="@android:style/Theme.NoDisplay" />
 
         <provider
-            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.CollisionDocumentsProvider"
-            android:authorities="io.github.supermonster003.autojs6.plugin.archivemanager.test.documents"
+            android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.CollisionDocumentsProvider"
+            android:authorities="io.github.supermonster003.autojs6.plugin.three.stack.archive.test.documents"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"

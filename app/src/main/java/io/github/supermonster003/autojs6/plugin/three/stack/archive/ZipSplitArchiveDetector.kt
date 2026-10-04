@@ -1,0 +1,206 @@
+package io.github.supermonster003.autojs6.plugin.three.stack.archive
+
+import net.lingala.zip4j.ZipFile as Zip4jFile
+import org.autojs.plugin.explorer.api.ExplorerActionProtocol
+import java.io.File
+import java.io.IOException
+
+internal enum class ZipSplitSegmentKind {
+    FIRST_VOLUME,
+    FINAL_VOLUME,
+}
+
+internal data class ZipSplitArchiveInfo(
+    val segmentKind: ZipSplitSegmentKind,
+    /** Zero-based disk number from the ordinary EOCD, or null for a Zip64 sentinel/unknown count. */
+    val lastDiskNumber: Int? = null,
+) {
+    init {
+        require(lastDiskNumber == null || lastDiskNumber > 0)
+        require(segmentKind == ZipSplitSegmentKind.FINAL_VOLUME || lastDiskNumber == null)
+    }
+
+    val totalVolumeCount: Int?
+        get() = lastDiskNumber?.let { it + 1 }
+
+    fun finalVolumeName(displayName: String): String = when (segmentKind) {
+        ZipSplitSegmentKind.FINAL_VOLUME -> displayName
+        ZipSplitSegmentKind.FIRST_VOLUME -> {
+            STANDARD_PART_PATTERN.matchEntire(displayName)?.groupValues?.get(1)
+                ?.plus(ZIP_EXTENSION)
+                ?: displayName
+        }
+    }
+
+    fun requiredVolumeSummary(
+        displayName: String,
+        maxListedVolumes: Int = MAX_LISTED_VOLUMES,
+    ): String {
+        require(maxListedVolumes > 0)
+        val numberOfEarlierVolumes = lastDiskNumber
+            ?: return STANDARD_VOLUME_WILDCARD
+        val stem = displayName.substringBeforeLast('.', displayName)
+        val listedCount = minOf(numberOfEarlierVolumes, maxListedVolumes)
+        val listed = (1..listedCount).joinToString(NAME_SEPARATOR) { number ->
+            stem + if (number < 10) ".z0$number" else ".z$number"
+        }
+        val remaining = numberOfEarlierVolumes - listedCount
+        return if (remaining > 0) "$listed (+$remaining)" else listed
+    }
+
+    fun technicalReason(displayName: String? = null): String {
+        val volumeCount = totalVolumeCount?.toString() ?: "multiple"
+        if (displayName == null) {
+            return "ZIP is split across $volumeCount volumes; earlier volumes are unavailable"
+        }
+        return buildString {
+            append("Required volumes: ")
+            append(requiredVolumeSummary(displayName))
+            append("; final volume: ")
+            append(finalVolumeName(displayName))
+            append("; ZIP is split across ")
+            append(volumeCount)
+            append(" volumes")
+        }
+    }
+
+    /** Exact earlier volumes that may be copied beside a selected final `.zip`. */
+    fun materializationVolumeNames(
+        displayName: String,
+        availableNames: List<String>,
+    ): List<String>? {
+        if (segmentKind != ZipSplitSegmentKind.FINAL_VOLUME) return null
+        val stem = displayName.substringBeforeLast('.', displayName)
+        lastDiskNumber?.let { diskNumber ->
+            if (diskNumber !in 1 until ExplorerActionProtocol.MAX_ARCHIVE_VOLUMES) return null
+            return (1..diskNumber).map { index ->
+                stem + ".z" + index.toString().padStart(2, '0')
+            }
+        }
+        val indexed = availableNames.mapNotNull { name ->
+            val match = STANDARD_PART_PATTERN.matchEntire(name) ?: return@mapNotNull null
+            if (!match.groupValues[1].equals(stem, ignoreCase = true)) return@mapNotNull null
+            val index = name.substringAfterLast('z', "").toIntOrNull() ?: return@mapNotNull null
+            index to name
+        }.sortedBy(Pair<Int, String>::first)
+        if (indexed.isEmpty() || indexed.size >= ExplorerActionProtocol.MAX_ARCHIVE_VOLUMES) {
+            return null
+        }
+        if (indexed.map(Pair<Int, String>::first) != (1..indexed.size).toList()) return null
+        return indexed.map(Pair<Int, String>::second)
+    }
+
+    private companion object {
+        const val MAX_LISTED_VOLUMES = 8
+        const val NAME_SEPARATOR = ", "
+        const val STANDARD_VOLUME_WILDCARD = "*.z01, *.z02, ..."
+        const val ZIP_EXTENSION = ".zip"
+        val STANDARD_PART_PATTERN = Regex("(?i)^(.*)\\.z[0-9]{2,}$")
+    }
+}
+
+internal class ZipSplitArchiveException(
+    val info: ZipSplitArchiveInfo,
+) : IOException(info.technicalReason())
+
+/**
+ * Detects standard PKZIP-style split archives without opening entry data or enumerating every
+ * declared disk. Zip4j validates the EOCD/Zip64 directory shape; the bounded tail reader is used
+ * only to recover the ordinary EOCD disk count for a useful, resource-safe diagnostic.
+ */
+internal object ZipSplitArchiveDetector {
+
+    fun inspect(source: File): ZipSplitArchiveInfo? {
+        return inspect(source.asArchiveReadSource())
+    }
+
+    fun inspect(source: ArchiveReadSource): ZipSplitArchiveInfo? {
+        if (!source.isRegularFile || source.identity().length < ZIP_SIGNATURE_SIZE) return null
+        if (hasLeadingSplitSignature(source)) {
+            return ZipSplitArchiveInfo(ZipSplitSegmentKind.FIRST_VOLUME)
+        }
+        val ordinaryDiskNumber = ordinaryEndRecordDiskNumber(source)
+        if (ordinaryDiskNumber != null && ordinaryDiskNumber != 0) {
+            return ZipSplitArchiveInfo(
+                segmentKind = ZipSplitSegmentKind.FINAL_VOLUME,
+                lastDiskNumber = ordinaryDiskNumber.takeUnless {
+                    it == ZIP64_UNSIGNED_SHORT_SENTINEL
+                },
+            )
+        }
+        val localFile = source.localFile ?: return null
+        val isSplitArchive = try {
+            Zip4jFile(localFile).use(Zip4jFile::isSplitArchive)
+        } catch (_: Exception) {
+            return null
+        }
+        if (!isSplitArchive) return null
+        return ZipSplitArchiveInfo(
+            segmentKind = ZipSplitSegmentKind.FINAL_VOLUME,
+            lastDiskNumber = ordinaryDiskNumber?.takeUnless {
+                it == ZIP64_UNSIGNED_SHORT_SENTINEL || it == 0
+            },
+        )
+    }
+
+    private fun hasLeadingSplitSignature(source: ArchiveReadSource): Boolean = try {
+        source.openInputStream().use { input ->
+            val first = input.read()
+            val second = input.read()
+            val third = input.read()
+            val fourth = input.read()
+            if (first or second or third or fourth < 0) {
+                false
+            } else {
+                first or (second shl 8) or (third shl 16) or (fourth shl 24) ==
+                    SPLIT_ARCHIVE_SIGNATURE
+            }
+        }
+    } catch (_: IOException) {
+        false
+    }
+
+    private fun ordinaryEndRecordDiskNumber(source: ArchiveReadSource): Int? {
+        val sourceLength = source.identity().length
+        val tailLength = minOf(sourceLength, MAX_EOCD_SEARCH_BYTES.toLong()).toInt()
+        if (tailLength < MIN_EOCD_SIZE) return null
+        val tail = ByteArray(tailLength)
+        try {
+            source.openSeekableChannel().use { input ->
+                input.position(sourceLength - tailLength)
+                val buffer = java.nio.ByteBuffer.wrap(tail)
+                while (buffer.hasRemaining()) {
+                    if (input.read(buffer) < 0) throw IOException("Unexpected end of ZIP input")
+                }
+            }
+        } catch (_: IOException) {
+            return null
+        }
+        for (offset in tailLength - MIN_EOCD_SIZE downTo 0) {
+            if (tail.littleEndianInt(offset) != END_OF_CENTRAL_DIRECTORY_SIGNATURE) continue
+            val commentLength = tail.littleEndianUnsignedShort(offset + EOCD_COMMENT_LENGTH_OFFSET)
+            if (offset + MIN_EOCD_SIZE + commentLength > tailLength) continue
+            val diskNumber = tail.littleEndianUnsignedShort(offset + EOCD_DISK_NUMBER_OFFSET)
+            return diskNumber
+        }
+        return null
+    }
+
+    private fun ByteArray.littleEndianInt(offset: Int): Int =
+        (this[offset].toInt() and 0xFF) or
+            ((this[offset + 1].toInt() and 0xFF) shl 8) or
+            ((this[offset + 2].toInt() and 0xFF) shl 16) or
+            ((this[offset + 3].toInt() and 0xFF) shl 24)
+
+    private fun ByteArray.littleEndianUnsignedShort(offset: Int): Int =
+        (this[offset].toInt() and 0xFF) or ((this[offset + 1].toInt() and 0xFF) shl 8)
+
+    private const val ZIP_SIGNATURE_SIZE = 4L
+    private const val MIN_EOCD_SIZE = 22
+    private const val EOCD_DISK_NUMBER_OFFSET = 4
+    private const val EOCD_COMMENT_LENGTH_OFFSET = 20
+    private const val MAX_EOCD_SEARCH_BYTES = 1024 * 1024
+    private const val ZIP64_UNSIGNED_SHORT_SENTINEL = 0xFFFF
+    private const val SPLIT_ARCHIVE_SIGNATURE = 0x08074B50
+    private const val END_OF_CENTRAL_DIRECTORY_SIGNATURE = 0x06054B50
+}

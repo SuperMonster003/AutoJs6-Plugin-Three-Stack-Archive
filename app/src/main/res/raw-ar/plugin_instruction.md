@@ -1,8 +1,13 @@
-استخدم Archive Manager من مدير الملفات الرئيسي:
+# AutoJs6 3-Stack Archive
 
-يتطلب Archive Manager 2.22.0 نظام Android 7 أو أحدث وبنية AutoJs6 6.8.0 متوافقة (versionCode 5276 أو أحدث) تعلن Explorer Action v21.
+تتيح الصفحة المستقلة تصفح الأرشيفات واستخراجها; يظل الإنشاء والتعديل المباشر متاحين من AutoJs6.
+توفر الإعدادات الموحدة اللغة والوضع الليلي ولون السمة وأربعة خيارات لأيقونة المشغل.
+يتغير معرف التطبيق من io.github.supermonster003.autojs6.plugin.archivemanager إلى io.github.supermonster003.autojs6.plugin.three.stack.archive. يثبته Android كتطبيق مستقل; يمكن الاحتفاظ بالتطبيقات والبيانات السابقة ولا تنتقل الإعدادات تلقائيا.
 
-1. ثبت ملحق `Archive Manager` ومكنه.
+
+يتطلب 3-Stack Archive 2.22.0 نظام Android 7 أو أحدث وبنية AutoJs6 6.8.0 متوافقة (versionCode 5276 أو أحدث) تعلن Explorer Action v21.
+
+1. ثبت ملحق `3-Stack Archive` ومكنه.
 2. افتح قائمة الخيارات لملف أرشيف مدعوم.
 3. اختر `فتح الأرشيف`.
 4. تصفح المجلدات أو ابحث أو استخدم شريط المسار أو افتح العناصر المدعومة بعارضات المضيف.

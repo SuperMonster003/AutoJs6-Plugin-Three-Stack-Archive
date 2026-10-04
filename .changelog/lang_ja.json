@@ -5,6 +5,16 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v3.0.0": {
+      "released_date": "2026/10/04",
+      "hint": [
+        "アプリ ID を io.github.supermonster003.autojs6.plugin.archivemanager から io.github.supermonster003.autojs6.plugin.three.stack.archive に変更. Android では別のアプリとしてインストールされ, 以前のアプリとデータは保持でき, 設定は自動移行されません"
+      ],
+      "feature": [
+        "独立したホーム画面から圧縮ファイルを閲覧, 展開可能; 作成と元のファイルの変更は AutoJs6 から開始",
+        "共通の設定画面で言語, 夜間モード, テーマ色, 4 種類のランチャーアイコンを選択可能"
+      ]
+    },
     "v2.22.3": {
       "released_date": "2026/09/19",
       "improvement": [

@@ -1,8 +1,13 @@
-Use Archive Manager from the main file manager:
+# AutoJs6 3-Stack Archive
 
-Archive Manager 2.22.0 requires Android 7 or newer and a paired AutoJs6 6.8.0 build (versionCode 5276 or newer) that advertises Explorer Action v21.
+A standalone home screen opens archives for browsing and extraction; creation and in-place changes remain available from AutoJs6.
+Language, dark mode, theme color and four launcher icon choices are available in the shared settings layout.
+The application ID changes from io.github.supermonster003.autojs6.plugin.archivemanager to io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically.
 
-1. Install and enable the `Archive Manager` plugin.
+
+3-Stack Archive 2.22.0 requires Android 7 or newer and a paired AutoJs6 6.8.0 build (versionCode 5276 or newer) that advertises Explorer Action v21.
+
+1. Install and enable the `3-Stack Archive` plugin.
 2. Open the overflow menu for a supported archive file.
 3. Select `Open archive`.
 4. Browse folders, search, use the path bar, or open supported entries with the host previewers.

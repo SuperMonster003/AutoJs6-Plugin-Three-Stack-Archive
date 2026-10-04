@@ -1,8 +1,13 @@
-Usa Archive Manager desde el gestor de archivos principal:
+# AutoJs6 3-Stack Archive
 
-Archive Manager 2.22.0 requiere Android 7 o posterior y una compilación emparejada de AutoJs6 6.8.0 (versionCode 5276 o superior) que anuncie Explorer Action v21.
+Una pantalla independiente permite explorar y extraer archivos comprimidos; su creación y modificación siguen disponibles desde AutoJs6.
+Los ajustes comunes ofrecen idioma, modo oscuro, color y cuatro opciones de icono del lanzador.
+El identificador cambia de io.github.supermonster003.autojs6.plugin.archivemanager a io.github.supermonster003.autojs6.plugin.three.stack.archive. Android lo instala como una aplicación independiente; se pueden conservar las aplicaciones y los datos anteriores, sin migración automática de ajustes.
 
-1. Instala y activa el plugin `Archive Manager`.
+
+3-Stack Archive 2.22.0 requiere Android 7 o posterior y una compilación emparejada de AutoJs6 6.8.0 (versionCode 5276 o superior) que anuncie Explorer Action v21.
+
+1. Instala y activa el plugin `3-Stack Archive`.
 2. Abre el menú adicional de un archivo comprimido compatible.
 3. Selecciona `Abrir archivo comprimido`.
 4. Recorre carpetas, busca, usa la barra de ruta o abre entradas compatibles con los visores del host.

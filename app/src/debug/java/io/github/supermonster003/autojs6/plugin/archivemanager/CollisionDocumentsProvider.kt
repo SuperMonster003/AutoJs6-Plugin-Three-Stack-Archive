@@ -1,4 +1,4 @@
-package io.github.supermonster003.autojs6.plugin.archivemanager
+package io.github.supermonster003.autojs6.plugin.three.stack.archive
 
 import android.annotation.SuppressLint
 import android.database.Cursor
@@ -224,7 +224,7 @@ class CollisionDocumentsProvider : DocumentsProvider() {
     )
 
     companion object {
-        const val AUTHORITY = "io.github.supermonster003.autojs6.plugin.archivemanager.test.documents"
+        const val AUTHORITY = "io.github.supermonster003.autojs6.plugin.three.stack.archive.test.documents"
         const val METHOD_REJECT_DELETES = "reject-deletes"
         const val METHOD_RESET = "reset"
         const val ROOT_ID = "root"

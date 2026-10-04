@@ -5,6 +5,16 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "相依性",
   "$data": {
+    "v3.0.0": {
+      "released_date": "2026/10/04",
+      "hint": [
+        "應用程式 ID 從 io.github.supermonster003.autojs6.plugin.archivemanager 改為 io.github.supermonster003.autojs6.plugin.three.stack.archive. Android 將其視為獨立應用程式, 原應用程式與資料可以保留, 設定不會自動遷移"
+      ],
+      "feature": [
+        "獨立首頁可開啟壓縮檔案進行瀏覽與解壓縮, 建立及原位修改仍可從 AutoJs6 發起",
+        "統一設定頁提供語言, 夜間模式, 主題色及四種啟動器圖示選項"
+      ]
+    },
     "v2.22.3": {
       "released_date": "2026/09/19",
       "improvement": [

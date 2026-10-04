@@ -1,16 +1,16 @@
 <div align="center">
   <p>
-    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
+    <img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="3-Stack Archive" width="128" />
   </p>
 
-  <h1>Archive Manager</h1>
+  <h1>3-Stack Archive</h1>
 
   <p>AutoJs6 ファイルマネージャーに統合され、対応アーカイブの閲覧、展開、作成、安全な編集を行う汎用アーカイブマネージャー</p>
 
   <p>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Archive-Manager?label=Release"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=A24232&label=Issues"/></a>
-    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Archive-Manager?color=534BAE&label=License"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/releases"><img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive?label=Release"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/issues"><img alt="GitHub closed issues" src="https://img.shields.io/github/issues/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive?color=A24232&label=Issues"/></a>
+    <a href="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive?color=534BAE&label=License"/></a>
   </p>
 </div>
 
@@ -18,20 +18,28 @@
 
 README は次の言語で提供しています:
 
-- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hans.md)
-- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-HK.md)
-- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-zh-Hant-TW.md)
-- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-en.md)
-- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-fr.md)
-- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-es.md)
+- [简体中文 [zh-Hans]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-zh-Hans.md)
+- [香港繁體 [zh-Hant-HK]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-zh-Hant-HK.md)
+- [台灣繁體 [zh-Hant-TW]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-zh-Hant-TW.md)
+- [English [en]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-en.md)
+- [Français [fr]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-fr.md)
+- [Español [es]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-es.md)
 - 日本語 [ja] # 現在
-- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ko.md)
-- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ru.md)
-- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/.readme/README-ar.md)
+- [한국어 [ko]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ko.md)
+- [Русский [ru]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ru.md)
+- [العربية [ar]](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/.readme/README-ar.md)
+
+### 使い始める
+
+独立したホーム画面から圧縮ファイルを閲覧, 展開可能; 作成と元のファイルの変更は AutoJs6 から開始. 共通の設定画面で言語, 夜間モード, テーマ色, 4 種類のランチャーアイコンを選択可能.
+
+アプリ ID を `io.github.supermonster003.autojs6.plugin.archivemanager` から `io.github.supermonster003.autojs6.plugin.three.stack.archive` に変更. Android では別のアプリとしてインストールされ, 以前のアプリとデータは保持でき, 設定は自動移行されません.
+
+******
 
 ### 概要
 
-Archive Manager は AutoJs6 のファイルマネージャーを置き換えず、その内部で動作します。対応アーカイブはホストの一覧、パスバー、テーマ、ビューアー、選択モード、進行表示、ディレクトリ更新をそのまま利用します。詳しい形式情報と、より詳細なフォームが必要な設定には専用管理ページを使用します。
+3-Stack Archive は AutoJs6 のファイルマネージャーを置き換えず、その内部で動作します。対応アーカイブはホストの一覧、パスバー、テーマ、ビューアー、選択モード、進行表示、ディレクトリ更新をそのまま利用します。詳しい形式情報と、より詳細なフォームが必要な設定には専用管理ページを使用します。
 
 ### スクリーンショット
 
@@ -39,16 +47,16 @@ Archive Manager は AutoJs6 のファイルマネージャーを置き換えず�
 
 <table>
   <tr>
-    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
-    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/images/screenshots/explorer-actions.png?raw=true" alt="Archive actions in AutoJs6 Explorer" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/images/screenshots/native-archive-browsing.png?raw=true" alt="Native archive browsing" width="280" /></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
-    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/images/screenshots/create-archive-form.png?raw=true" alt="Archive creation form" width="280" /></td>
+    <td><img src="https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/images/screenshots/archive-management.png?raw=true" alt="Archive management page" width="280" /></td>
   </tr>
 </table>
 
-- 撮影条件と全スクリーンショット: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/images/screenshots/README.md)
+- 撮影条件と全スクリーンショット: [docs/images/screenshots/README.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/images/screenshots/README.md)
 
 ### 現在利用できる機能
 
@@ -109,7 +117,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 
 ### 権限とデータ
 
-Archive Manager はストレージ権限もネットワーク権限も要求しません。ホストは短命な読み取り専用記述子とプラグイン UID 固定の出力トランザクションだけを渡し、任意のパス選択を許しません。Explorer Action v11 はパスワードを上限付き同期再試行だけで運び、永続化しません。Explorer Action v12 が加えるのは、セッション限定で上限付きのホスト承認済み兄弟ボリューム一覧だけで、不透明 ID とファイル同一性を再検証します。Explorer Action v13 は同じ一時保存済みソースだけを再索引し、完全な置換索引が準備できるまで以前の状態を保持します。Explorer Action v14 は `.zip.001` と `.7z.001` などの上限付き複合サフィックスだけを照合し、任意の `.001` ファイルには一致せず、フォルダーやパスの権限を追加せずに v12 一覧を再利用します。Explorer Action v17 は通常の主操作が一致しない場合に、照合条件を持たない読み取り専用の補助操作だけを追加します。ユーザー操作後に既存セッションを一度再利用し、パス、フォルダー、書き込み権限は追加しません。危険なパスは隔離され、出力は公開前に検証され、予算確認でも構造安全検査は無効になりません。
+3-Stack Archive はストレージ権限もネットワーク権限も要求しません。ホストは短命な読み取り専用記述子とプラグイン UID 固定の出力トランザクションだけを渡し、任意のパス選択を許しません。Explorer Action v11 はパスワードを上限付き同期再試行だけで運び、永続化しません。Explorer Action v12 が加えるのは、セッション限定で上限付きのホスト承認済み兄弟ボリューム一覧だけで、不透明 ID とファイル同一性を再検証します。Explorer Action v13 は同じ一時保存済みソースだけを再索引し、完全な置換索引が準備できるまで以前の状態を保持します。Explorer Action v14 は `.zip.001` と `.7z.001` などの上限付き複合サフィックスだけを照合し、任意の `.001` ファイルには一致せず、フォルダーやパスの権限を追加せずに v12 一覧を再利用します。Explorer Action v17 は通常の主操作が一致しない場合に、照合条件を持たない読み取り専用の補助操作だけを追加します。ユーザー操作後に既存セッションを一度再利用し、パス、フォルダー、書き込み権限は追加しません。危険なパスは隔離され、出力は公開前に検証され、予算確認でも構造安全検査は無効になりません。
 
 Explorer Action v15 は同一セッションで検証済みの新規出力だけを最大 128 件の復旧可能バッチにまとめます。Explorer Action v16 は、プラグインが元の選択全体を順序どおりに示し、コミット済みの全出力トランザクションを正確に証明した場合だけ、ホストが元項目と出力を再検証してゴミ箱へ移動します。ホストは元データを除去する前に復旧コピーを同期し記録を永続化します。プラグインには任意パスや直接削除の権限を与えません。Binder 応答を失った場合は移動を再試行せず、同じ冪等終端結果を照会します。
 
@@ -119,9 +127,17 @@ Explorer Action v18 は前のアーカイブをホストの非公開永続スト
 
 ネイティブの参照、展開、作成、アーカイブ変更、前バージョン復元、永続的な元項目復元は、通常のファイルマネージャーレイアウトを変えずに完了しました。Roadmap の未チェック項目は将来の任意のプロトコル、バックエンド、境界ケース改善であり、現在の機能ではありません。
 
-- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/ROADMAP.md)
+- [ROADMAP.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/ROADMAP.md)
 
 ### リリースノート
+
+#### v3.0.0
+
+_2026/10/04_
+
+- `注記` アプリ ID を io.github.supermonster003.autojs6.plugin.archivemanager から io.github.supermonster003.autojs6.plugin.three.stack.archive に変更. Android では別のアプリとしてインストールされ, 以前のアプリとデータは保持でき, 設定は自動移行されません
+- `追加` 独立したホーム画面から圧縮ファイルを閲覧, 展開可能; 作成と元のファイルの変更は AutoJs6 から開始
+- `追加` 共通の設定画面で言語, 夜間モード, テーマ色, 4 種類のランチャーアイコンを選択可能
 
 #### v2.22.3
 
@@ -138,15 +154,9 @@ _2026/09/13_
 - `修正` バージョン日付は英語の統一形式で表示されます
 - `改善` ダウンロード用ファイルの作成前に, リリース APK のバージョン, 署名, バリアントの完全性を検証
 
-#### v2.22.1
-
-_2026/09/11_
-
-- `改善` 64 ビットのネイティブライブラリの 16 KB ページアラインメントをビルド時に検証, manifest 契約の検査と JSON レポートに対応
-
 ##### 全履歴
 
-* [CHANGELOG-ja.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/app/src/main/assets/doc/CHANGELOG-ja.md)
+* [CHANGELOG-ja.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/app/src/main/assets/doc/CHANGELOG-ja.md)
 
 ### ビルド
 
@@ -164,12 +174,17 @@ Release ビルド:
 
 ### リンク
 
-- インストールガイド: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/INSTALLATION.md)
-- 形式別機能表: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/FORMAT_CAPABILITIES.md)
-- セキュリティポリシー: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/SECURITY.md)
+- インストールガイド: [docs/INSTALLATION.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/INSTALLATION.md)
+- 形式別機能表: [docs/FORMAT_CAPABILITIES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/FORMAT_CAPABILITIES.md)
+- セキュリティポリシー: [SECURITY.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/SECURITY.md)
 - AutoJs6 ドキュメント: https://docs.autojs6.com
-- サードパーティーソフトウェアに関する通知: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/THIRD_PARTY_NOTICES.md)
+- サードパーティーソフトウェアに関する通知: [THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/THIRD_PARTY_NOTICES.md)
 - Android Storage Access Framework: https://developer.android.com/guide/topics/providers/document-provider
 
 
-[16 KB page alignment and build verification](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/16kb.md)
+[16 KB page alignment and build verification](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/16kb.md)
+
+
+### 出典と謝辞
+
+[THIRD_PARTY_NOTICES.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/THIRD_PARTY_NOTICES.md) · [RIGHTS_AND_TAKEDOWN.md](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/RIGHTS_AND_TAKEDOWN.md)
