@@ -4,7 +4,7 @@
 
 The archive workspace introduced in `6230618` exposes the management page for inspection and
 extraction of readable archives, including JAR, AAR, WAR and RAR. Opening that page does not grant
-editing capabilities. `ArchiveManagerPlugin.canModifyFileName` and the management status checks
+editing capabilities. `ThreeStackArchivePlugin.canModifyFileName` and the management status checks
 still restrict modification to eligible ZIP, 7Z and TAR files. Android package aliases use the
 separate read-only archive entry point.
 
@@ -28,8 +28,8 @@ Run after `:app:assembleDebug :app:assembleDebugAndroidTest` and installation:
 
 ```powershell
 adb -s <serial> shell am instrument -w -r `
-  -e class io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveIntentPolicyInstrumentationTest `
-  io.github.supermonster003.autojs6.plugin.archivemanager.test/androidx.test.runner.AndroidJUnitRunner
+  -e class io.github.supermonster003.autojs6.plugin.three.stack.archive.ArchiveIntentPolicyInstrumentationTest `
+  io.github.supermonster003.autojs6.plugin.three.stack.archive.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
 Local build and device logs are under `build/verification/plugin-test-repair/` and remain ignored.

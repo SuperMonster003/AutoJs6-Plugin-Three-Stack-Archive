@@ -1,8 +1,13 @@
-기본 파일 관리자에서 Archive Manager를 사용합니다:
+# AutoJs6 3-Stack Archive
 
-Archive Manager 2.22.0에는 Android 7 이상과 Explorer Action v21을 제공하는 호환 AutoJs6 6.8.0 빌드(versionCode 5276 이상)가 필요합니다.
+독립 홈 화면에서 압축 파일 탐색 및 추출 가능; 생성과 원본 수정은 AutoJs6에서 시작.
+공통 설정 화면에서 언어, 야간 모드, 테마 색상 및 네 가지 런처 아이콘 선택 가능.
+앱 ID가 io.github.supermonster003.autojs6.plugin.archivemanager에서 io.github.supermonster003.autojs6.plugin.three.stack.archive(으)로 변경됩니다. Android는 별도 앱으로 설치하며 기존 앱과 데이터를 유지할 수 있고 설정은 자동으로 이전되지 않습니다.
 
-1. `Archive Manager` 플러그인을 설치하고 활성화합니다.
+
+3-Stack Archive 2.22.0에는 Android 7 이상과 Explorer Action v21을 제공하는 호환 AutoJs6 6.8.0 빌드(versionCode 5276 이상)가 필요합니다.
+
+1. `3-Stack Archive` 플러그인을 설치하고 활성화합니다.
 2. 지원되는 압축 파일의 더보기 메뉴를 엽니다.
 3. `압축 파일 열기`를 선택합니다.
 4. 폴더를 탐색하거나 검색하고 경로 표시줄로 이동하거나 호스트 뷰어로 지원 항목을 엽니다.

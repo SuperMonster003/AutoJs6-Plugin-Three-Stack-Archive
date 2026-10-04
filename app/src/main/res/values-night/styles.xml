@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Standalone" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/appearance_brand_primary</item>
+        <item name="colorAccent">@color/appearance_accent</item>
+        <item name="colorSurface">@color/appearance_surface</item>
+        <item name="colorSurfaceVariant">@color/appearance_surface_variant</item>
+        <item name="colorOutline">@color/appearance_outline</item>
+        <item name="colorError">@color/appearance_error</item>
+        <item name="colorOnSurface">@color/appearance_text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/appearance_text_secondary</item>
+        <item name="android:textColorPrimary">@color/appearance_text_primary</item>
+        <item name="android:textColorSecondary">@color/appearance_text_secondary</item>
+        <item name="android:colorAccent">@color/appearance_accent</item>
+        <item name="android:navigationBarColor">@color/appearance_system_bar</item>
+        <item name="android:statusBarColor">@color/appearance_system_bar</item>
+        <item name="android:windowBackground">@color/appearance_window_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

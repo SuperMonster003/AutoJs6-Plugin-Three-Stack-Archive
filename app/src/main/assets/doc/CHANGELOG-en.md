@@ -1,5 +1,13 @@
 # Release notes
 
+## v3.0.0
+
+_2026/10/04_
+
+- `Note` The application ID changes from io.github.supermonster003.autojs6.plugin.archivemanager to io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically
+- `Added` A standalone home screen opens archives for browsing and extraction; creation and in-place changes remain available from AutoJs6
+- `Added` Language, dark mode, theme color and four launcher icon choices are available in the shared settings layout
+
 ## v2.22.3
 
 _2026/09/19_

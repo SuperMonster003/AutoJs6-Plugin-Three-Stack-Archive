@@ -1,7 +1,7 @@
--keep class io.github.supermonster003.autojs6.plugin.archivemanager.ExplorerActionService { *; }
--keep class io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerApplication { *; }
--keep class io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerActivity { *; }
--keep class io.github.supermonster003.autojs6.plugin.archivemanager.WakeActivity { *; }
+-keep class io.github.supermonster003.autojs6.plugin.three.stack.archive.ExplorerActionService { *; }
+-keep class io.github.supermonster003.autojs6.plugin.three.stack.archive.ThreeStackArchiveApplication { *; }
+-keep class io.github.supermonster003.autojs6.plugin.three.stack.archive.ArchiveManagerActivity { *; }
+-keep class io.github.supermonster003.autojs6.plugin.three.stack.archive.WakeActivity { *; }
 -keep class org.autojs.plugin.common.api.PluginInfo { *; }
 -keep class org.autojs.plugin.explorer.api.** { *; }
 

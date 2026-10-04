@@ -5,6 +5,16 @@
   "changelog_label_improvement": "تحسين",
   "changelog_label_dependency": "اعتماد",
   "$data": {
+    "v3.0.0": {
+      "released_date": "2026/10/04",
+      "hint": [
+        "يتغير معرف التطبيق من io.github.supermonster003.autojs6.plugin.archivemanager إلى io.github.supermonster003.autojs6.plugin.three.stack.archive. يثبته Android كتطبيق مستقل; يمكن الاحتفاظ بالتطبيقات والبيانات السابقة ولا تنتقل الإعدادات تلقائيا"
+      ],
+      "feature": [
+        "تتيح الصفحة المستقلة تصفح الأرشيفات واستخراجها; يظل الإنشاء والتعديل المباشر متاحين من AutoJs6",
+        "توفر الإعدادات الموحدة اللغة والوضع الليلي ولون السمة وأربعة خيارات لأيقونة المشغل"
+      ]
+    },
     "v2.22.3": {
       "released_date": "2026/09/19",
       "improvement": [

@@ -1,8 +1,13 @@
-メインのファイルマネージャーから Archive Manager を使用します:
+# AutoJs6 3-Stack Archive
 
-Archive Manager 2.22.0 には Android 7 以降と、Explorer Action v21 を公開する対応 AutoJs6 6.8.0 ビルド (versionCode 5276 以降) が必要です.
+独立したホーム画面から圧縮ファイルを閲覧, 展開可能; 作成と元のファイルの変更は AutoJs6 から開始.
+共通の設定画面で言語, 夜間モード, テーマ色, 4 種類のランチャーアイコンを選択可能.
+アプリ ID を io.github.supermonster003.autojs6.plugin.archivemanager から io.github.supermonster003.autojs6.plugin.three.stack.archive に変更. Android では別のアプリとしてインストールされ, 以前のアプリとデータは保持でき, 設定は自動移行されません.
 
-1. `Archive Manager` プラグインをインストールして有効にします.
+
+3-Stack Archive 2.22.0 には Android 7 以降と、Explorer Action v21 を公開する対応 AutoJs6 6.8.0 ビルド (versionCode 5276 以降) が必要です.
+
+1. `3-Stack Archive` プラグインをインストールして有効にします.
 2. 対応するアーカイブファイルのオーバーフローメニューを開きます.
 3. `アーカイブを開く` を選択します.
 4. フォルダーの参照、検索、パスバーでの移動、またはホストのビューアーによる対応項目の表示を行います.

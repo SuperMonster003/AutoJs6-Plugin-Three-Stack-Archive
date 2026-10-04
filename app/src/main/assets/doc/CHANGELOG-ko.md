@@ -1,5 +1,13 @@
 # 릴리스 노트
 
+## v3.0.0
+
+_2026/10/04_
+
+- `참고` 앱 ID가 io.github.supermonster003.autojs6.plugin.archivemanager에서 io.github.supermonster003.autojs6.plugin.three.stack.archive(으)로 변경됩니다. Android는 별도 앱으로 설치하며 기존 앱과 데이터를 유지할 수 있고 설정은 자동으로 이전되지 않습니다
+- `추가` 독립 홈 화면에서 압축 파일 탐색 및 추출 가능; 생성과 원본 수정은 AutoJs6에서 시작
+- `추가` 공통 설정 화면에서 언어, 야간 모드, 테마 색상 및 네 가지 런처 아이콘 선택 가능
+
 ## v2.22.3
 
 _2026/09/19_

@@ -1,14 +1,14 @@
 {
   "$name": "简体中文",
   "text_current_lowercase": "当前",
-  "text_plugin_synopsis": "AutoJs6 文件管理器插件, 用于浏览、解压、创建并以事务方式修改受支持的 ZIP 与 TAR 档案",
+  "text_plugin_synopsis": "压缩档案浏览、解压、创建与管理",
   "h3_languages_with_ascii": "语言 (Languages)",
   "p_languages_all_supported_for_readme": "README 提供以下语言版本",
   "h3_introduction": "项目简介",
   "h3_screenshots": "界面截图",
   "p_screenshots_current": "以下 Android 真实界面截图展示宿主菜单集成、原生档案浏览、档案创建与详细管理, 仅使用可公开的合成数据.",
   "text_link_screenshot_notes": "截图说明与完整集合",
-  "p_introduction": "Archive Manager 把压缩档案的浏览、解压、创建和管理能力带入 AutoJs6 文件管理器. 当前版本通过宿主原生列表和路径栏浏览 ZIP、7Z 与 TAR 系列档案, 预览受支持条目, 解压选定范围, 从单个项目或同父级多选创建受支持格式, 并可在管理页以事务方式修改普通单卷 ZIP 与符合条件的 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 和 TAR.ZST/TZST.",
+  "p_introduction": "3-Stack Archive 把压缩档案的浏览、解压、创建和管理能力带入 AutoJs6 文件管理器. 当前版本通过宿主原生列表和路径栏浏览 ZIP、7Z 与 TAR 系列档案, 预览受支持条目, 解压选定范围, 从单个项目或同父级多选创建受支持格式, 并可在管理页以事务方式修改普通单卷 ZIP 与符合条件的 TAR、TAR.GZ/TGZ、TAR.XZ/TXZ、TAR.BZ2/TBZ2 和 TAR.ZST/TZST.",
   "h3_functions": "当前能力",
   "features": [
     "直接在 AutoJs6 原生文件列表中打开 ZIP、7Z 与 TAR 系列档案，沿用宿主主题、暗色模式和动态色。",
@@ -72,7 +72,7 @@
   "text_link_third_party_notices": "第三方软件声明",
   "text_link_android_saf": "Android Storage Access Framework",
   "text_plugin_synopsis_current": "深度集成 AutoJs6 文件管理器的通用压缩档案管理插件, 支持安全浏览、解压、创建与受控修改",
-  "p_introduction_current": "Archive Manager 直接工作在 AutoJs6 文件管理器内, 不再另造一套文件列表. 受支持档案复用宿主的列表、路径栏、主题、预览器、多选、进度与目录刷新. 独立管理页只用于需要更完整表单的详细格式信息与附加设置.",
+  "p_introduction_current": "3-Stack Archive 直接工作在 AutoJs6 文件管理器内, 不再另造一套文件列表. 受支持档案复用宿主的列表、路径栏、主题、预览器、多选、进度与目录刷新. 独立管理页只用于需要更完整表单的详细格式信息与附加设置.",
   "highlights_current": [
     "在 AutoJs6 原生文件列表中浏览 ZIP/JAR/AAR/WAR、7Z、RAR4/RAR5 与 TAR 系列档案, 并复用内部路径栏、搜索、排序和返回导航.",
     "文件名称未命中受支持档案时, 提供显式的“作为压缩档案打开...”复核, 并在路径栏标注探测到的实际格式; TAR 复合后缀按完整名称精确匹配, 不会把普通 `.gz`、`.xz`、`.bz2` 或 `.zst` 压缩流显示为档案.",
@@ -92,14 +92,19 @@
   ],
   "p_current_limits": "原生集成需要配套的 AutoJs6 6.8.0 Explorer Action v21 构建 (版本代码 5276 或更高). RAR 与分卷档案明确保持只读. 普通单卷 ZIP、未加密且非 solid 并位于解码资源预算内的普通单卷 7Z，以及只含安全普通文件和目录的 TAR 系列档案可以修改; 加密、solid、分卷、危险路径、不支持方法或超预算的 7Z 保持只读. 标准分卷 ZIP 应从最终 `.zip` 打开, 现代 WinRAR 卷组应从首个 `partN.rar` 打开, 编号 ZIP 或 7Z 应从 `.001` 打开, 且全部必需同级卷须位于同一目录. 创建时加密文件名, 以及修改 JAR/AAR/WAR 和 RAR 仍不是当前能力.",
   "quick_start": [
-    "安装 Archive Manager, 并在 AutoJs6 插件中心启用它.",
+    "安装 3-Stack Archive, 并在 AutoJs6 插件中心启用它.",
     "点击档案文件的主操作按钮, 或从菜单选择“打开压缩档案”. 名称未被识别时, 可从文件菜单选择“作为压缩档案打开...”. 随后可像浏览普通目录一样使用宿主路径栏; 名称与实际格式不符时, 路径栏会标注探测结果.",
     "使用路径栏右侧动作解压当前内部目录, 或通过文件名编码动作修正 ZIP 名称; 长按条目可多选解压; 文件菜单中的“解压到...”用于解压整个档案. 需要密码时宿主会自动提示.",
     "对文件或文件夹选择“压缩...”; 也可在同一目录多选后使用底部操作栏中的“压缩...”. 如需在成功后清理源项目, 请明确开启默认关闭的“压缩完成后将源项目移入回收站”.",
     "在可写档案的原生页面中, 使用路径栏的“添加文件或文件夹”和“新建文件夹”, 也可直接重命名条目或多选删除; 详细格式信息与附加设置位于“管理压缩档案...”中."
   ],
-  "p_security_summary": "Archive Manager 不申请存储或网络权限. 宿主只提供短生命周期只读描述符和固定插件 UID 的输出事务, 插件不能自行选择任意文件系统路径. Explorer Action v11 仅在有界同步重试请求中传递密码, 双方立即移除并清理保留缓冲, 且从不持久化. Explorer Action v12 仅增加会话级、有界的宿主批准同级卷目录: 插件获得不透明 ID 而不是路径, 调用方 UID、文件身份、大小、修改时间与生命周期均在使用前重复校验. Explorer Action v13 只重新索引同一暂存源, 并在完整替换索引准备完成前保留旧状态. Explorer Action v14 只精确匹配 `.zip.001` 与 `.7z.001` 等有界复合后缀, 不会匹配任意 `.001` 文件, 且复用 v12 目录而不授予目录或路径访问能力. Explorer Action v17 只在普通主动作未匹配时增加无匹配器的只读溢出复核入口; 它仅在用户点击后复用一次既有档案会话, 不增加路径、目录或写入权限. Android 与 Java 库仍可能产生无法完全控制的短生命周期运行时副本, 因此密码清理属于尽力而为, 不是绝对保证. 路径穿越和危险名称始终隔离, 输出在发布前完成校验, 资源预算确认也不会关闭结构安全检查.",
+  "p_security_summary": "3-Stack Archive 不申请存储或网络权限. 宿主只提供短生命周期只读描述符和固定插件 UID 的输出事务, 插件不能自行选择任意文件系统路径. Explorer Action v11 仅在有界同步重试请求中传递密码, 双方立即移除并清理保留缓冲, 且从不持久化. Explorer Action v12 仅增加会话级、有界的宿主批准同级卷目录: 插件获得不透明 ID 而不是路径, 调用方 UID、文件身份、大小、修改时间与生命周期均在使用前重复校验. Explorer Action v13 只重新索引同一暂存源, 并在完整替换索引准备完成前保留旧状态. Explorer Action v14 只精确匹配 `.zip.001` 与 `.7z.001` 等有界复合后缀, 不会匹配任意 `.001` 文件, 且复用 v12 目录而不授予目录或路径访问能力. Explorer Action v17 只在普通主动作未匹配时增加无匹配器的只读溢出复核入口; 它仅在用户点击后复用一次既有档案会话, 不增加路径、目录或写入权限. Android 与 Java 库仍可能产生无法完全控制的短生命周期运行时副本, 因此密码清理属于尽力而为, 不是绝对保证. 路径穿越和危险名称始终隔离, 输出在发布前完成校验, 资源预算确认也不会关闭结构安全检查.",
   "p_security_batch": "Explorer Action v15 只将同一会话中已验证的新文件输出组成最多 128 项的可恢复批次. Explorer Action v16 只有在插件提交完整有序源选择和全部已提交输出事务的精确证明后, 才允许宿主重新核对源与输出身份并把源项目移入回收站. 宿主先同步恢复副本并持久记录条目, 再移除源数据; 插件不获得任意路径或直接删除能力. Binder 响应丢失时只查询同一幂等终态, 不盲目重试.",
   "p_security_replacement": "Explorer Action v18 只在宿主私有持久存储中保留上一版档案, 向插件返回不透明历史 ID 而不是备份路径. 只有父目录与目标仍精确匹配本次提交结果时才能恢复一次. 外部改写会使历史失效; 中断的恢复证据会保留, 并在宿主处理前阻止再次替换同一目标. 普通历史受保留时间、数量、总字节数和剩余空间约束, v8-v17 会话不会创建替换备份. Explorer Action v19 只为能力允许的现有条目传递删除或重命名所需的不透明 ID 与安全叶名称. Explorer Action v20 只为明确选定的输入根提供冻结授权: 插件得到有界的不透明节点、元数据和一次性只读描述符, 不会得到源路径、URI、未选同级项目或通用存储访问. 宿主在提交前重新验证完整快照, 任一输入变化或失败都会中止整个档案替换. Explorer Action v21 在 Activity 与宿主会话重建后仍保留有界的宿主持有源恢复批次; 恢复源项目不会覆盖已有名称, 也不会删除已经创建的档案.",
-  "p_roadmap_current": "宿主原生浏览、解压、创建、档案修改、上一版本恢复与持久源恢复均已完成, 且没有改变普通文件管理器布局. Roadmap 中未勾选的项目属于后续可选协议、后端或边界增强, 不代表当前能力."
+  "p_roadmap_current": "宿主原生浏览、解压、创建、档案修改、上一版本恢复与持久源恢复均已完成, 且没有改变普通文件管理器布局. Roadmap 中未勾选的项目属于后续可选协议、后端或边界增强, 不代表当前能力.",
+  "h3_standalone": "开始使用",
+  "p_standalone": "独立首页可打开压缩档案进行浏览和解压, 创建及原位修改仍可从 AutoJs6 发起. 统一设置页提供语言, 夜间模式, 主题色及四种启动器图标选项.",
+  "p_migration": "应用 ID 从 `io.github.supermonster003.autojs6.plugin.archivemanager` 改为 `io.github.supermonster003.autojs6.plugin.three.stack.archive`. Android 将其视为独立应用, 原应用与数据可以保留, 设置不会自动迁移.",
+  "h3_sources": "来源与致谢",
+  "p_sources": "[THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md) · [RIGHTS_AND_TAKEDOWN.md]({{ repo_url }}/blob/master/RIGHTS_AND_TAKEDOWN.md)"
 }

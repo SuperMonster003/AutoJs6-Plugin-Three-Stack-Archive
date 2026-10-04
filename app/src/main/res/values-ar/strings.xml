@@ -95,7 +95,60 @@
     <string name="error_split_volume_invalid">أدخل حجمًا صحيحًا من %1$d إلى %2$d MiB، أو اختر بلا</string>
     <string name="error_with_reason">%1$s\nالسبب: %2$s</string>
     <string name="error_zip_entry_name_invalid">أدخل اسم ملف أو مجلد صالحا</string>
-    <string name="plugin_description">تصفح واستخراج أرشيفات ZIP و7Z وRAR وTAR، وإنشاء التنسيقات المدعومة القابلة للكتابة وإدارتها بأمان</string>
+    <string name="launcher_icon_applied_note">قد يستغرق تحديث المشغل بضع ثوان. قد تحتاج إلى إضافة بعض اختصارات الشاشة الرئيسية مرة أخرى.</string>
+    <string name="launcher_icon_auto">أيقونة تكيفية (تلقائية)</string>
+    <string name="launcher_icon_auto_note">يحاول اتباع سمة النظام. بعض المشغلات تخزن الرموز مؤقتا أو تستخدم نظام ألوان واحدا فقط.</string>
+    <string name="launcher_icon_dark">أيقونة تكيفية (داكنة)</string>
+    <string name="launcher_icon_failed">تعذر تغيير رمز المشغل. يرجى المحاولة مرة أخرى.</string>
+    <string name="launcher_icon_light">أيقونة تكيفية (فاتحة)</string>
+    <string name="launcher_icon_title">رمز المشغل</string>
+    <string name="launcher_icon_transparent">أيقونة بخلفية شفافة</string>
+    <string name="launcher_icon_transparent_note">قد تضيف بعض المشغلات خلفية أو قناعا, لذلك قد لا يتم الحفاظ على الشفافية.</string>
+    <string name="plugin_description">تصفح الأرشيفات واستخراجها وإنشاؤها وإدارتها</string>
+    <string name="standalone_about_app_summary">تفاصيل الإصدار وترخيص المصدر المفتوح وروابط المشروع</string>
+    <string name="standalone_about_title">حول التطبيق والمطور</string>
+    <string name="standalone_dark_mode_dark">داكن</string>
+    <string name="standalone_dark_mode_light">فاتح</string>
+    <string name="standalone_follow_autojs6">اتباع AutoJs6</string>
+    <string name="standalone_follow_autojs6_fallback_subtitle">تطبيق AutoJs6 غير متوفر. سيتم استخدام %1$s.</string>
+    <string name="standalone_follow_autojs6_summary">اتباع AutoJs6 - %1$s</string>
+    <string name="standalone_follow_system">اتباع النظام</string>
+    <string name="standalone_home_actions">بدء الاستخدام</string>
+    <string name="standalone_home_discard">تجاهل</string>
+    <string name="standalone_home_host_missing">لم يتم تثبيت AutoJs6</string>
+    <string name="standalone_home_host_summary">فتح مدير الملفات واختيار إجراء</string>
+    <string name="standalone_home_open_archive">فتح أرشيف</string>
+    <string name="standalone_home_open_failed">تعذر فتح الملف المحدد أو حفظه</string>
+    <string name="standalone_home_open_host">الاستخدام مع AutoJs6</string>
+    <string name="standalone_home_save_output">حفظ الصورة المعالجة</string>
+    <string name="standalone_home_saved">تم حفظ الملف</string>
+    <string name="standalone_home_scope">تصفح الأرشيفات واستخرجها هنا; ابدأ إنشاءها وتعديلها من مدير ملفات AutoJs6</string>
+    <string name="standalone_home_settings_summary">المظهر واللغة ومعلومات التطبيق</string>
+    <string name="standalone_home_sources">المصادر والشكر</string>
+    <string name="standalone_home_sources_summary">المشروع ومصادر التبعيات والتراخيص</string>
+    <string name="standalone_home_unsaved">احفظ النتيجة الحالية أو تجاهلها قبل معالجة صورة أخرى</string>
+    <string name="standalone_home_working" tools:ignore="TypographyEllipsis">جار تجهيز الملف...</string>
+    <string name="standalone_language_ar">العربية</string>
+    <string name="standalone_language_en">English</string>
+    <string name="standalone_language_es">Español</string>
+    <string name="standalone_language_fr">Français</string>
+    <string name="standalone_language_ja">日本語</string>
+    <string name="standalone_language_ko">한국어</string>
+    <string name="standalone_language_ru">Русский</string>
+    <string name="standalone_language_zh_hans">简体中文</string>
+    <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
+    <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
+    <string name="standalone_navigation_back">رجوع</string>
+    <string name="standalone_release_history_load_failed">تعذر تحميل سجل الإصدارات</string>
+    <string name="standalone_release_history_title">سجل الإصدارات</string>
+    <string name="standalone_settings_dark_mode">الوضع الداكن</string>
+    <string name="standalone_settings_language">اللغة</string>
+    <string name="standalone_settings_saved">تم حفظ إعدادات التطبيق</string>
+    <string name="standalone_settings_section_appearance">المظهر</string>
+    <string name="standalone_settings_section_information">المعلومات</string>
+    <string name="standalone_settings_theme_color">لون السمة</string>
+    <string name="standalone_settings_title">الإعدادات</string>
+    <string name="standalone_update_release_history_summary">عرض سجل الإصدارات المضمن في التطبيق</string>
     <string name="text_apply_password">تطبيق</string>
     <string name="text_apply_to_all_conflicts">تطبيق هذا الاختيار على كل التعارضات المتوافقة</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">جار تطبيق كلمة المرور...</string>
@@ -293,6 +346,11 @@
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">جار التحقق من الأرشيف...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">جار التحقق من تغييرات الأرشيف...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">جار تحديث %1$d من %2$d: %3$s</string>
+    <string name="theme_picker_custom">لون مخصص</string>
+    <string name="theme_picker_input">HEX / RGB</string>
+    <string name="theme_picker_invalid">أدخل #RRGGBB أو RRGGBB أو rgb(r, g, b). يجب أن تكون قيم RGB بين 0 و255.</string>
+    <string name="theme_picker_presets">ألوان جاهزة</string>
+    <string name="theme_picker_preview">معاينة</string>
     <string name="warning_sources_trash_failed">تم إنشاء الأرشيف، لكن تعذر نقل العناصر المصدر إلى المهملات.</string>
     <string name="warning_sources_trash_recovery_required">تم إنشاء الأرشيف، لكن تنظيف المصادر يحتاج إلى مراجعة. تتوفر نسخ قابلة للاسترداد في مهملات AutoJs6.</string>
     <string name="warning_sources_trash_unknown">تم إنشاء الأرشيف، لكن AutoJs6 لم يتمكن من تأكيد وصول كل العناصر المصدر إلى المهملات. تحقق من المجلد الحالي والمهملات قبل إعادة المحاولة.</string>

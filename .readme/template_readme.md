@@ -1,9 +1,9 @@
 <div align="center">
   <p>
-    <img src="{{ repo_url }}/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="Archive Manager" width="128" />
+    <img src="{{ repo_url }}/blob/master/app/src/main/res/mipmap/ic_launcher.png?raw=true" alt="3-Stack Archive" width="128" />
   </p>
 
-  <h1>Archive Manager</h1>
+  <h1>3-Stack Archive</h1>
 
   <p>{{ text_plugin_synopsis_current }}</p>
 
@@ -19,6 +19,14 @@
 {{ p_languages_all_supported_for_readme }}:
 
 {{ placeholder_ul_languages_all_supported }}
+
+### {{ h3_standalone }}
+
+{{ p_standalone }}
+
+{{ p_migration }}
+
+******
 
 ### {{ h3_introduction }}
 
@@ -111,4 +119,9 @@
 - {{ text_link_android_saf }}: https://developer.android.com/guide/topics/providers/document-provider
 
 
-[16 KB page alignment and build verification](https://github.com/SuperMonster003/AutoJs6-Plugin-Archive-Manager/blob/master/docs/16kb.md)
+[16 KB page alignment and build verification](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive/blob/master/docs/16kb.md)
+
+
+### {{ h3_sources }}
+
+{{ p_sources }}

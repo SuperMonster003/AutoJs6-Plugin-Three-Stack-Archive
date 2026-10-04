@@ -95,7 +95,60 @@
     <string name="error_split_volume_invalid">%1$d から %2$d MiB の整数を入力するか,「なし」を選択してください</string>
     <string name="error_with_reason">%1$s\n理由: %2$s</string>
     <string name="error_zip_entry_name_invalid">有効なファイル名またはフォルダー名を入力してください</string>
-    <string name="plugin_description">ZIP,7Z,RAR,TAR を閲覧・展開し,対応する書き込み可能形式を作成・安全に管理</string>
+    <string name="launcher_icon_applied_note">反映まで数秒かかる場合があります. ホーム画面のショートカットを再追加する必要がある場合があります.</string>
+    <string name="launcher_icon_auto">アダプティブ アイコン (自動)</string>
+    <string name="launcher_icon_auto_note">システムテーマへの追従を試みます. ランチャーによってはアイコンがキャッシュされ, 配色が固定されます.</string>
+    <string name="launcher_icon_dark">アダプティブ アイコン (ダーク)</string>
+    <string name="launcher_icon_failed">ランチャーアイコンを変更できませんでした. もう一度お試しください.</string>
+    <string name="launcher_icon_light">アダプティブ アイコン (ライト)</string>
+    <string name="launcher_icon_title">ランチャーアイコン</string>
+    <string name="launcher_icon_transparent">透明背景のアイコン</string>
+    <string name="launcher_icon_transparent_note">ランチャーが背景やマスクを追加する場合, 透明な背景は維持されないことがあります.</string>
+    <string name="plugin_description">圧縮ファイルの閲覧, 展開, 作成, 管理</string>
+    <string name="standalone_about_app_summary">バージョン情報, オープンソースライセンス, プロジェクトのリンク</string>
+    <string name="standalone_about_title">アプリと開発者について</string>
+    <string name="standalone_dark_mode_dark">ダーク</string>
+    <string name="standalone_dark_mode_light">ライト</string>
+    <string name="standalone_follow_autojs6">AutoJs6 に従う</string>
+    <string name="standalone_follow_autojs6_fallback_subtitle">AutoJs6 を利用できないため, %1$s を使用します.</string>
+    <string name="standalone_follow_autojs6_summary">AutoJs6 に従う - %1$s</string>
+    <string name="standalone_follow_system">システムに従う</string>
+    <string name="standalone_home_actions">使い始める</string>
+    <string name="standalone_home_discard">破棄</string>
+    <string name="standalone_home_host_missing">AutoJs6 がインストールされていません</string>
+    <string name="standalone_home_host_summary">ファイル管理から操作を選択</string>
+    <string name="standalone_home_open_archive">圧縮ファイルを開く</string>
+    <string name="standalone_home_open_failed">選択したファイルを開くか保存できません</string>
+    <string name="standalone_home_open_host">AutoJs6 で使用</string>
+    <string name="standalone_home_save_output">処理結果を保存</string>
+    <string name="standalone_home_saved">ファイルを保存しました</string>
+    <string name="standalone_home_scope">ここでは圧縮ファイルの閲覧と展開ができます; 作成と変更は AutoJs6 のファイル管理から開始してください</string>
+    <string name="standalone_home_settings_summary">外観, 言語, アプリ情報</string>
+    <string name="standalone_home_sources">出典と謝辞</string>
+    <string name="standalone_home_sources_summary">プロジェクト, 依存関係の出典とライセンス</string>
+    <string name="standalone_home_unsaved">別の画像を処理する前に現在の結果を保存または破棄してください</string>
+    <string name="standalone_home_working" tools:ignore="TypographyEllipsis">ファイルを準備中...</string>
+    <string name="standalone_language_ar">العربية</string>
+    <string name="standalone_language_en">English</string>
+    <string name="standalone_language_es">Español</string>
+    <string name="standalone_language_fr">Français</string>
+    <string name="standalone_language_ja">日本語</string>
+    <string name="standalone_language_ko">한국어</string>
+    <string name="standalone_language_ru">Русский</string>
+    <string name="standalone_language_zh_hans">简体中文</string>
+    <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
+    <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
+    <string name="standalone_navigation_back">戻る</string>
+    <string name="standalone_release_history_load_failed">バージョン履歴を読み込めませんでした</string>
+    <string name="standalone_release_history_title">バージョン履歴</string>
+    <string name="standalone_settings_dark_mode">ダークモード</string>
+    <string name="standalone_settings_language">言語</string>
+    <string name="standalone_settings_saved">アプリ設定を保存しました</string>
+    <string name="standalone_settings_section_appearance">外観</string>
+    <string name="standalone_settings_section_information">情報</string>
+    <string name="standalone_settings_theme_color">テーマ色</string>
+    <string name="standalone_settings_title">設定</string>
+    <string name="standalone_update_release_history_summary">アプリに含まれるバージョン履歴を表示します</string>
     <string name="text_apply_password">適用</string>
     <string name="text_apply_to_all_conflicts">この選択を互換性のあるすべての競合に適用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">パスワードを適用しています...</string>
@@ -293,6 +346,11 @@
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">アーカイブを検証中...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">アーカイブの変更を検証しています...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">%2$d 件中 %1$d 件を更新中: %3$s</string>
+    <string name="theme_picker_custom">カスタム色</string>
+    <string name="theme_picker_input">HEX / RGB</string>
+    <string name="theme_picker_invalid">#RRGGBB, RRGGBB または rgb(r, g, b) を入力してください. RGB の値は 0..255 です.</string>
+    <string name="theme_picker_presets">プリセット色</string>
+    <string name="theme_picker_preview">プレビュー</string>
     <string name="warning_sources_trash_failed">アーカイブは作成されましたが,元の項目をゴミ箱へ移動できませんでした.</string>
     <string name="warning_sources_trash_recovery_required">アーカイブは作成されましたが,元項目の整理には確認が必要です.復旧可能なコピーは AutoJs6 のゴミ箱にあります.</string>
     <string name="warning_sources_trash_unknown">アーカイブは作成されましたが,すべての元項目がゴミ箱へ移動したか AutoJs6 で確認できませんでした.再試行する前に現在のフォルダーとゴミ箱を確認してください.</string>

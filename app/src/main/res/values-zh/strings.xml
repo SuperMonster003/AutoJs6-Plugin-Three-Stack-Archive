@@ -95,7 +95,60 @@
     <string name="error_split_volume_invalid">请输入 %1$d 至 %2$d MiB 的整数分卷大小, 或选择"无"</string>
     <string name="error_with_reason">%1$s\n原因: %2$s</string>
     <string name="error_zip_entry_name_invalid">请输入有效的文件或文件夹名称</string>
-    <string name="plugin_description">浏览和解压 ZIP,7Z,RAR 与 TAR 档案, 并创建和安全管理支持写入的格式</string>
+    <string name="launcher_icon_applied_note">启动器可能需要几秒钟刷新. 部分主屏幕快捷方式可能需要重新添加.</string>
+    <string name="launcher_icon_auto">自适应图标 (自动)</string>
+    <string name="launcher_icon_auto_note">尝试跟随系统主题. 部分启动器会缓存图标或只使用一种配色.</string>
+    <string name="launcher_icon_dark">自适应图标 (暗色)</string>
+    <string name="launcher_icon_failed">无法切换启动器图标, 请重试.</string>
+    <string name="launcher_icon_light">自适应图标 (亮色)</string>
+    <string name="launcher_icon_title">启动器图标</string>
+    <string name="launcher_icon_transparent">透明背景图标</string>
+    <string name="launcher_icon_transparent_note">部分启动器会自行添加背景或遮罩, 透明效果可能无法保留.</string>
+    <string name="plugin_description">压缩档案浏览, 解压, 创建与管理</string>
+    <string name="standalone_about_app_summary">版本信息, 开源许可与项目链接</string>
+    <string name="standalone_about_title">关于应用与开发者</string>
+    <string name="standalone_dark_mode_dark">深色</string>
+    <string name="standalone_dark_mode_light">浅色</string>
+    <string name="standalone_follow_autojs6">跟随 AutoJs6</string>
+    <string name="standalone_follow_autojs6_fallback_subtitle">AutoJs6 不可用, 将使用 %1$s.</string>
+    <string name="standalone_follow_autojs6_summary">跟随 AutoJs6 - %1$s</string>
+    <string name="standalone_follow_system">跟随系统</string>
+    <string name="standalone_home_actions">开始使用</string>
+    <string name="standalone_home_discard">丢弃</string>
+    <string name="standalone_home_host_missing">尚未安装 AutoJs6</string>
+    <string name="standalone_home_host_summary">打开文件管理器并选择文件操作</string>
+    <string name="standalone_home_open_archive">打开压缩档案</string>
+    <string name="standalone_home_open_failed">无法打开或保存所选文件</string>
+    <string name="standalone_home_open_host">在 AutoJs6 中使用</string>
+    <string name="standalone_home_save_output">保存处理结果</string>
+    <string name="standalone_home_saved">文件已保存</string>
+    <string name="standalone_home_scope">可独立浏览与解压; 创建和修改档案请从 AutoJs6 文件管理器开始</string>
+    <string name="standalone_home_settings_summary">外观, 语言和应用信息</string>
+    <string name="standalone_home_sources">来源与致谢</string>
+    <string name="standalone_home_sources_summary">项目, 依赖来源和许可证说明</string>
+    <string name="standalone_home_unsaved">开始处理另一张图片前, 请先保存或丢弃当前结果</string>
+    <string name="standalone_home_working" tools:ignore="TypographyEllipsis">正在准备文件...</string>
+    <string name="standalone_language_ar">العربية</string>
+    <string name="standalone_language_en">English</string>
+    <string name="standalone_language_es">Español</string>
+    <string name="standalone_language_fr">Français</string>
+    <string name="standalone_language_ja">日本語</string>
+    <string name="standalone_language_ko">한국어</string>
+    <string name="standalone_language_ru">Русский</string>
+    <string name="standalone_language_zh_hans">简体中文</string>
+    <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
+    <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
+    <string name="standalone_navigation_back">返回</string>
+    <string name="standalone_release_history_load_failed">无法加载版本历史</string>
+    <string name="standalone_release_history_title">版本历史</string>
+    <string name="standalone_settings_dark_mode">夜间模式</string>
+    <string name="standalone_settings_language">语言</string>
+    <string name="standalone_settings_saved">应用设置已保存</string>
+    <string name="standalone_settings_section_appearance">外观</string>
+    <string name="standalone_settings_section_information">信息</string>
+    <string name="standalone_settings_theme_color">主题色</string>
+    <string name="standalone_settings_title">设置</string>
+    <string name="standalone_update_release_history_summary">查看应用内置的版本历史</string>
     <string name="text_apply_password">应用</string>
     <string name="text_apply_to_all_conflicts">将此选择应用于全部兼容冲突</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在应用密码...</string>
@@ -293,6 +346,11 @@
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">正在校验压缩档案...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">正在验证档案更改...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">正在更新第 %1$d/%2$d 项: %3$s</string>
+    <string name="theme_picker_custom">自定义颜色</string>
+    <string name="theme_picker_input">HEX / RGB</string>
+    <string name="theme_picker_invalid">请输入 #RRGGBB, RRGGBB 或 rgb(r, g, b). RGB 数值须为 0..255.</string>
+    <string name="theme_picker_presets">预设颜色</string>
+    <string name="theme_picker_preview">预览</string>
     <string name="warning_sources_trash_failed">压缩档案已创建, 但源项目未能移入回收站.</string>
     <string name="warning_sources_trash_recovery_required">压缩档案已创建, 但源项目清理需要处理. AutoJs6 回收站中已保留恢复副本.</string>
     <string name="warning_sources_trash_unknown">压缩档案已创建, 但 AutoJs6 无法确认所有源项目是否均已进入回收站. 再次操作前请检查当前文件夹和回收站.</string>

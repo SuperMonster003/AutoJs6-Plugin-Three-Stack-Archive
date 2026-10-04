@@ -95,7 +95,60 @@
     <string name="error_split_volume_invalid">%1$d에서 %2$d MiB 사이의 정수를 입력하거나 없음을 선택하세요</string>
     <string name="error_with_reason">%1$s\n이유: %2$s</string>
     <string name="error_zip_entry_name_invalid">올바른 파일 또는 폴더 이름을 입력하세요</string>
-    <string name="plugin_description">ZIP, 7Z, RAR, TAR 압축 파일을 탐색하고 풀며, 지원되는 쓰기 가능 형식을 만들고 안전하게 관리</string>
+    <string name="launcher_icon_applied_note">런처가 새로 고침되기까지 몇 초가 걸릴 수 있습니다. 일부 홈 화면 바로가기를 다시 추가해야 할 수 있습니다.</string>
+    <string name="launcher_icon_auto">적응형 아이콘 (자동)</string>
+    <string name="launcher_icon_auto_note">시스템 테마를 따르려고 시도합니다. 일부 런처는 아이콘을 캐시하거나 한 가지 색상만 사용합니다.</string>
+    <string name="launcher_icon_dark">적응형 아이콘 (어둡게)</string>
+    <string name="launcher_icon_failed">런처 아이콘을 변경할 수 없습니다. 다시 시도해 주세요.</string>
+    <string name="launcher_icon_light">적응형 아이콘 (밝게)</string>
+    <string name="launcher_icon_title">런처 아이콘</string>
+    <string name="launcher_icon_transparent">투명 배경 아이콘</string>
+    <string name="launcher_icon_transparent_note">일부 런처는 배경이나 마스크를 추가하므로 투명도가 유지되지 않을 수 있습니다.</string>
+    <string name="plugin_description">압축 파일 탐색, 추출, 생성 및 관리</string>
+    <string name="standalone_about_app_summary">버전 정보, 오픈 소스 라이선스 및 프로젝트 링크</string>
+    <string name="standalone_about_title">앱 및 개발자 정보</string>
+    <string name="standalone_dark_mode_dark">다크</string>
+    <string name="standalone_dark_mode_light">라이트</string>
+    <string name="standalone_follow_autojs6">AutoJs6 따르기</string>
+    <string name="standalone_follow_autojs6_fallback_subtitle">AutoJs6를 사용할 수 없어 %1$s이(가) 사용됩니다.</string>
+    <string name="standalone_follow_autojs6_summary">AutoJs6 따르기 - %1$s</string>
+    <string name="standalone_follow_system">시스템 따르기</string>
+    <string name="standalone_home_actions">시작하기</string>
+    <string name="standalone_home_discard">버리기</string>
+    <string name="standalone_home_host_missing">AutoJs6가 설치되지 않았습니다</string>
+    <string name="standalone_home_host_summary">파일 관리자에서 파일 작업 선택</string>
+    <string name="standalone_home_open_archive">압축 파일 열기</string>
+    <string name="standalone_home_open_failed">선택한 파일을 열거나 저장할 수 없습니다</string>
+    <string name="standalone_home_open_host">AutoJs6에서 사용</string>
+    <string name="standalone_home_save_output">처리한 이미지 저장</string>
+    <string name="standalone_home_saved">파일을 저장했습니다</string>
+    <string name="standalone_home_scope">여기서 압축 파일을 탐색하고 추출할 수 있습니다; 생성 및 수정은 AutoJs6 파일 관리자에서 시작하세요</string>
+    <string name="standalone_home_settings_summary">화면, 언어 및 앱 정보</string>
+    <string name="standalone_home_sources">출처 및 감사의 말</string>
+    <string name="standalone_home_sources_summary">프로젝트, 의존성 출처 및 라이선스</string>
+    <string name="standalone_home_unsaved">다른 이미지를 처리하기 전에 현재 결과를 저장하거나 버리세요</string>
+    <string name="standalone_home_working" tools:ignore="TypographyEllipsis">파일 준비 중...</string>
+    <string name="standalone_language_ar">العربية</string>
+    <string name="standalone_language_en">English</string>
+    <string name="standalone_language_es">Español</string>
+    <string name="standalone_language_fr">Français</string>
+    <string name="standalone_language_ja">日本語</string>
+    <string name="standalone_language_ko">한국어</string>
+    <string name="standalone_language_ru">Русский</string>
+    <string name="standalone_language_zh_hans">简体中文</string>
+    <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
+    <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
+    <string name="standalone_navigation_back">뒤로</string>
+    <string name="standalone_release_history_load_failed">버전 기록을 불러올 수 없습니다</string>
+    <string name="standalone_release_history_title">버전 기록</string>
+    <string name="standalone_settings_dark_mode">다크 모드</string>
+    <string name="standalone_settings_language">언어</string>
+    <string name="standalone_settings_saved">앱 설정이 저장되었습니다</string>
+    <string name="standalone_settings_section_appearance">모양</string>
+    <string name="standalone_settings_section_information">정보</string>
+    <string name="standalone_settings_theme_color">테마 색상</string>
+    <string name="standalone_settings_title">설정</string>
+    <string name="standalone_update_release_history_summary">앱에 포함된 버전 기록을 확인합니다</string>
     <string name="text_apply_password">적용</string>
     <string name="text_apply_to_all_conflicts">이 선택을 호환되는 모든 충돌에 적용</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">비밀번호 적용 중...</string>
@@ -293,6 +346,11 @@
     <string name="text_verifying_archive" tools:ignore="TypographyEllipsis">압축 파일 확인 중...</string>
     <string name="text_verifying_archive_changes" tools:ignore="TypographyEllipsis">압축 파일 변경 사항을 확인하는 중...</string>
     <string name="text_writing_archive_changes" tools:ignore="TypographyEllipsis">%2$d개 중 %1$d개 업데이트 중: %3$s</string>
+    <string name="theme_picker_custom">사용자 지정 색상</string>
+    <string name="theme_picker_input">HEX / RGB</string>
+    <string name="theme_picker_invalid">#RRGGBB, RRGGBB 또는 rgb(r, g, b)를 입력하세요. RGB 값은 0..255여야 합니다.</string>
+    <string name="theme_picker_presets">기본 제공 색상</string>
+    <string name="theme_picker_preview">미리 보기</string>
     <string name="warning_sources_trash_failed">압축 파일은 생성되었지만 원본 항목을 휴지통으로 이동하지 못했습니다.</string>
     <string name="warning_sources_trash_recovery_required">압축 파일은 생성되었지만 원본 정리에 확인이 필요합니다. 복구 가능한 사본은 AutoJs6 휴지통에 있습니다.</string>
     <string name="warning_sources_trash_unknown">압축 파일은 생성되었지만 모든 원본 항목이 휴지통에 도달했는지 AutoJs6에서 확인하지 못했습니다. 다시 시도하기 전에 현재 폴더와 휴지통을 확인하세요.</string>

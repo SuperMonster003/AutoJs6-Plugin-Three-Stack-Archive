@@ -28,7 +28,7 @@ Release downloads include one APK per ABI and a universal APK containing all fou
 Build and validate the release with `./gradlew.bat :app:appendDigestToReleasedFiles`, then select the filename recorded in `releases/v2.22.2/release-manifest.json`. Use an explicitly selected device when more than one Android device is connected:
 
 ```powershell
-adb -s <serial> install -r .\releases\v2.22.2\autojs6-plugin-archive-manager-v2.22.2-universal-<CRC32>.apk
+adb -s <serial> install -r .\releases\v2.22.2\autojs6-plugin-three-stack-archive-v2.22.2-universal-<CRC32>.apk
 ```
 
 Archive Manager requests the host's signature-level `org.autojs.permission.PLUGIN` permission. A locally rebuilt plugin signed with an unrelated certificate may install, but the compatible host will not grant the plugin contract. Use the AutoJs6 signing configuration for paired local builds.
@@ -56,7 +56,7 @@ Archive Manager does not request broad storage access or network access.
 ### The plugin is installed but does not appear
 
 - Confirm it is enabled in AutoJs6 Plugin Center.
-- Confirm the package is `io.github.supermonster003.autojs6.plugin.archivemanager`.
+- Confirm the package is `io.github.supermonster003.autojs6.plugin.three.stack.archive`.
 - Confirm the APK signer is trusted by the host.
 - Confirm the device ABI is one of the four packaged ABIs.
 

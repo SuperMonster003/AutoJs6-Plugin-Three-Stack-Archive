@@ -1,5 +1,13 @@
 # Notas de la versión
 
+## v3.0.0
+
+_2026/10/04_
+
+- `Nota` El identificador cambia de io.github.supermonster003.autojs6.plugin.archivemanager a io.github.supermonster003.autojs6.plugin.three.stack.archive. Android lo instala como una aplicación independiente; se pueden conservar las aplicaciones y los datos anteriores, sin migración automática de ajustes
+- `Añadido` Una pantalla independiente permite explorar y extraer archivos comprimidos; su creación y modificación siguen disponibles desde AutoJs6
+- `Añadido` Los ajustes comunes ofrecen idioma, modo oscuro, color y cuatro opciones de icono del lanzador
+
 ## v2.22.3
 
 _2026/09/19_

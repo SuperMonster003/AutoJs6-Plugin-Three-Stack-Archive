@@ -1,8 +1,13 @@
-从主文件管理器使用 Archive Manager:
+# AutoJs6 3-Stack Archive
 
-Archive Manager 2.22.0 需要 Android 7 或更高版本, 并需要配套的 AutoJs6 6.8.0 (versionCode 5276 或更高) 宿主公布 Explorer Action v21.
+独立首页可打开压缩档案进行浏览和解压, 创建及原位修改仍可从 AutoJs6 发起.
+统一设置页提供语言, 夜间模式, 主题色及四种启动器图标选项.
+应用 ID 从 io.github.supermonster003.autojs6.plugin.archivemanager 改为 io.github.supermonster003.autojs6.plugin.three.stack.archive. Android 将其视为独立应用, 原应用与数据可以保留, 设置不会自动迁移.
 
-1. 安装并启用 `Archive Manager` 插件.
+
+3-Stack Archive 2.22.0 需要 Android 7 或更高版本, 并需要配套的 AutoJs6 6.8.0 (versionCode 5276 或更高) 宿主公布 Explorer Action v21.
+
+1. 安装并启用 `3-Stack Archive` 插件.
 2. 打开一个受支持压缩档案文件的溢出菜单.
 3. 选择 `打开压缩档案`.
 4. 浏览文件夹、搜索、使用路径栏跳转, 或通过宿主预览器打开支持的条目.

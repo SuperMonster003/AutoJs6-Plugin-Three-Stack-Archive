@@ -1,90 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="org.autojs.permission.PLUGIN" />
-
-    <application
-        android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerApplication"
-        android:allowBackup="false"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="false"
-        android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:localeConfig="@xml/locales_config"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="false"
-        tools:targetApi="33">
-
-        <meta-data
-            android:name="org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT"
-            android:value="16384" />
-
-        <meta-data
-            android:name="org.autojs.plugin.WAKE_ACTIVITY"
-            android:value="io.github.supermonster003.autojs6.plugin.archivemanager.WakeActivity" />
-
-        <meta-data
-            android:name="org.autojs.plugin.info.AUTHOR"
-            android:value="@string/plugin_author" />
-
-        <activity
-            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.WakeActivity"
-            android:excludeFromRecents="true"
-            android:exported="true"
-            android:finishOnTaskLaunch="true"
-            android:permission="org.autojs.permission.PLUGIN"
-            android:theme="@android:style/Theme.NoDisplay">
+    <queries>
+        <package android:name="org.autojs.autojs6" />
+    </queries>
+    <application android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.ThreeStackArchiveApplication" android:allowBackup="false" android:dataExtractionRules="@xml/data_extraction_rules" android:fullBackupContent="false" android:hardwareAccelerated="true" android:icon="@mipmap/ic_launcher_system" android:label="@string/app_name" android:localeConfig="@xml/locales_config" android:supportsRtl="true" android:theme="@style/AppTheme" android:usesCleartextTraffic="false" tools:targetApi="33" android:roundIcon="@mipmap/ic_launcher_system">
+        <meta-data android:name="org.autojs.plugin.contract.NATIVE_PAGE_ALIGNMENT" android:value="16384" />
+        <meta-data android:name="org.autojs.plugin.WAKE_ACTIVITY" android:value="io.github.supermonster003.autojs6.plugin.three.stack.archive.WakeActivity" />
+        <meta-data android:name="org.autojs.plugin.info.AUTHOR" android:value="@string/plugin_author" />
+        <activity android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.WakeActivity" android:excludeFromRecents="true" android:exported="true" android:finishOnTaskLaunch="true" android:permission="org.autojs.permission.PLUGIN" android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="org.autojs.plugin.action.WAKE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ArchiveManagerActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="true"
-            android:permission="org.autojs.permission.PLUGIN"
-            android:theme="@style/AppTheme">
+        <activity android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.ArchiveManagerActivity" android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:exported="true" android:permission="org.autojs.permission.PLUGIN" android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="org.autojs.plugin.EXPLORER_ACTION_EXECUTE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.CreateArchiveActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize"
-            android:exported="true"
-            android:permission="org.autojs.permission.PLUGIN"
-            android:theme="@style/AppTheme">
+        <activity android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.CreateArchiveActivity" android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" android:exported="true" android:permission="org.autojs.permission.PLUGIN" android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="org.autojs.plugin.EXPLORER_ACTION_EXECUTE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
-        <service
-            android:name="io.github.supermonster003.autojs6.plugin.archivemanager.ExplorerActionService"
-            android:exported="true"
-            android:permission="org.autojs.permission.PLUGIN">
-            <meta-data
-                android:name="requiresHostVersion"
-                android:value="@string/plugin_requires_host_version" />
-            <meta-data
-                android:name="org.autojs.plugin.contract.RUNTIME_COMPONENT"
-                android:value="@string/plugin_runtime_component" />
-            <meta-data
-                android:name="org.autojs.plugin.contract.SUPPORTED_ABIS"
-                android:value="@string/plugin_supported_abis" />
+        <service android:name="io.github.supermonster003.autojs6.plugin.three.stack.archive.ExplorerActionService" android:exported="true" android:permission="org.autojs.permission.PLUGIN">
+            <meta-data android:name="requiresHostVersion" android:value="@string/plugin_requires_host_version" />
+            <meta-data android:name="org.autojs.plugin.contract.RUNTIME_COMPONENT" android:value="@string/plugin_runtime_component" />
+            <meta-data android:name="org.autojs.plugin.contract.SUPPORTED_ABIS" android:value="@string/plugin_supported_abis" />
             <intent-filter>
                 <action android:name="org.autojs.plugin.EXPLORER_ACTION" />
             </intent-filter>
         </service>
-
+        <activity android:name=".HomeActivity" android:exported="false" android:theme="@style/Theme.Standalone" />
+        <activity android:name=".AppSettingsActivity" android:exported="false" android:theme="@style/Theme.Standalone" android:parentActivityName=".HomeActivity" />
+        <activity android:name=".AboutActivity" android:exported="false" android:theme="@style/Theme.Standalone" android:parentActivityName=".AppSettingsActivity" />
+        <activity android:name=".ReleaseHistoryActivity" android:exported="false" android:theme="@style/Theme.Standalone" android:parentActivityName=".AppSettingsActivity" />
+        <activity-alias android:name=".launcher.AdaptiveLightIconAlias" android:targetActivity=".HomeActivity" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_system_light" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".launcher.AdaptiveDarkIconAlias" android:targetActivity=".HomeActivity" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher_system" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".launcher.AdaptiveAutoIconAlias" android:targetActivity=".HomeActivity" android:enabled="true" android:exported="true" android:icon="@mipmap/ic_launcher_system_auto" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".launcher.TransparentIconAlias" android:targetActivity=".HomeActivity" android:enabled="false" android:exported="true" android:icon="@mipmap/ic_launcher" android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <receiver android:name=".LauncherIconUpdateReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <activity android:name=".StandaloneArchiveActivity" android:exported="false" android:theme="@style/Theme.Standalone" android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize" />
     </application>
-
 </manifest>

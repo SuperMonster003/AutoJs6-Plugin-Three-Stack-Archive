@@ -1,5 +1,13 @@
 # 版本记录
 
+## v3.0.0
+
+_2026/10/04_
+
+- `提示` 应用 ID 从 io.github.supermonster003.autojs6.plugin.archivemanager 改为 io.github.supermonster003.autojs6.plugin.three.stack.archive. Android 将其视为独立应用, 原应用与数据可以保留, 设置不会自动迁移
+- `新增` 独立首页可打开压缩档案进行浏览和解压, 创建及原位修改仍可从 AutoJs6 发起
+- `新增` 统一设置页提供语言, 夜间模式, 主题色及四种启动器图标选项
+
 ## v2.22.3
 
 _2026/09/19_

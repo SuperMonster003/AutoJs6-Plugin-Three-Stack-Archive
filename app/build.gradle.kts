@@ -13,7 +13,7 @@ plugins {
     id("com.android.application")
 }
 
-val codeNamespace = "io.github.supermonster003.autojs6.plugin.archivemanager"
+val codeNamespace = "io.github.supermonster003.autojs6.plugin.three.stack.archive"
 
 val buildTypeDebug = "debug"
 val buildTypeRelease = "release"

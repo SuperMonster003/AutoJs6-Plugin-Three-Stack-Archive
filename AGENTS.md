@@ -1,4 +1,4 @@
-# AutoJs6-Plugin-Archive-Manager: repository rules
+# AutoJs6-Plugin-Three-Stack-Archive
 
 These rules apply to this existing plugin. They implement the workspace's AutoJs6 plugin repository specification for its actual Android/native capabilities.
 
@@ -11,7 +11,7 @@ These rules apply to this existing plugin. They implement the workspace's AutoJs
 
 ## Build and release
 
-- Root project name is `autojs6-plugin-archive-manager`. Use the publicly published platform-versions and native-alignment plugins at 1.8.3; no local plugin override, mavenLocal, consumer gradle/data, or sibling JAR/AAR dependency.
+- Root project name is `autojs6-plugin-three-stack-archive`. Use the publicly published platform-versions and native-alignment plugins at 1.8.3; no local plugin override, mavenLocal, consumer gradle/data, or sibling JAR/AAR dependency.
 - Apply platform-versions in root settings before build-logic. Root Android/Kotlin plugin versions consume the platform's system properties. Use AGP's built-in Kotlin support and UTF-8 compilation.
 - SDK, package version and JDK inputs come from version.properties and build-logic. Builds must not rewrite tracked version inputs.
 - Python 3.10+ and Android SDK build tools are required for release validation. `:app:appendDigestToReleasedFiles` depends on `assembleRelease` and validates the configured release variant/ABI matrix, actual APK identities, release certificate, 64-bit ELF/ZIP alignment and CRC32 before archiving to `releases/v<VERSION_NAME>/`.
@@ -20,7 +20,7 @@ These rules apply to this existing plugin. They implement the workspace's AutoJs
 
 ## Activation and metadata
 
-- Services: io.github.supermonster003.autojs6.plugin.archivemanager.ExplorerActionService. Discovery actions: org.autojs.plugin.EXPLORER_ACTION. Preserve their existing public action/category/AIDL contracts and host capability negotiation.
+- Services: io.github.supermonster003.autojs6.plugin.three.stack.archive.ExplorerActionService. Discovery actions: org.autojs.plugin.EXPLORER_ACTION. Preserve their existing public action/category/AIDL contracts and host capability negotiation.
 - Wake Activity must resolve from `org.autojs.plugin.WAKE_ACTIVITY`, be exported, protected by `org.autojs.permission.PLUGIN`, use Theme.NoDisplay, respond to the WAKE action plus DEFAULT category, and finish immediately.
 - PluginInfo must expose the English app label, localized description, PackageInfo version, actual APK ABI inventory, plugin identity, build date and minimum host capability.
 - Validate input bounds and error propagation; close file descriptors and native resources deterministically. Keep host entry points and public contracts compatible.
@@ -44,3 +44,12 @@ python -m unittest discover -s .python -p test_release_archive.py
 ```
 
 `Unflavored` is the representative Debug build; release validation always checks all configured flavors. Run instrumentation on a compatible host/device for discovery, binding, getInfo, actual native/Binder happy paths, invalid input, rebind and cleanup. Verify every published ABI. Exercise arm64 and x86_64 when those ABIs are shipped, and a 16 KB device where supported. ColorOS activation and device tests require explicit evidence; compiling tests or checking ELF alignment does not establish a device pass. Record any missing device/flavor coverage in the release assessment.
+
+
+## Three-series identity and standalone app (2026-10-04)
+
+- Follow `../AUTOJS6_PLUGIN_THREE_SERIES_RENAME_AGENTS.md`, `../AUTOJS6_PLUGIN_STANDALONE_SETTINGS_AGENTS.md` and `../AUTOJS6_PLUGIN_BLACK_N_WHITE_ADAPTIVE_ICON_AGENTS.md`. The current user's rename/merge decisions override the earlier identity-preservation wording above.
+- Product: `3-Stack Archive`; repository: `AutoJs6-Plugin-Three-Stack-Archive`; applicationId/namespace: `io.github.supermonster003.autojs6.plugin.three.stack.archive`; plugin ID: `three-stack-archive`; version: `3.0.0`. New Android identity; old apps/data are not removed or migrated automatically.
+- Public capability actions, AIDL packages, transaction order and engine names describe behavior and remain compatible. Four stable launcher aliases default to Auto; settings expose language, night mode, theme color, launcher icon and bundled release history.
+- The private standalone document-picker entry supports browsing and SAF extraction. Creation, host-owned replacement, recovery and sibling-volume capabilities still start from AutoJs6. Never fabricate a host session or broad filesystem grant for local browsing.
+- Commit `.icons/`, portable generators, icon CI, `.gitattributes` and generated resources together. Ignore only caches, local signing files and build outputs. Icon Studio drafts/backups remain outside this repository in its ignored `.studio/`.
