@@ -131,6 +131,13 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v3.1.0
+
+_2026/10/16_
+
+- `Añadido` Herramientas de plugin archive_list / archive_read / archive_extract, para que MCP, Agent y la API de scripts plugins.tools listen un archivo comprimido, lean directamente un archivo de texto pequeño de su interior (hasta 64 KiB) y extraigan todo el archivo o los archivos y carpetas elegidos en una carpeta del directorio de trabajo: se admiten ZIP, 7Z, RAR y la familia TAR, con un password para las entradas cifradas; la carpeta de destino puede existir, los archivos con el mismo nombre que contiene se mantienen y se listan en el resultado, y se omiten las rutas inseguras y los nombres duplicados; las herramientas se ejecutan en el propio proceso del plugin y la extracción usa el presupuesto de recursos compatible (requiere AutoJs6 6.8.0 o posterior)
+- `Dependencia` Se añade el AAR del contrato de herramientas de plugins de AutoJs6 (versión de contrato 1 con salidas de carpeta, compilado desde una revisión fija del código fuente de AutoJs6, con longitud y SHA-256 verificados)
+
 #### v3.0.1
 
 _2026/10/05_
@@ -145,13 +152,6 @@ _2026/10/04_
 - `Nota` El identificador cambia de io.github.supermonster003.autojs6.plugin.archivemanager a io.github.supermonster003.autojs6.plugin.three.stack.archive. Android lo instala como una aplicación independiente; se pueden conservar las aplicaciones y los datos anteriores, sin migración automática de ajustes
 - `Añadido` Una pantalla independiente permite explorar y extraer archivos comprimidos; su creación y modificación siguen disponibles desde AutoJs6
 - `Añadido` Los ajustes comunes ofrecen idioma, modo oscuro, color y cuatro opciones de icono del lanzador
-
-#### v2.22.3
-
-_2026/09/19_
-
-- `Corregido` Advertencias de lectura de SDK XML v4 con AGP 9.1 y comprobaciones de alineación nativa de APK activadas por error al ensamblar pruebas unitarias JVM, mediante los plugins de compilación compartidos 1.8.3
-- `Mejorado` Tras compileSdk, targetSdk sube a 37 (Android 17); el comportamiento del plugin no depende del nuevo objetivo
 
 ##### Historial completo
 

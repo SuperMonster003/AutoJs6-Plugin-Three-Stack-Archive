@@ -131,6 +131,13 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.1.0
+
+_2026/10/16_
+
+- `Added` Plugin tools archive_list / archive_read / archive_extract, letting MCP, Agent and the script API plugins.tools list an archive, read a small text file inside it directly (up to 64 KiB), and extract the whole archive or chosen files and folders into a folder of the working directory: ZIP, 7Z, RAR and the TAR family are supported, with a password for encrypted entries; the target folder may exist already, files with the same names in it stay as they are and are listed in the result, and unsafe paths and duplicate names are skipped; the tools run in the plugin's own process and extraction uses the compatible resource budget (requires AutoJs6 6.8.0 or later)
+- `Dependency` Add the AutoJs6 plugin tool contract AAR (contract version 1 with directory outputs, built from a pinned AutoJs6 source revision, with its length and SHA-256 verified)
+
 #### v3.0.1
 
 _2026/10/05_
@@ -145,13 +152,6 @@ _2026/10/04_
 - `Note` The application ID changes from io.github.supermonster003.autojs6.plugin.archivemanager to io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically
 - `Added` A standalone home screen opens archives for browsing and extraction; creation and in-place changes remain available from AutoJs6
 - `Added` Language, dark mode, theme color and four launcher icon choices are available in the shared settings layout
-
-#### v2.22.3
-
-_2026/09/19_
-
-- `Fixed` SDK XML v4 parsing warnings with AGP 9.1 and APK native alignment checks incorrectly triggered by JVM unit-test assembly tasks, using shared build plugins 1.8.3
-- `Improved` Raise targetSdk to 37 (Android 17) after compileSdk; the plugin's behavior does not depend on the new target
 
 ##### Full history
 

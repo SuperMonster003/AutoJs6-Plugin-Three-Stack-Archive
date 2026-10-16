@@ -2,7 +2,7 @@
 
 本文档是项目从单一 ZIP 查看工具演进为通用压缩档案管理器的执行清单. 每一项只有在代码/测试和可验证的验收条件同时完成后才可勾选.
 
-关联记录 (2026-10-15): MCP Server 插件路线图 (`D:/idea-projects/AutoJs6-Plugin-MCP-Server/ROADMAP.md`) 的 P12 选定本插件为插件自描述工具契约的首批试点: 新增实现宿主 `plugin-api/plugin-tool-api` 的服务, 声明压缩包工具 (列出内容为只读; 解压到工作目录为写入, 归入默认关闭的子开关), 供 MCP, Agent 与脚本 API `plugins.tools` 调用, 用于验证文件参数与风险分级 (决策 D29 - D36). 契约尚在设计, 届时在本路线图另立条目.
+关联记录 (2026-10-15): MCP Server 插件路线图 (`D:/idea-projects/AutoJs6-Plugin-MCP-Server/ROADMAP.md`) 的 P12 选定本插件为插件自描述工具契约的首批试点: 新增实现宿主 `plugin-api/plugin-tool-api` 的服务, 声明压缩包工具 (列出内容为只读; 解压到工作目录为写入, 归入默认关闭的子开关), 供 MCP, Agent 与脚本 API `plugins.tools` 调用, 用于验证文件参数与风险分级 (决策 D29 - D36). 已于 2026-10-16 在 M9 落地 (版本 3.1.0).
 
 ## 状态与边界
 
@@ -354,6 +354,16 @@
 - [x] (验证/本地发布) `Archive Manager 2.22.0` 首次公开发布准备与异步 mutation 生命周期收口完成. 插件现在在向宿主发送终态回调之前关闭 mutation 输入 grant、注销活动操作并解除死亡监听, 立即重试不再被已经完成但尚未清理的操作误判为并发冲突; Android 7 不可靠的压缩 TAR/7Z 写失败注入也改为只读文件描述符, TAR 使用固定种子的 2 MiB 不可压缩负载穿过缓冲层, 从而稳定覆盖真实写入失败. 最终 32 个 JVM 套件共 229 项全部通过, 0 failure、0 error、0 skip; 固定清单 24 个逻辑样本/31 个物理文件、`archive-test-2026` 和两个外部 macOS ZIP 均实际执行. Android 7/API 24、Android 7.1/API 25 与 Android 16/API 36 的完整仪器测试各 178/178, 合计 534/534; 同版本签名候选另在隔离 API 33 宿主完成浏览、创建、管理、源文件移入回收站与恢复闭环. Lint 为 0 fatal、0 errors、62 warnings, 均归入既有依赖/资源基线. 正式 Release/R8 APK 以干净源码提交 `c7f00d37803254122f2ed685412c5eacec26e618` 构建并内嵌同一修订号, 使用无后缀版本 `2.22.0` 与 versionCode 28, 为 4,573,880 bytes、SHA-256 `FED769348CE5A96233F8A53CBBCF710854E752973C1E2BFC66C80CED4ACBB90F`、MD5 `E6DE4FEFF75CA2BE03A47634B8E4A22F`; applicationId、minSdk 24、targetSdk 36、compileSdk 37、最低宿主 5276、精确运行组件及四 ABI 元数据均复核一致, 清单不含 `debuggable`/`testOnly`. APK 使用与宿主相同证书 SHA-256 `31A681FCFFFB3E428420CAE280DED89292B12A3B0F59E19B7A73E32A8AE4C213` 的单一 v2 签名并通过 `zipalign -c -P 16 -v 4`; 四个 zstd-jni 条目与 stripped 中间产物逐项同哈希, 每个 ELF 均有 3 个对齐为 `0x4000` 的 `LOAD` 段并含 `GNU_RELRO`. 最终 APK 在 API 24、API 25 和只读 API 36 AVD 上安装后回读均与本地制品逐字节一致, 三端均正确公布 Explorer Action 服务并由 `run-as` 确认为不可调试; 随后插件、测试包、宿主与设备暂存文件全部确认不存在, API 36 AVD 已停止. 本地忽略目录中的发布副本与构建输出已证明逐字节一致. 十种语言 README/Changelog、安装说明、格式矩阵、安全策略、问题/拉取请求模板、用户发布说明、插件中心元数据、可执行发布清单及六张真实宿主截图已完成并通过隐私检查. 本轮没有修改 AutoJs6 宿主源码、普通文件管理器布局或整体样式, 没有修改官方索引仓库, 也没有远端推送、标签或 GitHub Release.
 
 验收条件: 用户文档没有路线图式承诺冒充现状; 发布 APK/插件元数据/名称/截图/版本历史与宿主最低版本保持一致.
+
+## M9: 插件工具 (MCP Server P12 试点, 2026-10-16)
+
+关联 MCP Server 路线图 P12 的决策 D53 (契约 v1 追加目录输出: 宿主在调用请求里附 `IPluginToolOutputTree`, 写入工作目录旁的隐藏暂存目录, 调用成功时提交, 失败, 超时, 取消或插件死亡时丢弃; 宿主提交 `99729d88f`), D54 (三个工具), D55 (支持 password) 与 D56 (目标文件夹可以已存在, 同名文件保留并报告; COMPATIBLE 预算).
+
+- [x] (插件) `.tool.ArchiveToolService` (动作 `org.autojs.plugin.TOOL_PROVIDER`, 受 `org.autojs.permission.PLUGIN` 保护, 运行在 `:tool` 进程, 两个工作线程); PluginInfo 能力声明契约版本 1. 工具目录短名 `archive`: `list` (只读, 分页 `offset` / `limit` 1 - 1000, `directory` 过滤, 条目含路径, 目录, 大小, 压缩后大小, 修改时间, 加密与不安全路径标记), `read` (只读, 返回包内文件前 `maxBytes` (至多 65536) 字节的 UTF-8 文本, 截断处不切开字符, 含 NUL 的视为二进制), `extract` (写入, 目录输出 `files`, `paths` 可选择部分条目并保留其包内路径, 超时 300 s); 三者都接受 `password`.
+- [x] (插件) `ToolTreeArchiveOutputWriter` 把现有 `ArchiveExtractor` 接到输出树上: 根即输出目录, 宿主答 `EXISTS` 的文件读出后丢弃并计入 `kept` / `keptPaths`, 跳过不安全路径与重复名称; 失败时宿主丢弃暂存目录. 含加密条目的 ZIP 与需要本地文件的后端先复制到私有缓存再读 (与 Explorer 会话一致).
+- [x] (插件) 契约 AAR `libs/plugin-tool-api.aar` (宿主 `99729d88f`, 34073 字节) 与锁文件, JVM 测试核对; R8 保留 `org.autojs.plugin.tool.api.**`.
+- [x] (验证) JVM `ArchiveToolCatalogTest` 2 项; 小米 23046RP50C (`968e9f18`, Android 15) 插件 instrumentation `ArchiveToolServiceTest` 5/5 (列表与分页, 读取文本 / 截断 / 二进制, 解压与保留已有文件, AES 加密 ZIP 有无密码, 拒绝); 宿主 debug 5456 `ArchivePluginToolRoundTripTest` 2/2 与 `NodeBridgePluginToolsBridgeAndroidTest` 11/11; MCP Server `p12_plugin_tools.py --archive` 15/15 (debug 与 release 包); Sony G8441 (`BH900ASK9E`, Android 9) 插件 5/5, 宿主往返 2/2, MCP 15/15 (第一次运行时宿主测试会话中途崩溃, 属该机已知的偶发问题, 重跑通过).
+- [ ] 3.1.0 公开发布前补测 x86_64 模拟器, ColorOS 与 16 KB 设备, 并经发布矩阵门禁归档.
 
 ## 后续推荐交付顺序
 

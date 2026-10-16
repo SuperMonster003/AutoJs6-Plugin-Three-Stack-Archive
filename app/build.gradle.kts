@@ -482,6 +482,8 @@ dependencies {
 
     implementation(files("$rootDir/libs/common-plugin-api.aar"))
     implementation(files("$rootDir/libs/explorer-action-api.aar"))
+    // AutoJs6 plugin tool contract v1 with directory outputs (MCP Server roadmap P12, D53), pinned in libs/plugin-tool-api.lock.json.
+    implementation(files("$rootDir/libs/plugin-tool-api.aar"))
 
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)

@@ -131,6 +131,13 @@ La consultation, l'extraction, la création, la modification, la restauration de
 
 ### Notes de version
 
+#### v3.1.0
+
+_2026/10/16_
+
+- `Ajout` Outils de plugin archive_list / archive_read / archive_extract, pour que MCP, Agent et l'API de script plugins.tools listent une archive, lisent directement un petit fichier texte qu'elle contient (jusqu'à 64 KiB) et extraient toute l'archive ou les fichiers et dossiers choisis dans un dossier du répertoire de travail : ZIP, 7Z, RAR et la famille TAR sont pris en charge, avec un password pour les entrées chiffrées ; le dossier cible peut déjà exister, les fichiers de même nom qu'il contient restent tels quels et sont listés dans le résultat, et les chemins dangereux et noms en double sont ignorés ; les outils s'exécutent dans le processus du plugin et l'extraction suit le budget de ressources compatible (AutoJs6 6.8.0 ou ultérieur requis)
+- `Dépendance` Ajout de l'AAR du contrat d'outils de plugin AutoJs6 (version de contrat 1 avec sorties de dossier, construit depuis une révision source AutoJs6 figée, longueur et SHA-256 vérifiés)
+
 #### v3.0.1
 
 _2026/10/05_
@@ -145,13 +152,6 @@ _2026/10/04_
 - `Note` L'identifiant passe de io.github.supermonster003.autojs6.plugin.archivemanager à io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installe une application distincte; les anciennes applications et leurs données peuvent être conservées, sans migration automatique des paramètres
 - `Ajout` Un écran autonome ouvre les archives pour les consulter et extraire; la création et la modification sur place restent accessibles depuis AutoJs6
 - `Ajout` Les paramètres communs proposent la langue, le mode sombre, la couleur et quatre icônes de lanceur
-
-#### v2.22.3
-
-_2026/09/19_
-
-- `Correction` Avertissements de lecture SDK XML v4 avec AGP 9.1 et contrôles d'alignement natif des APK déclenchés par erreur lors de l'assemblage des tests unitaires JVM, avec les plugins de compilation partagés 1.8.3
-- `Amélioration` Après compileSdk, targetSdk passe à 37 (Android 17) ; le comportement du plugin ne dépend pas de la nouvelle cible
 
 ##### Historique complet
 

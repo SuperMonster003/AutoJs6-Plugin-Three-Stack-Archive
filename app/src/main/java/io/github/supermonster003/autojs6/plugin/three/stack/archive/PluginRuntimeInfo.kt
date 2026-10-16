@@ -10,6 +10,8 @@ import org.autojs.plugin.explorer.api.ExplorerActionCatalogKeys
 import org.autojs.plugin.explorer.api.ExplorerActionPluginIds
 import org.autojs.plugin.explorer.api.ExplorerActionProtocol
 import org.autojs.plugin.explorer.api.ExplorerActionValues
+import org.autojs.plugin.tool.api.PluginToolCapabilityKeys
+import org.autojs.plugin.tool.api.PluginToolContract
 
 internal object ThreeStackArchivePlugin {
     const val ID = "three-stack-archive"
@@ -103,6 +105,7 @@ internal fun Context.archiveManagerPluginInfo(): PluginInfo {
         capabilities = Bundle().apply {
             putLong(PluginCapabilityKeys.REQUIRES_HOST_VERSION, ThreeStackArchivePlugin.REQUIRED_HOST_VERSION)
             putInt(ExplorerActionCapabilityKeys.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
+            putInt(PluginToolCapabilityKeys.CONTRACT_VERSION, PluginToolContract.CONTRACT_VERSION)
         }
     }
 }

@@ -34,6 +34,12 @@
                 <action android:name="org.autojs.plugin.EXPLORER_ACTION" />
             </intent-filter>
         </service>
+        <!-- AutoJs6 plugin tool contract v1 (MCP Server roadmap P12): archive_list / archive_read / archive_extract, in a process of its own. -->
+        <service android:name=".tool.ArchiveToolService" android:exported="true" android:permission="org.autojs.permission.PLUGIN" android:process=":tool">
+            <intent-filter>
+                <action android:name="org.autojs.plugin.TOOL_PROVIDER" />
+            </intent-filter>
+        </service>
         <activity android:name=".HomeActivity" android:exported="false" android:theme="@style/Theme.Standalone" />
         <activity android:name=".AppSettingsActivity" android:exported="false" android:theme="@style/Theme.Standalone" android:parentActivityName=".HomeActivity" />
         <activity android:name=".AboutActivity" android:exported="false" android:theme="@style/Theme.Standalone" android:parentActivityName=".AppSettingsActivity" />

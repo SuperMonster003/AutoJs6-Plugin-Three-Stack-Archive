@@ -131,6 +131,13 @@ Explorer Action v18 只在宿主私有持久存储中保留上一版档案, 向�
 
 ### 版本记录
 
+#### v3.1.0
+
+_2026/10/16_
+
+- `新增` 插件工具 archive_list / archive_read / archive_extract, 用于让 MCP, Agent 与脚本 API plugins.tools 列出压缩包内容, 直接读取包内的小文本文件 (不超过 64 KiB), 以及把整个压缩包或选定的文件与文件夹解压到工作目录中的文件夹: 支持 ZIP, 7Z, RAR 与 TAR 系列, 加密条目可传入 password; 目标文件夹可以已存在, 其中的同名文件保持不变并在结果中列出, 不安全的路径与重复名称会跳过; 工具在插件自己的进程中运行, 解压沿用兼容资源预算 (需要 AutoJs6 6.8.0 及以上版本)
+- `依赖` 附加 AutoJs6 插件工具契约 AAR (契约版本 1, 含目录输出, 从固定的 AutoJs6 源码修订构建, 并校验长度与 SHA-256)
+
 #### v3.0.1
 
 _2026/10/05_
@@ -145,13 +152,6 @@ _2026/10/04_
 - `提示` 应用 ID 从 io.github.supermonster003.autojs6.plugin.archivemanager 改为 io.github.supermonster003.autojs6.plugin.three.stack.archive. Android 将其视为独立应用, 原应用与数据可以保留, 设置不会自动迁移
 - `新增` 独立首页可打开压缩档案进行浏览和解压, 创建及原位修改仍可从 AutoJs6 发起
 - `新增` 统一设置页提供语言, 夜间模式, 主题色及四种启动器图标选项
-
-#### v2.22.3
-
-_2026/09/19_
-
-- `修复` AGP 9.1 构建时的 SDK XML v4 解析警告, 以及 JVM 单元测试误触发 APK 原生库对齐检查的问题 (共享构建插件 1.8.3)
-- `优化` targetSdk 升级至 37 (Android 17)
 
 ##### 完整记录
 

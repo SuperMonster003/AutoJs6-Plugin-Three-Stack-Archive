@@ -131,6 +131,13 @@ Explorer Action v18 只在宿主私有持久儲存中保留上一版壓縮檔案
 
 ### 版本記錄
 
+#### v3.1.0
+
+_2026/10/16_
+
+- `新增` 外掛程式工具 archive_list / archive_read / archive_extract, 用於讓 MCP, Agent 與指令碼 API plugins.tools 列出壓縮檔內容, 直接讀取檔案內的小型文字檔 (不超過 64 KiB), 以及把整個壓縮檔或選定的檔案與資料夾解壓縮到工作目錄中的資料夾: 支援 ZIP, 7Z, RAR 與 TAR 系列, 加密項目可傳入 password; 目標資料夾可以已存在, 其中的同名檔案保持不變並在結果中列出, 不安全的路徑與重複名稱會略過; 工具在外掛程式自己的處理程序中執行, 解壓縮沿用相容資源預算 (需要 AutoJs6 6.8.0 以上版本)
+- `相依性` 附加 AutoJs6 外掛程式工具契約 AAR (契約版本 1, 含目錄輸出, 由固定的 AutoJs6 原始碼修訂建置, 並驗證長度與 SHA-256)
+
 #### v3.0.1
 
 _2026/10/05_
@@ -145,13 +152,6 @@ _2026/10/04_
 - `提示` 應用程式 ID 從 io.github.supermonster003.autojs6.plugin.archivemanager 改為 io.github.supermonster003.autojs6.plugin.three.stack.archive. Android 將其視為獨立應用程式, 原應用程式與資料可以保留, 設定不會自動遷移
 - `新增` 獨立首頁可開啟壓縮檔案進行瀏覽與解壓縮, 建立及原位修改仍可從 AutoJs6 發起
 - `新增` 統一設定頁提供語言, 夜間模式, 主題色及四種啟動器圖示選項
-
-#### v2.22.3
-
-_2026/09/19_
-
-- `修正` AGP 9.1 建置時的 SDK XML v4 解析警告及 JVM 單元測試組裝工作誤觸發 APK 原生程式庫對齊檢查的問題 (共用建置外掛 1.8.3)
-- `改善` 繼 compileSdk 之後將 targetSdk 提升到 37 (Android 17), 外掛程式行為不受新目標版本影響
 
 ##### 完整記錄
 

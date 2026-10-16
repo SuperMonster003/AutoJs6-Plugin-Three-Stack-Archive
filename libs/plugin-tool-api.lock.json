@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "AutoJs6",
+  "sourceRevision": "99729d88f5fc72724170c4f53065471400fee689",
+  "module": "plugin-api/plugin-tool-api",
+  "contractVersion": 1,
+  "artifact": {
+    "name": "plugin-tool-api.aar",
+    "length": 34073,
+    "sha256": "3393622ddaa4d7bf006136d80e2c3535bce00f31d3cf137d160b57d3a3f2e159"
+  }
+}
