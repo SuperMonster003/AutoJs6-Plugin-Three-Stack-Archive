@@ -111,8 +111,6 @@
 
 ### {{ h3_links }}
 
-- {{ text_link_installation }}: [docs/INSTALLATION.md]({{ repo_url }}/blob/master/docs/INSTALLATION.md)
-- {{ text_link_format_capabilities }}: [docs/FORMAT_CAPABILITIES.md]({{ repo_url }}/blob/master/docs/FORMAT_CAPABILITIES.md)
 - {{ text_link_security_policy }}: [SECURITY.md]({{ repo_url }}/blob/master/SECURITY.md)
 - {{ text_link_autojs6_docs }}: {{ docs_autojs6_url }}
 - {{ text_link_third_party_notices }}: [THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md)

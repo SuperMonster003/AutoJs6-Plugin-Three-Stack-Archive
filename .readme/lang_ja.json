@@ -65,8 +65,6 @@
   "text_release_build": "Release ビルド",
   "p_build_params": "リポジトリ直下の Gradle Wrapper を使い、SDK/JDK 要件は `version.properties` を参照してください",
   "h3_links": "リンク",
-  "text_link_installation": "インストールガイド",
-  "text_link_format_capabilities": "形式別機能表",
   "text_link_security_policy": "セキュリティポリシー",
   "text_link_autojs6_docs": "AutoJs6 ドキュメント",
   "text_link_third_party_notices": "サードパーティーソフトウェアに関する通知",

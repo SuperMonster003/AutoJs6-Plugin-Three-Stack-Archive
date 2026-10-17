@@ -65,8 +65,6 @@
   "text_release_build": "بناء Release",
   "p_build_params": "استخدم Gradle Wrapper من جذر المستودع، واعتبر `version.properties` مرجع متطلبات SDK و JDK",
   "h3_links": "الروابط",
-  "text_link_installation": "دليل التثبيت",
-  "text_link_format_capabilities": "مصفوفة إمكانات الصيغ",
   "text_link_security_policy": "سياسة الأمان",
   "text_link_autojs6_docs": "توثيق AutoJs6",
   "text_link_third_party_notices": "إشعارات البرامج الخارجية",

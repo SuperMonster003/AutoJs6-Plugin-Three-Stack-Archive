@@ -65,8 +65,6 @@
   "text_release_build": "Release 빌드",
   "p_build_params": "저장소 루트의 Gradle Wrapper를 사용하고 SDK/JDK 요구 사항은 `version.properties`를 따릅니다",
   "h3_links": "링크",
-  "text_link_installation": "설치 안내",
-  "text_link_format_capabilities": "형식별 기능표",
   "text_link_security_policy": "보안 정책",
   "text_link_autojs6_docs": "AutoJs6 문서",
   "text_link_third_party_notices": "타사 소프트웨어 고지",

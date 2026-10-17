@@ -65,8 +65,6 @@
   "text_release_build": "Compilación Release",
   "p_build_params": "Usa Gradle Wrapper desde la raíz; `version.properties` define los requisitos de SDK y JDK",
   "h3_links": "Enlaces",
-  "text_link_installation": "Guía de instalación",
-  "text_link_format_capabilities": "Matriz de capacidades por formato",
   "text_link_security_policy": "Política de seguridad",
   "text_link_autojs6_docs": "Documentación de AutoJs6",
   "text_link_third_party_notices": "Avisos de software de terceros",

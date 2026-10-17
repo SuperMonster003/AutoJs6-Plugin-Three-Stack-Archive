@@ -34,4 +34,4 @@ Archive Manager deliberately operates through bounded AutoJs6 host contracts:
 - no-overwrite recovery and identity checks around every host mutation;
 - best-effort clearing and no durable storage of passwords.
 
-See [docs/FORMAT_CAPABILITIES.md](docs/FORMAT_CAPABILITIES.md) for the precise writable and read-only boundaries.
+See the current formats section of [README.md](README.md) for the browsable, extractable and creatable formats and the current limits.

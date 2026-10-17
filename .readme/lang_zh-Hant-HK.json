@@ -65,8 +65,6 @@
   "text_release_build": "Release 建置",
   "p_build_params": "在項目根目錄使用 Gradle Wrapper；SDK 及 JDK 要求以 `version.properties` 為準",
   "h3_links": "相關連結",
-  "text_link_installation": "安裝指南",
-  "text_link_format_capabilities": "格式能力矩陣",
   "text_link_security_policy": "安全政策",
   "text_link_autojs6_docs": "AutoJs6 文件",
   "text_link_third_party_notices": "第三方軟件聲明",

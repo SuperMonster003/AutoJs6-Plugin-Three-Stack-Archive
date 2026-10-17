@@ -65,8 +65,6 @@
   "text_release_build": "Release build",
   "p_build_params": "Run the Gradle Wrapper from the repository root; use `version.properties` as the source of truth for SDK and JDK requirements",
   "h3_links": "Links",
-  "text_link_installation": "Installation guide",
-  "text_link_format_capabilities": "Format capability matrix",
   "text_link_security_policy": "Security policy",
   "text_link_autojs6_docs": "AutoJs6 documentation",
   "text_link_third_party_notices": "Third-party notices",

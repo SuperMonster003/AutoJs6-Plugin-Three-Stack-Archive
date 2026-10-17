@@ -65,8 +65,6 @@
   "text_release_build": "Release-сборка",
   "p_build_params": "Используйте Gradle Wrapper из корня; требования SDK/JDK определяются `version.properties`",
   "h3_links": "Ссылки",
-  "text_link_installation": "Руководство по установке",
-  "text_link_format_capabilities": "Матрица возможностей форматов",
   "text_link_security_policy": "Политика безопасности",
   "text_link_autojs6_docs": "Документация AutoJs6",
   "text_link_third_party_notices": "Уведомления о стороннем ПО",
