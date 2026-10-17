@@ -137,6 +137,7 @@ _2026/10/17_
 
 - `Ajout` Outils de plugin archive_list / archive_read / archive_extract, pour que MCP, Agent et l'API de script plugins.tools listent une archive, lisent directement un petit fichier texte qu'elle contient (jusqu'à 64 KiB) et extraient toute l'archive ou les fichiers et dossiers choisis dans un dossier du répertoire de travail : ZIP, 7Z, RAR et la famille TAR sont pris en charge, avec un password pour les entrées chiffrées ; le dossier cible peut déjà exister, les fichiers de même nom qu'il contient restent tels quels et sont listés dans le résultat, et les chemins dangereux et noms en double sont ignorés ; les outils s'exécutent dans le processus du plugin et l'extraction suit le budget de ressources compatible (AutoJs6 6.8.0 ou ultérieur requis)
 - `Correction` Dans l'interface en arabe, 3-Stack Archive ne s'affiche plus à l'envers sous la forme Stack Archive-3
+- `Correction` La page de l'historique des versions affiche désormais les changements de chaque version au lieu d'un simple titre
 - `Dépendance` Ajout de l'AAR du contrat d'outils de plugin AutoJs6 (version de contrat 1 avec sorties de dossier, construit depuis une révision source AutoJs6 figée, longueur et SHA-256 vérifiés)
 
 #### v3.0.1

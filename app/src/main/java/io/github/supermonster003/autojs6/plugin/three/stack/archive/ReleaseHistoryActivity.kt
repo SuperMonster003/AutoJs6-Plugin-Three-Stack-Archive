@@ -3,6 +3,7 @@ package io.github.supermonster003.autojs6.plugin.three.stack.archive
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -46,11 +47,15 @@ internal data class ReleaseHistoryEntry(
 )
 
 /**
- * Parses the narrow markdown dialect used by the bundled changelogs: `# vX.Y.Z` version
- * headings, `###### date` lines, and `` * `tag` text `` bullets. Anything else is ignored.
+ * Parses the bundled changelogs written by `.python/generate_markdown.py`: a `# title` line, then
+ * per version a `## vX.Y.Z` heading, an `_date_` line and `` - `tag` text `` bullets. Inline code
+ * markers inside the text are dropped. Anything else is ignored.
  */
 internal object ReleaseHistoryParser {
-    private val BULLET_PATTERN = Regex("^\\*\\s+(?:`([^`]+)`\\s*)?(.*)$")
+    private val VERSION_PATTERN = Regex("""^##\s+(v?\d\S*)$""")
+    private val DATE_PATTERN = Regex("""^_(.+)_$""")
+    private val BULLET_PATTERN = Regex("""^-\s+(?:`([^`]+)`\s*)?(.*)$""")
+    private val INLINE_CODE_PATTERN = Regex("""`([^`]+)`""")
 
     fun parse(markdown: String): List<ReleaseHistoryEntry> {
         val entries = mutableListOf<ReleaseHistoryEntry>()
@@ -65,18 +70,21 @@ internal object ReleaseHistoryParser {
 
         for (rawLine in markdown.lineSequence()) {
             val line = rawLine.trim()
+            val versionMatch = VERSION_PATTERN.matchEntire(line)
             when {
-                line.startsWith("# ") -> {
+                versionMatch != null -> {
                     flush()
-                    version = line.removePrefix("# ").trim()
+                    version = versionMatch.groupValues[1]
                     date = null
                     items = mutableListOf()
                 }
-                line.startsWith("###### ") -> date = line.removePrefix("###### ").trim()
-                line.startsWith("* ") && version != null -> {
+                version == null -> Unit
+                date == null && items.isEmpty() && DATE_PATTERN.matches(line) ->
+                    date = DATE_PATTERN.matchEntire(line)!!.groupValues[1].trim()
+                line.startsWith("- ") -> {
                     val match = BULLET_PATTERN.matchEntire(line) ?: continue
                     val tag = match.groupValues[1].takeIf { it.isNotEmpty() }
-                    val text = match.groupValues[2].trim()
+                    val text = INLINE_CODE_PATTERN.replace(match.groupValues[2].trim(), "$1")
                     if (tag != null || text.isNotEmpty()) {
                         items.add(ReleaseHistoryItem(tag, text))
                     }
@@ -136,6 +144,8 @@ internal class ReleaseHistoryActivity : ConfiguredActivity() {
                         setTextSize(TypedValue.COMPLEX_UNIT_SP, Ui.TEXT_TITLE)
                         typeface = Ui.mediumTypeface
                         setTextColor(appPalette.primaryText)
+                        // The Latin version would otherwise align by its own direction and run into the date in RTL.
+                        textAlignment = View.TEXT_ALIGNMENT_VIEW_START
                     },
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f),
                 )
@@ -146,6 +156,10 @@ internal class ReleaseHistoryActivity : ConfiguredActivity() {
                             setTextSize(TypedValue.COMPLEX_UNIT_SP, Ui.TEXT_CAPTION)
                             setTextColor(appPalette.secondaryText)
                         },
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ).apply { marginStart = uiDp(Ui.SPACE_SM) },
                     )
                 }
             },
