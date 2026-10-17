@@ -6,9 +6,12 @@
   "changelog_label_dependency": "相依性",
   "$data": {
     "v3.1.0": {
-      "released_date": "2026/10/16",
+      "released_date": "2026/10/17",
       "feature": [
         "外掛程式工具 archive_list / archive_read / archive_extract, 用於讓 MCP, Agent 與指令碼 API plugins.tools 列出壓縮檔內容, 直接讀取檔案內的小型文字檔 (不超過 64 KiB), 以及把整個壓縮檔或選定的檔案與資料夾解壓縮到工作目錄中的資料夾: 支援 ZIP, 7Z, RAR 與 TAR 系列, 加密項目可傳入 password; 目標資料夾可以已存在, 其中的同名檔案保持不變並在結果中列出, 不安全的路徑與重複名稱會略過; 工具在外掛程式自己的處理程序中執行, 解壓縮沿用相容資源預算 (需要 AutoJs6 6.8.0 以上版本)"
+      ],
+      "fix": [
+        "阿拉伯語介面中, 3-Stack Archive 不再被倒序顯示成 Stack Archive-3"
       ],
       "dependency": [
         "附加 AutoJs6 外掛程式工具契約 AAR (契約版本 1, 含目錄輸出, 由固定的 AutoJs6 原始碼修訂建置, 並驗證長度與 SHA-256)"

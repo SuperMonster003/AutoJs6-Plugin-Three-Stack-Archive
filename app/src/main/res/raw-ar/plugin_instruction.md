@@ -5,9 +5,9 @@
 يتغير معرف التطبيق من io.github.supermonster003.autojs6.plugin.archivemanager إلى io.github.supermonster003.autojs6.plugin.three.stack.archive. يثبته Android كتطبيق مستقل; يمكن الاحتفاظ بالتطبيقات والبيانات السابقة ولا تنتقل الإعدادات تلقائيا.
 
 
-يتطلب 3-Stack Archive 2.22.0 نظام Android 7 أو أحدث وبنية AutoJs6 6.8.0 متوافقة (versionCode 5276 أو أحدث) تعلن Explorer Action v21.
+يتطلب ⁨3-Stack Archive 2.22.0⁩ نظام Android 7 أو أحدث وبنية AutoJs6 6.8.0 متوافقة (versionCode 5276 أو أحدث) تعلن Explorer Action v21.
 
-1. ثبت ملحق `3-Stack Archive` ومكنه.
+1. ثبت ملحق ⁨`3-Stack Archive`⁩ ومكنه.
 2. افتح قائمة الخيارات لملف أرشيف مدعوم.
 3. اختر `فتح الأرشيف`.
 4. تصفح المجلدات أو ابحث أو استخدم شريط المسار أو افتح العناصر المدعومة بعارضات المضيف.

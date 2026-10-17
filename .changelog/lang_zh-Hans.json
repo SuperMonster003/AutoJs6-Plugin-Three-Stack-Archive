@@ -6,9 +6,12 @@
   "changelog_label_dependency": "依赖",
   "$data": {
     "v3.1.0": {
-      "released_date": "2026/10/16",
+      "released_date": "2026/10/17",
       "feature": [
         "插件工具 archive_list / archive_read / archive_extract, 用于让 MCP, Agent 与脚本 API plugins.tools 列出压缩包内容, 直接读取包内的小文本文件 (不超过 64 KiB), 以及把整个压缩包或选定的文件与文件夹解压到工作目录中的文件夹: 支持 ZIP, 7Z, RAR 与 TAR 系列, 加密条目可传入 password; 目标文件夹可以已存在, 其中的同名文件保持不变并在结果中列出, 不安全的路径与重复名称会跳过; 工具在插件自己的进程中运行, 解压沿用兼容资源预算 (需要 AutoJs6 6.8.0 及以上版本)"
+      ],
+      "fix": [
+        "阿拉伯语界面中, 3-Stack Archive 不再被倒序显示成 Stack Archive-3"
       ],
       "dependency": [
         "附加 AutoJs6 插件工具契约 AAR (契约版本 1, 含目录输出, 从固定的 AutoJs6 源码修订构建, 并校验长度与 SHA-256)"
