@@ -5,7 +5,7 @@
 앱 ID가 io.github.supermonster003.autojs6.plugin.archivemanager에서 io.github.supermonster003.autojs6.plugin.three.stack.archive(으)로 변경됩니다. Android는 별도 앱으로 설치하며 기존 앱과 데이터를 유지할 수 있고 설정은 자동으로 이전되지 않습니다.
 
 
-3-Stack Archive 2.22.0에는 Android 7 이상과 Explorer Action v21을 제공하는 호환 AutoJs6 6.8.0 빌드(versionCode 5276 이상)가 필요합니다.
+3-Stack Archive에는 Android 7 이상과 Explorer Action v21을 제공하는 호환 AutoJs6 6.8.0 빌드(versionCode 5276 이상)가 필요합니다.
 
 1. `3-Stack Archive` 플러그인을 설치하고 활성화합니다.
 2. 지원되는 압축 파일의 더보기 메뉴를 엽니다.

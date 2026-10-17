@@ -5,7 +5,7 @@
 应用 ID 从 io.github.supermonster003.autojs6.plugin.archivemanager 改为 io.github.supermonster003.autojs6.plugin.three.stack.archive. Android 将其视为独立应用, 原应用与数据可以保留, 设置不会自动迁移.
 
 
-3-Stack Archive 2.22.0 需要 Android 7 或更高版本, 并需要配套的 AutoJs6 6.8.0 (versionCode 5276 或更高) 宿主公布 Explorer Action v21.
+3-Stack Archive 需要 Android 7 或更高版本, 并需要配套的 AutoJs6 6.8.0 (versionCode 5276 或更高) 宿主公布 Explorer Action v21.
 
 1. 安装并启用 `3-Stack Archive` 插件.
 2. 打开一个受支持压缩档案文件的溢出菜单.

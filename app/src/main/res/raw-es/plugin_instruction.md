@@ -5,7 +5,7 @@ Los ajustes comunes ofrecen idioma, modo oscuro, color y cuatro opciones de icon
 El identificador cambia de io.github.supermonster003.autojs6.plugin.archivemanager a io.github.supermonster003.autojs6.plugin.three.stack.archive. Android lo instala como una aplicación independiente; se pueden conservar las aplicaciones y los datos anteriores, sin migración automática de ajustes.
 
 
-3-Stack Archive 2.22.0 requiere Android 7 o posterior y una compilación emparejada de AutoJs6 6.8.0 (versionCode 5276 o superior) que anuncie Explorer Action v21.
+3-Stack Archive requiere Android 7 o posterior y una compilación emparejada de AutoJs6 6.8.0 (versionCode 5276 o superior) que anuncie Explorer Action v21.
 
 1. Instala y activa el plugin `3-Stack Archive`.
 2. Abre el menú adicional de un archivo comprimido compatible.

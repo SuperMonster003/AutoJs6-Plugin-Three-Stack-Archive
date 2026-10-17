@@ -5,7 +5,7 @@ Language, dark mode, theme color and four launcher icon choices are available in
 The application ID changes from io.github.supermonster003.autojs6.plugin.archivemanager to io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically.
 
 
-3-Stack Archive 2.22.0 requires Android 7 or newer and a paired AutoJs6 6.8.0 build (versionCode 5276 or newer) that advertises Explorer Action v21.
+3-Stack Archive requires Android 7 or newer and a paired AutoJs6 6.8.0 build (versionCode 5276 or newer) that advertises Explorer Action v21.
 
 1. Install and enable the `3-Stack Archive` plugin.
 2. Open the overflow menu for a supported archive file.

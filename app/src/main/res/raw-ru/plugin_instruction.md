@@ -5,7 +5,7 @@
 Идентификатор приложения изменен с io.github.supermonster003.autojs6.plugin.archivemanager на io.github.supermonster003.autojs6.plugin.three.stack.archive. Android устанавливает отдельное приложение; прежние приложения и данные можно сохранить, настройки автоматически не переносятся.
 
 
-3-Stack Archive 2.22.0 требует Android 7 или новее и совместимую сборку AutoJs6 6.8.0 (versionCode 5276 или выше), публикующую Explorer Action v21.
+3-Stack Archive требует Android 7 или новее и совместимую сборку AutoJs6 6.8.0 (versionCode 5276 или выше), публикующую Explorer Action v21.
 
 1. Установите и включите плагин `3-Stack Archive`.
 2. Откройте дополнительное меню поддерживаемого архива.
