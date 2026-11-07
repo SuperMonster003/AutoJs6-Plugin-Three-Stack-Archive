@@ -1,5 +1,11 @@
 # Notas de la versión
 
+## v3.1.2
+
+_2026/11/07_
+
+- `Corregido` En el administrador de archivos de AutoJs6, las opciones "Abrir como archivo comprimido..." y "Comprimir..." de este plugin ya no aparecen en inglés en los demás idiomas de la interfaz
+
 ## v3.1.1
 
 _2026/11/07_

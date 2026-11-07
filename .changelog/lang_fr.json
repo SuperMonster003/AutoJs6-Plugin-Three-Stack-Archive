@@ -5,6 +5,12 @@
   "changelog_label_improvement": "Amélioration",
   "changelog_label_dependency": "Dépendance",
   "$data": {
+    "v3.1.2": {
+      "released_date": "2026/11/07",
+      "fix": [
+        "Dans le gestionnaire de fichiers d'AutoJs6, les options \"Ouvrir comme archive...\" et \"Compresser...\" de ce plugin ne s'affichent plus en anglais dans les autres langues de l'interface"
+      ]
+    },
     "v3.1.1": {
       "released_date": "2026/11/07",
       "improvement": [

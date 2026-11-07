@@ -5,6 +5,12 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v3.1.2": {
+      "released_date": "2026/11/07",
+      "fix": [
+        "AutoJs6 のファイルマネージャーで, このプラグインの \"アーカイブとして開く...\" と \"圧縮...\" が英語以外の画面で英語表示されなくなりました"
+      ]
+    },
     "v3.1.1": {
       "released_date": "2026/11/07",
       "improvement": [

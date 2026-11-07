@@ -131,6 +131,12 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v3.1.2
+
+_2026/11/07_
+
+- `Corregido` En el administrador de archivos de AutoJs6, las opciones "Abrir como archivo comprimido..." y "Comprimir..." de este plugin ya no aparecen en inglés en los demás idiomas de la interfaz
+
 #### v3.1.1
 
 _2026/11/07_
@@ -145,13 +151,6 @@ _2026/10/17_
 - `Corregido` En la interfaz en árabe, 3-Stack Archive ya no aparece invertido como Stack Archive-3
 - `Corregido` La página del historial de versiones ahora muestra los cambios de cada versión en lugar de solo un título
 - `Dependencia` Se añade el AAR del contrato de herramientas de plugins de AutoJs6 (versión de contrato 1 con salidas de carpeta, compilado desde una revisión fija del código fuente de AutoJs6, con longitud y SHA-256 verificados)
-
-#### v3.0.1
-
-_2026/10/05_
-
-- `Mejorado` Los iconos del centro de plugins usan los tamaños, posiciones, imágenes claras y oscuras y fondos circulares ajustados en Icon Studio, conservando fuentes y parámetros reproducibles
-- `Mejorado` Los iconos de información de la aplicación de Android comparten las imágenes y los fondos claros y oscuros de Icon Studio, conservando las imágenes transparentes del centro de plugins y las opciones del lanzador
 
 ##### Historial completo
 

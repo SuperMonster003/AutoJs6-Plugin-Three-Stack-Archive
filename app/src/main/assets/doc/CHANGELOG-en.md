@@ -1,5 +1,11 @@
 # Release notes
 
+## v3.1.2
+
+_2026/11/07_
+
+- `Fixed` In the AutoJs6 file manager, the options "Open as archive..." and "Compress..." of this plugin no longer appear in English in other interface languages
+
 ## v3.1.1
 
 _2026/11/07_

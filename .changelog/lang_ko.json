@@ -5,6 +5,12 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v3.1.2": {
+      "released_date": "2026/11/07",
+      "fix": [
+        "AutoJs6 파일 관리자에서 이 플러그인의 \"압축 파일로 열기...\" 및 \"압축...\" 항목이 영어가 아닌 화면에서 더 이상 영어로 표시되지 않습니다"
+      ]
+    },
     "v3.1.1": {
       "released_date": "2026/11/07",
       "improvement": [

@@ -1,5 +1,11 @@
 # Notes de version
 
+## v3.1.2
+
+_2026/11/07_
+
+- `Correction` Dans le gestionnaire de fichiers d'AutoJs6, les options "Ouvrir comme archive..." et "Compresser..." de ce plugin ne s'affichent plus en anglais dans les autres langues de l'interface
+
 ## v3.1.1
 
 _2026/11/07_

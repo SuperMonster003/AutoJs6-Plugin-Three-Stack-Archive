@@ -131,6 +131,12 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.1.2
+
+_2026/11/07_
+
+- `Fixed` In the AutoJs6 file manager, the options "Open as archive..." and "Compress..." of this plugin no longer appear in English in other interface languages
+
 #### v3.1.1
 
 _2026/11/07_
@@ -145,13 +151,6 @@ _2026/10/17_
 - `Fixed` In the Arabic interface, 3-Stack Archive no longer appears reversed as Stack Archive-3
 - `Fixed` The version history page now lists the changes of each version instead of showing only a title
 - `Dependency` Add the AutoJs6 plugin tool contract AAR (contract version 1 with directory outputs, built from a pinned AutoJs6 source revision, with its length and SHA-256 verified)
-
-#### v3.0.1
-
-_2026/10/05_
-
-- `Improved` Plugin Center icons use the sizes, positions, light and dark artwork, and circular backgrounds adjusted in Icon Studio, retaining reproducible sources and parameters
-- `Improved` Android App info icons share Icon Studio artwork and light/dark backgrounds while preserving transparent Plugin Center artwork and existing launcher choices
 
 ##### Full history
 
