@@ -42,6 +42,17 @@ internal object ThreeStackArchivePlugin {
     const val EXTRACT_TO_ACTION_PRIORITY = 70
     const val OPEN_AS_ARCHIVE_ACTION_PRIORITY = 65
     const val COMPRESS_ACTION_PRIORITY = 60
+
+    // The name of the plugin's first-level menu in the AutoJs6 file manager (host Explorer Action protocol v27):
+    // the display name, as in the Plugin Center. The bundled explorer-action-api predates v27 and has no constants
+    // for the two catalog-level keys, hence the literal key names. Hosts from 6.8.1 read them from catalogs of every
+    // protocol version and older hosts ignore unknown keys, so the catalog keeps the bundled protocol version and
+    // REQUIRED_HOST_VERSION stays.
+    const val MENU_GROUP_LABEL_RESOURCE_NAME_KEY = "menuGroupLabelResourceName"
+    const val MENU_GROUP_LABEL_FALLBACK_KEY = "menuGroupLabelFallback"
+    const val MENU_GROUP_LABEL_RESOURCE_NAME = "app_name"
+    const val MENU_GROUP_LABEL_FALLBACK = "3-Stack Archive"
+
     val SUPPORTED_ABIS = arrayOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
     val ANDROID_PACKAGE_EXTENSIONS = setOf("apk", "apks", "xapk", "apkm", "apkz", "aab")
     fun canModifyFileName(displayName: String): Boolean = ArchiveEngine.DEFAULT.mutationFormats.any { format ->
@@ -187,6 +198,8 @@ internal fun archiveManagerActionCatalog(): Bundle {
     )
     return Bundle().apply {
         putInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION, ExplorerActionProtocol.VERSION)
+        putString(ThreeStackArchivePlugin.MENU_GROUP_LABEL_RESOURCE_NAME_KEY, ThreeStackArchivePlugin.MENU_GROUP_LABEL_RESOURCE_NAME)
+        putString(ThreeStackArchivePlugin.MENU_GROUP_LABEL_FALLBACK_KEY, ThreeStackArchivePlugin.MENU_GROUP_LABEL_FALLBACK)
         putParcelableArrayList(ExplorerActionCatalogKeys.ACTIONS, actions)
     }
 }

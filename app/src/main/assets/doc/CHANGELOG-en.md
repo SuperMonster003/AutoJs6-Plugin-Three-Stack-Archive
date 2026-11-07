@@ -1,5 +1,11 @@
 # Release notes
 
+## v3.1.1
+
+_2026/11/07_
+
+- `Improved` The AutoJs6 file manager groups the menu options of this plugin under the submenu "3-Stack Archive", named as in the Plugin Center (requires AutoJs6 6.8.1 or later)
+
 ## v3.1.0
 
 _2026/10/17_

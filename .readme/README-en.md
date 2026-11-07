@@ -107,7 +107,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ### Usage
 
 1. Install the plugin and enable it in the AutoJs6 Plugin Center.
-2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.
+2. Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive. From AutoJs6 6.8.1 the menu items of this plugin are in the submenu "3-Stack Archive".
 3. Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.
 4. To extract the entire archive, choose Extract to... from its file menu. Use the recommended current folder or choose another folder with the Android system picker, then confirm the exact output path.
 5. To extract the current internal folder, use the extraction button at the right of the path bar. To extract specific entries, touch and hold an entry, select files or folders, and tap Extract in the bottom bar. Use Manage archive... or Extract to... when a password, encoding correction, unsafe-path confirmation, conflict policy, or another destination is required.
@@ -131,6 +131,12 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.1.1
+
+_2026/11/07_
+
+- `Improved` The AutoJs6 file manager groups the menu options of this plugin under the submenu "3-Stack Archive", named as in the Plugin Center (requires AutoJs6 6.8.1 or later)
+
 #### v3.1.0
 
 _2026/10/17_
@@ -146,14 +152,6 @@ _2026/10/05_
 
 - `Improved` Plugin Center icons use the sizes, positions, light and dark artwork, and circular backgrounds adjusted in Icon Studio, retaining reproducible sources and parameters
 - `Improved` Android App info icons share Icon Studio artwork and light/dark backgrounds while preserving transparent Plugin Center artwork and existing launcher choices
-
-#### v3.0.0
-
-_2026/10/04_
-
-- `Note` The application ID changes from io.github.supermonster003.autojs6.plugin.archivemanager to io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically
-- `Added` A standalone home screen opens archives for browsing and extraction; creation and in-place changes remain available from AutoJs6
-- `Added` Language, dark mode, theme color and four launcher icon choices are available in the shared settings layout
 
 ##### Full history
 

@@ -107,7 +107,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ### Utilisation
 
 1. Installez le plugin et activez-le dans le centre de plugins AutoJs6.
-2. Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR.
+2. Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR. À partir d'AutoJs6 6.8.1, les entrées de menu de ce plugin se trouvent dans le sous-menu "3-Stack Archive".
 3. Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.
 4. Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu. Utilisez le dossier actuel recommandé ou choisissez-en un autre avec le sélecteur système Android, puis confirmez le chemin de sortie exact.
 5. Pour extraire le dossier interne courant, touchez le bouton d'extraction à droite de la barre de chemin. Pour extraire des entrées précises, maintenez une entrée, cochez les fichiers ou dossiers puis touchez « Extraire » dans la barre inférieure. Utilisez « Gérer l'archive... » ou « Extraire vers... » si un mot de passe, une correction d'encodage, une confirmation de chemin dangereux, une règle de conflit ou une autre destination est nécessaire.
@@ -131,6 +131,12 @@ La consultation, l'extraction, la création, la modification, la restauration de
 
 ### Notes de version
 
+#### v3.1.1
+
+_2026/11/07_
+
+- `Amélioration` Le gestionnaire de fichiers d'AutoJs6 regroupe les options de menu de ce plugin dans le sous-menu "3-Stack Archive", nommé comme dans le Centre des plugins (AutoJs6 6.8.1 ou ultérieur requis)
+
 #### v3.1.0
 
 _2026/10/17_
@@ -146,14 +152,6 @@ _2026/10/05_
 
 - `Amélioration` Les icônes du centre de plugins utilisent les tailles, positions, images claires et sombres et fonds circulaires réglés dans Icon Studio, avec les sources et paramètres permettant de les reproduire
 - `Amélioration` Les icônes des informations d'application Android utilisent les illustrations et les fonds clairs et sombres d'Icon Studio, en conservant les images transparentes du centre de plugins et les choix du lanceur
-
-#### v3.0.0
-
-_2026/10/04_
-
-- `Note` L'identifiant passe de io.github.supermonster003.autojs6.plugin.archivemanager à io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installe une application distincte; les anciennes applications et leurs données peuvent être conservées, sans migration automatique des paramètres
-- `Ajout` Un écran autonome ouvre les archives pour les consulter et extraire; la création et la modification sur place restent accessibles depuis AutoJs6
-- `Ajout` Les paramètres communs proposent la langue, le mode sombre, la couleur et quatre icônes de lanceur
 
 ##### Historique complet
 

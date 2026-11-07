@@ -5,6 +5,12 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v3.1.1": {
+      "released_date": "2026/11/07",
+      "improvement": [
+        "AutoJs6 파일 관리자에서 이 플러그인의 메뉴 항목이 하위 메뉴 \"3-Stack Archive\" (플러그인 센터와 같은 이름) 아래에 모입니다 (AutoJs6 6.8.1 이상 필요)"
+      ]
+    },
     "v3.1.0": {
       "released_date": "2026/10/17",
       "feature": [

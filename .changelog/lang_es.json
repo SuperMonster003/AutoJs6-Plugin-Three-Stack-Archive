@@ -5,6 +5,12 @@
   "changelog_label_improvement": "Mejorado",
   "changelog_label_dependency": "Dependencia",
   "$data": {
+    "v3.1.1": {
+      "released_date": "2026/11/07",
+      "improvement": [
+        "El administrador de archivos de AutoJs6 agrupa las opciones de menú de este plugin en el submenú \"3-Stack Archive\", con el mismo nombre que en el Centro de plugins (requiere AutoJs6 6.8.1 o posterior)"
+      ]
+    },
     "v3.1.0": {
       "released_date": "2026/10/17",
       "feature": [

@@ -5,6 +5,12 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依賴",
   "$data": {
+    "v3.1.1": {
+      "released_date": "2026/11/07",
+      "improvement": [
+        "AutoJs6 檔案管理器把本插件的選單選項歸入子選單 \"3-Stack Archive\", 名稱與插件中心一致 (需要 AutoJs6 6.8.1 或以上版本)"
+      ]
+    },
     "v3.1.0": {
       "released_date": "2026/10/17",
       "feature": [

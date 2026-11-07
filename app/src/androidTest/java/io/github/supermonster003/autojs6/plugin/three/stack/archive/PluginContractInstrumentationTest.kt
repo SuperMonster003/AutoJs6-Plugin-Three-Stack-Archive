@@ -58,6 +58,8 @@ class PluginContractInstrumentationTest {
         val compressMultipleAction = actionsById[ThreeStackArchivePlugin.ACTION_COMPRESS_MULTIPLE_ID]
 
         assertEquals(ExplorerActionProtocol.VERSION, catalog.getInt(ExplorerActionCatalogKeys.PROTOCOL_VERSION))
+        assertEquals("app_name", catalog.getString("menuGroupLabelResourceName"))
+        assertEquals("3-Stack Archive", catalog.getString("menuGroupLabelFallback"))
         assertEquals(6, actionsById.size)
         assertNotNull(openAction)
         assertNotNull(openAsArchiveAction)

@@ -46,7 +46,7 @@
   "h3_usage": "Utilisation",
   "usage_steps": [
     "Installez le plugin et activez-le dans le centre de plugins AutoJs6.",
-    "Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR.",
+    "Ouvrez le menu d'une archive ZIP, JAR, AAR, WAR, 7Z ou de la famille TAR. À partir d'AutoJs6 6.8.1, les entrées de menu de ce plugin se trouvent dans le sous-menu \"3-Stack Archive\".",
     "Choisissez « Ouvrir l'archive », puis entrez dans les dossiers, recherchez ou naviguez avec la barre de chemin de la liste hôte.",
     "Pour extraire toute l'archive, choisissez « Extraire vers... » dans son menu. Utilisez le dossier actuel recommandé ou choisissez-en un autre avec le sélecteur système Android, puis confirmez le chemin de sortie exact.",
     "Pour extraire le dossier interne courant, touchez le bouton d'extraction à droite de la barre de chemin. Pour extraire des entrées précises, maintenez une entrée, cochez les fichiers ou dossiers puis touchez « Extraire » dans la barre inférieure. Utilisez « Gérer l'archive... » ou « Extraire vers... » si un mot de passe, une correction d'encodage, une confirmation de chemin dangereux, une règle de conflit ou une autre destination est nécessaire.",

@@ -46,7 +46,7 @@
   "h3_usage": "Uso",
   "usage_steps": [
     "Instala el complemento y actívalo en el centro de complementos de AutoJs6.",
-    "Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR.",
+    "Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR. A partir de AutoJs6 6.8.1, las entradas de menú de este plugin están en el submenú \"3-Stack Archive\".",
     "Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.",
     "Para extraer todo el archivo, elige «Extraer en...» en su menú. Usa la carpeta actual recomendada o elige otra con el selector del sistema Android y confirma la ruta exacta de salida.",
     "Para extraer la carpeta interna actual, pulsa el botón de extracción a la derecha de la barra de ruta. Para extraer entradas concretas, mantén pulsada una entrada, marca archivos o carpetas y pulsa «Extraer» en la barra inferior. Usa «Gestionar archivo...» o «Extraer en...» cuando necesites una contraseña, corregir la codificación, confirmar rutas no seguras, configurar conflictos o elegir otra carpeta.",

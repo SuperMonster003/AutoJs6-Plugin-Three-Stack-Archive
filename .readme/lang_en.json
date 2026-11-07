@@ -46,7 +46,7 @@
   "h3_usage": "Usage",
   "usage_steps": [
     "Install the plugin and enable it in the AutoJs6 Plugin Center.",
-    "Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive.",
+    "Open the file menu for a ZIP, JAR, AAR, WAR, 7Z, or TAR-family archive. From AutoJs6 6.8.1 the menu items of this plugin are in the submenu \"3-Stack Archive\".",
     "Choose Open archive, then enter directories, search, or jump with the path bar in the host file list.",
     "To extract the entire archive, choose Extract to... from its file menu. Use the recommended current folder or choose another folder with the Android system picker, then confirm the exact output path.",
     "To extract the current internal folder, use the extraction button at the right of the path bar. To extract specific entries, touch and hold an entry, select files or folders, and tap Extract in the bottom bar. Use Manage archive... or Extract to... when a password, encoding correction, unsafe-path confirmation, conflict policy, or another destination is required.",

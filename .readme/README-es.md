@@ -107,7 +107,7 @@ zip, 7z, tar, tar.gz, tar.xz, tar.bz2, tar.zst
 ### Uso
 
 1. Instala el complemento y actívalo en el centro de complementos de AutoJs6.
-2. Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR.
+2. Abre el menú de un archivo ZIP, JAR, AAR, WAR, 7Z o de la familia TAR. A partir de AutoJs6 6.8.1, las entradas de menú de este plugin están en el submenú "3-Stack Archive".
 3. Elige «Abrir archivo comprimido» y entra en carpetas, busca o navega con la barra de ruta en la lista del host.
 4. Para extraer todo el archivo, elige «Extraer en...» en su menú. Usa la carpeta actual recomendada o elige otra con el selector del sistema Android y confirma la ruta exacta de salida.
 5. Para extraer la carpeta interna actual, pulsa el botón de extracción a la derecha de la barra de ruta. Para extraer entradas concretas, mantén pulsada una entrada, marca archivos o carpetas y pulsa «Extraer» en la barra inferior. Usa «Gestionar archivo...» o «Extraer en...» cuando necesites una contraseña, corregir la codificación, confirmar rutas no seguras, configurar conflictos o elegir otra carpeta.
@@ -131,6 +131,12 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v3.1.1
+
+_2026/11/07_
+
+- `Mejorado` El administrador de archivos de AutoJs6 agrupa las opciones de menú de este plugin en el submenú "3-Stack Archive", con el mismo nombre que en el Centro de plugins (requiere AutoJs6 6.8.1 o posterior)
+
 #### v3.1.0
 
 _2026/10/17_
@@ -146,14 +152,6 @@ _2026/10/05_
 
 - `Mejorado` Los iconos del centro de plugins usan los tamaños, posiciones, imágenes claras y oscuras y fondos circulares ajustados en Icon Studio, conservando fuentes y parámetros reproducibles
 - `Mejorado` Los iconos de información de la aplicación de Android comparten las imágenes y los fondos claros y oscuros de Icon Studio, conservando las imágenes transparentes del centro de plugins y las opciones del lanzador
-
-#### v3.0.0
-
-_2026/10/04_
-
-- `Nota` El identificador cambia de io.github.supermonster003.autojs6.plugin.archivemanager a io.github.supermonster003.autojs6.plugin.three.stack.archive. Android lo instala como una aplicación independiente; se pueden conservar las aplicaciones y los datos anteriores, sin migración automática de ajustes
-- `Añadido` Una pantalla independiente permite explorar y extraer archivos comprimidos; su creación y modificación siguen disponibles desde AutoJs6
-- `Añadido` Los ajustes comunes ofrecen idioma, modo oscuro, color y cuatro opciones de icono del lanzador
 
 ##### Historial completo
 

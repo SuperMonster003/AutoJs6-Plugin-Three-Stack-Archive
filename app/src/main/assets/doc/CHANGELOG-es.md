@@ -1,5 +1,11 @@
 # Notas de la versión
 
+## v3.1.1
+
+_2026/11/07_
+
+- `Mejorado` El administrador de archivos de AutoJs6 agrupa las opciones de menú de este plugin en el submenú "3-Stack Archive", con el mismo nombre que en el Centro de plugins (requiere AutoJs6 6.8.1 o posterior)
+
 ## v3.1.0
 
 _2026/10/17_
