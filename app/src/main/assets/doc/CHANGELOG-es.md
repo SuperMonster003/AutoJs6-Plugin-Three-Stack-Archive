@@ -1,5 +1,11 @@
 # Notas de la versión
 
+## v3.1.3
+
+_2026/11/16_
+
+- `Corregido` Los ajustes de apariencia indicaban que AutoJs6 no estaba disponible aunque estuviera instalado y habilitado, lo que impedía seguir su idioma, modo nocturno y color del tema
+
 ## v3.1.2
 
 _2026/11/07_

@@ -12,6 +12,24 @@ LOCALES = ["values", "values-en", "values-ar", "values-es", "values-fr", "values
 LANGS = {"en", "ar", "es", "fr", "ja", "ko", "ru", "zh-Hans", "zh-Hant-HK", "zh-Hant-TW"}
 
 class RepositoryContractTest(unittest.TestCase):
+
+    def test_host_settings_requires_protected_info_service(self):
+        manifest = ET.parse(ROOT / "app/src/main/AndroidManifest.xml").getroot()
+        services = [
+            service for service in manifest.findall("./application/service")
+            if any(action.get(A+"name") == "org.autojs.plugin.INFO"
+                   for action in service.findall("./intent-filter/action"))
+        ]
+        self.assertEqual(1, len(services), "Follow AutoJs6 needs an INFO entry for host admission")
+        service = services[0]
+        self.assertEqual("true", service.get(A+"exported"))
+        self.assertEqual("true", service.get(A+"enabled", "true"))
+        self.assertEqual("org.autojs.permission.PLUGIN", service.get(A+"permission"))
+        self.assertIn("org.autojs.permission.PLUGIN",
+                      [entry.get(A+"name") for entry in manifest.findall("uses-permission")])
+        self.assertIn("org.autojs.autojs6",
+                      [entry.get(A+"name") for entry in manifest.findall("./queries/package")])
+
     def test_wake_contract_is_resolvable_and_permission_protected(self):
         manifest = ET.parse(ROOT / "app/src/main/AndroidManifest.xml").getroot()
         self.assertIn("org.autojs.permission.PLUGIN", [item.get(A+"name") for item in manifest.findall("uses-permission")])

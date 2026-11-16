@@ -5,6 +5,12 @@
   "changelog_label_improvement": "Improved",
   "changelog_label_dependency": "Dependency",
   "$data": {
+    "v3.1.3": {
+      "released_date": "2026/11/16",
+      "fix": [
+        "Appearance settings reported AutoJs6 as unavailable even when installed and enabled, preventing its language, night mode and theme color from being followed"
+      ]
+    },
     "v3.1.2": {
       "released_date": "2026/11/07",
       "fix": [

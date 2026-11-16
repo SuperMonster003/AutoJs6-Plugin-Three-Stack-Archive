@@ -1,5 +1,11 @@
 # Release notes
 
+## v3.1.3
+
+_2026/11/16_
+
+- `Fixed` Appearance settings reported AutoJs6 as unavailable even when installed and enabled, preventing its language, night mode and theme color from being followed
+
 ## v3.1.2
 
 _2026/11/07_

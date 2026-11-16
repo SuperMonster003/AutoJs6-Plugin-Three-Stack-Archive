@@ -5,6 +5,12 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v3.1.3": {
+      "released_date": "2026/11/16",
+      "fix": [
+        "AutoJs6 がインストール済みで有効でも外観設定で利用不可と表示され, 言語, ナイトモード, テーマカラーに追従できない問題"
+      ]
+    },
     "v3.1.2": {
       "released_date": "2026/11/07",
       "fix": [

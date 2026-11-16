@@ -5,6 +5,12 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
+    "v3.1.3": {
+      "released_date": "2026/11/16",
+      "fix": [
+        "AutoJs6 已安装并启用时, 外观设置仍提示 AutoJs6 不可用, 无法跟随其语言, 夜间模式和主题色的问题"
+      ]
+    },
     "v3.1.2": {
       "released_date": "2026/11/07",
       "fix": [

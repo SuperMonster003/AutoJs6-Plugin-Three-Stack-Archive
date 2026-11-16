@@ -131,6 +131,12 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.1.3
+
+_2026/11/16_
+
+- `Fixed` Appearance settings reported AutoJs6 as unavailable even when installed and enabled, preventing its language, night mode and theme color from being followed
+
 #### v3.1.2
 
 _2026/11/07_
@@ -142,15 +148,6 @@ _2026/11/07_
 _2026/11/07_
 
 - `Improved` The AutoJs6 file manager groups the menu options of this plugin under the submenu "3-Stack Archive", named as in the Plugin Center (requires AutoJs6 6.8.1 or later)
-
-#### v3.1.0
-
-_2026/10/17_
-
-- `Added` Plugin tools archive_list / archive_read / archive_extract, letting MCP, Agent and the script API plugins.tools list an archive, read a small text file inside it directly (up to 64 KiB), and extract the whole archive or chosen files and folders into a folder of the working directory: ZIP, 7Z, RAR and the TAR family are supported, with a password for encrypted entries; the target folder may exist already, files with the same names in it stay as they are and are listed in the result, and unsafe paths and duplicate names are skipped; the tools run in the plugin's own process and extraction uses the compatible resource budget (requires AutoJs6 6.8.0 or later)
-- `Fixed` In the Arabic interface, 3-Stack Archive no longer appears reversed as Stack Archive-3
-- `Fixed` The version history page now lists the changes of each version instead of showing only a title
-- `Dependency` Add the AutoJs6 plugin tool contract AAR (contract version 1 with directory outputs, built from a pinned AutoJs6 source revision, with its length and SHA-256 verified)
 
 ##### Full history
 

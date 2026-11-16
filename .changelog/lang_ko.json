@@ -5,6 +5,12 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v3.1.3": {
+      "released_date": "2026/11/16",
+      "fix": [
+        "AutoJs6가 설치되고 활성화되어 있어도 모양 설정에서 사용할 수 없다고 표시되어 언어, 야간 모드 및 테마 색상을 따르지 못하는 문제"
+      ]
+    },
     "v3.1.2": {
       "released_date": "2026/11/07",
       "fix": [
