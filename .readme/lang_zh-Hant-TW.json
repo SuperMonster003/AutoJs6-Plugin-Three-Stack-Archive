@@ -105,5 +105,59 @@
   "p_standalone": "獨立首頁可開啟壓縮檔案進行瀏覽與解壓縮, 建立及原位修改仍可從 AutoJs6 發起. 統一設定頁提供語言, 夜間模式, 主題色及四種啟動器圖示選項.",
   "p_migration": "應用程式 ID 從 `io.github.supermonster003.autojs6.plugin.archivemanager` 改為 `io.github.supermonster003.autojs6.plugin.three.stack.archive`. Android 將其視為獨立應用程式, 原應用程式與資料可以保留, 設定不會自動遷移.",
   "h3_sources": "來源與致謝",
-  "p_sources": "[THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md) · [RIGHTS_AND_TAKEDOWN.md]({{ repo_url }}/blob/master/RIGHTS_AND_TAKEDOWN.md)"
+  "p_sources": "[THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md) · [RIGHTS_AND_TAKEDOWN.md]({{ repo_url }}/blob/master/RIGHTS_AND_TAKEDOWN.md)",
+  "instruction_p_what": "3-Stack Archive 為 AutoJs6 檔案管理器加入壓縮檔案功能: 像瀏覽資料夾一樣查看 ZIP, 7Z, RAR 與 TAR 系列壓縮檔, 解壓縮全部或部分內容, 也可以把檔案和資料夾壓縮為壓縮檔. 外掛首頁可以單獨開啟壓縮檔進行瀏覽和解壓縮.",
+  "instruction_h3_start": "開始使用",
+  "instruction_start_steps": [
+    "在 \"外掛中心\" 啟用 3-Stack Archive.",
+    "在 AutoJs6 檔案管理器中開啟壓縮檔的選單, 選擇 \"查看檔案\"; 壓縮檔的內容會顯示在同一個檔案清單中.",
+    "進入資料夾, 搜尋, 或點按項目以 AutoJs6 的預覽器開啟; 返回鍵會先回到壓縮檔內的上一層.",
+    "需要取出檔案時, 從壓縮檔的選單選擇 \"解壓縮到...\" 解壓縮整個壓縮檔, 或長按項目多選後只解壓縮勾選的部分."
+  ],
+  "instruction_h3_features": "主要功能",
+  "instruction_features": [
+    "**瀏覽與預覽**: 在 AutoJs6 的檔案清單中瀏覽 ZIP, JAR, 7Z, RAR 與 TAR 系列壓縮檔, 可以搜尋和用路徑列跳轉; 文件, 圖片, 音訊和影片可以直接預覽, 無需先解壓縮.",
+    "**作為壓縮檔案開啟**: 檔名未被辨識時, 從檔案選單選擇 \"作為壓縮檔案開啟...\", 依檔案內容辨識格式, 路徑列會標示實際格式.",
+    "**解壓縮**: 解壓縮整個壓縮檔, 目前目錄 (路徑列右側的按鈕) 或勾選的項目, 顯示進度並可取消; 遇到同名檔案時可以略過, 覆寫或自動編號.",
+    "**密碼與檔名編碼**: 加密的 ZIP, 7Z 與 RAR 在開啟或解壓縮時跳出密碼框, 密碼錯誤可以直接重試; ZIP 檔名出現亂碼時可在路徑列切換編碼.",
+    "**分卷壓縮檔**: 完整的 `.z01` + `.zip`, `partN.rar`, `.zip.001` 與 `.7z.001` 分卷組可以瀏覽, 預覽和解壓縮, 但不能修改.",
+    "**壓縮**: 對檔案, 資料夾或同一資料夾中多選的項目選擇 \"壓縮...\", 建立 ZIP, 7Z, TAR, TAR.GZ 等壓縮檔; ZIP 與 7Z 可設定密碼, ZIP 可依大小分卷.",
+    "**逐項壓縮**: 多選時開啟 \"個別壓縮每個檔案和資料夾\", 為每個項目分別產生一個壓縮檔, 名稱衝突時自動編號.",
+    "**修改壓縮檔**: 一般單卷 ZIP, 未加密的非 solid 7Z 與 TAR 系列壓縮檔可以加入檔案和資料夾, 新增資料夾, 重新命名和刪除項目; 修改成功後可以 \"還原上一版本\" 一次.",
+    "**來源項目移入垃圾桶**: 開啟預設關閉的 \"壓縮完成後將來源項目移入垃圾桶\" 後, 來源項目會在全部輸出驗證完成後才移入 AutoJs6 垃圾桶, 可從壓縮頁選單中的 \"來源項目還原記錄\" 還原.",
+    "**獨立首頁**: 從啟動器開啟外掛, 點按 \"開啟壓縮檔案\" 即可瀏覽和解壓縮; \"設定\" 中可以調整語言, 夜間模式, 主題色與啟動器圖示."
+  ],
+  "instruction_h3_script": "在指令碼中使用",
+  "instruction_p_script": "外掛工具 `archive_list`, `archive_read` 與 `archive_extract` 用於在指令碼中列出壓縮檔內容, 讀取其中的文字檔案和解壓縮:",
+  "instruction_script_notes": [
+    "相對路徑以 AutoJs6 的工作目錄為準; 解壓縮到的資料夾可以已存在, 其中已有的檔案保持不變, 數量記在 `kept` 中.",
+    "`archive_read` 只讀取 UTF-8 文字, 每次最多 64 KiB; 二進位檔案不回傳文字, `binary` 為 `true`.",
+    "加密壓縮檔以 `password` 參數傳入密碼; 分卷壓縮檔無法透過外掛工具處理."
+  ],
+  "instruction_h3_requirements": "執行需求",
+  "instruction_requirements": [
+    "Android 7.0 或更高版本.",
+    "AutoJs6 6.8.0 或更高版本, 且本外掛在 \"外掛中心\" 中處於啟用狀態; 外掛首頁可以不經 AutoJs6 單獨使用.",
+    "外掛不要求儲存空間與網路權限, 只處理你在 AutoJs6 或系統檔案選擇器中選擇的檔案."
+  ],
+  "instruction_h3_faq": "常見問題",
+  "instruction_faq": [
+    {
+      "q": "選單中沒有本外掛動作時的處理",
+      "a": "確認本外掛已在 \"外掛中心\" 中啟用. 部分 AutoJs6 版本把外掛動作放在以外掛命名的子選單 \"3-Stack Archive\" 中; 檔名未被辨識的壓縮檔請使用 \"作為壓縮檔案開啟...\"."
+    },
+    {
+      "q": "壓縮檔只能查看, 不能修改的原因",
+      "a": "RAR, 分卷壓縮檔, JAR/AAR/WAR, 以及加密或 solid 的 7Z 只能瀏覽和解壓縮. \"管理壓縮檔案...\" 會列出目前壓縮檔的格式與唯讀原因."
+    },
+    {
+      "q": "加密壓縮檔中的檔名",
+      "a": "ZIP 與 7Z 加密的是檔案內容, 壓縮檔中的檔名仍然可見, 因此敏感資訊不宜寫進檔名."
+    },
+    {
+      "q": "分卷壓縮檔無法開啟時的處理",
+      "a": "標準分卷 ZIP 從最後的 `.zip` 開啟, WinRAR 分卷從第一個 `partN.rar` 開啟, 編號分卷從 `.001` 開啟; 全部分卷須放在同一個資料夾中."
+    }
+  ],
+  "instruction_p_more": "外掛工具的全部參數與回傳值見 [AutoJs6 文件 > 外掛](https://docs.autojs6.com/#/plugins), 其他說明見 [專案主頁]({{ repo_url }})."
 }

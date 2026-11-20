@@ -1,24 +1,68 @@
-# AutoJs6 3-Stack Archive
+3-Stack Archive ajoute la gestion des archives au gestionnaire de fichiers d'AutoJs6: parcourez les archives ZIP, 7Z, RAR et de la famille TAR comme des dossiers, extrayez-les en tout ou en partie et compressez des fichiers et des dossiers en archives. L'écran d'accueil du plugin peut aussi ouvrir des archives pour les parcourir et les extraire de façon autonome.
 
-Un écran autonome ouvre les archives pour les consulter et extraire; la création et la modification sur place restent accessibles depuis AutoJs6.
-Les paramètres communs proposent la langue, le mode sombre, la couleur et quatre icônes de lanceur.
-L'identifiant passe de io.github.supermonster003.autojs6.plugin.archivemanager à io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installe une application distincte; les anciennes applications et leurs données peuvent être conservées, sans migration automatique des paramètres.
+### Prise en main
 
+1. Activez 3-Stack Archive dans "Centre des plugins".
+2. Dans le gestionnaire de fichiers d'AutoJs6, ouvrez le menu d'une archive et choisissez "Voir l'archive"; son contenu s'affiche dans la même liste de fichiers.
+3. Ouvrez des dossiers, lancez une recherche ou touchez une entrée pour l'ouvrir dans une visionneuse d'AutoJs6; la touche Retour remonte d'abord d'un niveau dans l'archive.
+4. Pour récupérer des fichiers, choisissez "Extraire vers..." dans le menu de l'archive pour tout extraire, ou appuyez longuement sur des entrées pour n'extraire que la sélection.
 
-3-Stack Archive nécessite Android 7 ou une version ultérieure et une version appariée d'AutoJs6 6.8.0 (versionCode 5276 ou plus) qui annonce Explorer Action v21.
+### Fonctionnalités principales
 
-1. Installez et activez le plugin `3-Stack Archive`.
-2. Ouvrez le menu supplémentaire d'une archive prise en charge.
-3. Sélectionnez `Ouvrir l'archive`.
-4. Parcourez les dossiers, recherchez, utilisez la barre de chemin ou ouvrez les entrées prises en charge avec les visionneuses de l'hôte.
-5. Retour remonte d'abord dans l'archive avant de revenir à la liste de fichiers ordinaire.
+- **Parcourir et prévisualiser**: Parcourez les archives ZIP, JAR, 7Z, RAR et de la famille TAR dans la liste de fichiers d'AutoJs6, avec recherche et barre de chemin; documents, images, audio et vidéo s'ouvrent dans une visionneuse sans extraction préalable.
+- **Ouvrir comme archive**: Si le nom d'un fichier n'est pas reconnu, choisissez "Ouvrir comme archive..." dans le menu du fichier; le format est détecté d'après le contenu et indiqué dans la barre de chemin.
+- **Extraction**: Extrayez toute l'archive, le dossier courant (bouton à droite de la barre de chemin) ou les entrées sélectionnées, avec progression et annulation; les fichiers de même nom peuvent être ignorés, remplacés ou numérotés automatiquement.
+- **Mots de passe et encodage des noms**: Les archives ZIP, 7Z et RAR chiffrées demandent un mot de passe à l'ouverture ou à l'extraction, et un mot de passe erroné peut être ressaisi aussitôt; les noms de fichiers ZIP illisibles se corrigent en changeant d'encodage dans la barre de chemin.
+- **Archives en plusieurs volumes**: Les ensembles complets `.z01` + `.zip`, `partN.rar`, `.zip.001` et `.7z.001` peuvent être parcourus, prévisualisés et extraits, mais pas modifiés.
+- **Compression**: Choisissez "Compresser..." pour un fichier, un dossier ou plusieurs éléments sélectionnés dans un même dossier afin de créer des archives ZIP, 7Z, TAR, TAR.GZ, etc.; ZIP et 7Z acceptent un mot de passe et ZIP peut être découpé par taille.
+- **Une archive par élément**: Avec plusieurs éléments sélectionnés, activez "Compresser chaque élément séparément" pour créer une archive par élément; les conflits de noms sont numérotés automatiquement.
+- **Modifier une archive**: Les archives ZIP ordinaires à volume unique, 7Z non chiffrées et non solid, et de la famille TAR acceptent l'ajout de fichiers et de dossiers, la création de dossiers vides, le renommage et la suppression d'entrées; après une modification, "Restaurer la version précédente" l'annule une fois.
+- **Sources vers la corbeille**: Avec "Déplacer les éléments sources vers la corbeille après compression" activé (désactivé par défaut), les sources ne vont dans la corbeille d'AutoJs6 qu'après vérification de toutes les sorties; "Historique de récupération des sources", dans le menu de la page de compression, les restaure.
+- **Écran d'accueil**: Ouvrez le plugin depuis le lanceur et touchez "Ouvrir une archive" pour parcourir et extraire des archives; "Paramètres" règle la langue, le mode sombre, la couleur du thème et l'icône du lanceur.
 
-Pour extraire immédiatement toute l'archive, sélectionnez `Extraire vers...` dans son menu, puis choisissez le dossier de sortie.
+### Utilisation dans les scripts
 
-Pour créer une archive, sélectionnez `Compresser...` dans le menu d'un fichier ou dossier ordinaire. Vous pouvez aussi sélectionner plusieurs éléments du même dossier et utiliser `Compresser...` dans la barre inférieure. Choisissez le nom, le format et le niveau de compression; ZIP et 7Z acceptent aussi un mot de passe facultatif.
+Les outils de plugin `archive_list`, `archive_read` et `archive_extract` listent le contenu d'une archive, lisent un fichier texte qu'elle contient et l'extraient depuis un script:
 
-La version actuelle lit et extrait les archives de la famille ZIP, les 7Z ordinaires ou solid, RAR4/RAR5, TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST. Elle crée des ZIP ordinaires ou fractionnés standard, des 7Z non solid, TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST; ZIP et 7Z acceptent un mot de passe facultatif et les noms d'une sortie chiffrée restent visibles. Les ZIP ordinaires à volume unique, les 7Z non chiffrés, non solid, à volume unique et dans le budget du décodeur, ainsi que les archives TAR compatibles permettent d'ajouter, renommer et supprimer du contenu par reconstruction entièrement vérifiée. RAR, les 7Z chiffrés, solid, fractionnés, dangereux, non pris en charge ou hors budget et les entrées TAR spéciales restent en lecture seule. Les ensembles complets `.z01 + .zip`, `partN.rar`, `.zip.001` et `.7z.001` peuvent être parcourus et extraits via des descripteurs voisins approuvés et bornés par l'hôte; tous les ensembles multivolumes restent en lecture seule. La création ZIP fractionnée propose une taille MiB prédéfinie ou personnalisée. La sortie est fractionnée si elle dépasse la taille choisie; une sortie plus petite reste un seul `.zip`.
+```js
+let list = plugins.tools.call('archive_list', { archive: './demo.zip' });
+list.result.entries.forEach(e => console.log(e.path, e.size));
 
-Après vérification et validation de toutes les sorties physiques, une option désactivée par défaut peut déplacer la sélection source complète vers la corbeille de l'hôte. Explorer Action v21 conserve un historique de récupération persistant et borné; restaurer les sources ne supprime jamais l'archive créée.
+let readme = plugins.tools.call('archive_read', { archive: './demo.zip', path: 'README.md' });
+console.log(readme.result.text);
 
-Le plugin ne demande aucun accès général au stockage ni au réseau. Les archives ordinaires sont consultées par des canaux à position indépendante sur le descripteur en lecture seule de l'hôte, sans copie intégrale ; les entrées ou lecteurs incompatibles (actuellement les ZIP chiffrés) utilisent le cache privé, nettoyé à la fermeture ou après expiration. La création d'archive lit via une session courte de l'hôte liée au plugin et ne peut écrire qu'une sortie transactionnelle dans le dossier parent actuel. Les contrôles du chemin, de la taille source et des limites de sortie restent actifs.
+let extracted = plugins.tools.call('archive_extract', { archive: './demo.zip' }, {
+    outputs: { files: './out/demo' },
+});
+console.log(extracted.result.filesExtracted, extracted.result.kept);
+```
+
+- Les chemins relatifs partent du répertoire de travail d'AutoJs6; le dossier de destination d'une extraction peut déjà exister, ses fichiers existants restent intacts et sont comptés dans `kept`.
+- `archive_read` renvoie du texte UTF-8, 64 Kio au plus par appel; un fichier binaire ne renvoie pas de texte et `binary` vaut `true`.
+- Transmettez le mot de passe d'une archive chiffrée dans `password`; les outils de plugin ne prennent pas en charge les archives en plusieurs volumes.
+
+### Prérequis
+
+- Android 7.0 ou version ultérieure.
+- AutoJs6 6.8.0 ou version ultérieure, avec ce plugin activé dans "Centre des plugins"; l'écran d'accueil du plugin fonctionne aussi sans AutoJs6.
+- Le plugin ne demande aucune autorisation de stockage ni de réseau et ne traite que les fichiers que vous choisissez dans AutoJs6 ou dans le sélecteur de fichiers du système.
+
+### Questions fréquentes
+
+**Cas où les actions du plugin manquent dans le menu**
+
+Vérifiez que le plugin est activé dans "Centre des plugins". Certaines versions d'AutoJs6 regroupent les actions des plugins dans un sous-menu au nom du plugin, "3-Stack Archive"; pour une archive dont le nom n'est pas reconnu, utilisez "Ouvrir comme archive...".
+
+**Raisons pour lesquelles une archive est en lecture seule**
+
+Les archives RAR, en plusieurs volumes, JAR/AAR/WAR ainsi que les 7Z chiffrées ou solid peuvent seulement être parcourues et extraites. "Gérer l'archive..." indique le format de l'archive courante et la raison de la lecture seule.
+
+**Noms de fichiers dans les archives chiffrées**
+
+Le chiffrement ZIP et 7Z protège le contenu des fichiers, mais leurs noms restent visibles dans l'archive; évitez donc d'y mettre des informations sensibles.
+
+**Cas où une archive en plusieurs volumes ne s'ouvre pas**
+
+Ouvrez un ZIP découpé standard depuis son `.zip` final, un ensemble WinRAR depuis son premier `partN.rar` et un ensemble numéroté depuis son fichier `.001`; tous les volumes doivent se trouver dans le même dossier.
+
+Tous les paramètres et résultats des outils de plugin sont décrits dans [Documentation AutoJs6 > Plugins](https://docs.autojs6.com/#/plugins); plus d'informations sur la [page du projet](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive).

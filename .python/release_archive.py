@@ -130,12 +130,34 @@ def verify_elf64(data, label):
             require(alignment >= 16384 and (offset - address) % 16384 == 0, f"64-bit ELF is not 16 KB aligned: {label}")
 
 
+# Every native library the APKs may carry, per ABI: zstd-jni (Zstandard) and libandroidx.graphics.path.so, which
+# Jetpack Compose (release history page) brings through androidx.graphics:graphics-path. Each one is stored uncompressed
+# so it maps straight from the APK, and the ELF and ZIP alignment checks below apply to it.
+ALLOWED_NATIVE_LIBRARIES = (re.compile(r"libzstd-jni-[0-9][0-9A-Za-z.-]*\.so"), re.compile(r"libandroidx\.graphics\.path\.so"))
+
+
+def verify_native_inventory(apk_name, libraries, expected_abis):
+    """Each expected ABI holds exactly one library per allowed pattern, stored uncompressed, and nothing else."""
+    by_abi = {}
+    for item in libraries:
+        abi, name = item.filename.split("/")[1:]
+        require(any(pattern.fullmatch(name) for pattern in ALLOWED_NATIVE_LIBRARIES), f"Unexpected native library in {apk_name}: {item.filename}")
+        require(item.compress_type == zipfile.ZIP_STORED, f"Native library must be stored uncompressed: {apk_name}:{item.filename}")
+        by_abi.setdefault(abi, []).append(name)
+    for abi in sorted(expected_abis):
+        names = by_abi.get(abi, [])
+        for pattern in ALLOWED_NATIVE_LIBRARIES:
+            found = [name for name in names if pattern.fullmatch(name)]
+            require(len(found) == 1, f"{apk_name}: lib/{abi} needs exactly one {pattern.pattern}, found {found}")
+
+
 def verify_native(apk, abi, native_abis):
     with zipfile.ZipFile(apk) as archive:
         libraries = [item for item in archive.infolist() if re.fullmatch(r"lib/[^/]+/[^/]+\.so", item.filename)]
         actual_abis = {item.filename.split("/")[1] for item in libraries}
         expected_abis = set(native_abis) if abi == "universal" else {abi}
         require(actual_abis == expected_abis, f"Native ABIs differ in {apk.name}: expected {sorted(expected_abis)}, found {sorted(actual_abis)}")
+        verify_native_inventory(apk.name, libraries, expected_abis)
         for item in libraries:
             verify_elf64(archive.read(item), f"{apk.name}:{item.filename}")
             if item.compress_type == zipfile.ZIP_STORED:

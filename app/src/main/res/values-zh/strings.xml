@@ -139,8 +139,12 @@
     <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
     <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
     <string name="standalone_navigation_back">返回</string>
-    <string name="standalone_release_history_load_failed">无法加载版本历史</string>
-    <string name="standalone_release_history_title">版本历史</string>
+    <string name="standalone_release_history_collapse_all">收起全部</string>
+    <string name="standalone_release_history_collapsed">已收起</string>
+    <string name="standalone_release_history_expand_all">展开全部</string>
+    <string name="standalone_release_history_expanded">已展开</string>
+    <string name="standalone_release_history_load_failed">无法加载发行历史</string>
+    <string name="standalone_release_history_title">发行历史</string>
     <string name="standalone_settings_dark_mode">夜间模式</string>
     <string name="standalone_settings_language">语言</string>
     <string name="standalone_settings_saved">应用设置已保存</string>
@@ -148,7 +152,7 @@
     <string name="standalone_settings_section_information">信息</string>
     <string name="standalone_settings_theme_color">主题色</string>
     <string name="standalone_settings_title">设置</string>
-    <string name="standalone_update_release_history_summary">查看应用内置的版本历史</string>
+    <string name="standalone_update_release_history_summary">查看应用内置的发行历史</string>
     <string name="text_apply_password">应用</string>
     <string name="text_apply_to_all_conflicts">将此选择应用于全部兼容冲突</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">正在应用密码...</string>

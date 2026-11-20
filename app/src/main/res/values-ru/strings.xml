@@ -139,8 +139,12 @@
     <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
     <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
     <string name="standalone_navigation_back">Назад</string>
-    <string name="standalone_release_history_load_failed">Не удалось загрузить историю версий</string>
-    <string name="standalone_release_history_title">История версий</string>
+    <string name="standalone_release_history_collapse_all">Свернуть всё</string>
+    <string name="standalone_release_history_collapsed">Свёрнуто</string>
+    <string name="standalone_release_history_expand_all">Развернуть всё</string>
+    <string name="standalone_release_history_expanded">Развёрнуто</string>
+    <string name="standalone_release_history_load_failed">Не удалось загрузить историю выпусков</string>
+    <string name="standalone_release_history_title">История выпусков</string>
     <string name="standalone_settings_dark_mode">Темная тема</string>
     <string name="standalone_settings_language">Язык</string>
     <string name="standalone_settings_saved">Настройки приложения сохранены</string>
@@ -148,7 +152,7 @@
     <string name="standalone_settings_section_information">Информация</string>
     <string name="standalone_settings_theme_color">Цвет темы</string>
     <string name="standalone_settings_title">Настройки</string>
-    <string name="standalone_update_release_history_summary">Открыть встроенную историю версий приложения</string>
+    <string name="standalone_update_release_history_summary">Открыть встроенную историю выпусков приложения</string>
     <string name="text_apply_password">Применить</string>
     <string name="text_apply_to_all_conflicts">Применить этот выбор ко всем совместимым конфликтам</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Применение пароля...</string>

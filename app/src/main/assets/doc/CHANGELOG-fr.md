@@ -1,340 +1,353 @@
-# Notes de version
+******
 
-## v3.1.3
+### Notes de version
 
-_2026/11/16_
+******
 
-- `Correction` Les paramètres d'apparence indiquaient qu'AutoJs6 était indisponible même après son installation et son activation, empêchant de suivre sa langue, son mode nuit et sa couleur de thème
+# v3.1.4
 
-## v3.1.2
+###### 2026/11/20
 
-_2026/11/07_
+* `Amélioration` La page Historique des versions se développe et se réduit par version: une version réduite affiche sa date et le nombre d'entrées par catégorie, une version développée ne nomme chaque catégorie qu'une fois; toutes les versions peuvent être développées ou réduites d'un coup, la plus récente s'ouvre développée et le sous-titre affiche le nom du plugin
+* `Amélioration` Réécriture des instructions affichées dans le Centre des plugins en cinq parties: prise en main, fonctionnalités principales, utilisation dans les scripts, prérequis et questions fréquentes
+* `Dépendance` Ajout de Jetpack Compose BOM 2026.09.00 (page Historique des versions)
+* `Dépendance` Mise à niveau des plugins de compilation partagés version 1.9.0 -> 1.9.7
 
-- `Correction` Dans le gestionnaire de fichiers d'AutoJs6, les options "Ouvrir comme archive..." et "Compresser..." de ce plugin ne s'affichent plus en anglais dans les autres langues de l'interface
+# v3.1.3
 
-## v3.1.1
+###### 2026/11/16
 
-_2026/11/07_
+* `Correction` Les paramètres d'apparence indiquaient qu'AutoJs6 était indisponible même après son installation et son activation, empêchant de suivre sa langue, son mode nuit et sa couleur de thème
 
-- `Amélioration` Le gestionnaire de fichiers d'AutoJs6 regroupe les options de menu de ce plugin dans le sous-menu "3-Stack Archive", nommé comme dans le Centre des plugins (AutoJs6 6.8.1 ou ultérieur requis)
+# v3.1.2
 
-## v3.1.0
+###### 2026/11/07
 
-_2026/10/17_
+* `Correction` Dans le gestionnaire de fichiers d'AutoJs6, les options "Ouvrir comme archive..." et "Compresser..." de ce plugin ne s'affichent plus en anglais dans les autres langues de l'interface
 
-- `Ajout` Outils de plugin archive_list / archive_read / archive_extract, pour que MCP, Agent et l'API de script plugins.tools listent une archive, lisent directement un petit fichier texte qu'elle contient (jusqu'à 64 KiB) et extraient toute l'archive ou les fichiers et dossiers choisis dans un dossier du répertoire de travail : ZIP, 7Z, RAR et la famille TAR sont pris en charge, avec un password pour les entrées chiffrées ; le dossier cible peut déjà exister, les fichiers de même nom qu'il contient restent tels quels et sont listés dans le résultat, et les chemins dangereux et noms en double sont ignorés ; les outils s'exécutent dans le processus du plugin et l'extraction suit le budget de ressources compatible (AutoJs6 6.8.0 ou ultérieur requis)
-- `Correction` Dans l'interface en arabe, 3-Stack Archive ne s'affiche plus à l'envers sous la forme Stack Archive-3
-- `Correction` La page de l'historique des versions affiche désormais les changements de chaque version au lieu d'un simple titre
-- `Dépendance` Ajout de l'AAR du contrat d'outils de plugin AutoJs6 (version de contrat 1 avec sorties de dossier, construit depuis une révision source AutoJs6 figée, longueur et SHA-256 vérifiés)
+# v3.1.1
 
-## v3.0.1
+###### 2026/11/07
 
-_2026/10/05_
+* `Amélioration` Le gestionnaire de fichiers d'AutoJs6 regroupe les options de menu de ce plugin dans le sous-menu "3-Stack Archive", nommé comme dans le Centre des plugins (AutoJs6 6.8.1 ou ultérieur requis)
 
-- `Amélioration` Les icônes du centre de plugins utilisent les tailles, positions, images claires et sombres et fonds circulaires réglés dans Icon Studio, avec les sources et paramètres permettant de les reproduire
-- `Amélioration` Les icônes des informations d'application Android utilisent les illustrations et les fonds clairs et sombres d'Icon Studio, en conservant les images transparentes du centre de plugins et les choix du lanceur
+# v3.1.0
 
-## v3.0.0
+###### 2026/10/17
 
-_2026/10/04_
+* `Ajout` Outils de plugin archive_list / archive_read / archive_extract, pour que MCP, Agent et l'API de script plugins.tools listent une archive, lisent directement un petit fichier texte qu'elle contient (jusqu'à 64 KiB) et extraient toute l'archive ou les fichiers et dossiers choisis dans un dossier du répertoire de travail : ZIP, 7Z, RAR et la famille TAR sont pris en charge, avec un password pour les entrées chiffrées ; le dossier cible peut déjà exister, les fichiers de même nom qu'il contient restent tels quels et sont listés dans le résultat, et les chemins dangereux et noms en double sont ignorés ; les outils s'exécutent dans le processus du plugin et l'extraction suit le budget de ressources compatible (AutoJs6 6.8.0 ou ultérieur requis)
+* `Correction` Dans l'interface en arabe, 3-Stack Archive ne s'affiche plus à l'envers sous la forme Stack Archive-3
+* `Correction` La page de l'historique des versions affiche désormais les changements de chaque version au lieu d'un simple titre
+* `Dépendance` Ajout de l'AAR du contrat d'outils de plugin AutoJs6 (version de contrat 1 avec sorties de dossier, construit depuis une révision source AutoJs6 figée, longueur et SHA-256 vérifiés)
 
-- `Note` L'identifiant passe de io.github.supermonster003.autojs6.plugin.archivemanager à io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installe une application distincte; les anciennes applications et leurs données peuvent être conservées, sans migration automatique des paramètres
-- `Ajout` Un écran autonome ouvre les archives pour les consulter et extraire; la création et la modification sur place restent accessibles depuis AutoJs6
-- `Ajout` Les paramètres communs proposent la langue, le mode sombre, la couleur et quatre icônes de lanceur
+# v3.0.1
 
-## v2.22.3
+###### 2026/10/05
 
-_2026/09/19_
+* `Amélioration` Les icônes du centre de plugins utilisent les tailles, positions, images claires et sombres et fonds circulaires réglés dans Icon Studio, avec les sources et paramètres permettant de les reproduire
+* `Amélioration` Les icônes des informations d'application Android utilisent les illustrations et les fonds clairs et sombres d'Icon Studio, en conservant les images transparentes du centre de plugins et les choix du lanceur
 
-- `Correction` Avertissements de lecture SDK XML v4 avec AGP 9.1 et contrôles d'alignement natif des APK déclenchés par erreur lors de l'assemblage des tests unitaires JVM, avec les plugins de compilation partagés 1.8.3
-- `Amélioration` Après compileSdk, targetSdk passe à 37 (Android 17) ; le comportement du plugin ne dépend pas de la nouvelle cible
+# v3.0.0
 
-## v2.22.2
+###### 2026/10/04
 
-_2026/09/13_
+* `Note` L'identifiant passe de io.github.supermonster003.autojs6.plugin.archivemanager à io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installe une application distincte; les anciennes applications et leurs données peuvent être conservées, sans migration automatique des paramètres
+* `Ajout` Un écran autonome ouvre les archives pour les consulter et extraire; la création et la modification sur place restent accessibles depuis AutoJs6
+* `Ajout` Les paramètres communs proposent la langue, le mode sombre, la couleur et quatre icônes de lanceur
 
-- `Correction` Les informations de version et d'ABI du centre des plugins correspondent à l'APK installé
-- `Correction` Les dates de version utilisent un format anglais uniforme
-- `Amélioration` Validation des versions, signatures et variantes complètes des APK avant la création des fichiers à télécharger
+# v2.22.3
 
-## v2.22.1
+###### 2026/09/19
 
-_2026/09/11_
+* `Correction` Avertissements de lecture SDK XML v4 avec AGP 9.1 et contrôles d'alignement natif des APK déclenchés par erreur lors de l'assemblage des tests unitaires JVM, avec les plugins de compilation partagés 1.8.3
+* `Amélioration` Après compileSdk, targetSdk passe à 37 (Android 17) ; le comportement du plugin ne dépend pas de la nouvelle cible
 
-- `Amélioration` Vérification à la compilation de l'alignement des pages de 16 KB des bibliothèques natives 64 bits, avec contrôle du contrat manifest et rapports JSON
+# v2.22.2
 
-## v2.22.0
+###### 2026/09/13
 
-_2026/08/30_
+* `Correction` Les informations de version et d'ABI du centre des plugins correspondent à l'APK installé
+* `Correction` Les dates de version utilisent un format anglais uniforme
+* `Amélioration` Validation des versions, signatures et variantes complètes des APK avant la création des fichiers à télécharger
 
-- `Note` Cette version exige la version associée d'AutoJs6 6.8.0 avec Explorer Action v21 (code de version 5276 ou plus récent)
-- `Ajout` Le centre de plugins peut maintenant identifier directement la version hôte requise, le service d'exécution et les architectures d'appareil incluses
-- `Correction` Les descriptions et instructions publiques distinguent désormais correctement navigation, extraction, création, modification, chiffrement et volumes sans exagérer les formats modifiables
-- `Correction` Les autorisations d'entrée et l'état actif d'un ajout à l'archive sont maintenant libérés avant le rappel final, afin qu'une nouvelle tentative immédiate ne soit plus refusée à tort comme une opération déjà en cours
-- `Amélioration` Une matrice des capacités et un guide d'installation facilitent la vérification de la compatibilité, des limites en lecture seule, de la récupération et du dépannage avant l'installation
+# v2.22.1
 
-## v2.21.0
+###### 2026/09/11
 
-_2026/08/30_
+* `Amélioration` Vérification à la compilation de l'alignement des pages de 16 KB des bibliothèques natives 64 bits, avec contrôle du contrat manifest et rapports JSON
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v21 (code de version 5276 ou supérieur)
-- `Ajout` La création d'archive conserve désormais une page de fin et un historique de récupération des sources; les sources envoyées à la Corbeille après accord explicite peuvent être restaurées après recréation de l'Activity ou de la session hôte
-- `Correction` La restauration des sources n'écrase jamais un nom existant et ne supprime jamais une archive créée; les conflits et restaurations partielles ou interrompues conservent les preuves de récupération et signalent le résultat de chaque élément
-- `Amélioration` L'hôte conserve l'historique durable et borné et n'expose que des métadonnées opaques; la récupération reste dans la page de compression du plugin et la disposition ordinaire du gestionnaire de fichiers ne change pas
+# v2.22.0
 
-## v2.20.0
+###### 2026/08/30
 
-_2026/08/30_
+* `Note` Cette version exige la version associée d'AutoJs6 6.8.0 avec Explorer Action v21 (code de version 5276 ou plus récent)
+* `Ajout` Le centre de plugins peut maintenant identifier directement la version hôte requise, le service d'exécution et les architectures d'appareil incluses
+* `Correction` Les descriptions et instructions publiques distinguent désormais correctement navigation, extraction, création, modification, chiffrement et volumes sans exagérer les formats modifiables
+* `Correction` Les autorisations d'entrée et l'état actif d'un ajout à l'archive sont maintenant libérés avant le rappel final, afin qu'une nouvelle tentative immédiate ne soit plus refusée à tort comme une opération déjà en cours
+* `Amélioration` Une matrice des capacités et un guide d'installation facilitent la vérification de la compatibilité, des limites en lecture seule, de la récupération et du dépannage avant l'installation
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v20 (code de version 5276 ou supérieur)
-- `Ajout` Les pages d'archive natives modifiables peuvent désormais créer des dossiers vides et ajouter une sélection mixte explicite de fichiers et d'arborescences complètes; les dossiers vides sont conservés et les racines de même nom sont numérotées sans risque
-- `Correction` L'instantané d'entrée figé est revérifié avant validation; une annulation, une modification de source, une ambiguïté de noms équivalents dans une arborescence choisie ou un conflit de fichier direct annule tout l'ajout et conserve l'archive originale
-- `Amélioration` Explorer Action v20 n'expose pour les entrées choisies que des noeuds opaques bornés, des métadonnées et des descripteurs ponctuels en lecture seule; il n'accorde aucun chemin, URI, voisin non choisi ni accès général au stockage, et ne modifie pas la disposition ordinaire du gestionnaire de fichiers
+# v2.21.0
 
-## v2.19.0
+###### 2026/08/30
 
-_2026/08/29_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v21 (code de version 5276 ou supérieur)
+* `Ajout` La création d'archive conserve désormais une page de fin et un historique de récupération des sources; les sources envoyées à la Corbeille après accord explicite peuvent être restaurées après recréation de l'Activity ou de la session hôte
+* `Correction` La restauration des sources n'écrase jamais un nom existant et ne supprime jamais une archive créée; les conflits et restaurations partielles ou interrompues conservent les preuves de récupération et signalent le résultat de chaque élément
+* `Amélioration` L'hôte conserve l'historique durable et borné et n'expose que des métadonnées opaques; la récupération reste dans la page de compression du plugin et la disposition ordinaire du gestionnaire de fichiers ne change pas
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v19 (code de version 5276 ou supérieur)
-- `Ajout` Les fichiers et dossiers d'une archive modifiable peuvent maintenant être renommés ou supprimés directement dans la liste d'archives native d'AutoJs6, y compris par sélection multiple; boîtes de dialogue, progression, chemin et restauration de la sélection réutilisent le cadre de l'hôte
-- `Correction` Les actions de suppression et de renommage exigent désormais les capacités de la session et de chaque entrée; chemins dangereux, volumes absents, RAR, archives fractionnées et autres variantes en lecture seule n'annoncent aucune modification indisponible
-- `Amélioration` Explorer Action v19 ne transmet que des ID d'entrée opaques bornés et un nom de feuille sûr, puis reconstruit dans une sortie en attente de l'hôte avec relecture complète, remplacement atomique et réindexation sur place; la disposition et le style du gestionnaire de fichiers ordinaire restent inchangés
+# v2.20.0
 
-## v2.18.0
+###### 2026/08/30
 
-_2026/08/29_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v20 (code de version 5276 ou supérieur)
+* `Ajout` Les pages d'archive natives modifiables peuvent désormais créer des dossiers vides et ajouter une sélection mixte explicite de fichiers et d'arborescences complètes; les dossiers vides sont conservés et les racines de même nom sont numérotées sans risque
+* `Correction` L'instantané d'entrée figé est revérifié avant validation; une annulation, une modification de source, une ambiguïté de noms équivalents dans une arborescence choisie ou un conflit de fichier direct annule tout l'ajout et conserve l'archive originale
+* `Amélioration` Explorer Action v20 n'expose pour les entrées choisies que des noeuds opaques bornés, des métadonnées et des descripteurs ponctuels en lecture seule; il n'accorde aucun chemin, URI, voisin non choisi ni accès général au stockage, et ne modifie pas la disposition ordinaire du gestionnaire de fichiers
 
-- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
-- `Amélioration` Les 7Z ordinaires sûrs et tous les formats TAR modifiables partagent désormais un planificateur de reconstruction complète indépendant du format; chaque backend fournit explicitement ses capacités et la validation des entrées conservées, sans modifier les formats pris en charge, les réglages de sortie ni les limites de lecture seule
+# v2.19.0
 
-## v2.17.0
+###### 2026/08/29
 
-_2026/08/29_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v19 (code de version 5276 ou supérieur)
+* `Ajout` Les fichiers et dossiers d'une archive modifiable peuvent maintenant être renommés ou supprimés directement dans la liste d'archives native d'AutoJs6, y compris par sélection multiple; boîtes de dialogue, progression, chemin et restauration de la sélection réutilisent le cadre de l'hôte
+* `Correction` Les actions de suppression et de renommage exigent désormais les capacités de la session et de chaque entrée; chemins dangereux, volumes absents, RAR, archives fractionnées et autres variantes en lecture seule n'annoncent aucune modification indisponible
+* `Amélioration` Explorer Action v19 ne transmet que des ID d'entrée opaques bornés et un nom de feuille sûr, puis reconstruit dans une sortie en attente de l'hôte avec relecture complète, remplacement atomique et réindexation sur place; la disposition et le style du gestionnaire de fichiers ordinaire restent inchangés
 
-- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
-- `Ajout` Les 7Z ordinaires à volume unique, non chiffrés, non solid et dans le budget du décodeur peuvent désormais ajouter des fichiers ou des arborescences, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion inclut maintenant `.7z`; les variantes chiffrées, solid, fractionnées, dangereuses, non prises en charge ou hors budget restent en lecture seule après inspection de la structure
-- `Amélioration` Les modifications 7Z reconstruisent une sortie LZMA2 non solid et bornée, puis la relisent entièrement avant le remplacement atomique; l'annulation, les changements de source, une sortie en attente endommagée ou un échec d'écriture préservent l'original
+# v2.18.0
 
-## v2.16.0
+###### 2026/08/29
 
-_2026/08/29_
+* `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+* `Amélioration` Les 7Z ordinaires sûrs et tous les formats TAR modifiables partagent désormais un planificateur de reconstruction complète indépendant du format; chaque backend fournit explicitement ses capacités et la validation des entrées conservées, sans modifier les formats pris en charge, les réglages de sortie ni les limites de lecture seule
 
-- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
-- `Ajout` Les archives TAR.ZST et TZST ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion reconnaît désormais précisément `.tar.zst` et `.tzst`; toutes les enveloppes TAR prises en charge utilisent maintenant la même limite de reconstruction modifiable vérifiée
-- `Amélioration` Les modifications TAR.ZST utilisent Zstandard niveau 3 borné et monothread avec une fenêtre de 1 MiB et une somme de contrôle de trame, puis reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de la somme, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
+# v2.17.0
 
-## v2.15.0
+###### 2026/08/29
 
-_2026/08/29_
+* `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+* `Ajout` Les 7Z ordinaires à volume unique, non chiffrés, non solid et dans le budget du décodeur peuvent désormais ajouter des fichiers ou des arborescences, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+* `Correction` L'action de gestion inclut maintenant `.7z`; les variantes chiffrées, solid, fractionnées, dangereuses, non prises en charge ou hors budget restent en lecture seule après inspection de la structure
+* `Amélioration` Les modifications 7Z reconstruisent une sortie LZMA2 non solid et bornée, puis la relisent entièrement avant le remplacement atomique; l'annulation, les changements de source, une sortie en attente endommagée ou un échec d'écriture préservent l'original
 
-- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
-- `Ajout` Les archives TAR.BZ2 et TBZ2 ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion reconnaît désormais précisément `.tar.bz2` et `.tbz2`; TAR.ZST/TZST est la seule enveloppe TAR compressée qui reste en lecture seule
-- `Amélioration` Les modifications TAR.BZ2 utilisent le preset 6 borné de taille de bloc BZIP2 et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
+# v2.16.0
 
-## v2.14.0
+###### 2026/08/29
 
-_2026/08/29_
+* `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
+* `Ajout` Les archives TAR.ZST et TZST ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+* `Correction` L'action de gestion reconnaît désormais précisément `.tar.zst` et `.tzst`; toutes les enveloppes TAR prises en charge utilisent maintenant la même limite de reconstruction modifiable vérifiée
+* `Amélioration` Les modifications TAR.ZST utilisent Zstandard niveau 3 borné et monothread avec une fenêtre de 1 MiB et une somme de contrôle de trame, puis reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de la somme, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
 
-- `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
-- `Ajout` Les archives TAR.XZ et TXZ ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion reconnaît désormais précisément `.tar.xz` et `.txz`, tandis que TAR.BZ2/TBZ2 et TAR.ZST/TZST restent en lecture seule
-- `Amélioration` Les modifications TAR.XZ utilisent le preset XZ 4 fixe (dictionnaire de 4 Mio; 48 058 Kio de mémoire d'encodage indiquée par la bibliothèque, sous un budget de 64 Mio) et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin du conteneur, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
+# v2.15.0
 
-## v2.13.0
+###### 2026/08/29
 
-_2026/08/29_
+* `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
+* `Ajout` Les archives TAR.BZ2 et TBZ2 ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+* `Correction` L'action de gestion reconnaît désormais précisément `.tar.bz2` et `.tbz2`; TAR.ZST/TZST est la seule enveloppe TAR compressée qui reste en lecture seule
+* `Amélioration` Les modifications TAR.BZ2 utilisent le preset 6 borné de taille de bloc BZIP2 et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
 
-- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
-- `Ajout` Les TAR.GZ et TGZ contenant uniquement des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` L'action de gestion reconnaît précisément `.tar.gz` et `.tgz`, tout en refusant toujours JAR/AAR/WAR ainsi que les enveloppes TAR.XZ, TAR.BZ2 et TAR.ZST en lecture seule
-- `Amélioration` Les modifications TAR.GZ reconstruisent directement le flux source compressé dans la sortie en attente de l'hôte, sans copie TAR privée non compressée; l'annulation, l'intégrité de fin GZIP, les erreurs d'écriture et la relecture complète restent dans la limite de restauration
+# v2.14.0
 
-## v2.12.0
+###### 2026/08/29
 
-_2026/08/28_
+* `Note` Cette version nécessite toujours la compilation AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou ultérieur)
+* `Ajout` Les archives TAR.XZ et TXZ ne contenant que des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+* `Correction` L'action de gestion reconnaît désormais précisément `.tar.xz` et `.txz`, tandis que TAR.BZ2/TBZ2 et TAR.ZST/TZST restent en lecture seule
+* `Amélioration` Les modifications TAR.XZ utilisent le preset XZ 4 fixe (dictionnaire de 4 Mio; 48 058 Kio de mémoire d'encodage indiquée par la bibliothèque, sous un budget de 64 Mio) et reconstruisent directement dans une sortie en attente de l'hôte; l'annulation, l'intégrité de fin du conteneur, les véritables échecs d'écriture, les changements de source et la relecture complète restent dans la limite d'annulation
 
-- `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
-- `Ajout` Les TAR ordinaires non compressés contenant uniquement des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
-- `Correction` Les informations de l'archive décrivent maintenant les métadonnées étendues sans dépendre du format et n'étiquettent plus à tort les métadonnées TAR comme champs extra ZIP
-- `Amélioration` Les modifications TAR utilisent un seul passage séquentiel sur la source, présentent le travail réel avant de réserver la sortie, conservent les dates disponibles, écrivent les noms POSIX/PAX si nécessaire, relisent entièrement le remplacement et réutilisent le remplacement atomique et la restauration récente de l'hôte
+# v2.13.0
 
-## v2.11.0
+###### 2026/08/29
 
-_2026/08/28_
+* `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+* `Ajout` Les TAR.GZ et TGZ contenant uniquement des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+* `Correction` L'action de gestion reconnaît précisément `.tar.gz` et `.tgz`, tout en refusant toujours JAR/AAR/WAR ainsi que les enveloppes TAR.XZ, TAR.BZ2 et TAR.ZST en lecture seule
+* `Amélioration` Les modifications TAR.GZ reconstruisent directement le flux source compressé dans la sortie en attente de l'hôte, sans copie TAR privée non compressée; l'annulation, l'intégrité de fin GZIP, les erreurs d'écriture et la relecture complète restent dans la limite de restauration
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
-- `Ajout` Après une modification ZIP réussie, Restaurer la version précédente est proposé dans le message de réussite et le menu de gestion pour une restauration pendant la rétention limitée de l'hôte
-- `Correction` Les flux de sortie SAF demandent désormais explicitement la troncature, afin qu'un contenu plus court ne conserve pas les anciens octets de fin sur les versions récentes d'Android
-- `Amélioration` L'hôte conserve l'archive précédente dans un stockage privé durable, ne la restaure que si la cible est toujours le remplacement exact validé et garde les preuves d'une récupération interrompue sans écraser les changements externes
+# v2.12.0
 
-## v2.10.0
+###### 2026/08/28
 
-_2026/08/28_
+* `Note` Cette version exige toujours la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+* `Ajout` Les TAR ordinaires non compressés contenant uniquement des fichiers et dossiers ordinaires sûrs peuvent désormais ajouter des fichiers ou des arborescences complètes, créer des dossiers vides, renommer et supprimer depuis la page de gestion
+* `Correction` Les informations de l'archive décrivent maintenant les métadonnées étendues sans dépendre du format et n'étiquettent plus à tort les métadonnées TAR comme champs extra ZIP
+* `Amélioration` Les modifications TAR utilisent un seul passage séquentiel sur la source, présentent le travail réel avant de réserver la sortie, conservent les dates disponibles, écrivent les noms POSIX/PAX si nécessaire, relisent entièrement le remplacement et réutilisent le remplacement atomique et la restauration récente de l'hôte
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v17 (code de version 5276 ou supérieur)
-- `Ajout` Un fichier dont le nom ou l'extension n'est pas reconnu peut désormais utiliser Ouvrir comme archive...; après détection structurelle, la barre de chemin native indique le format réel lorsqu'il diffère du nom
-- `Ajout` Explorer Action v17 ajoute une action secondaire en lecture seule et sans filtre, liée à une action principale normale, et renvoie des métadonnées bornées du format détecté depuis la session existante
-- `Ajout` La page de gestion ajoute des informations regroupant le format réel, les totaux du contenu, les modifications disponibles et la raison exacte du mode lecture seule
-- `Correction` TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST utilisent maintenant des suffixes exacts du nom complet plutôt que les extensions génériques `gz`, `xz`, `bz2` ou `zst`, afin que les flux compressés ordinaires ne reçoivent pas l'action principale d'archive
-- `Amélioration` L'hôte n'analyse aucun fichier en arrière-plan pendant la création des menus; seul un choix explicite lance un appel existant d'ouverture en lecture seule, sans nouvelle autorité de chemin, dossier ou écriture
-- `Amélioration` L'ajout, l'importation, la création de dossier, le renommage et la suppression présentent désormais le travail réel, la reconstruction complète et les effets sur les métadonnées avant de réserver une sortie; annuler ne crée aucune sortie en attente
+# v2.11.0
 
-## v2.9.0
+###### 2026/08/28
 
-_2026/08/27_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v18 (code de version 5276 ou supérieur)
+* `Ajout` Après une modification ZIP réussie, Restaurer la version précédente est proposé dans le message de réussite et le menu de gestion pour une restauration pendant la rétention limitée de l'hôte
+* `Correction` Les flux de sortie SAF demandent désormais explicitement la troncature, afin qu'un contenu plus court ne conserve pas les anciens octets de fin sur les versions récentes d'Android
+* `Amélioration` L'hôte conserve l'archive précédente dans un stockage privé durable, ne la restaure que si la cible est toujours le remplacement exact validé et garde les preuves d'une récupération interrompue sans écraser les changements externes
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v16 (code de version 5276 ou supérieur)
-- `Ajout` Le formulaire de compression ajoute l'option désactivée par défaut Déplacer les sources vers la corbeille après compression, exécutée seulement après vérification et validation de toutes les sorties physiques
-- `Ajout` Explorer Action v16 accepte uniquement la sélection originale complète et ordonnée ainsi que toutes les transactions de sortie validées, puis l'hôte revérifie les identités avant d'utiliser sa corbeille
-- `Correction` L'hôte synchronise désormais une copie récupérable et persiste son entrée de corbeille avant de retirer une source; si un dossier n'est retiré que partiellement, la copie récupérable est conservée
-- `Amélioration` La phase de corbeille ne peut pas être annulée et distingue les résultats validé, récupération requise, échec et inconnu; une réponse Binder perdue interroge l'état terminal de l'hôte sans recommencer aveuglément
+# v2.10.0
 
-## v2.8.0
+###### 2026/08/28
 
-_2026/08/27_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v17 (code de version 5276 ou supérieur)
+* `Ajout` Un fichier dont le nom ou l'extension n'est pas reconnu peut désormais utiliser Ouvrir comme archive...; après détection structurelle, la barre de chemin native indique le format réel lorsqu'il diffère du nom
+* `Ajout` Explorer Action v17 ajoute une action secondaire en lecture seule et sans filtre, liée à une action principale normale, et renvoie des métadonnées bornées du format détecté depuis la session existante
+* `Ajout` La page de gestion ajoute des informations regroupant le format réel, les totaux du contenu, les modifications disponibles et la raison exacte du mode lecture seule
+* `Correction` TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST utilisent maintenant des suffixes exacts du nom complet plutôt que les extensions génériques `gz`, `xz`, `bz2` ou `zst`, afin que les flux compressés ordinaires ne reçoivent pas l'action principale d'archive
+* `Amélioration` L'hôte n'analyse aucun fichier en arrière-plan pendant la création des menus; seul un choix explicite lance un appel existant d'ouverture en lecture seule, sans nouvelle autorité de chemin, dossier ou écriture
+* `Amélioration` L'ajout, l'importation, la création de dossier, le renommage et la suppression présentent désormais le travail réel, la reconstruction complète et les effets sur les métadonnées avant de réserver une sortie; annuler ne crée aucune sortie en attente
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v15 (code de version 5276 ou supérieur)
-- `Ajout` Les ZIP fractionnés standard et l'option Compresser chaque élément séparément terminent désormais l'écriture et la relecture de toutes les sorties avant une publication groupée récupérable par Explorer Action v15
-- `Correction` La création de plusieurs sorties ne laisse plus de résultats partiellement validés lors des échecs normaux; Explorer n'est actualisé et la réussite annoncée qu'après la validation du lot complet
-- `Correction` Les interrupteurs des options de compression s'affichent désormais correctement et restent tactiles sous Android 7, au lieu d'apparaître comme de simples libellés
-- `Amélioration` L'hôte journalise durablement le dossier parent et l'identité de chaque fichier préparé avant publication; un échec ou redémarrage annule uniquement les membres identiques, tandis que les fichiers modifiés de l'extérieur sont conservés pour récupération manuelle
+# v2.9.0
 
-## v2.7.0
+###### 2026/08/27
 
-_2026/08/27_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v16 (code de version 5276 ou supérieur)
+* `Ajout` Le formulaire de compression ajoute l'option désactivée par défaut Déplacer les sources vers la corbeille après compression, exécutée seulement après vérification et validation de toutes les sorties physiques
+* `Ajout` Explorer Action v16 accepte uniquement la sélection originale complète et ordonnée ainsi que toutes les transactions de sortie validées, puis l'hôte revérifie les identités avant d'utiliser sa corbeille
+* `Correction` L'hôte synchronise désormais une copie récupérable et persiste son entrée de corbeille avant de retirer une source; si un dossier n'est retiré que partiellement, la copie récupérable est conservée
+* `Amélioration` La phase de corbeille ne peut pas être annulée et distingue les résultats validé, récupération requise, échec et inconnu; une réponse Binder perdue interroge l'état terminal de l'hôte sans recommencer aveuglément
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v14 (code de version 5276 ou supérieur)
-- `Ajout` Les ensembles numérotés `.zip.001` et `.7z.001` complets peuvent désormais être parcourus, prévisualisés et extraits en ouvrant leur volume `.001`; ils restent en lecture seule
-- `Ajout` Explorer Action v14 ajoute la correspondance bornée des suffixes composés et réutilise la source de volumes frères v12 liée à l'UID sans reconnaître les fichiers `.001` arbitraires
-- `Correction` Android 7 regroupe les volumes ZIP numérotés autorisés par l'hôte dans un fichier local privé avant le chemin de compatibilité Zip4j, afin qu'un ensemble valide ne soit plus signalé comme endommagé
-- `Amélioration` Les numéros de volumes frères sont bornés de `.002` à `.128` et tous les volumes fournis doivent être contigus; le lecteur indique le prochain volume absent, revérifie l'identité autour de la matérialisation et n'annonce jamais de modification interne
+# v2.8.0
 
-## v2.6.0
+###### 2026/08/27
 
-_2026/08/27_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v15 (code de version 5276 ou supérieur)
+* `Ajout` Les ZIP fractionnés standard et l'option Compresser chaque élément séparément terminent désormais l'écriture et la relecture de toutes les sorties avant une publication groupée récupérable par Explorer Action v15
+* `Correction` La création de plusieurs sorties ne laisse plus de résultats partiellement validés lors des échecs normaux; Explorer n'est actualisé et la réussite annoncée qu'après la validation du lot complet
+* `Correction` Les interrupteurs des options de compression s'affichent désormais correctement et restent tactiles sous Android 7, au lieu d'apparaître comme de simples libellés
+* `Amélioration` L'hôte journalise durablement le dossier parent et l'identité de chaque fichier préparé avant publication; un échec ou redémarrage annule uniquement les membres identiques, tandis que les fichiers modifiés de l'extérieur sont conservés pour récupération manuelle
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v13 (code de version 5276 ou supérieur)
-- `Ajout` La page d'archive native permet maintenant de choisir l'encodage des noms ZIP depuis la barre de chemin sans ouvrir la page de gestion; le dossier interne et les éléments encore présents restent sélectionnés après le changement
-- `Ajout` Explorer Action v13 réindexe la source mise en cache dans la même session en lecture seule et utilise des ID stables pour restaurer le chemin disponible le plus profond et les éléments encore présents
-- `Amélioration` Un index de remplacement n'est publié qu'une fois complet; un choix invalide, un échec d'analyse, un aperçu ou une extraction active conserve l'ancien index, et le mot de passe reste uniquement dans une mémoire effaçable
+# v2.7.0
 
-## v2.5.0
+###### 2026/08/27
 
-_2026/08/27_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v14 (code de version 5276 ou supérieur)
+* `Ajout` Les ensembles numérotés `.zip.001` et `.7z.001` complets peuvent désormais être parcourus, prévisualisés et extraits en ouvrant leur volume `.001`; ils restent en lecture seule
+* `Ajout` Explorer Action v14 ajoute la correspondance bornée des suffixes composés et réutilise la source de volumes frères v12 liée à l'UID sans reconnaître les fichiers `.001` arbitraires
+* `Correction` Android 7 regroupe les volumes ZIP numérotés autorisés par l'hôte dans un fichier local privé avant le chemin de compatibilité Zip4j, afin qu'un ensemble valide ne soit plus signalé comme endommagé
+* `Amélioration` Les numéros de volumes frères sont bornés de `.002` à `.128` et tous les volumes fournis doivent être contigus; le lecteur indique le prochain volume absent, revérifie l'identité autour de la matérialisation et n'annonce jamais de modification interne
 
-- `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v12 (code de version 5276 ou supérieur)
-- `Ajout` Les ensembles standard `.z01 + .zip` complets et les ensembles WinRAR modernes `partN.rar` peuvent désormais être parcourus, prévisualisés et extraits dans la page native; les archives fractionnées restent en lecture seule
-- `Ajout` Explorer Action v12 fournit uniquement un catalogue borné de volumes frères approuvés par l'hôte et ouvre chacun par identifiant opaque comme descripteur en lecture seule, sans exposer de dossier ni de chemin système
-- `Correction` Les métadonnées du répertoire du volume ZIP final sont correctement acceptées sous Android 7 et versions ultérieures, et les données sont lues sur tous les volumes autorisés sans déclarer le dernier volume endommagé
-- `Correction` Les CRC de segments RAR ne sont plus comparés aux données reconstituées; les volumes manquants ou modifiés après l'ouverture produisent des erreurs typées stables
-- `Amélioration` Le nombre de volumes, les noms, identifiants, ouvertures, UID appelant, identités de fichiers et durées de session sont bornés et revérifiés; une copie interrompue supprime tous les fragments du cache privé
+# v2.6.0
 
-## v2.4.0
+###### 2026/08/27
 
-_2026/08/26_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v13 (code de version 5276 ou supérieur)
+* `Ajout` La page d'archive native permet maintenant de choisir l'encodage des noms ZIP depuis la barre de chemin sans ouvrir la page de gestion; le dossier interne et les éléments encore présents restent sélectionnés après le changement
+* `Ajout` Explorer Action v13 réindexe la source mise en cache dans la même session en lecture seule et utilise des ID stables pour restaurer le chemin disponible le plus profond et les éléments encore présents
+* `Amélioration` Un index de remplacement n'est publié qu'une fois complet; un choix invalide, un échec d'analyse, un aperçu ou une extraction active conserve l'ancien index, et le mot de passe reste uniquement dans une mémoire effaçable
 
-- `Note` Cette version exige AutoJs6 6.8.0 avec Explorer Action v11, code de version 5276 ou supérieur
-- `Ajout` Les archives RAR4/RAR5 peuvent être parcourues, prévisualisées et extraites, y compris avec contenu ou en-têtes chiffrés; RAR reste volontairement en lecture seule
-- `Ajout` La page d'archive native AutoJs6 peut demander un mot de passe lors de l'ouverture initiale ou de l'extraction, puis réessayer sans perdre le chemin ou la sélection
-- `Correction` Le premier volume d'un RAR fractionné conserve ses métadonnées lisibles mais ne propose plus l'extraction lorsque les volumes frères sont indisponibles
-- `Correction` Un mot de passe erroné efface la saisie précédente et relance sur un instantané inchangé sans quitter la page native
-- `Amélioration` RAR lit directement le descripteur seekable de l'hôte lorsque possible, n'ajoute aucun ABI natif et réutilise les contrôles de sécurité communs
-- `Dépendance` Ajout de Junrar 8.1.0 et SLF4J 2.0.17 pour la prise en charge RAR en lecture seule selon leurs licences incluses
+# v2.5.0
 
-## v2.3.0
+###### 2026/08/27
 
-_2026/08/26_
+* `Note` Cette version exige la build AutoJs6 6.8.0 associée avec Explorer Action v12 (code de version 5276 ou supérieur)
+* `Ajout` Les ensembles standard `.z01 + .zip` complets et les ensembles WinRAR modernes `partN.rar` peuvent désormais être parcourus, prévisualisés et extraits dans la page native; les archives fractionnées restent en lecture seule
+* `Ajout` Explorer Action v12 fournit uniquement un catalogue borné de volumes frères approuvés par l'hôte et ouvre chacun par identifiant opaque comme descripteur en lecture seule, sans exposer de dossier ni de chemin système
+* `Correction` Les métadonnées du répertoire du volume ZIP final sont correctement acceptées sous Android 7 et versions ultérieures, et les données sont lues sur tous les volumes autorisés sans déclarer le dernier volume endommagé
+* `Correction` Les CRC de segments RAR ne sont plus comparés aux données reconstituées; les volumes manquants ou modifiés après l'ouverture produisent des erreurs typées stables
+* `Amélioration` Le nombre de volumes, les noms, identifiants, ouvertures, UID appelant, identités de fichiers et durées de session sont bornés et revérifiés; une copie interrompue supprime tous les fragments du cache privé
 
-- `Note` Cette version exige la compilation AutoJs6 6.8.0 associée avec Explorer Action v10 (code de version 5276 ou ultérieur)
-- `Ajout` La page native des archives peut maintenant extraire le dossier interne courant depuis la barre de chemin ou les entrées cochées depuis la barre de sélection, sans ouvrir une page de gestion distincte
-- `Ajout` L'extraction native écrit dans une arborescence de sortie appartenant à l'hôte, avec progression, annulation, numérotation sûre des conflits et actualisation automatique d'Explorer
-- `Correction` Quitter une archive sous Android 7 ne provoque plus de plantage pendant le nettoyage du cache d'aperçu par l'hôte
-- `Correction` Les libellés de la barre de sélection à cinq actions sont centrés sous leurs icônes sur les écrans étroits
-- `Amélioration` Le mode de sélection d'archive n'affiche plus que Quitter et Extraire, et masque les actions du système de fichiers sans objet dans une archive
+# v2.4.0
 
-## v2.2.0
+###### 2026/08/26
 
-_2026/08/26_
+* `Note` Cette version exige AutoJs6 6.8.0 avec Explorer Action v11, code de version 5276 ou supérieur
+* `Ajout` Les archives RAR4/RAR5 peuvent être parcourues, prévisualisées et extraites, y compris avec contenu ou en-têtes chiffrés; RAR reste volontairement en lecture seule
+* `Ajout` La page d'archive native AutoJs6 peut demander un mot de passe lors de l'ouverture initiale ou de l'extraction, puis réessayer sans perdre le chemin ou la sélection
+* `Correction` Le premier volume d'un RAR fractionné conserve ses métadonnées lisibles mais ne propose plus l'extraction lorsque les volumes frères sont indisponibles
+* `Correction` Un mot de passe erroné efface la saisie précédente et relance sur un instantané inchangé sans quitter la page native
+* `Amélioration` RAR lit directement le descripteur seekable de l'hôte lorsque possible, n'ajoute aucun ABI natif et réutilise les contrôles de sécurité communs
+* `Dépendance` Ajout de Junrar 8.1.0 et SLF4J 2.0.17 pour la prise en charge RAR en lecture seule selon leurs licences incluses
 
-- `Note` Cette version exige la version associée d'AutoJs6 6.8.0 avec Explorer Action v9 (code de version 5276 ou plus récent)
-- `Ajout` Extraire vers... recommande désormais le dossier actuel et crée un dossier de sortie de même nom par une transaction appartenant à l'hôte; un nom équivalent existant est numéroté en toute sécurité sans modifier son contenu
-- `Ajout` La gestion des ZIP ordinaires en un seul volume peut importer un dossier entier avec le sélecteur système Android, y compris les fichiers imbriqués et les dossiers vides
-- `Correction` Le sélecteur de destination d'extraction reste entièrement utilisable sur les écrans étroits ou peu hauts et affiche le chemin par défaut exact
-- `Correction` Une extraction dans le même dossier annulée, échouée, interrompue ou à court d'espace annule la sortie non publiée; la session suivante récupère les transactions interrompues de l'hôte sans modifier l'archive source
-- `Amélioration` Explorer Action v9 publie atomiquement les arborescences vérifiées et actualise le nouveau dossier de sortie dans AutoJs6 immédiatement après validation
+# v2.3.0
 
-## v2.1.0
+###### 2026/08/26
 
-_2026/08/25_
+* `Note` Cette version exige la compilation AutoJs6 6.8.0 associée avec Explorer Action v10 (code de version 5276 ou ultérieur)
+* `Ajout` La page native des archives peut maintenant extraire le dossier interne courant depuis la barre de chemin ou les entrées cochées depuis la barre de sélection, sans ouvrir une page de gestion distincte
+* `Ajout` L'extraction native écrit dans une arborescence de sortie appartenant à l'hôte, avec progression, annulation, numérotation sûre des conflits et actualisation automatique d'Explorer
+* `Correction` Quitter une archive sous Android 7 ne provoque plus de plantage pendant le nettoyage du cache d'aperçu par l'hôte
+* `Correction` Les libellés de la barre de sélection à cinq actions sont centrés sous leurs icônes sur les écrans étroits
+* `Amélioration` Le mode de sélection d'archive n'affiche plus que Quitter et Extraire, et masque les actions du système de fichiers sans objet dans une archive
 
-- `Note` La modification concerne actuellement les fichiers `.zip` ordinaires en un seul volume. JAR/AAR/WAR, ZIP fractionné, 7Z et famille TAR restent en lecture seule; la reconstruction normalise les commentaires, les métadonnées extra non essentielles et les attributs de permission Unix
-- `Ajout` Gérer l'archive... ouvre le ZIP sélectionné dans la page de gestion avec Ajouter des fichiers..., Nouveau dossier..., Renommer... et Supprimer, y compris le renommage et la suppression de sous-arborescences
-- `Ajout` Explorer Action v8 reconstruit dans une sortie en attente détenue par l'hôte, relit entièrement le résultat, ne remplace atomiquement l'original qu'après validation et actualise automatiquement la ligne Explorer
-- `Amélioration` Chaque modification est prévalidée dans un plan immuable qui contrôle les chemins dangereux, les noms dupliqués ou équivalents, les conflits fichier/dossier, les entrées conservées non prises en charge et les changements de source avant validation de la sortie de remplacement
-- `Amélioration` La reconstruction ZIP conserve le contenu Stored/Deflate, les horodatages utilisables et le chiffrement ZipCrypto/AES pris en charge; une annulation ou tout échec de validation abandonne la sortie en attente et laisse l'archive originale intacte
+# v2.2.0
 
-## v2.0.0
+###### 2026/08/26
 
-_2026/08/25_
+* `Note` Cette version exige la version associée d'AutoJs6 6.8.0 avec Explorer Action v9 (code de version 5276 ou plus récent)
+* `Ajout` Extraire vers... recommande désormais le dossier actuel et crée un dossier de sortie de même nom par une transaction appartenant à l'hôte; un nom équivalent existant est numéroté en toute sécurité sans modifier son contenu
+* `Ajout` La gestion des ZIP ordinaires en un seul volume peut importer un dossier entier avec le sélecteur système Android, y compris les fichiers imbriqués et les dossiers vides
+* `Correction` Le sélecteur de destination d'extraction reste entièrement utilisable sur les écrans étroits ou peu hauts et affiche le chemin par défaut exact
+* `Correction` Une extraction dans le même dossier annulée, échouée, interrompue ou à court d'espace annule la sortie non publiée; la session suivante récupère les transactions interrompues de l'hôte sans modifier l'archive source
+* `Amélioration` Explorer Action v9 publie atomiquement les arborescences vérifiées et actualise le nouveau dossier de sortie dans AutoJs6 immédiatement après validation
 
-- `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
-- `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
-- `Ajout` Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte
-- `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
-- `Ajout` Gérer l'archive... ouvre la page de gestion avec les portées d'extraction archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
-- `Ajout` Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants
-- `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
-- `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
-- `Ajout` Création de ZIP fractionnés standard, y compris avec AES-256, avec des tailles MiB courantes ou un entier personnalisé ; tout le groupe partage un nom de base protégé des conflits et le `.zip` final apparaît après les volumes numérotés
-- `Ajout` Création d’une archive par élément d’une sélection de même dossier parent, avec aperçu des sorties, numérotation automatique des conflits et conservation explicite des sorties terminées après un échec ou une annulation ultérieurs
-- `Ajout` Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort
-- `Ajout` Création de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec niveaux propres au format et mise à jour complète des extensions composées
-- `Ajout` Navigation et extraction des ZIP chiffrés avec ZipCrypto/AES, nouvelle saisie sur place d'un mot de passe erroné et création facultative de ZIP AES-256 dont les noms restent visibles avec confirmation identique du mot de passe
-- `Ajout` Navigation, aperçu et extraction des 7Z ordinaires ou solid avec chaînes courantes de compression et de filtres, chiffrement AES du contenu et de l'en-tête ; un mot de passe absent ou erroné produit un diagnostic explicite
-- `Ajout` Navigation, aperçu et extraction des TAR non compressés dans la liste native avec validation de la somme de contrôle des en-têtes ; liens, nœuds de périphérique et entrées creuses restent en lecture seule
-- `Ajout` Navigation, aperçu et extraction des TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST par les mêmes chemins natifs ; la détection vérifie la signature du compresseur et la structure TAR interne
-- `Ajout` Budgets d'extraction Compatible, Strict et Personnalisé ; les archives hors budget restent consultables en lecture seule et affichent la sortie estimée, les dimensions dépassées et une confirmation unique avant écriture
-- `Ajout` La progression d'extraction affiche les éléments, les octets, l'élément actuel, le débit et le temps restant estimé, avec une annulation fiable
-- `Correction` La liste ZIP utilise les métadonnées et accepte les préambules auto-extractibles, les anciens encodages, les séparateurs Windows et davantage de méthodes lisibles
-- `Correction` Les ZIP fractionnés standard `.z01 + .zip` indiquent désormais les volumes précédents requis au lieu de déclarer le volume final endommagé
-- `Correction` L'encodage des noms ZIP peut être remplacé si la détection automatique est incorrecte et l'extraction réutilise ce choix
-- `Correction` Les tailles inconnues, les URI DocumentsProvider valides et les droits d'écriture supplémentaires de l'hôte ne bloquent plus une archive valide
-- `Correction` Correction de la consultation et de l'extraction ZIP sous Android 7.x, qui appelaient des API réservées aux systèmes récents
-- `Correction` Les ZIP contenant des noms Unicode s'ouvrent désormais correctement sous Android 7, même si l'indicateur de nom UTF-8 manque ou est interprété de façon incohérente par le backend
-- `Correction` Les mots de passe erronés sont désormais classés de façon stable sous PASSWORD/WRONG_PASSWORD et les entrées AES v2 avec un CRC stocké nul ne sont plus signalées à tort comme endommagées
-- `Correction` Le dossier d'extraction par défaut des extensions composées telles que TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST retire désormais le suffixe complet au lieu de conserver `.tar`
-- `Correction` Les archives contenant des remontées vers le dossier parent, des chemins absolus, des préfixes de lecteur ou des caractères de contrôle restent consultables ; ces noms passent dans un dossier isolé en lecture seule, restent prévisualisables si leurs données sont lisibles et doivent être explicitement ignorés avant extraction
-- `Correction` L'extraction n'écrase plus les fichiers ou dossiers existants lorsque le fournisseur de destination considère comme identiques les noms qui ne diffèrent que par la casse ou sont équivalents en Unicode ; les dossiers de sortie équivalents sont numérotés automatiquement
-- `Correction` Une annulation ou un échec d'extraction restaure la nouvelle racine de sortie dans une phase de nettoyage non annulable ; si le fournisseur refuse la suppression, le nom et l'URI du résidu possible remplacent le seul message générique
-- `Correction` La création de 7Z chiffrés fonctionne désormais sous Android 7 et la vérification associe les entrées par chemin afin que les différences d'ordre valides du backend ne provoquent plus de faux échecs
-- `Correction` La page de gestion s'adapte désormais aux écrans peu hauts en portrait et en paysage : l'archive et le chemin passent dans la barre, les réglages restent disponibles dans une rangée horizontale compacte et les entrées et actions demeurent visibles jusqu'à une police de 2,0x
-- `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
-- `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
-- `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material
-- `Amélioration` Les sorties ZIP, 7Z et TAR passent par une session de l'hôte liée à l'UID, utilisent un fichier temporaire du même dossier et sont validées atomiquement sans autorisation de stockage ni écrasement
-- `Amélioration` Les capacités du format et de chaque entrée sont vérifiées uniformément pour la prévisualisation, l'extraction et la création afin de laisser les options indisponibles désactivées
-- `Amélioration` Les échecs indiquent le format, l'étape, un code stable et le motif ; les versions de débogage peuvent copier le diagnostic complet
-- `Amélioration` Les archives ordinaires sont désormais consultées par des canaux à position indépendante sur le descripteur en lecture seule de l'hôte, sans copie intégrale ; les entrées ou lecteurs incompatibles (actuellement les ZIP chiffrés) utilisent le cache privé, nettoyé à la fermeture, en cas d'échec ou après expiration
-- `Amélioration` Transactions de sortie unifiées pour la création ZIP, 7Z et TAR ; les sources illisibles et les échecs de réservation, ouverture, écriture ou validation ont une étape stable, tandis qu'une annulation non confirmée ferme la session, affiche le chemin prévu et interdit une nouvelle tentative risquée
-- `Amélioration` La création analyse les sources avant d'ouvrir la sortie temporaire et affiche séparément l'analyse, la compression, la vérification et la validation, avec le total des fichiers, les octets lus et les tailles inconnues
-- `Amélioration` Les archives créées sont entièrement relues avant publication afin de vérifier le format, les entrées, les tailles, les CRC et les empreintes du contenu ; chaque volume ZIP en attente est aussi comparé octet par octet
-- `Dépendance` Ajout de Zip4j 2.11.5 sous licence Apache 2.0 pour les flux ZIP chiffrés, la création AES-256 et le chemin de compatibilité Android 7.x
-- `Dépendance` Ajout de XZ for Java 1.12 sous licence 0BSD pour lire et écrire TAR.XZ/TXZ en Java pur sans ABI native
-- `Dépendance` Ajout de zstd-jni 1.5.7-15 sous licence BSD pour lire et écrire TAR.ZST/TZST ; les quatre ABI Android passent les contrôles d'alignement ELF 16 Kio et RELRO
+# v2.1.0
 
-## v1.0.1
+###### 2026/08/25
 
-_2026/08/08_
+* `Note` La modification concerne actuellement les fichiers `.zip` ordinaires en un seul volume. JAR/AAR/WAR, ZIP fractionné, 7Z et famille TAR restent en lecture seule; la reconstruction normalise les commentaires, les métadonnées extra non essentielles et les attributs de permission Unix
+* `Ajout` Gérer l'archive... ouvre le ZIP sélectionné dans la page de gestion avec Ajouter des fichiers..., Nouveau dossier..., Renommer... et Supprimer, y compris le renommage et la suppression de sous-arborescences
+* `Ajout` Explorer Action v8 reconstruit dans une sortie en attente détenue par l'hôte, relit entièrement le résultat, ne remplace atomiquement l'original qu'après validation et actualise automatiquement la ligne Explorer
+* `Amélioration` Chaque modification est prévalidée dans un plan immuable qui contrôle les chemins dangereux, les noms dupliqués ou équivalents, les conflits fichier/dossier, les entrées conservées non prises en charge et les changements de source avant validation de la sortie de remplacement
+* `Amélioration` La reconstruction ZIP conserve le contenu Stored/Deflate, les horodatages utilisables et le chiffrement ZipCrypto/AES pris en charge; une annulation ou tout échec de validation abandonne la sortie en attente et laisse l'archive originale intacte
 
-- `Correction` Liaison de service vide lors de l'activation dans le centre de plugins
-- `Amélioration` Simplification du nom, de la description et des instructions
+# v2.0.0
 
-## v1.0.0
+###### 2026/08/25
 
-_2026/08/02_
+* `Ajout` Le produit s'appelle désormais Archive Manager et l'action devient Ouvrir l'archive
+* `Ajout` Explorer Action v5 parcourt les archives dans la liste native d'AutoJs6 avec la barre de chemin, le thème et la navigation Retour existants
+* `Ajout` Explorer Action v6 ouvre les entrées prises en charge avec les visionneuses de documents, d'images, de fichiers audio et de vidéos de l'hôte
+* `Ajout` Raccourci Extraire vers... pour choisir une destination et extraire toute l'archive
+* `Ajout` Gérer l'archive... ouvre la page de gestion avec les portées d'extraction archive entière, dossier interne actuel et sélection cochée, tout en conservant le raccourci d'extraction complète
+* `Ajout` Stratégies de conflit d'extraction demander, ignorer, écraser et renommer automatiquement, avec application globale, décompte précis et préservation des dossiers de sortie existants
+* `Ajout` Explorer Action v4 ajoute Compresser... aux menus des fichiers et dossiers et à la barre de cinq actions pour les sélections de même dossier parent
+* `Ajout` Création de ZIP avec nom par défaut, niveaux de compression, progression, annulation et numérotation automatique des conflits
+* `Ajout` Création de ZIP fractionnés standard, y compris avec AES-256, avec des tailles MiB courantes ou un entier personnalisé ; tout le groupe partage un nom de base protégé des conflits et le `.zip` final apparaît après les volumes numérotés
+* `Ajout` Création d’une archive par élément d’une sélection de même dossier parent, avec aperçu des sorties, numérotation automatique des conflits et conservation explicite des sorties terminées après un échec ou une annulation ultérieurs
+* `Ajout` Création de 7Z non solid avec les niveaux 0 à 9 et chiffrement facultatif du contenu en AES-256 ; les noms restent visibles et le chiffrement des noms n'est pas annoncé à tort
+* `Ajout` Création de TAR, TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST avec niveaux propres au format et mise à jour complète des extensions composées
+* `Ajout` Navigation et extraction des ZIP chiffrés avec ZipCrypto/AES, nouvelle saisie sur place d'un mot de passe erroné et création facultative de ZIP AES-256 dont les noms restent visibles avec confirmation identique du mot de passe
+* `Ajout` Navigation, aperçu et extraction des 7Z ordinaires ou solid avec chaînes courantes de compression et de filtres, chiffrement AES du contenu et de l'en-tête ; un mot de passe absent ou erroné produit un diagnostic explicite
+* `Ajout` Navigation, aperçu et extraction des TAR non compressés dans la liste native avec validation de la somme de contrôle des en-têtes ; liens, nœuds de périphérique et entrées creuses restent en lecture seule
+* `Ajout` Navigation, aperçu et extraction des TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2 et TAR.ZST/TZST par les mêmes chemins natifs ; la détection vérifie la signature du compresseur et la structure TAR interne
+* `Ajout` Budgets d'extraction Compatible, Strict et Personnalisé ; les archives hors budget restent consultables en lecture seule et affichent la sortie estimée, les dimensions dépassées et une confirmation unique avant écriture
+* `Ajout` La progression d'extraction affiche les éléments, les octets, l'élément actuel, le débit et le temps restant estimé, avec une annulation fiable
+* `Correction` La liste ZIP utilise les métadonnées et accepte les préambules auto-extractibles, les anciens encodages, les séparateurs Windows et davantage de méthodes lisibles
+* `Correction` Les ZIP fractionnés standard `.z01 + .zip` indiquent désormais les volumes précédents requis au lieu de déclarer le volume final endommagé
+* `Correction` L'encodage des noms ZIP peut être remplacé si la détection automatique est incorrecte et l'extraction réutilise ce choix
+* `Correction` Les tailles inconnues, les URI DocumentsProvider valides et les droits d'écriture supplémentaires de l'hôte ne bloquent plus une archive valide
+* `Correction` Correction de la consultation et de l'extraction ZIP sous Android 7.x, qui appelaient des API réservées aux systèmes récents
+* `Correction` Les ZIP contenant des noms Unicode s'ouvrent désormais correctement sous Android 7, même si l'indicateur de nom UTF-8 manque ou est interprété de façon incohérente par le backend
+* `Correction` Les mots de passe erronés sont désormais classés de façon stable sous PASSWORD/WRONG_PASSWORD et les entrées AES v2 avec un CRC stocké nul ne sont plus signalées à tort comme endommagées
+* `Correction` Le dossier d'extraction par défaut des extensions composées telles que TAR.GZ, TAR.XZ, TAR.BZ2 et TAR.ZST retire désormais le suffixe complet au lieu de conserver `.tar`
+* `Correction` Les archives contenant des remontées vers le dossier parent, des chemins absolus, des préfixes de lecteur ou des caractères de contrôle restent consultables ; ces noms passent dans un dossier isolé en lecture seule, restent prévisualisables si leurs données sont lisibles et doivent être explicitement ignorés avant extraction
+* `Correction` L'extraction n'écrase plus les fichiers ou dossiers existants lorsque le fournisseur de destination considère comme identiques les noms qui ne diffèrent que par la casse ou sont équivalents en Unicode ; les dossiers de sortie équivalents sont numérotés automatiquement
+* `Correction` Une annulation ou un échec d'extraction restaure la nouvelle racine de sortie dans une phase de nettoyage non annulable ; si le fournisseur refuse la suppression, le nom et l'URI du résidu possible remplacent le seul message générique
+* `Correction` La création de 7Z chiffrés fonctionne désormais sous Android 7 et la vérification associe les entrées par chemin afin que les différences d'ordre valides du backend ne provoquent plus de faux échecs
+* `Correction` La page de gestion s'adapte désormais aux écrans peu hauts en portrait et en paysage : l'archive et le chemin passent dans la barre, les réglages restent disponibles dans une rangée horizontale compacte et les entrées et actions demeurent visibles jusqu'à une police de 2,0x
+* `Amélioration` Suppression de la limite fixe de 4 Gio et des seuils de taille/ratio pendant la consultation, sans retirer l'isolation ni les contrôles d'intégrité
+* `Amélioration` Ajout d'un Roadmap vérifiable et réécriture du README et du CHANGELOG
+* `Amélioration` L'écran autonome suit désormais le mode jour/nuit et les couleurs dynamiques Material
+* `Amélioration` Les sorties ZIP, 7Z et TAR passent par une session de l'hôte liée à l'UID, utilisent un fichier temporaire du même dossier et sont validées atomiquement sans autorisation de stockage ni écrasement
+* `Amélioration` Les capacités du format et de chaque entrée sont vérifiées uniformément pour la prévisualisation, l'extraction et la création afin de laisser les options indisponibles désactivées
+* `Amélioration` Les échecs indiquent le format, l'étape, un code stable et le motif ; les versions de débogage peuvent copier le diagnostic complet
+* `Amélioration` Les archives ordinaires sont désormais consultées par des canaux à position indépendante sur le descripteur en lecture seule de l'hôte, sans copie intégrale ; les entrées ou lecteurs incompatibles (actuellement les ZIP chiffrés) utilisent le cache privé, nettoyé à la fermeture, en cas d'échec ou après expiration
+* `Amélioration` Transactions de sortie unifiées pour la création ZIP, 7Z et TAR ; les sources illisibles et les échecs de réservation, ouverture, écriture ou validation ont une étape stable, tandis qu'une annulation non confirmée ferme la session, affiche le chemin prévu et interdit une nouvelle tentative risquée
+* `Amélioration` La création analyse les sources avant d'ouvrir la sortie temporaire et affiche séparément l'analyse, la compression, la vérification et la validation, avec le total des fichiers, les octets lus et les tailles inconnues
+* `Amélioration` Les archives créées sont entièrement relues avant publication afin de vérifier le format, les entrées, les tailles, les CRC et les empreintes du contenu ; chaque volume ZIP en attente est aussi comparé octet par octet
+* `Dépendance` Ajout de Zip4j 2.11.5 sous licence Apache 2.0 pour les flux ZIP chiffrés, la création AES-256 et le chemin de compatibilité Android 7.x
+* `Dépendance` Ajout de XZ for Java 1.12 sous licence 0BSD pour lire et écrire TAR.XZ/TXZ en Java pur sans ABI native
+* `Dépendance` Ajout de zstd-jni 1.5.7-15 sous licence BSD pour lire et écrire TAR.ZST/TZST ; les quatre ABI Android passent les contrôles d'alignement ELF 16 Kio et RELRO
 
-- `Ajout` Première version pour parcourir ZIP, JAR, AAR et WAR et extraire la sélection
-- `Ajout` Recherche, sélection, progression, annulation, nettoyage temporaire et interface localisée
+# v1.0.1
+
+###### 2026/08/08
+
+* `Correction` Liaison de service vide lors de l'activation dans le centre de plugins
+* `Amélioration` Simplification du nom, de la description et des instructions
+
+# v1.0.0
+
+###### 2026/08/02
+
+* `Ajout` Première version pour parcourir ZIP, JAR, AAR et WAR et extraire la sélection
+* `Ajout` Recherche, sélection, progression, annulation, nettoyage temporaire et interface localisée

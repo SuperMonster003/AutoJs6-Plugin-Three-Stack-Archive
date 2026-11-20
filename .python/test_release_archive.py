@@ -8,7 +8,7 @@ import unittest
 from unittest.mock import patch
 import uuid
 
-from release_archive import ReleaseError, archive_release, collect
+from release_archive import ReleaseError, archive_release, collect, verify_native_inventory
 
 
 def dacl_entries(path):
@@ -173,6 +173,40 @@ class ReleaseMatrixTest(unittest.TestCase):
         self.assertEqual(dacl_entries(reference)[1], dacl_entries(destination)[1])
         for item in destination.iterdir():
             self.assertEqual(dacl_entries(reference / "plain.apk")[1], dacl_entries(item)[1], item.name)
+
+
+class NativeInventoryTest(unittest.TestCase):
+    ABIS = {"arm64-v8a", "x86_64"}
+
+    def libraries(self, names, compressed=()):
+        import io
+        import zipfile
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            for name in names:
+                method = zipfile.ZIP_DEFLATED if name in compressed else zipfile.ZIP_STORED
+                archive.writestr(zipfile.ZipInfo(name), b"\x7fELF", compress_type=method)
+        with zipfile.ZipFile(buffer) as archive:
+            return archive.infolist()
+
+    def names(self, abis=ABIS, extra=()):
+        return [f"lib/{abi}/{name}" for abi in sorted(abis) for name in ("libzstd-jni-1.5.7-15.so", "libandroidx.graphics.path.so")] + list(extra)
+
+    def test_zstd_and_compose_graphics_path_on_every_abi(self):
+        verify_native_inventory("plugin.apk", self.libraries(self.names()), self.ABIS)
+
+    def test_unexpected_library(self):
+        with self.assertRaisesRegex(ReleaseError, "Unexpected native library"):
+            verify_native_inventory("plugin.apk", self.libraries(self.names(extra=["lib/x86_64/libother.so"])), self.ABIS)
+
+    def test_missing_compose_library(self):
+        names = [name for name in self.names() if name != "lib/x86_64/libandroidx.graphics.path.so"]
+        with self.assertRaisesRegex(ReleaseError, r"lib/x86_64 needs exactly one"):
+            verify_native_inventory("plugin.apk", self.libraries(names), self.ABIS)
+
+    def test_compressed_library(self):
+        with self.assertRaisesRegex(ReleaseError, "stored uncompressed"):
+            verify_native_inventory("plugin.apk", self.libraries(self.names(), compressed={"lib/arm64-v8a/libandroidx.graphics.path.so"}), self.ABIS)
 
 
 if __name__ == "__main__":

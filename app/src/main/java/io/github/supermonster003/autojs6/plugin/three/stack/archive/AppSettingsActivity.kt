@@ -88,7 +88,7 @@ internal class AppSettingsActivity : ConfiguredActivity() {
             title = getString(R.string.standalone_release_history_title),
             summary = getString(R.string.standalone_update_release_history_summary),
             iconResource = R.drawable.ic_article_24,
-            onClick = { startActivity(Intent(this, ReleaseHistoryActivity::class.java)) },
+            onClick = { openReleaseHistory() },
         ).view)
         content.addView(
             settingRow(

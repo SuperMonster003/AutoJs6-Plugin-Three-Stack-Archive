@@ -1,24 +1,68 @@
-# AutoJs6 3-Stack Archive
+3-Stack Archive adds archive support to the AutoJs6 file manager: browse ZIP, 7Z, RAR and TAR family archives like folders, extract all or part of them, and compress files and folders into archives. The plugin's home screen can also open archives for browsing and extraction on its own.
 
-A standalone home screen opens archives for browsing and extraction; creation and in-place changes remain available from AutoJs6.
-Language, dark mode, theme color and four launcher icon choices are available in the shared settings layout.
-The application ID changes from io.github.supermonster003.autojs6.plugin.archivemanager to io.github.supermonster003.autojs6.plugin.three.stack.archive. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically.
+### Getting started
 
+1. Enable 3-Stack Archive in "Plugin Center".
+2. In the AutoJs6 file manager, open the menu of an archive and choose "View archive"; its contents appear in the same file list.
+3. Open folders, search, or tap an entry to open it in an AutoJs6 previewer; Back first returns to the parent folder inside the archive.
+4. To get files out, choose "Extract to..." from the archive's menu to extract all of it, or long-press entries to select them and extract only those.
 
-3-Stack Archive requires Android 7 or newer and a paired AutoJs6 6.8.0 build (versionCode 5276 or newer) that advertises Explorer Action v21.
+### Main features
 
-1. Install and enable the `3-Stack Archive` plugin.
-2. Open the overflow menu for a supported archive file.
-3. Select `Open archive`.
-4. Browse folders, search, use the path bar, or open supported entries with the host previewers.
-5. Use Back to move to the previous internal folder before returning to the ordinary file list.
+- **Browse and preview**: Browse ZIP, JAR, 7Z, RAR and TAR family archives in the AutoJs6 file list, search them and jump with the path bar; documents, images, audio and video open in a previewer without extracting first.
+- **Open as archive**: When a file name is not recognized, choose "Open as archive..." from the file menu; the format is detected from the content and shown in the path bar.
+- **Extraction**: Extract the whole archive, the current folder (the button at the right of the path bar) or selected entries, with progress and cancel; files with the same name can be skipped, overwritten or numbered automatically.
+- **Passwords and name encoding**: Encrypted ZIP, 7Z and RAR archives ask for a password when opened or extracted, and a wrong password can be retried at once; garbled ZIP file names are fixed by switching the encoding in the path bar.
+- **Split archives**: Complete `.z01` + `.zip`, `partN.rar`, `.zip.001` and `.7z.001` volume sets can be browsed, previewed and extracted, but not modified.
+- **Compression**: Choose "Compress..." for a file, a folder or several items selected in one folder to create ZIP, 7Z, TAR, TAR.GZ and other archives; ZIP and 7Z can take a password, and ZIP can be split by size.
+- **One archive per item**: With several items selected, turn on "Compress each item separately" to create one archive for each item; name conflicts are numbered automatically.
+- **Editing archives**: Plain single-volume ZIP, unencrypted non-solid 7Z and TAR family archives accept added files and folders, new empty folders, renamed and deleted entries; after a change, "Restore previous version" undoes it once.
+- **Moving sources to Trash**: With "Move source items to Trash after compression" turned on (off by default), the sources go to AutoJs6 Trash only after every output is verified; "Source recovery history" in the menu of the compression page restores them.
+- **Home screen**: Open the plugin from the launcher and tap "Open an archive" to browse and extract archives; "Settings" adjusts the language, dark mode, theme color and launcher icon.
 
-To extract the entire archive immediately, select `Extract to...` from its file menu and choose the output folder.
+### Using it in scripts
 
-To create an archive, select `Compress...` from an ordinary file or folder menu. You can also select multiple items in the same folder and use `Compress...` in the bottom action bar. Choose the file name, format, and compression level; ZIP and 7Z can also use an optional password.
+The plugin tools `archive_list`, `archive_read` and `archive_extract` list the contents of an archive, read a text file inside it and extract it from a script:
 
-The current build reads and extracts ZIP-family, ordinary or solid 7Z, RAR4/RAR5, TAR, TAR.GZ/TGZ, TAR.XZ/TXZ, TAR.BZ2/TBZ2, and TAR.ZST/TZST archives. It creates ordinary or standard split ZIP, non-solid 7Z, TAR, TAR.GZ, TAR.XZ, TAR.BZ2, and TAR.ZST; optional passwords are available for ZIP and 7Z, and encrypted output filenames remain visible. Ordinary single-volume ZIP, unencrypted non-solid single-volume 7Z within the decoder budget, and eligible TAR-family archives support adding, renaming, and deleting content through a verified full rebuild. RAR, encrypted, solid, split, unsafe, unsupported-method, or over-budget 7Z variants and TAR special entries remain read-only. Complete standard `.z01 + .zip`, modern `partN.rar`, numbered `.zip.001`, and numbered `.7z.001` sets can be browsed and extracted through bounded host-approved sibling descriptors; every volume set remains read-only. Split ZIP creation offers preset or custom MiB sizes. Output larger than the selected size is split; smaller output remains one `.zip`.
+```js
+let list = plugins.tools.call('archive_list', { archive: './demo.zip' });
+list.result.entries.forEach(e => console.log(e.path, e.size));
 
-After every physical output is verified and committed, an off-by-default option can move the complete source selection to the host Trash. Explorer Action v21 keeps bounded durable recovery history; restoring sources never removes the created archive.
+let readme = plugins.tools.call('archive_read', { archive: './demo.zip', path: 'README.md' });
+console.log(readme.result.text);
 
-The plugin requests no broad storage or network permission. Ordinary archives browse through independent positional channels over a host-provided read-only descriptor, without a whole-file copy; incompatible inputs or readers (currently including encrypted ZIP) fall back to private cache, which is cleaned on close and after expiry. Archive creation reads through a short-lived host session bound to the plugin and can write only a transactional output in the current parent folder. Path-traversal, source-size, and output-boundary checks remain enforced.
+let extracted = plugins.tools.call('archive_extract', { archive: './demo.zip' }, {
+    outputs: { files: './out/demo' },
+});
+console.log(extracted.result.filesExtracted, extracted.result.kept);
+```
+
+- Relative paths are resolved against the AutoJs6 working directory; the target folder of an extraction may already exist, and its existing files stay as they are and are counted in `kept`.
+- `archive_read` returns UTF-8 text, at most 64 KiB per call; a binary file returns no text and `binary` is `true`.
+- Pass the password of an encrypted archive in `password`; the plugin tools do not handle split archives.
+
+### Requirements
+
+- Android 7.0 or later.
+- AutoJs6 6.8.0 or later, with this plugin enabled in "Plugin Center"; the plugin's home screen also works without AutoJs6.
+- The plugin requests no storage or network permission and only handles files you choose in AutoJs6 or in the system file picker.
+
+### FAQ
+
+**When the plugin's actions are missing from the menu**
+
+Make sure the plugin is enabled in "Plugin Center". Some AutoJs6 versions place plugin actions in a submenu named after the plugin, "3-Stack Archive"; for an archive whose name is not recognized, use "Open as archive...".
+
+**Why an archive can only be viewed, not modified**
+
+RAR, split archives, JAR/AAR/WAR, and encrypted or solid 7Z archives can only be browsed and extracted. "Manage archive..." shows the format of the current archive and why it is read-only.
+
+**File names in encrypted archives**
+
+ZIP and 7Z encryption protects the file contents, while the file names inside the archive stay visible, so keep sensitive information out of file names.
+
+**When a split archive does not open**
+
+Open a standard split ZIP from its final `.zip`, a WinRAR set from its first `partN.rar` and a numbered set from its `.001` file; all volumes must be in the same folder.
+
+All parameters and results of the plugin tools are described in [AutoJs6 docs > Plugins](https://docs.autojs6.com/#/plugins); more information is on the [project page](https://github.com/SuperMonster003/AutoJs6-Plugin-Three-Stack-Archive).

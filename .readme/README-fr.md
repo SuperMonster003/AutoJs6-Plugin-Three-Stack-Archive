@@ -131,6 +131,15 @@ La consultation, l'extraction, la création, la modification, la restauration de
 
 ### Notes de version
 
+#### v3.1.4
+
+_2026/11/20_
+
+- `Amélioration` La page Historique des versions se développe et se réduit par version: une version réduite affiche sa date et le nombre d'entrées par catégorie, une version développée ne nomme chaque catégorie qu'une fois; toutes les versions peuvent être développées ou réduites d'un coup, la plus récente s'ouvre développée et le sous-titre affiche le nom du plugin
+- `Amélioration` Réécriture des instructions affichées dans le Centre des plugins en cinq parties: prise en main, fonctionnalités principales, utilisation dans les scripts, prérequis et questions fréquentes
+- `Dépendance` Ajout de Jetpack Compose BOM 2026.09.00 (page Historique des versions)
+- `Dépendance` Mise à niveau des plugins de compilation partagés version 1.9.0 -> 1.9.7
+
 #### v3.1.3
 
 _2026/11/16_
@@ -142,12 +151,6 @@ _2026/11/16_
 _2026/11/07_
 
 - `Correction` Dans le gestionnaire de fichiers d'AutoJs6, les options "Ouvrir comme archive..." et "Compresser..." de ce plugin ne s'affichent plus en anglais dans les autres langues de l'interface
-
-#### v3.1.1
-
-_2026/11/07_
-
-- `Amélioration` Le gestionnaire de fichiers d'AutoJs6 regroupe les options de menu de ce plugin dans le sous-menu "3-Stack Archive", nommé comme dans le Centre des plugins (AutoJs6 6.8.1 ou ultérieur requis)
 
 ##### Historique complet
 

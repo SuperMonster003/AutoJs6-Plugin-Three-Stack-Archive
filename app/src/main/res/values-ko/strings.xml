@@ -139,8 +139,12 @@
     <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
     <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
     <string name="standalone_navigation_back">뒤로</string>
-    <string name="standalone_release_history_load_failed">버전 기록을 불러올 수 없습니다</string>
-    <string name="standalone_release_history_title">버전 기록</string>
+    <string name="standalone_release_history_collapse_all">모두 접기</string>
+    <string name="standalone_release_history_collapsed">접힘</string>
+    <string name="standalone_release_history_expand_all">모두 펼치기</string>
+    <string name="standalone_release_history_expanded">펼쳐짐</string>
+    <string name="standalone_release_history_load_failed">릴리스 기록을 불러올 수 없습니다</string>
+    <string name="standalone_release_history_title">릴리스 기록</string>
     <string name="standalone_settings_dark_mode">다크 모드</string>
     <string name="standalone_settings_language">언어</string>
     <string name="standalone_settings_saved">앱 설정이 저장되었습니다</string>
@@ -148,7 +152,7 @@
     <string name="standalone_settings_section_information">정보</string>
     <string name="standalone_settings_theme_color">테마 색상</string>
     <string name="standalone_settings_title">설정</string>
-    <string name="standalone_update_release_history_summary">앱에 포함된 버전 기록을 확인합니다</string>
+    <string name="standalone_update_release_history_summary">앱에 포함된 릴리스 기록을 확인합니다</string>
     <string name="text_apply_password">적용</string>
     <string name="text_apply_to_all_conflicts">이 선택을 호환되는 모든 충돌에 적용</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">비밀번호 적용 중...</string>

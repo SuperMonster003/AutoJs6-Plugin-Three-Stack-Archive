@@ -131,6 +131,15 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v3.1.4
+
+_2026/11/20_
+
+- `Mejorado` La página Historial de versiones se expande y contrae por versión: una versión contraída muestra su fecha y el número de entradas por categoría, una expandida nombra cada categoría una sola vez; todas las versiones se pueden expandir o contraer a la vez, la más reciente se abre expandida y el subtítulo muestra el nombre del plugin
+- `Mejorado` Se reescribieron las instrucciones del Centro de plugins en cinco partes: primeros pasos, funciones principales, uso en scripts, requisitos y preguntas frecuentes
+- `Dependencia` Se añadió Jetpack Compose BOM 2026.09.00 (página Historial de versiones)
+- `Dependencia` Se actualizaron los plugins de compilación compartidos versión 1.9.0 -> 1.9.7
+
 #### v3.1.3
 
 _2026/11/16_
@@ -142,12 +151,6 @@ _2026/11/16_
 _2026/11/07_
 
 - `Corregido` En el administrador de archivos de AutoJs6, las opciones "Abrir como archivo comprimido..." y "Comprimir..." de este plugin ya no aparecen en inglés en los demás idiomas de la interfaz
-
-#### v3.1.1
-
-_2026/11/07_
-
-- `Mejorado` El administrador de archivos de AutoJs6 agrupa las opciones de menú de este plugin en el submenú "3-Stack Archive", con el mismo nombre que en el Centro de plugins (requiere AutoJs6 6.8.1 o posterior)
 
 ##### Historial completo
 

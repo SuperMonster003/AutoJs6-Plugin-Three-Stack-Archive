@@ -139,6 +139,10 @@
     <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
     <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
     <string name="standalone_navigation_back">Retour</string>
+    <string name="standalone_release_history_collapse_all">Tout réduire</string>
+    <string name="standalone_release_history_collapsed">Réduit</string>
+    <string name="standalone_release_history_expand_all">Tout développer</string>
+    <string name="standalone_release_history_expanded">Développé</string>
     <string name="standalone_release_history_load_failed">Impossible de charger l\'historique des versions</string>
     <string name="standalone_release_history_title">Historique des versions</string>
     <string name="standalone_settings_dark_mode">Mode sombre</string>

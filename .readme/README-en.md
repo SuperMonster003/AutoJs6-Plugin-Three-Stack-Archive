@@ -131,6 +131,15 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.1.4
+
+_2026/11/20_
+
+- `Improved` The Version history page is now the Release history page and expands and collapses by version: a collapsed version shows its date and the number of entries per category, an expanded one names each category once; all versions can be expanded or collapsed at once, the newest one opens expanded and the subtitle shows the plugin name
+- `Improved` Rewrote the instructions shown in Plugin center in five parts: getting started, main features, using it in scripts, requirements and FAQ
+- `Dependency` Added Jetpack Compose BOM 2026.09.00 (release history page)
+- `Dependency` Upgraded shared build plugins version 1.9.0 -> 1.9.7
+
 #### v3.1.3
 
 _2026/11/16_
@@ -142,12 +151,6 @@ _2026/11/16_
 _2026/11/07_
 
 - `Fixed` In the AutoJs6 file manager, the options "Open as archive..." and "Compress..." of this plugin no longer appear in English in other interface languages
-
-#### v3.1.1
-
-_2026/11/07_
-
-- `Improved` The AutoJs6 file manager groups the menu options of this plugin under the submenu "3-Stack Archive", named as in the Plugin Center (requires AutoJs6 6.8.1 or later)
 
 ##### Full history
 

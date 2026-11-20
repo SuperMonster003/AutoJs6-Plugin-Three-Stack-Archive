@@ -139,8 +139,12 @@
     <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
     <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
     <string name="standalone_navigation_back">Back</string>
-    <string name="standalone_release_history_load_failed">Unable to load the version history</string>
-    <string name="standalone_release_history_title">Version history</string>
+    <string name="standalone_release_history_collapse_all">Collapse all</string>
+    <string name="standalone_release_history_collapsed">Collapsed</string>
+    <string name="standalone_release_history_expand_all">Expand all</string>
+    <string name="standalone_release_history_expanded">Expanded</string>
+    <string name="standalone_release_history_load_failed">Unable to load the release history</string>
+    <string name="standalone_release_history_title">Release history</string>
     <string name="standalone_settings_dark_mode">Dark mode</string>
     <string name="standalone_settings_language">Language</string>
     <string name="standalone_settings_saved">Application settings saved</string>
@@ -148,7 +152,7 @@
     <string name="standalone_settings_section_information">Information</string>
     <string name="standalone_settings_theme_color">Theme color</string>
     <string name="standalone_settings_title">Settings</string>
-    <string name="standalone_update_release_history_summary">Read the version history included with this app</string>
+    <string name="standalone_update_release_history_summary">Read the release history included with this app</string>
     <string name="text_apply_password">Apply</string>
     <string name="text_apply_to_all_conflicts">Apply this choice to all compatible conflicts</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">Applying password...</string>

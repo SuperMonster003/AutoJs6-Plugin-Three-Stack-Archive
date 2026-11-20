@@ -139,8 +139,12 @@
     <string name="standalone_language_zh_hant_hk">繁體中文 (香港)</string>
     <string name="standalone_language_zh_hant_tw">繁體中文 (台灣)</string>
     <string name="standalone_navigation_back">戻る</string>
-    <string name="standalone_release_history_load_failed">バージョン履歴を読み込めませんでした</string>
-    <string name="standalone_release_history_title">バージョン履歴</string>
+    <string name="standalone_release_history_collapse_all">すべて折りたたむ</string>
+    <string name="standalone_release_history_collapsed">折りたたみ中</string>
+    <string name="standalone_release_history_expand_all">すべて展開する</string>
+    <string name="standalone_release_history_expanded">展開中</string>
+    <string name="standalone_release_history_load_failed">リリース履歴を読み込めませんでした</string>
+    <string name="standalone_release_history_title">リリース履歴</string>
     <string name="standalone_settings_dark_mode">ダークモード</string>
     <string name="standalone_settings_language">言語</string>
     <string name="standalone_settings_saved">アプリ設定を保存しました</string>
@@ -148,7 +152,7 @@
     <string name="standalone_settings_section_information">情報</string>
     <string name="standalone_settings_theme_color">テーマ色</string>
     <string name="standalone_settings_title">設定</string>
-    <string name="standalone_update_release_history_summary">アプリに含まれるバージョン履歴を表示します</string>
+    <string name="standalone_update_release_history_summary">アプリに含まれるリリース履歴を表示します</string>
     <string name="text_apply_password">適用</string>
     <string name="text_apply_to_all_conflicts">この選択を互換性のあるすべての競合に適用</string>
     <string name="text_applying_password" tools:ignore="TypographyEllipsis">パスワードを適用しています...</string>

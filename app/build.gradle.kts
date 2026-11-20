@@ -11,6 +11,7 @@ plugins {
     id("org.autojs.build.signs")
     id("org.autojs.build.jvm-convention")
     id("com.android.application")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 val codeNamespace = "io.github.supermonster003.autojs6.plugin.three.stack.archive"
@@ -416,6 +417,7 @@ android {
 
     buildFeatures {
         aidl = true
+        compose = true
         resValues = true
         viewBinding = true
     }
@@ -429,7 +431,10 @@ android {
         assets.directories += "$rootDir/third_party"
     }
 
+    // Native libraries stay uncompressed so they map straight from the APK (16 KB aligned); the release archive
+    // script (.python/release_archive.py) checks the library set, the storage method and the alignment.
     packaging {
+        jniLibs.useLegacyPackaging = false
         resources.pickFirsts.addAll(
             listOf(
                 "META-INF/DEPENDENCIES",
@@ -500,12 +505,25 @@ dependencies {
     implementation(libs.zip4j)
     implementation(patchedJunrar)
     implementation("org.slf4j:slf4j-nop:2.0.17")
+    // Jetpack Compose, only for the release history page (AUTOJS6_PLUGIN_RELEASE_HISTORY_AGENTS.md); the BOM is the
+    // single version source and also manages activity-compose.
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.animation)
+    implementation(libs.compose.activity)
 
     testImplementation(libs.junit)
     // The Android AAR contains device libraries only. JVM tests need the desktop-native JAR.
     testImplementation("com.github.luben:zstd-jni:$zstdJniVersion")
     androidTestImplementation(libs.test.ext.junit)
     androidTestImplementation(libs.test.runner)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    // ui-test-junit4 brings an older espresso-core that fails on API 36; pin a current one.
+    androidTestImplementation(libs.test.espresso.core)
 }
 
 tasks {

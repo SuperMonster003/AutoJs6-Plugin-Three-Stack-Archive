@@ -105,5 +105,59 @@
   "p_standalone": "A standalone home screen opens archives for browsing and extraction; creation and in-place changes remain available from AutoJs6. Language, dark mode, theme color and four launcher icon choices are available in the shared settings layout.",
   "p_migration": "The application ID changes from `io.github.supermonster003.autojs6.plugin.archivemanager` to `io.github.supermonster003.autojs6.plugin.three.stack.archive`. Android installs this as a separate app; existing apps and data can remain, and settings are not migrated automatically.",
   "h3_sources": "Sources and acknowledgments",
-  "p_sources": "[THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md) · [RIGHTS_AND_TAKEDOWN.md]({{ repo_url }}/blob/master/RIGHTS_AND_TAKEDOWN.md)"
+  "p_sources": "[THIRD_PARTY_NOTICES.md]({{ repo_url }}/blob/master/THIRD_PARTY_NOTICES.md) · [RIGHTS_AND_TAKEDOWN.md]({{ repo_url }}/blob/master/RIGHTS_AND_TAKEDOWN.md)",
+  "instruction_p_what": "3-Stack Archive adds archive support to the AutoJs6 file manager: browse ZIP, 7Z, RAR and TAR family archives like folders, extract all or part of them, and compress files and folders into archives. The plugin's home screen can also open archives for browsing and extraction on its own.",
+  "instruction_h3_start": "Getting started",
+  "instruction_start_steps": [
+    "Enable 3-Stack Archive in \"Plugin Center\".",
+    "In the AutoJs6 file manager, open the menu of an archive and choose \"View archive\"; its contents appear in the same file list.",
+    "Open folders, search, or tap an entry to open it in an AutoJs6 previewer; Back first returns to the parent folder inside the archive.",
+    "To get files out, choose \"Extract to...\" from the archive's menu to extract all of it, or long-press entries to select them and extract only those."
+  ],
+  "instruction_h3_features": "Main features",
+  "instruction_features": [
+    "**Browse and preview**: Browse ZIP, JAR, 7Z, RAR and TAR family archives in the AutoJs6 file list, search them and jump with the path bar; documents, images, audio and video open in a previewer without extracting first.",
+    "**Open as archive**: When a file name is not recognized, choose \"Open as archive...\" from the file menu; the format is detected from the content and shown in the path bar.",
+    "**Extraction**: Extract the whole archive, the current folder (the button at the right of the path bar) or selected entries, with progress and cancel; files with the same name can be skipped, overwritten or numbered automatically.",
+    "**Passwords and name encoding**: Encrypted ZIP, 7Z and RAR archives ask for a password when opened or extracted, and a wrong password can be retried at once; garbled ZIP file names are fixed by switching the encoding in the path bar.",
+    "**Split archives**: Complete `.z01` + `.zip`, `partN.rar`, `.zip.001` and `.7z.001` volume sets can be browsed, previewed and extracted, but not modified.",
+    "**Compression**: Choose \"Compress...\" for a file, a folder or several items selected in one folder to create ZIP, 7Z, TAR, TAR.GZ and other archives; ZIP and 7Z can take a password, and ZIP can be split by size.",
+    "**One archive per item**: With several items selected, turn on \"Compress each item separately\" to create one archive for each item; name conflicts are numbered automatically.",
+    "**Editing archives**: Plain single-volume ZIP, unencrypted non-solid 7Z and TAR family archives accept added files and folders, new empty folders, renamed and deleted entries; after a change, \"Restore previous version\" undoes it once.",
+    "**Moving sources to Trash**: With \"Move source items to Trash after compression\" turned on (off by default), the sources go to AutoJs6 Trash only after every output is verified; \"Source recovery history\" in the menu of the compression page restores them.",
+    "**Home screen**: Open the plugin from the launcher and tap \"Open an archive\" to browse and extract archives; \"Settings\" adjusts the language, dark mode, theme color and launcher icon."
+  ],
+  "instruction_h3_script": "Using it in scripts",
+  "instruction_p_script": "The plugin tools `archive_list`, `archive_read` and `archive_extract` list the contents of an archive, read a text file inside it and extract it from a script:",
+  "instruction_script_notes": [
+    "Relative paths are resolved against the AutoJs6 working directory; the target folder of an extraction may already exist, and its existing files stay as they are and are counted in `kept`.",
+    "`archive_read` returns UTF-8 text, at most 64 KiB per call; a binary file returns no text and `binary` is `true`.",
+    "Pass the password of an encrypted archive in `password`; the plugin tools do not handle split archives."
+  ],
+  "instruction_h3_requirements": "Requirements",
+  "instruction_requirements": [
+    "Android 7.0 or later.",
+    "AutoJs6 6.8.0 or later, with this plugin enabled in \"Plugin Center\"; the plugin's home screen also works without AutoJs6.",
+    "The plugin requests no storage or network permission and only handles files you choose in AutoJs6 or in the system file picker."
+  ],
+  "instruction_h3_faq": "FAQ",
+  "instruction_faq": [
+    {
+      "q": "When the plugin's actions are missing from the menu",
+      "a": "Make sure the plugin is enabled in \"Plugin Center\". Some AutoJs6 versions place plugin actions in a submenu named after the plugin, \"3-Stack Archive\"; for an archive whose name is not recognized, use \"Open as archive...\"."
+    },
+    {
+      "q": "Why an archive can only be viewed, not modified",
+      "a": "RAR, split archives, JAR/AAR/WAR, and encrypted or solid 7Z archives can only be browsed and extracted. \"Manage archive...\" shows the format of the current archive and why it is read-only."
+    },
+    {
+      "q": "File names in encrypted archives",
+      "a": "ZIP and 7Z encryption protects the file contents, while the file names inside the archive stay visible, so keep sensitive information out of file names."
+    },
+    {
+      "q": "When a split archive does not open",
+      "a": "Open a standard split ZIP from its final `.zip`, a WinRAR set from its first `partN.rar` and a numbered set from its `.001` file; all volumes must be in the same folder."
+    }
+  ],
+  "instruction_p_more": "All parameters and results of the plugin tools are described in [AutoJs6 docs > Plugins](https://docs.autojs6.com/#/plugins); more information is on the [project page]({{ repo_url }})."
 }
