@@ -131,6 +131,12 @@ La consultation, l'extraction, la création, la modification, la restauration de
 
 ### Notes de version
 
+#### v3.1.5
+
+_2026/11/22_
+
+- `Amélioration` Dans le gestionnaire de fichiers d'AutoJs6, lorsque ce plugin ne parvient pas à ouvrir, extraire ou modifier une archive, le message explique désormais la cause dans la langue de l'interface d'AutoJs6, par exemple une archive endommagée, une méthode de compression non prise en charge, un espace de stockage insuffisant ou un fichier ou dossier du même nom (nécessite AutoJs6 6.8.1 ou version ultérieure; pour une cause que le plugin ne peut pas déterminer, AutoJs6 affiche toujours son propre message)
+
 #### v3.1.4
 
 _2026/11/20_
@@ -145,12 +151,6 @@ _2026/11/20_
 _2026/11/16_
 
 - `Correction` Les paramètres d'apparence indiquaient qu'AutoJs6 était indisponible même après son installation et son activation, empêchant de suivre sa langue, son mode nuit et sa couleur de thème
-
-#### v3.1.2
-
-_2026/11/07_
-
-- `Correction` Dans le gestionnaire de fichiers d'AutoJs6, les options "Ouvrir comme archive..." et "Compresser..." de ce plugin ne s'affichent plus en anglais dans les autres langues de l'interface
 
 ##### Historique complet
 

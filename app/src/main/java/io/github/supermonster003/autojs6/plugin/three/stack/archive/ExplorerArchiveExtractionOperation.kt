@@ -22,6 +22,8 @@ internal class ExplorerArchiveExtractionOperation(
     private val resourceBudget: ArchiveResourceBudget = ArchiveResourceBudget.COMPATIBLE,
     private val outputSession: IExplorerActionHostSession,
     private val callback: IExplorerArchiveOperationCallback,
+    /** Host-language sentence for a terminal failure, or `null` (see [ExplorerArchiveUserMessages]). */
+    private val userMessage: (Throwable) -> String? = { null },
 ) {
 
     suspend fun run() {
@@ -162,10 +164,20 @@ internal class ExplorerArchiveExtractionOperation(
         val message = archiveError?.let { "${it.code.name}: ${it.message.orEmpty()}" }
             ?: error.message
             ?: "Archive extraction failed"
-        publishFailure(code, message, interactionKind)
+        val userText = if (interactionKind == null) {
+            runCatching { userMessage(error) }.getOrNull()
+        } else {
+            null
+        }
+        publishFailure(code, message, interactionKind, userText)
     }
 
-    private fun publishFailure(code: Int, message: String, interactionKind: Int? = null) {
+    private fun publishFailure(
+        code: Int,
+        message: String,
+        interactionKind: Int? = null,
+        userText: String? = null,
+    ) {
         runCatching {
             callback.onFailed(
                 Bundle().apply {
@@ -175,6 +187,7 @@ internal class ExplorerArchiveExtractionOperation(
                     interactionKind?.let { kind ->
                         putInt(ExplorerArchiveOperationKeys.INTERACTION_KIND, kind)
                     }
+                    userText?.let { text -> putString(ExplorerArchiveUserMessages.KEY, text) }
                 },
             )
         }

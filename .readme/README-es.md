@@ -131,6 +131,12 @@ La exploración, extracción, creación, modificación, restauración de la vers
 
 ### Notas de la versión
 
+#### v3.1.5
+
+_2026/11/22_
+
+- `Mejorado` En el administrador de archivos de AutoJs6, cuando este plugin no puede abrir, extraer o editar un archivo comprimido, el mensaje explica ahora la causa en el idioma de la interfaz de AutoJs6, por ejemplo un archivo comprimido dañado, un método de compresión no compatible, falta de espacio de almacenamiento o un archivo o carpeta con el mismo nombre (requiere AutoJs6 6.8.1 o posterior; si el plugin no puede determinar la causa, AutoJs6 sigue mostrando su propio mensaje)
+
 #### v3.1.4
 
 _2026/11/20_
@@ -145,12 +151,6 @@ _2026/11/20_
 _2026/11/16_
 
 - `Corregido` Los ajustes de apariencia indicaban que AutoJs6 no estaba disponible aunque estuviera instalado y habilitado, lo que impedía seguir su idioma, modo nocturno y color del tema
-
-#### v3.1.2
-
-_2026/11/07_
-
-- `Corregido` En el administrador de archivos de AutoJs6, las opciones "Abrir como archivo comprimido..." y "Comprimir..." de este plugin ya no aparecen en inglés en los demás idiomas de la interfaz
 
 ##### Historial completo
 

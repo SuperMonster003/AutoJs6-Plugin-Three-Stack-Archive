@@ -41,6 +41,8 @@ internal class ExplorerArchiveSession(
     initialFilenameCharsetOverride: String? = null,
     private val isolatedPathDisplayName: String = ArchivePathPolicy.DEFAULT_ISOLATED_PATH_DISPLAY_NAME,
     private val extractionResourceBudget: ArchiveResourceBudget = ArchiveResourceBudget.COMPATIBLE,
+    /** Host-language sentence for a failure Bundle, or `null` to send none (see [ExplorerArchiveUserMessages]). */
+    private val userMessage: (Throwable, ExplorerArchiveUserMessages.Operation) -> String? = { _, _ -> null },
     private val onClosed: (ExplorerArchiveSession) -> Unit,
 ) : IExplorerArchiveSession.Stub() {
 
@@ -312,6 +314,9 @@ internal class ExplorerArchiveSession(
                             resourceBudget = extractionResourceBudget,
                             outputSession = outputSession,
                             callback = callback,
+                            userMessage = { error ->
+                                userMessage(error, ExplorerArchiveUserMessages.Operation.EXTRACT)
+                            },
                         ).run()
                     } finally {
                         extractionOptions.close()
@@ -979,8 +984,13 @@ internal class ExplorerArchiveSession(
                 is ArchiveMutationRequest.AddTree,
                 -> oldPath
             } ?: return@forEach
-            check(retained.put(newPath, sessionNode.id) == null) {
-                "Archive mutation produced duplicate stable entry paths"
+            // A rename onto the name of a sibling is a request the user can correct, not an internal failure (3-Tally Sheet Q295).
+            // zh-CN: 改名为同级条目的名称是用户可以改正的请求, 不是内部故障 (3-Tally Sheet Q295).
+            if (retained.put(newPath, sessionNode.id) != null) {
+                throw ArchiveException(
+                    ArchiveFailureCode.DUPLICATE_PATH,
+                    "Archive mutation produced duplicate stable entry paths",
+                )
             }
         }
         return retained
@@ -1013,12 +1023,18 @@ internal class ExplorerArchiveSession(
             .trim()
             .ifEmpty { "Archive mutation failed" }
             .take(ExplorerActionProtocol.MAX_ARCHIVE_OPERATION_MESSAGE_LENGTH)
+        val userText = if (errorCode == ExplorerArchiveSessionValues.MUTATION_ERROR_CANCELLED) {
+            null
+        } else {
+            runCatching { userMessage(error, ExplorerArchiveUserMessages.Operation.MODIFY) }.getOrNull()
+        }
         runCatching {
             callback.onFailed(
                 Bundle().apply {
                     putString(ExplorerArchiveMutationKeys.OPERATION_ID, operationId)
                     putInt(ExplorerArchiveMutationKeys.ERROR_CODE, errorCode)
                     putString(ExplorerArchiveMutationKeys.ERROR_MESSAGE, message)
+                    userText?.let { text -> putString(ExplorerArchiveUserMessages.KEY, text) }
                 },
             )
         }

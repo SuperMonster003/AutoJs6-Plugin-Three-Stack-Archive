@@ -4,6 +4,12 @@
 
 ******
 
+# v3.1.5
+
+###### 2026/11/22
+
+* `Amélioration` Dans le gestionnaire de fichiers d'AutoJs6, lorsque ce plugin ne parvient pas à ouvrir, extraire ou modifier une archive, le message explique désormais la cause dans la langue de l'interface d'AutoJs6, par exemple une archive endommagée, une méthode de compression non prise en charge, un espace de stockage insuffisant ou un fichier ou dossier du même nom (nécessite AutoJs6 6.8.1 ou version ultérieure; pour une cause que le plugin ne peut pas déterminer, AutoJs6 affiche toujours son propre message)
+
 # v3.1.4
 
 ###### 2026/11/20

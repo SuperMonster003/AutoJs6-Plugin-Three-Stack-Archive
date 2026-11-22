@@ -5,6 +5,12 @@
   "changelog_label_improvement": "改善",
   "changelog_label_dependency": "依存関係",
   "$data": {
+    "v3.1.5": {
+      "released_date": "2026/11/22",
+      "improvement": [
+        "AutoJs6 のファイルマネージャーで, このプラグインがアーカイブを開く, 展開する, 編集するのに失敗したとき, AutoJs6 の表示言語で具体的な原因 (アーカイブの破損, 未対応の圧縮方式, ストレージの空き容量不足, 同じ名前のファイルやフォルダーがあるなど) を説明するように変更 (AutoJs6 6.8.1 以降が必要; 原因を特定できない場合は従来どおり AutoJs6 のメッセージを表示)"
+      ]
+    },
     "v3.1.4": {
       "released_date": "2026/11/20",
       "improvement": [

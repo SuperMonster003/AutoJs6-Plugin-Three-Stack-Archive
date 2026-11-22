@@ -5,6 +5,12 @@
   "changelog_label_improvement": "优化",
   "changelog_label_dependency": "依赖",
   "$data": {
+    "v3.1.5": {
+      "released_date": "2026/11/22",
+      "improvement": [
+        "AutoJs6 文件管理器中, 本插件打开, 解压或修改压缩包失败时, 提示改为用 AutoJs6 的界面语言说明具体原因, 如压缩包已损坏, 压缩方式不受支持, 存储空间不足, 已有同名的文件或文件夹 (需要 AutoJs6 6.8.1 及以上版本; 认不出原因时仍显示 AutoJs6 自己的提示)"
+      ]
+    },
     "v3.1.4": {
       "released_date": "2026/11/20",
       "improvement": [

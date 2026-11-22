@@ -19,6 +19,7 @@ import org.autojs.plugin.explorer.api.ExplorerArchiveSessionValues
 import org.autojs.plugin.explorer.api.IExplorerArchiveOperationCallback
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -133,6 +134,7 @@ class ExplorerArchiveExtractionInstrumentationTest {
             displayName = "cancel.zip",
             stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
             snapshot = ArchiveScanner().scan(archive),
+            userMessage = englishUserMessage(context),
             onClosed = {},
         )
         val entry = session.listChildren(
@@ -185,6 +187,7 @@ class ExplorerArchiveExtractionInstrumentationTest {
             ExplorerArchiveSessionValues.EXTRACTION_ERROR_CANCELLED,
             failure.getInt(ExplorerArchiveOperationKeys.ERROR_CODE),
         )
+        assertFalse("cancellation is not a failure to explain", failure.containsKey(ExplorerArchiveUserMessages.KEY))
         assertTrue(!host.root.exists())
 
         session.close()
@@ -208,6 +211,7 @@ class ExplorerArchiveExtractionInstrumentationTest {
             displayName = "encrypted.zip",
             stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
             snapshot = ArchiveScanner().scan(archive),
+            userMessage = englishUserMessage(context),
             onClosed = {},
         )
         val entry = session.listChildren(
@@ -231,6 +235,7 @@ class ExplorerArchiveExtractionInstrumentationTest {
             ExplorerArchiveSessionValues.EXTRACTION_INTERACTION_PASSWORD_REQUIRED,
             missing.failed?.getInt(ExplorerArchiveOperationKeys.INTERACTION_KIND),
         )
+        assertFalse(requireNotNull(missing.failed).containsKey(ExplorerArchiveUserMessages.KEY))
         assertTrue(!missingHost.root.exists())
 
         awaitSessionOperationCleanup()
@@ -243,6 +248,7 @@ class ExplorerArchiveExtractionInstrumentationTest {
             ExplorerArchiveSessionValues.EXTRACTION_INTERACTION_WRONG_PASSWORD,
             wrong.failed?.getInt(ExplorerArchiveOperationKeys.INTERACTION_KIND),
         )
+        assertFalse(requireNotNull(wrong.failed).containsKey(ExplorerArchiveUserMessages.KEY))
         assertTrue(!wrongHost.root.exists())
 
         awaitSessionOperationCleanup()
@@ -358,6 +364,71 @@ class ExplorerArchiveExtractionInstrumentationTest {
         assertTrue(!archive.exists())
         outputDirectory.deleteRecursively()
     }
+
+    /**
+     * Q288 (c): an entry whose data no longer matches its checksum fails with a plain sentence in the host language
+     * next to the English diagnostic; the generic error code stays the same.
+     */
+    @Test
+    fun damagedEntryDataFailsWithAHostLanguageSentence() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val sourceDirectory = File(context.cacheDir, "archive-session-crc-source-${UUID.randomUUID()}")
+        val outputDirectory = File(context.cacheDir, "archive-session-crc-output-${UUID.randomUUID()}")
+        assertTrue(sourceDirectory.mkdirs())
+        assertTrue(outputDirectory.mkdirs())
+        val archive = File(sourceDirectory, "damaged.zip")
+        val payload = "stored payload whose checksum will not match".encodeToByteArray()
+        ZipOutputStream(FileOutputStream(archive)).use { output ->
+            output.putNextEntry(
+                ZipEntry("damaged.txt").apply {
+                    method = ZipEntry.STORED
+                    size = payload.size.toLong()
+                    compressedSize = payload.size.toLong()
+                    crc = java.util.zip.CRC32().apply { update(payload) }.value
+                },
+            )
+            output.write(payload)
+            output.closeEntry()
+        }
+        val bytes = archive.readBytes()
+        val offset = bytes.indexOfSequence(payload)
+        assertTrue(offset > 0)
+        bytes[offset] = (bytes[offset].toInt() xor 0x20).toByte()
+        archive.writeBytes(bytes)
+
+        val session = ExplorerArchiveSession(
+            ownerUid = Process.myUid(),
+            displayName = "damaged.zip",
+            stagedArchive = StagedArchive(archive.asArchiveReadSource(), archive.length()),
+            snapshot = ArchiveScanner().scan(archive),
+            userMessage = englishUserMessage(context),
+            onClosed = {},
+        )
+        val entryId = requireNotNull(
+            session.listChildren("root", 0, ExplorerActionProtocol.MAX_ARCHIVE_PAGE_SIZE)
+                .getParcelableArrayList<Bundle>(ExplorerArchiveSessionKeys.ITEMS)
+                .orEmpty()
+                .single { it.getString(ExplorerArchiveSessionKeys.NAME) == "damaged.txt" }
+                .getString(ExplorerArchiveSessionKeys.ID),
+        )
+        val host = DirectoryOutputHost(outputDirectory, "damaged")
+        val result = runExtractionAttempt(session, entryId, host)
+        assertNull(result.completed)
+        val failure = requireNotNull(result.failed)
+        assertFalse(failure.containsKey(ExplorerArchiveOperationKeys.INTERACTION_KIND))
+        assertTrue(failure.getString(ExplorerArchiveOperationKeys.ERROR_MESSAGE).orEmpty().isNotBlank())
+        assertEquals("The archive is damaged or incomplete.", failure.getString(ExplorerArchiveUserMessages.KEY))
+
+        session.close()
+        assertTrue(!archive.exists())
+        outputDirectory.deleteRecursively()
+    }
+
+    private fun englishUserMessage(context: android.content.Context): (Throwable, ExplorerArchiveUserMessages.Operation) -> String? =
+        { error, operation -> ExplorerArchiveUserMessages.message(context, error, operation) { "en" } }
+
+    private fun ByteArray.indexOfSequence(sequence: ByteArray): Int =
+        (0..size - sequence.size).firstOrNull { start -> sequence.indices.all { this[start + it] == sequence[it] } } ?: -1
 
     private fun runExtractionAttempt(
         session: ExplorerArchiveSession,

@@ -189,6 +189,8 @@ class ExplorerArchiveOpenInstrumentationTest {
                 missing.getInt(ExplorerArchiveOpenKeys.ERROR_CODE),
             )
             assertNull(missing.getBinder(ExplorerArchiveOpenKeys.SESSION_BINDER))
+            // The host answers password failures with its password dialog, so no sentence is sent.
+            assertFalse(missing.containsKey(ExplorerArchiveUserMessages.KEY))
 
             val wrongPassword = "wrong-password".toCharArray()
             val wrong = openArchive(plugin, archive, wrongPassword)
@@ -198,6 +200,7 @@ class ExplorerArchiveOpenInstrumentationTest {
                 wrong.getInt(ExplorerArchiveOpenKeys.ERROR_CODE),
             )
             assertNull(wrong.getBinder(ExplorerArchiveOpenKeys.SESSION_BINDER))
+            assertFalse(wrong.containsKey(ExplorerArchiveUserMessages.KEY))
 
             val correctPassword = PASSWORD.toCharArray()
             val opened = openArchive(plugin, archive, correctPassword)
@@ -401,6 +404,109 @@ class ExplorerArchiveOpenInstrumentationTest {
             context.unbindService(connection)
             root.deleteRecursively()
         }
+    }
+
+    /**
+     * Q288 (c): an archive the plugin cannot read carries one sentence in AutoJs6's interface language under the
+     * optional `errorUserMessage` key, next to the English diagnostic. The sentence follows the language that the
+     * host settings provider reports, not the system or plugin language; without a readable host language the key
+     * is left out so the host shows its own text.
+     */
+    @Test
+    fun unreadableArchivesCarryAHostLanguageSentenceForTheFileManager() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val root = File(context.cacheDir, "archive-open-user-message-${UUID.randomUUID()}")
+        assertTrue(root.mkdirs())
+        val notAnArchive = File(root, "notes.zip").apply { writeText("This is plain text, not a ZIP archive.") }
+        val damaged = File(root, "damaged.zip").also { target ->
+            createStoredZip(File(root, "complete.zip"), "damaged archive payload".toByteArray())
+            val bytes = File(root, "complete.zip").readBytes()
+            target.writeBytes(bytes.copyOf(bytes.size - 12))
+        }
+        val serviceBinder = AtomicReference<IBinder>()
+        val connected = CountDownLatch(1)
+        val connection = object : ServiceConnection {
+            override fun onServiceConnected(name: ComponentName, service: IBinder) {
+                serviceBinder.set(service)
+                connected.countDown()
+            }
+
+            override fun onServiceDisconnected(name: ComponentName) = Unit
+        }
+        assertTrue(
+            context.bindService(
+                Intent(context, ExplorerActionService::class.java),
+                connection,
+                Context.BIND_AUTO_CREATE,
+            ),
+        )
+        try {
+            assertTrue("Timed out binding Explorer Action service", connected.await(10, TimeUnit.SECONDS))
+            val plugin = IExplorerActionPlugin.Stub.asInterface(requireNotNull(serviceBinder.get()))
+            val hostLanguage = AutoJs6HostSettingsClient.resolvedLanguageTagBlocking(context)
+            listOf(notAnArchive, damaged).forEach { archive ->
+                val failed = openArchive(plugin, archive)
+                assertEquals(
+                    archive.name,
+                    ExplorerArchiveOpenValues.ERROR_UNRECOVERABLE,
+                    failed.getInt(ExplorerArchiveOpenKeys.ERROR_CODE),
+                )
+                assertNull(failed.getBinder(ExplorerArchiveOpenKeys.SESSION_BINDER))
+                assertTrue(failed.getString(ExplorerArchiveOpenKeys.ERROR_MESSAGE).orEmpty().contains("Code: "))
+                val text = failed.getString(ExplorerArchiveUserMessages.KEY)
+                if (hostLanguage == null) {
+                    assertNull("${archive.name}: no host language, no sentence", text)
+                } else {
+                    val expected = localized(context, hostLanguage, ExplorerArchiveUserMessages.messageRes(
+                        ArchiveScannerFailure.of(archive), ExplorerArchiveUserMessages.Operation.OPEN,
+                    ))
+                    assertTrue("${archive.name}: the plugin knows this cause", expected != null)
+                    assertEquals(archive.name, expected, text)
+                }
+            }
+        } finally {
+            context.unbindService(connection)
+            root.deleteRecursively()
+        }
+
+        val error = ArchiveException(ArchiveFailureCode.MALFORMED_ARCHIVE, "Central directory is truncated")
+        val open = ExplorerArchiveUserMessages.Operation.OPEN
+        assertEquals(
+            "The archive is damaged or incomplete.",
+            ExplorerArchiveUserMessages.message(context, error, open) { "en" },
+        )
+        assertEquals("压缩包已损坏或不完整.", ExplorerArchiveUserMessages.message(context, error, open) { "zh-Hans" })
+        assertEquals("壓縮檔已損毀或不完整.", ExplorerArchiveUserMessages.message(context, error, open) { "zh-Hant-TW" })
+        assertNull(ExplorerArchiveUserMessages.message(context, error, open) { null })
+        assertNull(ExplorerArchiveUserMessages.message(context, error, open) { "de" })
+        assertNull(
+            ExplorerArchiveUserMessages.message(
+                context,
+                ArchiveException(ArchiveFailureCode.PASSWORD_REQUIRED, "Password required"),
+                open,
+            ) { "en" },
+        )
+    }
+
+    /** The failure code that the plugin's own scanner reports for [archive], for the expected sentence. */
+    private object ArchiveScannerFailure {
+        fun of(archive: File): ArchiveFailureCode = try {
+            ArchiveScanner().scan(archive)
+            error("${archive.name} unexpectedly opened")
+        } catch (failure: ArchiveException) {
+            failure.code
+        }
+    }
+
+    private fun localized(context: Context, hostLanguage: String, res: Int?): String? {
+        res ?: return null
+        val languageTag = AppSettingsPolicy.languageForResolvedTag(hostLanguage)?.languageTag ?: return null
+        val locale = java.util.Locale.forLanguageTag(languageTag)
+        val configuration = android.content.res.Configuration(context.resources.configuration).apply {
+            setLocale(locale)
+            setLocales(android.os.LocaleList(locale))
+        }
+        return context.createConfigurationContext(configuration).getString(res)
     }
 
     private fun createStoredZip(target: File, payload: ByteArray) {

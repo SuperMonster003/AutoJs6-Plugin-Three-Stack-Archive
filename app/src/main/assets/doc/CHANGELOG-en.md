@@ -4,6 +4,12 @@
 
 ******
 
+# v3.1.5
+
+###### 2026/11/22
+
+* `Improved` In the AutoJs6 file manager, when this plugin fails to open, extract or edit an archive, the message now explains the cause in the AutoJs6 interface language, such as a damaged archive, an unsupported compression method, not enough storage space, or a file or folder with the same name (requires AutoJs6 6.8.1 or later; for causes the plugin cannot tell, AutoJs6 still shows its own message)
+
 # v3.1.4
 
 ###### 2026/11/20

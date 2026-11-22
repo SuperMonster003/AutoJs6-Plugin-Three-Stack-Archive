@@ -5,6 +5,12 @@
   "changelog_label_improvement": "개선",
   "changelog_label_dependency": "의존성",
   "$data": {
+    "v3.1.5": {
+      "released_date": "2026/11/22",
+      "improvement": [
+        "AutoJs6 파일 관리자에서 이 플러그인이 압축 파일 열기, 풀기, 편집에 실패하면 AutoJs6 화면 언어로 구체적인 원인 (압축 파일 손상, 지원되지 않는 압축 방식, 저장 공간 부족, 같은 이름의 파일 또는 폴더가 있음 등) 을 안내 (AutoJs6 6.8.1 이상 필요; 원인을 알 수 없으면 이전처럼 AutoJs6 메시지를 표시)"
+      ]
+    },
     "v3.1.4": {
       "released_date": "2026/11/20",
       "improvement": [

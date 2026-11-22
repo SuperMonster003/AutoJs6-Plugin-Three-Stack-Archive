@@ -134,6 +134,20 @@ internal object AutoJs6HostSettingsClient {
         }
     }
 
+    /**
+     * Reads AutoJs6's interface language now, for text that the host shows on the plugin's behalf.
+     * Returns `null` on the main thread, when the host or its contract is unavailable, or when the
+     * host sends no language. Does not touch the appearance cache or its listeners.
+     */
+    @androidx.annotation.WorkerThread
+    fun resolvedLanguageTagBlocking(context: Context): String? = runCatching {
+        queryBlocking(context.applicationContext ?: context)
+            .snapshot
+            ?.resolvedLanguageTag
+            ?.trim()
+            ?.takeIf(String::isNotEmpty)
+    }.getOrNull()
+
     @androidx.annotation.WorkerThread
     private fun queryBlocking(context: Context): AutoJs6HostSettingsResult {
         check(android.os.Looper.myLooper() != android.os.Looper.getMainLooper()) { "Host appearance IPC must not run on the UI thread" }

@@ -131,6 +131,12 @@ Native browsing, extraction, creation, archive mutation, previous-version restor
 
 ### Release notes
 
+#### v3.1.5
+
+_2026/11/22_
+
+- `Improved` In the AutoJs6 file manager, when this plugin fails to open, extract or edit an archive, the message now explains the cause in the AutoJs6 interface language, such as a damaged archive, an unsupported compression method, not enough storage space, or a file or folder with the same name (requires AutoJs6 6.8.1 or later; for causes the plugin cannot tell, AutoJs6 still shows its own message)
+
 #### v3.1.4
 
 _2026/11/20_
@@ -145,12 +151,6 @@ _2026/11/20_
 _2026/11/16_
 
 - `Fixed` Appearance settings reported AutoJs6 as unavailable even when installed and enabled, preventing its language, night mode and theme color from being followed
-
-#### v3.1.2
-
-_2026/11/07_
-
-- `Fixed` In the AutoJs6 file manager, the options "Open as archive..." and "Compress..." of this plugin no longer appear in English in other interface languages
 
 ##### Full history
 

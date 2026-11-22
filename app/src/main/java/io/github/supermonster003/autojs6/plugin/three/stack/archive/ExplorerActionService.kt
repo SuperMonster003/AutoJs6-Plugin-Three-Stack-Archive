@@ -55,9 +55,15 @@ class ExplorerActionService : Service() {
                         .trim()
                         .take(ExplorerActionProtocol.MAX_ARCHIVE_OPERATION_MESSAGE_LENGTH),
                 )
+                userMessage(failure.cause, ExplorerArchiveUserMessages.Operation.OPEN)?.let { text ->
+                    putString(ExplorerArchiveUserMessages.KEY, text)
+                }
             }
         }
     }
+
+    private fun userMessage(error: Throwable, operation: ExplorerArchiveUserMessages.Operation): String? =
+        ExplorerArchiveUserMessages.message(this, error, operation)
 
     private fun openArchiveSession(
         source: ParcelFileDescriptor,
@@ -162,6 +168,7 @@ class ExplorerActionService : Service() {
                 cacheDirectory = cacheDir,
                 snapshot = snapshot,
                 isolatedPathDisplayName = getString(R.string.text_unsafe_paths_folder),
+                userMessage = ::userMessage,
                 onClosed = sessions::remove,
             ).also {
                 volumeClient = null

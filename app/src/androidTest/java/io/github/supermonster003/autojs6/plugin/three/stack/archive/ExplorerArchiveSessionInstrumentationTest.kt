@@ -510,6 +510,9 @@ class ExplorerArchiveSessionInstrumentationTest {
             ),
             cacheDirectory = context.cacheDir,
             snapshot = ArchiveScanner().scan(stagedArchiveFile),
+            userMessage = { error, operation ->
+                ExplorerArchiveUserMessages.message(context, error, operation) { "en" }
+            },
             onClosed = {},
         )
 
@@ -642,7 +645,50 @@ class ExplorerArchiveSessionInstrumentationTest {
             )
             assertTrue(duplicateCreate.failure != null)
             assertNull(duplicateCreate.completed)
+            assertEquals(
+                ExplorerArchiveSessionValues.MUTATION_ERROR_INVALID_REQUEST,
+                requireNotNull(duplicateCreate.failure).getInt(ExplorerArchiveMutationKeys.ERROR_CODE),
+            )
+            assertEquals(
+                "A file or folder with this name already exists.",
+                requireNotNull(duplicateCreate.failure).getString(ExplorerArchiveUserMessages.KEY),
+            )
             assertEquals(0, duplicateCreateHost.commitCalls)
+            assertEquals(
+                setOf("keep.txt", "renamed", "renamed/empty", "renamed/nested.txt"),
+                ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
+            )
+
+            // Renaming onto the name of a sibling is rejected as a request, with the sentence for the user (Q295).
+            // zh-CN: 改名为同级条目的名称按请求被拒处理, 并带给用户看的句子 (Q295).
+            val emptyId = requireNotNull(
+                session.children(folderId)
+                    .single { item -> item.getString(ExplorerArchiveSessionKeys.NAME) == "empty" }
+                    .getString(ExplorerArchiveSessionKeys.ID),
+            )
+            val duplicateRenameHost = ReplacementHostSession(hostArchive, hostDirectory)
+            val duplicateRename = session.runMutation(
+                host = duplicateRenameHost,
+                request = Bundle().apply {
+                    putString(ExplorerArchiveMutationKeys.OPERATION_ID, UUID.randomUUID().toString())
+                    putInt(
+                        ExplorerArchiveMutationKeys.OPERATION,
+                        ExplorerArchiveSessionValues.MUTATION_RENAME,
+                    )
+                    putString(ExplorerArchiveMutationKeys.ENTRY_ID, emptyId)
+                    putString(ExplorerArchiveMutationKeys.NEW_NAME, "nested.txt")
+                },
+            )
+            assertNull(duplicateRename.completed)
+            assertEquals(
+                ExplorerArchiveSessionValues.MUTATION_ERROR_INVALID_REQUEST,
+                requireNotNull(duplicateRename.failure).getInt(ExplorerArchiveMutationKeys.ERROR_CODE),
+            )
+            assertEquals(
+                "A file or folder with this name already exists.",
+                requireNotNull(duplicateRename.failure).getString(ExplorerArchiveUserMessages.KEY),
+            )
+            assertEquals(0, duplicateRenameHost.commitCalls)
             assertEquals(
                 setOf("keep.txt", "renamed", "renamed/empty", "renamed/nested.txt"),
                 ArchiveScanner().scan(hostArchive).entries.mapTo(linkedSetOf()) { it.path },
@@ -707,6 +753,9 @@ class ExplorerArchiveSessionInstrumentationTest {
             ),
             cacheDirectory = context.cacheDir,
             snapshot = ArchiveScanner().scan(stagedArchiveFile),
+            userMessage = { error, operation ->
+                ExplorerArchiveUserMessages.message(context, error, operation) { "en" }
+            },
             onClosed = {},
         )
 
@@ -736,6 +785,10 @@ class ExplorerArchiveSessionInstrumentationTest {
             assertEquals(
                 ExplorerArchiveSessionValues.MUTATION_ERROR_SOURCE_CHANGED,
                 requireNotNull(changed.failure).getInt(ExplorerArchiveMutationKeys.ERROR_CODE),
+            )
+            assertEquals(
+                "The archive or the added files have changed. Reopen the archive.",
+                requireNotNull(changed.failure).getString(ExplorerArchiveUserMessages.KEY),
             )
             assertEquals(1, changedInput.verifyCalls)
             assertEquals(1, changedInput.openCount("changed-file"))
@@ -910,6 +963,9 @@ class ExplorerArchiveSessionInstrumentationTest {
             ),
             cacheDirectory = context.cacheDir,
             snapshot = ArchiveScanner().scan(stagedArchiveFile),
+            userMessage = { error, operation ->
+                ExplorerArchiveUserMessages.message(context, error, operation) { "en" }
+            },
             onClosed = {},
         )
 
